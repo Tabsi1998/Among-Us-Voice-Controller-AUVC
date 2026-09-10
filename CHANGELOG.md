@@ -21,6 +21,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   Swagger dependencies deliberately stay at baseline versions until the phases
   that delete them. Rationale in [docs/go-modernization.md](docs/go-modernization.md).
 
+### Removed
+
+- Phase 4, first step: the public HTTP API and its generated Swagger package,
+  the Prometheus metrics endpoint, the Kubernetes liveness/readiness probes,
+  the request telemetry at twelve call sites, and the secondary worker bot token
+  pool including its per-tier allowance and guild-membership enforcement.
+  Behaviour is preserved for a self-hosted bot; mutes now go to the capture bot
+  and otherwise to the primary session. Inventory and rationale in
+  [docs/service-removal.md](docs/service-removal.md).
+- Dependencies dropped as a result: gin, gorilla/mux, prometheus/client_golang,
+  the swaggo family and golang.org/x/exp, plus about 29 indirect modules.
+
 ### Fixed
 
 - Full capture solution build: the old offset helper now exports its historical

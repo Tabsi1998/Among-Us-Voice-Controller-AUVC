@@ -7,7 +7,8 @@ below are a sequence proposal; issue numbers are independent. Do not start the
 next phase until the current one is cleanly complete unless the owner explicitly
 directs otherwise. Existing failing checks block merge, including baseline failures.
 
-Phases 1 and 2 are merged. Phase 3 moves the bot to a supported Go toolchain and
+Phases 1 to 3 are merged. Phase 4 removes the public service infrastructure in
+staged steps, recorded in [service-removal.md](service-removal.md). Phase 3 moved the bot to a supported Go toolchain and
 the current DiscordGo API; its decisions and breaking changes are recorded in
 [go-modernization.md](go-modernization.md). The owner performs each merge after
 reviewing its checks. No AUVC runtime feature is complete yet. See
