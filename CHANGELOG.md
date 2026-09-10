@@ -9,6 +9,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - Phase-2 Windows test project with 11 offset/CLI regression cases, locked NuGet
   restores, root Go/Windows/Docker/provenance/secret CI and Dependabot.
 
+### Added
+
+- Phase 5: `bot/pkg/session`, the Discord-free projection of a running session
+  (phase, player links, alive/dead) that the voice policy will consume in phase
+  8. `(*GameState).SessionState()` is the only seam between the Discord/Redis
+  side and that domain.
+- Discord bot accounts are now recorded (`User.IsBot`) and reported as unmanaged,
+  so the voice policy and channel enforcement can never act on a music bot.
+
 ### Changed
 
 - Map images are embedded in the bot binary instead of being fetched from the

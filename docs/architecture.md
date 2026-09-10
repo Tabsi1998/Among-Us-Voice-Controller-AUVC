@@ -36,6 +36,10 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   explicit compatibility errors, ordering and reconnect snapshot contract.
 - **Game State:** authoritative session phase, player identity, alive/dead state and
   persistent Discord links. No direct Discord API calls from game event handlers.
+  `bot/pkg/session` holds this projection as plain values with no discordgo,
+  Redis or storage types in reach; `(*GameState).SessionState()` is the single
+  seam that produces it. Unlinked users and Discord bot accounts are marked as
+  unmanaged there, so nothing downstream can act on them by accident.
 - **Voice Policy:** pure mapping from game state and guild configuration to
   `DesiredVoiceState { TargetChannelID, Muted, Deafened }`.
 - **Discord Reconciler:** compare observed and desired states and apply only

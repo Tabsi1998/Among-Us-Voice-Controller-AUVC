@@ -10,6 +10,11 @@ type User struct {
 	Nick     string `json:"Nick"`
 	UserID   string `json:"UserID"`
 	UserName string `json:"UserName"`
+	// IsBot marks Discord bot accounts, including music bots. The voice policy
+	// and channel enforcement must never manage them. Records written before
+	// this field existed deserialize as false and correct themselves the next
+	// time the member is cached.
+	IsBot bool `json:"IsBot"`
 }
 
 // UserData struct
@@ -26,6 +31,7 @@ func MakeUserDataFromDiscordUser(dUser *discordgo.User, nick string) UserData {
 			Nick:     nick,
 			UserID:   dUser.ID,
 			UserName: dUser.Username,
+			IsBot:    dUser.Bot,
 		},
 		ShouldBeDeaf: false,
 		ShouldBeMute: false,
