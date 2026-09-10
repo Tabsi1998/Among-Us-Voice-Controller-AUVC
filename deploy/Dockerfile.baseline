@@ -10,7 +10,7 @@ RUN CGO_ENABLED=0 go build -buildvcs=false -trimpath \
     -ldflags="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT}" \
     -o /out/auvc .
 
-FROM alpine:3.22
+FROM alpine:3.24
 RUN apk add --no-cache ca-certificates && \
     addgroup -g 10001 auvc && adduser -D -u 10001 -G auvc auvc && \
     mkdir -p /app/logs /data && chown auvc:auvc /app/logs /data
