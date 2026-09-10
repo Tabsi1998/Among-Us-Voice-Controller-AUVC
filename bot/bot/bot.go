@@ -4,9 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/tokenprovider"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/amongus"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/discord"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
@@ -15,11 +22,6 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/token"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
 	"github.com/bwmarrin/discordgo"
-	"log"
-	"os"
-	"strconv"
-	"sync"
-	"time"
 )
 
 type Bot struct {
@@ -46,6 +48,8 @@ type Bot struct {
 
 	PostgresInterface *storageutils.PsqlInterface
 
+	AUVC *au.Service
+
 	logPath string
 
 	captureTimeout int
@@ -53,7 +57,7 @@ type Bot struct {
 
 // MakeAndStartBot does what it sounds like
 // TODO collapse these fields into proper structs?
-func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, psql *storageutils.PsqlInterface, logPath string) *Bot {
+func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, psql *storageutils.PsqlInterface, auvc *au.Service, logPath string) *Bot {
 	dg, err := discordgo.New("Bot " + botToken)
 	if err != nil {
 		log.Println("error creating Discord session,", err)
@@ -73,6 +77,7 @@ func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisI
 		RedisInterface:    redisInterface,
 		StorageInterface:  storageInterface,
 		PostgresInterface: psql,
+		AUVC:              auvc,
 		logPath:           logPath,
 		captureTimeout:    GameTimeoutSeconds,
 	}

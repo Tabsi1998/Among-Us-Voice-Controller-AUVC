@@ -3,12 +3,7 @@ package main
 import (
 	_ "embed"
 	"errors"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/tokenprovider"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/capture"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
-	storage2 "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
-	"github.com/bwmarrin/discordgo"
+	"fmt"
 	"io"
 	"log"
 	"math/rand"
@@ -20,9 +15,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
-
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/tokenprovider"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/capture"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
+	storage2 "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
+	"github.com/bwmarrin/discordgo"
 )
 
 var (
@@ -36,6 +38,7 @@ var postgresFileContents string
 
 const (
 	DefaultURL                   = "http://localhost:8123"
+	DefaultDatabasePath          = "/data/amongus.db"
 	DefaultMaxRequests5Sec int64 = 7
 )
 
@@ -134,6 +137,17 @@ func discordMainWrapper() error {
 		return err
 	}
 
+	databasePath := os.Getenv("AUVC_DATABASE_PATH")
+	if databasePath == "" {
+		databasePath = DefaultDatabasePath
+	}
+	auvcDB, err := sqlite.Open(databasePath)
+	if err != nil {
+		return fmt.Errorf("open AUVC database: %w", err)
+	}
+	defer auvcDB.Close()
+	auvcService := au.NewService(auvcDB, version, commit)
+
 	go func() {
 		err := psql.ExecFromString(postgresFileContents)
 		if err != nil {
@@ -163,9 +177,9 @@ func discordMainWrapper() error {
 	}
 
 	tokenProvider := tokenprovider.NewTokenProvider(nil, nil, taskTimeoutms, maxReq)
-	b := bot.MakeAndStartBot(version, commit, discordToken, url, emojiGuildID, &redisClient, &storageInterface, &psql, logPath)
+	b := bot.MakeAndStartBot(version, commit, discordToken, url, emojiGuildID, &redisClient, &storageInterface, &psql, auvcService, logPath)
 	if b == nil {
-		log.Fatal("bot failed to initialize; did you provide a valid Discord Bot Token?")
+		return errors.New("bot failed to initialize; did you provide a valid Discord Bot Token?")
 	}
 
 	b.InitTokenProvider(tokenProvider)
