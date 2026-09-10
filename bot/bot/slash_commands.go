@@ -911,7 +911,7 @@ func (bot *Bot) linkOrUnlinkAndRespond(dgs *GameState, userID, testValue string,
 // since RESET/Cancel buttons remain forever once the button has been clicked.
 func (bot *Bot) deleteComponentInParentMessage(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	me := discordgo.NewMessageEdit(i.ChannelID, i.Message.ID)
-	me.Components = []discordgo.MessageComponent{}
+	me.Components = &[]discordgo.MessageComponent{}
 	_, err := s.ChannelMessageEditComplex(me)
 	if err != nil {
 		log.Println("Error when attempting to edit complex message", err)
@@ -929,7 +929,7 @@ func confirmationComponents(confirmedID string, canceledID string, sett *setting
 						ID:    "commands.stats.reset.button.proceed",
 						Other: "Confirm",
 					}),
-					Emoji: discordgo.ComponentEmoji{Name: ThumbsUp},
+					Emoji: &discordgo.ComponentEmoji{Name: ThumbsUp},
 				},
 				discordgo.Button{
 					CustomID: canceledID,
@@ -938,7 +938,7 @@ func confirmationComponents(confirmedID string, canceledID string, sett *setting
 						ID:    "commands.stats.reset.button.cancel",
 						Other: "Cancel",
 					}),
-					Emoji: discordgo.ComponentEmoji{Name: X},
+					Emoji: &discordgo.ComponentEmoji{Name: X},
 				},
 			},
 		},

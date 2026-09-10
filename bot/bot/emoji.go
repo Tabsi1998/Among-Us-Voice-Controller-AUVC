@@ -116,7 +116,7 @@ func EmojisToSelectMenuOptions(emojis []Emoji, unlinkEmoji string) (arr []discor
 	arr = append(arr, discordgo.SelectMenuOption{
 		Label:   "unlink",
 		Value:   UnlinkEmojiName,
-		Emoji:   discordgo.ComponentEmoji{Name: unlinkEmoji},
+		Emoji:   &discordgo.ComponentEmoji{Name: unlinkEmoji},
 		Default: false,
 	})
 	return arr
@@ -126,7 +126,7 @@ func (e Emoji) toSelectMenuOption(displayName string) discordgo.SelectMenuOption
 	return discordgo.SelectMenuOption{
 		Label:   displayName,
 		Value:   displayName, // use the Name for listen events later
-		Emoji:   discordgo.ComponentEmoji{ID: e.ID},
+		Emoji:   &discordgo.ComponentEmoji{ID: e.ID},
 		Default: false,
 	}
 }
