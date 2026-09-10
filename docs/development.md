@@ -79,6 +79,31 @@ re-enable them:
 
 Remove the corresponding `ignore` entries in those phases, together with the code.
 
+### Go vulnerability scanning
+
+`scripts/check_go_vulnerabilities.py` runs `govulncheck` in CI and fails when the
+bot calls into an advisory that has not been assessed. Run it locally with:
+
+```sh
+go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+python scripts/check_go_vulnerabilities.py
+```
+
+Two advisories are currently accepted, both recorded in the script with the
+reason and the phase that removes them: `GO-2026-5004` and `GO-2026-4518`, in
+`pgx/v4` and `pgproto3/v2`. Neither has a fix in the major line the upstream code
+uses, so clearing them means migrating to `pgx/v5` — a breaking change to code
+phase 14 deletes. They are listed so the decision is visible instead of being
+implied by a silent scan.
+
+The list may only shrink. An accepted entry that no longer applies fails the
+check too, which keeps it describing reality.
+
+Note that `jackc` packages are **not** blanket-ignored in Dependabot despite
+being scheduled for removal: the advisories above are reachable, so security
+fixes inside the current major line have to keep arriving. Only majors are held
+back.
+
 ### NuGet updates and the lock files
 
 CI restores with `dotnet restore --locked-mode`, so `packages.lock.json` must

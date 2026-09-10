@@ -49,6 +49,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - Discord bot accounts are now recorded (`User.IsBot`) and reported as unmanaged,
   so the voice policy and channel enforcement can never act on a music bot.
 
+### Security
+
+- Updated `jackc/pgx` to v4.18.2, `jackc/pgproto3` to v2.3.3 and
+  `gorilla/websocket` to v1.5.3, clearing three advisories the bot calls into,
+  two of them SQL injection. `scripts/check_go_vulnerabilities.py` now runs in
+  CI and fails on any advisory that has not been assessed; the two remaining
+  ones have no fix in their major line and are recorded with the phase that
+  removes them.
+
 ### Changed
 
 - Dependabot now groups minor and patch updates per ecosystem and ignores the
