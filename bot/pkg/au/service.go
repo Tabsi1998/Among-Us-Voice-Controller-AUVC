@@ -1,0 +1,292 @@
+package au
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
+	"sync"
+
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+)
+
+var (
+	ErrUnauthorized = errors.New("not authorized")
+	ErrInvalidInput = errors.New("invalid input")
+	ErrUnknownPath  = errors.New("unknown /au command")
+)
+
+// Store is the persistent state the currently implemented /au commands need.
+// Later capture and session services extend the handler through separate
+// interfaces instead of teaching Discord handlers about their internals.
+type Store interface {
+	EnsureGuildConfig(guildID string) (sqlite.GuildConfig, error)
+	SaveGuildConfig(config sqlite.GuildConfig) error
+	ReplaceLink(guildID, inGameName, discordUserID string) error
+	DeleteLinksForUser(guildID, discordUserID string) error
+	SchemaVersion() (int, error)
+}
+
+// Service executes /au commands without depending on a Discord connection.
+type Service struct {
+	store   Store
+	version string
+	commit  string
+	mu      sync.Mutex
+}
+
+func NewService(store Store, version, commit string) *Service {
+	return &Service{store: store, version: version, commit: commit}
+}
+
+// Handle serializes configuration changes so two simultaneous Discord
+// interactions cannot overwrite each other's read-modify-write update.
+func (s *Service) Handle(request Request) (string, error) {
+	if s == nil || s.store == nil {
+		return "", errors.New("AUVC configuration store is unavailable")
+	}
+	if request.GuildID == "" || request.Invoker.UserID == "" {
+		return "", fmt.Errorf("%w: guild and invoking user are required", ErrInvalidInput)
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	config, err := s.store.EnsureGuildConfig(request.GuildID)
+	if err != nil {
+		return "", fmt.Errorf("load guild configuration: %w", err)
+	}
+
+	targetUserID, _ := request.Values.String(OptionUser)
+	scope := ScopeFor(request.Group, request.Command)
+	if (request.Command == Link || request.Command == Unlink) &&
+		TargetsAnotherUser(request.Invoker.UserID, targetUserID) {
+		scope = ScopeAdmin
+	}
+	if !Authorized(request.Invoker, config.AdminRoleID, scope) {
+		return "", ErrUnauthorized
+	}
+
+	switch request.Group {
+	case GroupSetup:
+		return s.handleSetup(request, config)
+	case GroupSettings:
+		return s.handleSettings(request, config)
+	case GroupCapture:
+		return captureStatus(request.Command), nil
+	case GroupSession:
+		return sessionStatus(request.Command), nil
+	case "":
+		return s.handleDirect(request, config)
+	default:
+		return "", fmt.Errorf("%w: group %q", ErrUnknownPath, request.Group)
+	}
+}
+
+func (s *Service) handleSetup(request Request, config sqlite.GuildConfig) (string, error) {
+	switch request.Command {
+	case SetupChannels:
+		mainChannel, mainOK := request.Values.String(OptionMainChannel)
+		ghostChannel, ghostOK := request.Values.String(OptionGhostChannel)
+		if !mainOK || !ghostOK || mainChannel == "" || ghostChannel == "" {
+			return "", fmt.Errorf("%w: main and ghost channels are required", ErrInvalidInput)
+		}
+		config.MainVoiceChannelID = mainChannel
+		config.GhostVoiceChannelID = ghostChannel
+		config.ControlTextChannelID, _ = request.Values.String(OptionControlChannel)
+		if err := s.save(config); err != nil {
+			return "", err
+		}
+		return "✅ AUVC channels saved.\n" + formatChannels(config), nil
+
+	case SetupPermissions:
+		roleID, ok := request.Values.String(OptionAdminRole)
+		if !ok || roleID == "" {
+			return "", fmt.Errorf("%w: an admin role is required", ErrInvalidInput)
+		}
+		config.AdminRoleID = roleID
+		if err := s.save(config); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("✅ AUVC administrators set to <@&%s>.", roleID), nil
+
+	case SetupReset:
+		confirmed, ok := request.Values.Bool(OptionConfirm)
+		if !ok || !confirmed {
+			return "", fmt.Errorf("%w: reset requires confirm=true", ErrInvalidInput)
+		}
+		if err := s.save(sqlite.DefaultGuildConfig(request.GuildID)); err != nil {
+			return "", err
+		}
+		return "✅ Guild configuration reset to AUVC defaults. Persistent player links were kept.", nil
+
+	default:
+		return "", fmt.Errorf("%w: setup %q", ErrUnknownPath, request.Command)
+	}
+}
+
+func (s *Service) handleSettings(request Request, config sqlite.GuildConfig) (string, error) {
+	switch request.Command {
+	case SettingsShow:
+		return formatSettings(config), nil
+
+	case SettingsExport:
+		data, err := json.MarshalIndent(config, "", "  ")
+		if err != nil {
+			return "", fmt.Errorf("export configuration: %w", err)
+		}
+		return "```json\n" + string(data) + "\n```", nil
+
+	case SettingsPreset:
+		policy, ok := request.Values.String(OptionPolicy)
+		if !ok || policy == "" {
+			return "", fmt.Errorf("%w: a voice policy is required", ErrInvalidInput)
+		}
+		config.VoicePolicy = policy
+		if policy == "ghost-chat" {
+			config.AutoMoveGhosts = true
+			config.EnforceChannels = true
+		}
+
+	case SettingsVoice:
+		if enabled, ok := request.Values.Bool(OptionEnabled); ok {
+			config.Enabled = enabled
+		}
+		if policy, ok := request.Values.String(OptionPolicy); ok {
+			config.VoicePolicy = policy
+		}
+
+	case SettingsGhosts:
+		if autoMove, ok := request.Values.Bool(OptionAutoMoveGhosts); ok {
+			config.AutoMoveGhosts = autoMove
+		}
+		if enforce, ok := request.Values.Bool(OptionEnforce); ok {
+			config.EnforceChannels = enforce
+		}
+
+	case SettingsSafety:
+		if timeout, ok := request.Values.Integer(OptionTimeout); ok {
+			config.CaptureTimeoutSeconds = int(timeout)
+		}
+		if action, ok := request.Values.String(OptionTimeoutAction); ok {
+			config.CaptureTimeoutAction = action
+		}
+		if autoStart, ok := request.Values.Bool(OptionAutoStart); ok {
+			config.AutoStart = autoStart
+		}
+
+	default:
+		return "", fmt.Errorf("%w: settings %q", ErrUnknownPath, request.Command)
+	}
+
+	if err := s.save(config); err != nil {
+		return "", err
+	}
+	return "✅ AUVC settings saved.\n" + formatSettings(config), nil
+}
+
+func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (string, error) {
+	switch request.Command {
+	case Link:
+		player, ok := request.Values.String(OptionPlayer)
+		player = strings.TrimSpace(player)
+		if !ok || player == "" {
+			return "", fmt.Errorf("%w: player name is required", ErrInvalidInput)
+		}
+		userID, ok := request.Values.String(OptionUser)
+		if !ok || userID == "" {
+			userID = request.Invoker.UserID
+		}
+		if err := s.store.ReplaceLink(request.GuildID, player, userID); err != nil {
+			return "", fmt.Errorf("save player link: %w", err)
+		}
+		return fmt.Sprintf("✅ Linked <@%s> to Among Us player `%s`.", userID, player), nil
+
+	case Unlink:
+		userID, ok := request.Values.String(OptionUser)
+		if !ok || userID == "" {
+			userID = request.Invoker.UserID
+		}
+		if err := s.store.DeleteLinksForUser(request.GuildID, userID); err != nil {
+			return "", fmt.Errorf("remove player link: %w", err)
+		}
+		return fmt.Sprintf("✅ Removed persistent Among Us links for <@%s>.", userID), nil
+
+	case Doctor:
+		version, err := s.store.SchemaVersion()
+		if err != nil {
+			return "", fmt.Errorf("read database schema: %w", err)
+		}
+		lines := []string{fmt.Sprintf("✅ SQLite reachable; schema migration %d applied.", version)}
+		for _, problem := range Validate(config) {
+			lines = append(lines, "❌ "+problem.Error())
+		}
+		for _, problem := range NotReady(config) {
+			lines = append(lines, "⚠️ "+problem.Error())
+		}
+		if Valid(config) && Ready(config) {
+			lines = append(lines, "✅ Guild configuration is valid and has both voice channels.")
+		}
+		lines = append(lines, "⚠️ Discord permission, capture heartbeat and protocol checks arrive in the diagnostics phase.")
+		return strings.Join(lines, "\n"), nil
+
+	case Version:
+		return fmt.Sprintf("AUVC %s (`%s`)", fallback(s.version, "development"), fallback(s.commit, "unknown")), nil
+
+	default:
+		return "", fmt.Errorf("%w: %q", ErrUnknownPath, request.Command)
+	}
+}
+
+func (s *Service) save(config sqlite.GuildConfig) error {
+	if problems := Validate(config); len(problems) > 0 {
+		return fmt.Errorf("%w: %s", ErrInvalidInput, joinProblems(problems))
+	}
+	if err := s.store.SaveGuildConfig(config); err != nil {
+		return fmt.Errorf("save guild configuration: %w", err)
+	}
+	return nil
+}
+
+func formatChannels(config sqlite.GuildConfig) string {
+	control := "not configured"
+	if config.ControlTextChannelID != "" {
+		control = "<#" + config.ControlTextChannelID + ">"
+	}
+	return fmt.Sprintf("Main: <#%s>\nGhost: <#%s>\nControl: %s",
+		config.MainVoiceChannelID, config.GhostVoiceChannelID, control)
+}
+
+func formatSettings(config sqlite.GuildConfig) string {
+	adminRole := "not configured"
+	if config.AdminRoleID != "" {
+		adminRole = "<@&" + config.AdminRoleID + ">"
+	}
+	return fmt.Sprintf("**AUVC settings**\nEnabled: %t\n%s\nAdmin role: %s\nVoice policy: `%s`\nAuto-move ghosts: %t\nEnforce channels: %t\nCapture timeout: %ds (`%s`)\nAuto-start: %t\nConfig version: %d",
+		config.Enabled, formatChannels(config), adminRole, config.VoicePolicy,
+		config.AutoMoveGhosts, config.EnforceChannels, config.CaptureTimeoutSeconds,
+		config.CaptureTimeoutAction, config.AutoStart, config.ConfigVersion)
+}
+
+func joinProblems(problems []Problem) string {
+	parts := make([]string, len(problems))
+	for index, problem := range problems {
+		parts[index] = problem.Error()
+	}
+	return strings.Join(parts, "; ")
+}
+
+func captureStatus(command string) string {
+	return fmt.Sprintf("⚠️ `/au capture %s` is registered, but direct AUVC pairing and WSS are implemented in the protocol and transport phases.", command)
+}
+
+func sessionStatus(command string) string {
+	return fmt.Sprintf("⚠️ `/au session %s` is registered, but session control is enabled after the voice policy service is connected.", command)
+}
+
+func fallback(value, replacement string) string {
+	if value == "" {
+		return replacement
+	}
+	return value
+}

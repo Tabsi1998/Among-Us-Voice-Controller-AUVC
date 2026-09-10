@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -27,6 +28,26 @@ func TestOpenAppliesMigrations(t *testing.T) {
 	}
 	if version != 1 {
 		t.Errorf("schema version = %d, want 1", version)
+	}
+}
+
+func TestOpenCreatesParentDirectory(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "nested", "data", "amongus.db")
+
+	db, err := Open(path)
+	if err != nil {
+		t.Fatalf("open nested database: %v", err)
+	}
+	db.Close()
+
+	if _, err := os.Stat(path); err != nil {
+		t.Fatalf("database file was not created: %v", err)
+	}
+}
+
+func TestOpenRejectsAnEmptyPath(t *testing.T) {
+	if _, err := Open("   "); err == nil {
+		t.Fatal("expected an empty database path to fail")
 	}
 }
 
