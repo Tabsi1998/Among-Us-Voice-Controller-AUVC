@@ -6,6 +6,9 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 8: `voice.Diff` and `voice.Reconciler` apply only the differences
+  between the observed and desired voice states, idempotently and serialized per
+  guild. Not wired into the bot yet.
 - Phase 8: `bot/pkg/voice` maps a session and its guild configuration to the
   `DesiredVoiceState` of every managed player, following the ghost-chat table in
   `docs/requirements.md`. Pure and fully tested; not wired into the bot yet, the

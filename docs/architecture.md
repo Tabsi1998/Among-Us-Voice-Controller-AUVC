@@ -50,6 +50,12 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
 - **Discord Reconciler:** compare observed and desired states and apply only
   differences. Serialize guild/session work, reject stale work and respect rate
   limits. Handle asynchronous voice events without move loops or duplicate actions.
+  `voice.Diff` produces the minimal edit per player and returns nothing once the
+  observation already matches, which is what stops a move loop: the voice state
+  update caused by our own move cannot trigger another one. `voice.Reconciler`
+  serializes work per guild so two asynchronous observations of the same guild
+  cannot race. An unset channel target is never sent, because Discord reads an
+  empty channel id as a disconnect.
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.
 - **Commands/doctor:** typed Discord options, authorization and human-readable
