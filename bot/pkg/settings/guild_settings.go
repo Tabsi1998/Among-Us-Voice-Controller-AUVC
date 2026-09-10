@@ -1,8 +1,8 @@
 package settings
 
 import (
-	"github.com/automuteus/automuteus/v8/pkg/game"
-	"github.com/automuteus/automuteus/v8/pkg/locale"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
 	"github.com/bwmarrin/discordgo"
 	"sync"
 )

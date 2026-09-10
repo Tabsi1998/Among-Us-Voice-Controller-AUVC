@@ -21,6 +21,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   Swagger dependencies deliberately stay at baseline versions until the phases
   that delete them. Rationale in [docs/go-modernization.md](docs/go-modernization.md).
 
+### Changed
+
+- The bot Go module is now
+  `github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot` instead of
+  `github.com/automuteus/automuteus/v8`, so no import path in AUVC source points
+  at a repository AUVC does not own. The `/v8` suffix is dropped because the
+  release sequence restarts at `v0.1.0-alpha.1`. Provenance and license
+  documents keep their upstream references unchanged.
+
 ### Removed
 
 - Phase 4, first step: the public HTTP API and its generated Swagger package,

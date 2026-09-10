@@ -3,7 +3,8 @@
 ## Baseline versus target
 
 Phase 1 imports the existing applications without restructuring them.
-The bot is the Go 1.27 module `github.com/automuteus/automuteus/v8` and still
+The bot is the Go 1.27 module
+`github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot` and still
 retains its public-service, Redis, PostgreSQL and premium integrations.
 Capture still uses .NET 5 and its upstream transports and memory detection.
 This document describes the intended AUVC architecture, not working AUVC features.

@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/automuteus/automuteus/v8/pkg/rediskey"
-	"github.com/automuteus/automuteus/v8/pkg/settings"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
 	"github.com/go-redis/redis/v8"
 	"log"
 )

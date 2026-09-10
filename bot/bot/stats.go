@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/automuteus/automuteus/v8/pkg/settings"
-	"github.com/automuteus/automuteus/v8/pkg/storage"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"log"
 	"strconv"
 	"strings"
 
-	"github.com/automuteus/automuteus/v8/pkg/game"
-	"github.com/automuteus/automuteus/v8/pkg/rediskey"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
 	"github.com/bwmarrin/discordgo"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )

@@ -3,8 +3,8 @@ package tokenprovider
 import (
 	"context"
 	"encoding/json"
-	"github.com/automuteus/automuteus/v8/pkg/rediskey"
-	"github.com/automuteus/automuteus/v8/pkg/task"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/task"
 	"log"
 )
 
