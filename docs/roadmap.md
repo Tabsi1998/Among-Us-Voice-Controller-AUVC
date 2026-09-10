@@ -7,11 +7,12 @@ below are a sequence proposal; issue numbers are independent. Do not start the
 next phase until the current one is cleanly complete unless the owner explicitly
 directs otherwise. Existing failing checks block merge, including baseline failures.
 
-Phase 1 and the authorized phase-2 build repairs are prepared on separate branches.
-The phase-2 PR includes the bootstrap ancestors for a normal merge into main.
-The owner performs the merge after reviewing its checks. No new AUVC runtime
-feature is complete yet. See [the build baseline](baseline-build.md).
-[Requirements](requirements.md) define the acceptance contract.
+Phases 1 and 2 are merged. Phase 3 moves the bot to a supported Go toolchain and
+the current DiscordGo API; its decisions and breaking changes are recorded in
+[go-modernization.md](go-modernization.md). The owner performs each merge after
+reviewing its checks. No AUVC runtime feature is complete yet. See
+[the build baseline](baseline-build.md). [Requirements](requirements.md) define
+the acceptance contract.
 
 | Phase | Scope | Proposed branch | Tracking issue |
 | --- | --- | --- | --- |

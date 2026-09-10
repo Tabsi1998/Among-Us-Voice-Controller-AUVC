@@ -36,7 +36,7 @@ python scripts/verify_repository.py
 gitleaks git . --redact --config .gitleaks.toml --log-opts=HEAD
 ```
 
-From `bot/`, using Go 1.19.13:
+From `bot/`, using Go 1.27.1:
 
 ```sh
 gofmt -l .
@@ -46,8 +46,9 @@ go build ./...
 ```
 
 An empty gofmt listing is success. Linux CI additionally uses `go test -race ./...`.
-The SDK and dependencies deliberately remain baseline versions until the
-corresponding modernization phase.
+The Go toolchain and the dependencies AUVC keeps were modernized in phase 3; see
+[go-modernization.md](go-modernization.md). The capture .NET SDK and its NuGet
+dependencies deliberately remain baseline versions until phase 11.
 
 From `capture/`, using SDK 8.0.424 (honored by global.json):
 
