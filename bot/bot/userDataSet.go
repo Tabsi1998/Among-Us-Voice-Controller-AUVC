@@ -2,7 +2,7 @@ package bot
 
 import (
 	"fmt"
-	"github.com/automuteus/automuteus/v8/pkg/amongus"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/amongus"
 	"strings"
 )
 

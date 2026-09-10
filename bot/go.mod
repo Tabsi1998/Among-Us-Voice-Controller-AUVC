@@ -1,4 +1,4 @@
-module github.com/automuteus/automuteus/v8
+module github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot
 
 go 1.27.0
 

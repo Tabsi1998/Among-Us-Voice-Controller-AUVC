@@ -3,11 +3,11 @@ package main
 import (
 	_ "embed"
 	"errors"
-	"github.com/automuteus/automuteus/v8/bot/command"
-	"github.com/automuteus/automuteus/v8/bot/tokenprovider"
-	"github.com/automuteus/automuteus/v8/pkg/capture"
-	"github.com/automuteus/automuteus/v8/pkg/locale"
-	storage2 "github.com/automuteus/automuteus/v8/pkg/storage"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/tokenprovider"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/capture"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
+	storage2 "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"log"
@@ -20,9 +20,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/automuteus/automuteus/v8/storage"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
 
-	"github.com/automuteus/automuteus/v8/bot"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
 )
 
 var (

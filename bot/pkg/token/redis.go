@@ -2,7 +2,7 @@ package token
 
 import (
 	"context"
-	"github.com/automuteus/automuteus/v8/pkg/rediskey"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"time"

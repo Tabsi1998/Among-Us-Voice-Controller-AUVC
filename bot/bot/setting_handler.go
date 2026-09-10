@@ -3,8 +3,8 @@ package bot
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/automuteus/automuteus/v8/bot/setting"
-	"github.com/automuteus/automuteus/v8/pkg/settings"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/setting"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
 	"log"
 )
 

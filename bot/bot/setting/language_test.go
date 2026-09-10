@@ -1,7 +1,7 @@
 package setting
 
 import (
-	"github.com/automuteus/automuteus/v8/pkg/locale"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
 	"testing"
 )
 

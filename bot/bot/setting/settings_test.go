@@ -2,7 +2,7 @@ package setting
 
 import (
 	"errors"
-	"github.com/automuteus/automuteus/v8/pkg/settings"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
 	"github.com/bwmarrin/discordgo"
 )
 

@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/automuteus/automuteus/v8/pkg/game"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/bwmarrin/discordgo"
 	"os"
 )

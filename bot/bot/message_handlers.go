@@ -1,12 +1,12 @@
 package bot
 
 import (
-	"github.com/automuteus/automuteus/v8/pkg/settings"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
 	"log"
 	"strconv"
 	"time"
 
-	"github.com/automuteus/automuteus/v8/pkg/task"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/task"
 	"github.com/bsm/redislock"
 
 	"github.com/bwmarrin/discordgo"

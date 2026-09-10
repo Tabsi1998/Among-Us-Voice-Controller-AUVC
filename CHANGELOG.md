@@ -21,8 +21,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   Swagger dependencies deliberately stay at baseline versions until the phases
   that delete them. Rationale in [docs/go-modernization.md](docs/go-modernization.md).
 
+### Changed
+
+- The bot Go module is now
+  `github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot` instead of
+  `github.com/automuteus/automuteus/v8`, so no import path in AUVC source points
+  at a repository AUVC does not own. The `/v8` suffix is dropped because the
+  release sequence restarts at `v0.1.0-alpha.1`. Provenance and license
+  documents keep their upstream references unchanged.
+
 ### Removed
 
+- The inert upstream CI configuration nested at `bot/.github/` and
+  `capture/.github/`: four Docker/goreleaser/build workflows, a second
+  Dependabot config, upstream issue templates and a `FUNDING.yml` whose custom
+  sponsor link pointed at `automute.us/premium`. GitHub only reads the
+  repository-root `.github/`, which already provides all of these, so the nested
+  copies were dead weight that named another project as owner and publisher.
 - Phase 4, first step: the public HTTP API and its generated Swagger package,
   the Prometheus metrics endpoint, the Kubernetes liveness/readiness probes,
   the request telemetry at twelve call sites, and the secondary worker bot token
