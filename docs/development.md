@@ -67,9 +67,11 @@ re-enable them:
 - **Redis and PostgreSQL packages** (`go-redis`, `redislock`, `jackc/*`, `scany`,
   `pgxmock`) are reachable only from the layers phase 14 removes. Updating them
   means taking breaking-change risk on code with a scheduled deletion date.
-- **Major bumps of `Discord.Net`, `Config.Net` and `HandyControl`** need code
-  changes that belong to the .NET LTS migration in phase 11. Until then such a
-  bump only produces a red pull request.
+- **Major bumps of `Discord.Net` and `Config.Net`**, and **major or minor bumps
+  of `HandyControl`**, need code changes that belong to the .NET LTS migration in
+  phase 11. Until then such a bump only produces a red pull request. HandyControl
+  is treated more strictly because it broke on a *minor*: 3.0.0 to 3.5.1 changes
+  the `ResourceHelper.GetTheme` signature. Patches still come through.
 
 Remove the corresponding `ignore` entries in those phases, together with the code.
 
