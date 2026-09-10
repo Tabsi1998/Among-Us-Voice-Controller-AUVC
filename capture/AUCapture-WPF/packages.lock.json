@@ -34,9 +34,9 @@
       },
       "HandyControl": {
         "type": "Direct",
-        "requested": "[3.0.0, )",
-        "resolved": "3.0.0",
-        "contentHash": "zvcf9WSdvcD9NbZyNmVqN4HHZczM14DdC3HgQdjaj0WQ9nIR1m5ToDf1qq0fHtQnCwZBm2PJEh+9K5Nox0AEFA=="
+        "requested": "[3.5.1, )",
+        "resolved": "3.5.1",
+        "contentHash": "i2i0xrLev7F1MFnhf0DP1CNCdGw8hVJ0HJrI0kxRv02ZJgaAzLzDTgAXDPY8GAoD3aYnBLSgM74lBHZ844KQnQ=="
       },
       "Humanizer.Core": {
         "type": "Direct",
