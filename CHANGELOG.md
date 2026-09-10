@@ -6,6 +6,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 6: SQLite persistence in `bot/pkg/storage/sqlite` for guild
+  configuration and Discord player links, with versioned embedded migrations,
+  a gapless-version check and a refusal to open a database newer than the
+  binary. Uses the pure-Go `modernc.org/sqlite` driver so the `CGO_ENABLED=0`
+  Docker build keeps working. Not wired into the bot yet; see
+  [docs/persistence.md](docs/persistence.md).
 - Phase-2 Windows test project with 11 offset/CLI regression cases, locked NuGet
   restores, root Go/Windows/Docker/provenance/secret CI and Dependabot.
 
