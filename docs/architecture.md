@@ -56,6 +56,13 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   serializes work per guild so two asynchronous observations of the same guild
   cannot race. An unset channel target is never sent, because Discord reads an
   empty channel id as a disconnect.
+- **Permissions:** `bot/pkg/permission` reports which Discord permissions AUVC
+  lacks and what each one breaks, from effective bitmasks with overwrites already
+  applied. Checking up front turns a mid-round API failure per player into one
+  sentence an administrator can act on. Administrator is honoured as granting
+  everything, and an unconfigured channel is a setup question rather than a
+  permission report.
+
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.
 - **Commands/doctor:** typed Discord options, authorization and human-readable
