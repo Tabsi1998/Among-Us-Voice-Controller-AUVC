@@ -41,7 +41,11 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   seam that produces it. Unlinked users and Discord bot accounts are marked as
   unmanaged there, so nothing downstream can act on them by accident.
 - **Voice Policy:** pure mapping from game state and guild configuration to
-  `DesiredVoiceState { TargetChannelID, Muted, Deafened }`.
+  `DesiredVoiceState { TargetChannelID, Muted, Deafened }`. Implemented in
+  `bot/pkg/voice`, which imports neither discordgo nor the storage layer, so the
+  ghost-chat table is tested cell by cell. Unmanaged players are absent from the
+  result rather than filtered later: a player who is not in the map cannot be
+  moved by mistake.
 - **Discord Reconciler:** compare observed and desired states and apply only
   differences. Serialize guild/session work, reject stale work and respect rate
   limits. Handle asynchronous voice events without move loops or duplicate actions.

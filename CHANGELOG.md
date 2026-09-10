@@ -6,6 +6,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 8: `bot/pkg/voice` maps a session and its guild configuration to the
+  `DesiredVoiceState` of every managed player, following the ghost-chat table in
+  `docs/requirements.md`. Pure and fully tested; not wired into the bot yet, the
+  reconciler follows.
 - Phase 7: `bot/pkg/au` defines the complete `/au` command tree with real
   Discord option types, the authorization rules for each subcommand, and
   configuration validation. A test asserts the tree against the command list in
