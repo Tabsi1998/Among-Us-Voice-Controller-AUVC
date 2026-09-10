@@ -40,9 +40,10 @@ Before every push:
 
 ## Baseline tools
 
-The imported bot declares Go 1.19. Baseline verification uses Go 1.19.13
-without modifying its module files. Later modernization must select a supported
-toolchain and update dependencies in controlled commits.
+The bot module declares Go 1.27.0 and is verified with Go 1.27.1, a supported
+release. See [go-modernization.md](go-modernization.md) for the selected
+toolchain, the dependencies that were updated and the ones deliberately left at
+baseline versions because their code is scheduled for removal.
 
 Capture targets `net5.0` / `net5.0-windows`; SDK 8.0.424 is pinned for baseline
 builds and the new .NET 8 test host. Run the full solution and the actual

@@ -46,9 +46,10 @@ for removal in separate phases.
 
 ## Prerequisites
 
-Current baseline checks use Go 1.19.13, Windows and .NET SDK 8.0.424 to build
-the imported .NET 5 projects. Python 3.11+ runs the bootstrap verifier.
-These are baseline observations, not the final supported AUVC toolchains.
+Checks use Go 1.27.1, Windows and .NET SDK 8.0.424 to build the imported .NET 5
+projects. Python 3.11+ runs the bootstrap verifier. The Go toolchain is supported
+as of phase 3; the capture .NET version remains a baseline observation until
+phase 11.
 See [development](docs/development.md) for commands and limitations.
 
 ## Discord Bot Setup

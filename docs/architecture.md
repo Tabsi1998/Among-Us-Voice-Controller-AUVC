@@ -3,8 +3,8 @@
 ## Baseline versus target
 
 Phase 1 imports the existing applications without restructuring them.
-The bot is still the Go 1.19 module `github.com/automuteus/automuteus/v8`
-and retains its public-service, Redis, PostgreSQL and premium integrations.
+The bot is the Go 1.27 module `github.com/automuteus/automuteus/v8` and still
+retains its public-service, Redis, PostgreSQL and premium integrations.
 Capture still uses .NET 5 and its upstream transports and memory detection.
 This document describes the intended AUVC architecture, not working AUVC features.
 
