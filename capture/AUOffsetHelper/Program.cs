@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
-using AUOffsetManager;
+using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace AUOffsetHelper
 {
-    static class Program
+    public static class Program
     {
         public static string hash = "0B010BD3195D39C089DC018D834B2EBD26BA67D2F49C4EBEA608A804FC0975B7";
         public static string description = "v2020.12.9s";
@@ -27,9 +25,32 @@ namespace AUOffsetHelper
         public static int TempDataOffset = 0x1C58048;
         public static int GameOptionsOffset = 0x1C57F7C;
 
-        static void Main(string[] args)
+        static int Main(string[] args) => Run(args, Console.Out, Console.Error);
+
+        public static int Run(string[] args, TextWriter output, TextWriter error)
         {
-            var a = new GameOffsets
+            if (args.Length == 1 && args[0] == "--help")
+            {
+                output.WriteLine("AUOffsetHelper --legacy-sample: export the historical v2020.12.9s layout.");
+                return 0;
+            }
+
+            if (args.Length != 1 || args[0] != "--legacy-sample")
+            {
+                error.WriteLine("Use --legacy-sample explicitly, or --help. This tool does not generate current offsets.");
+                return 2;
+            }
+
+            error.WriteLine("Historical v2020.12.9s sample only; incompatible with the current capture memory model.");
+            output.Write(ExportLegacySample());
+            return 0;
+        }
+
+        public static string ExportLegacySample()
+        {
+            // Preserve the original 2020 wire shape without inventing mappings to
+            // today's outfit/role indirection. The running capture never uses this DTO.
+            var a = new
             {
                 Description = description,
                 AmongUsClientOffset = AmongUsClientOffset,
@@ -60,7 +81,7 @@ namespace AUOffsetHelper
                 isEpic = false,
                 AddPlayerPtr = 4,
                 PlayerListPtr = 0x10,
-                PlayerInfoStructOffsets = new PlayerInfoStructOffsets()
+                PlayerInfoStructOffsets = new
                 {
                     PlayerIDOffset = 16,
                     PlayerNameOffset = 24,
@@ -74,7 +95,7 @@ namespace AUOffsetHelper
                     DeadOffset = 65,
                     ObjectOffset = 72
                 },
-                WinningPlayerDataStructOffsets = new WinningPlayerDataStructOffsets()
+                WinningPlayerDataStructOffsets = new
                 {
                     NameOffset = 0x8,
                     DeadOffset = 0xC,
@@ -88,10 +109,7 @@ namespace AUOffsetHelper
 
             };
 
-            Console.Write(JsonConvert.SerializeObject(a, Formatting.Indented));
-            //var b = new OffsetManager("");
-            //b.AddToLocalIndex(hash, a);
-            Console.ReadLine();
+            return JsonConvert.SerializeObject(a, Formatting.Indented);
 
 
         }
