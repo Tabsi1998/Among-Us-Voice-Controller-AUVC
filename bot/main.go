@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/automuteus/automuteus/v8/bot/command"
 	"github.com/automuteus/automuteus/v8/bot/tokenprovider"
-	"github.com/automuteus/automuteus/v8/internal/server"
 	"github.com/automuteus/automuteus/v8/pkg/capture"
 	"github.com/automuteus/automuteus/v8/pkg/locale"
 	storage2 "github.com/automuteus/automuteus/v8/pkg/storage"
@@ -176,8 +175,6 @@ func discordMainWrapper() error {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
-	go server.StartHealthCheckServer("8080")
-
 	topGGToken := os.Getenv("TOP_GG_TOKEN")
 
 	taskTimeoutms := capture.DefaultCaptureBotTimeout
@@ -197,12 +194,6 @@ func discordMainWrapper() error {
 	}
 
 	tokenProvider := tokenprovider.NewTokenProvider(nil, nil, taskTimeoutms, maxReq)
-	var extraTokens []string
-	extraTokenStr := strings.ReplaceAll(os.Getenv("WORKER_BOT_TOKENS"), " ", "")
-	if extraTokenStr != "" {
-		extraTokens = strings.Split(extraTokenStr, ",")
-	}
-
 	bots := make([]*bot.Bot, len(shards))
 	for i, shard := range shards {
 		bots[i] = bot.MakeAndStartBot(version, commit, discordToken, topGGToken, url, emojiGuildID, numShards, int(shard), &redisClient, &storageInterface, &psql, logPath)
@@ -216,14 +207,6 @@ func discordMainWrapper() error {
 	for i := 0; i < len(shards); i++ {
 		bots[i].TokenProvider = tokenProvider
 	}
-	tokenProvider.PopulateAndStartSessions(extraTokens)
-	// indicate to Kubernetes that we're ready to start receiving traffic
-	server.GlobalReady = true
-
-	go bots[0].StartMetricsServer(os.Getenv("SCW_NODE_ID"))
-
-	go bots[0].StartAPIServer("5000")
-
 	// empty string entry = global
 	slashCommandGuildIds := []string{""}
 	slashCommandGuildIdStr := strings.ReplaceAll(os.Getenv("SLASH_COMMAND_GUILD_IDS"), " ", "")

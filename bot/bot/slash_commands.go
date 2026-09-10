@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/automuteus/automuteus/v8/internal/server"
 	"github.com/automuteus/automuteus/v8/pkg/storage"
 	"log"
 	"regexp"
@@ -134,7 +133,6 @@ func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.Interacti
 	if interactionLock == nil {
 		return nil
 	}
-	defer server.RecordDiscordRequests(bot.RedisInterface.client, server.MessageCreateDelete, 1)
 	defer interactionLock.Release(ctx)
 
 	sett := bot.StorageInterface.GetGuildSettings(i.GuildID)
