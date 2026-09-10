@@ -66,9 +66,9 @@
       },
       "NLog": {
         "type": "Direct",
-        "requested": "[4.7.10, )",
-        "resolved": "4.7.10",
-        "contentHash": "rcegW7kYOCjl7wX0SzsqpPBqnJ51JKi1WkYb6QBVX0Wc5IgH19Pv4t/co+T0s06OS0Ne44xgkY/mHg0PdrmJow=="
+        "requested": "[6.2.0, )",
+        "resolved": "6.2.0",
+        "contentHash": "CxK6AjM1Wy3hM8YeBpLJJuB/JdoeIVvX0/fMTWeIXD917UozCtzv6cZDamevugeEaBBF0TIatfcNX2iJHI0Cew=="
       },
       "Octokit": {
         "type": "Direct",
@@ -1346,7 +1346,7 @@
           "Config.Net": "[4.15.0, )",
           "Config.Net.Json": "[4.15.0, )",
           "Discord.Net": "[2.4.0, )",
-          "NLog": "[4.7.10, )",
+          "NLog": "[6.2.0, )",
           "SocketIOClient": "[2.2.0, )",
           "WebSocketSharp": "[1.0.3-rc11, )"
         }
