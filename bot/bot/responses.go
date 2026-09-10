@@ -17,7 +17,7 @@ import (
 
 const ISO8601 = "2006-01-02T15:04:05-0700"
 
-func settingResponse(settings []setting.Setting, sett *settings.GuildSettings, prem bool) *discordgo.MessageEmbed {
+func settingResponse(settings []setting.Setting, sett *settings.GuildSettings) *discordgo.MessageEmbed {
 	embed := discordgo.MessageEmbed{
 		URL:  "",
 		Type: "",
@@ -40,46 +40,11 @@ func settingResponse(settings []setting.Setting, sett *settings.GuildSettings, p
 
 	fields := make([]*discordgo.MessageEmbedField, 0)
 	for _, v := range settings {
-		if !v.Premium {
-			name := v.Name
-			fields = append(fields, &discordgo.MessageEmbedField{
-				Name:   name,
-				Value:  sett.LocalizeMessage(&i18n.Message{Other: v.ShortDesc}),
-				Inline: true,
-			})
-		}
-	}
-	var desc string
-	if prem {
-		desc = sett.LocalizeMessage(&i18n.Message{
-			ID:    "responses.settingResponse.PremiumThanks",
-			Other: "Thanks for being an AutoMuteUs Premium user!",
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Name:   v.Name,
+			Value:  sett.LocalizeMessage(&i18n.Message{Other: v.ShortDesc}),
+			Inline: true,
 		})
-	} else {
-		desc = sett.LocalizeMessage(&i18n.Message{
-			ID:    "responses.settingResponse.PremiumNoThanks",
-			Other: "The following settings are only for AutoMuteUs premium users.\nType `/premium` to learn more!",
-		})
-	}
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "\u200B",
-		Value:  "\u200B",
-		Inline: false,
-	})
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "💎 Premium Settings 💎",
-		Value:  desc,
-		Inline: false,
-	})
-	for _, v := range settings {
-		if v.Premium {
-			name := v.Name
-			fields = append(fields, &discordgo.MessageEmbedField{
-				Name:   name,
-				Value:  sett.LocalizeMessage(&i18n.Message{Other: v.ShortDesc}),
-				Inline: true,
-			})
-		}
 	}
 
 	embed.Fields = fields
@@ -383,11 +348,4 @@ func (dgs *GameState) descriptionAndColor(sett *settings.GuildSettings) (string,
 	}
 	return "\n", discord.DEFAULT
 
-}
-
-func nonPremiumSettingResponse(sett *settings.GuildSettings) string {
-	return sett.LocalizeMessage(&i18n.Message{
-		ID:    "responses.nonPremiumSetting.Desc",
-		Other: "Sorry, but that setting is reserved for AutoMuteUs Premium users! See `/premium` for details",
-	})
 }
