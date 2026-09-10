@@ -1,0 +1,11 @@
+title = "AUVC secret scan"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Reviewed upstream SHA-1 checksum for steam_api64.dll, not a credential (GameVerifier.cs lines 28 and 96)."
+condition = "AND"
+paths = ['''(^|[\\/])AmongUsCapture[\\/]Verification[\\/]GameVerifier\.cs$''']
+regexTarget = "secret"
+regexes = ['''^e77433094c56433685a68a4436e81b76c3b5e1f5$''']

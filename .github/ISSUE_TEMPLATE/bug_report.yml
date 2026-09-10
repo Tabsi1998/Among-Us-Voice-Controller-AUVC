@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible AUVC problem without credentials or personal data.
+title: "bug: "
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Include game phase, player links and relevant settings without secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions and environment
+      description: Bot/capture commit or release, Among Us version, Windows and hosting environment.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Redacted diagnostics
+      description: Doctor output and logs, if available. Never include tokens, pairing codes or credentials.

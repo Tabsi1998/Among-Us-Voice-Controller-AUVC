@@ -1,0 +1,116 @@
+name: Baseline
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, 'codex/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    name: Provenance and secrets
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - run: python scripts/verify_repository.py
+      - name: Download verified Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          curl --fail --location --retry 3 -o gitleaks.tar.gz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz' | sha256sum -c -
+          mkdir -p gitleaks-bin
+          tar -xzf gitleaks.tar.gz -C gitleaks-bin gitleaks
+      - name: Scan reachable history
+        run: '"$RUNNER_TEMP/gitleaks-bin/gitleaks" git . --redact --config .gitleaks.toml --log-opts=HEAD'
+
+  bot:
+    name: Go format, vet, tests and build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: bot
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.19.13'
+          cache: false
+      - name: Check formatting
+        run: |
+          files="$(gofmt -l .)"
+          if [ -n "$files" ]; then printf '%s\n' "$files"; exit 1; fi
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: go build ./...
+      - name: Dependency inventory
+        run: go list -m all
+
+  capture:
+    name: Windows restore, format, build and tests
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: capture
+        shell: pwsh
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: capture/global.json
+      - run: dotnet restore AmongUsCapture.sln --locked-mode
+      - run: dotnet format whitespace AmongUsCapture.sln --verify-no-changes --no-restore
+      - run: dotnet build AmongUsCapture.sln --configuration Release --no-restore
+      - run: dotnet test AUVC.Capture.Tests/AUVC.Capture.Tests.csproj --configuration Release --no-build --no-restore --logger "trx;LogFileName=capture.trx" --results-directory ../artifacts/tests
+      - name: Verify tests actually executed
+        run: |
+          [xml]$report = Get-Content ../artifacts/tests/capture.trx
+          $counters = $report.TestRun.ResultSummary.Counters
+          if ([int]$counters.executed -lt 11 -or [int]$counters.failed -ne 0) {
+            throw 'Expected at least 11 executed baseline tests with no failures.'
+          }
+      - name: Report legacy dependency vulnerabilities
+        run: dotnet list AmongUsCapture.sln package --vulnerable --include-transitive
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: capture-test-results
+          path: artifacts/tests
+          if-no-files-found: error
+          retention-days: 7
+
+  docker:
+    name: Docker baseline build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build without publishing
+        run: docker build -f deploy/Dockerfile.baseline --build-arg COMMIT="$GITHUB_SHA" -t auvc:baseline .
+      - name: Check non-root user and packaged notices
+        run: |
+          test "$(docker inspect --format '{{.Config.User}}' auvc:baseline)" = auvc
+          docker run --rm --entrypoint sh auvc:baseline -c 'test -x /app/auvc && test -r /app/LICENSES/AutoMuteUs-MIT.txt && test -r /app/LICENSES/AmongUsCapture-MIT.txt'
