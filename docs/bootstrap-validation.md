@@ -19,6 +19,10 @@ dependency caches and redacted logs are local-only under `.git/`.
 | Bot import identity | Compare `HEAD:bot` with pinned upstream tree | PASS: `d9ae52ffc0e804e0211154ace579425fc5ef9f4f` |
 | Capture import identity | Compare `HEAD:capture` with pinned upstream tree | PASS: `d05d7cd8f300b4368d3872337d2a9f5059c76ee6` |
 | Original license copies | Compare bytes against imported Git blobs | PASS; both original Denver Quane notices retained |
+| Bootstrap files | `python scripts/verify_bootstrap.py` | PASS: tree/license identity, structure, links and text format |
+| First-party diff | `git diff --cached --check` before scaffold commit | PASS |
+| Staged first-party secrets | Staged diff piped to `gitleaks stdin --redact --config .gitleaks.toml` | PASS |
+| Committed history secrets | `gitleaks git . --redact --config .gitleaks.toml --log-opts=HEAD` | PASS; no findings in reachable AUVC history |
 | Go formatting | `gofmt -l .` in `bot/` | FAIL: 109 existing files need formatting; no import rewritten |
 | Go lint | `go vet ./...` in `bot/` | PASS, exit 0 |
 | Go tests | `go test ./...` in `bot/` | PASS, seven packages have passing tests; remaining packages report no tests |
@@ -43,6 +47,12 @@ The first-party verifier checks text format, local document links, exact license
 copies, scaffold files and pristine import identities. It does not replace
 application tests or a secret scanner. Nested upstream CI workflows are retained
 for provenance but are not active root workflows. Full AUVC CI is not established.
+
+Git for Windows initially converted local import files to CRLF. Their committed
+objects were unchanged. The working files were restored from the same Git objects
+with automatic conversion disabled, and the index refreshed without blob changes.
+Root attributes now preserve upstream and copied license bytes while requiring LF
+for new AUVC documentation, scripts and configuration. The final worktree is clean.
 
 ## Capture failure analysis
 
