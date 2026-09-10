@@ -56,7 +56,7 @@ func InfoResponse(info BotInfo, guildID string, sett *settings.GuildSettings) *d
 		},
 	}
 
-	fields := make([]*discordgo.MessageEmbedField, 12)
+	fields := make([]*discordgo.MessageEmbedField, 11)
 	var version = info.Version
 	if version == "" {
 		version = "Unknown"
@@ -141,14 +141,6 @@ func InfoResponse(info BotInfo, guildID string, sett *settings.GuildSettings) *d
 			Other: "Invite",
 		}),
 		Value:  "[add.automute.us](https://add.automute.us)",
-		Inline: true,
-	}
-	fields[11] = &discordgo.MessageEmbedField{
-		Name: sett.LocalizeMessage(&i18n.Message{
-			ID:    "commands.info.premium",
-			Other: "Premium",
-		}),
-		Value:  "[PayPal](" + BasePremiumURL + guildID + ")",
 		Inline: true,
 	}
 

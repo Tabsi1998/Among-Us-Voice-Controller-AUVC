@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/automuteus/automuteus/v8/pkg/premium"
 	"github.com/bwmarrin/discordgo"
 	"time"
 )
@@ -16,8 +15,7 @@ type UserModify struct {
 }
 
 type UserModifyRequest struct {
-	Premium premium.Tier `json:"premium"`
-	Users   []UserModify `json:"users"`
+	Users []UserModify `json:"users"`
 }
 
 type ModifyTask struct {

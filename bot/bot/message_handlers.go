@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/automuteus/automuteus/v8/pkg/premium"
 	"github.com/automuteus/automuteus/v8/pkg/task"
 	"github.com/bsm/redislock"
 
@@ -23,12 +22,6 @@ func (bot *Bot) handleVoiceStateChange(s *discordgo.Session, m *discordgo.VoiceS
 		return
 	}
 	defer snowFlakeLock.Release(ctx)
-
-	prem, days, _ := bot.PostgresInterface.GetGuildOrUserPremiumStatus(bot.official, nil, m.GuildID, "")
-	premTier := premium.FreeTier
-	if !premium.IsExpired(prem, days) {
-		premTier = prem
-	}
 
 	sett := bot.StorageInterface.GetGuildSettings(m.GuildID)
 	gsr := GameStateRequest{
@@ -91,7 +84,6 @@ func (bot *Bot) handleVoiceStateChange(s *discordgo.Session, m *discordgo.VoiceS
 		if dgs.Running {
 			uid, _ := strconv.ParseUint(m.UserID, 10, 64)
 			req := task.UserModifyRequest{
-				Premium: premTier,
 				Users: []task.UserModify{
 					{
 						UserID: uid,

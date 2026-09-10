@@ -25,18 +25,18 @@ and the direct authenticated WebSocket take over
 | Kubernetes probes | `internal/server/healthcheck.go` | `/live` and `/ready` on `:8080` | Removed |
 | Worker bot token pool | `bot/tokenprovider/` | Extra Discord tokens to raise rate limits | Removed |
 | Worker membership check | `bot/tokenprovider/verify.go` | Make surplus worker bots leave guilds | Removed |
-| Premium tiers | `pkg/premium/`, `bot/command/premium.go`, `pkg/storage/premium.go` | Paid feature gating | Planned |
-| Premium storage | `pkg/storage/postgres.go`, `types.go` | Tier and expiry records | Planned |
-| top.gg integration | `bot/bot.go`, `pkg/storage/postgres.go` | Grant premium for bot-list votes | Planned |
-| Official-mode switch | `AUTOMUTEUS_OFFICIAL` in `main.go`, `bot.official` | Separate the hosted bot from self-hosters | Planned |
-| Sharding | `NUM_SHARDS`, `SHARDS`, `parseShards` in `main.go` | Spread guilds across gateway shards | Planned |
+| Premium tiers | `pkg/premium/`, `bot/command/premium.go`, `pkg/storage/premium.go` | Paid feature gating | Removed |
+| Premium storage | `pkg/storage/postgres.go`, `types.go` | Tier and expiry records | Removed |
+| top.gg integration | `bot/bot.go`, `pkg/storage/postgres.go` | Grant premium for bot-list votes | Removed |
+| Official-mode switch | `AUTOMUTEUS_OFFICIAL` in `main.go`, `bot.official` | Separate the hosted bot from self-hosters | Removed |
+| Sharding | `NUM_SHARDS`, `SHARDS`, `parseShards` in `main.go` | Spread guilds across gateway shards | Removed |
 | Galactus / Redis | `pkg/rediskey/`, `storage/redis.go`, `common/redis.go` | State, locking, capture transport | Phase 14 |
 | PostgreSQL | `pkg/storage/` | Guild config, stats, premium | Phase 14 |
 
-"Planned" items are entangled with each other: the premium lookup takes both the
-official flag and the top.gg client, and the sharding guards share a condition
-with the official flag. They are removed together in the follow-up work package
-rather than split into partial, non-compiling steps.
+These were entangled with each other: the premium lookup took both the official
+flag and the top.gg client, and the sharding guards shared a condition with the
+official flag. They were therefore removed together in a second step rather than
+split into partial, non-compiling ones.
 
 ## Removed in this step
 
@@ -69,6 +69,64 @@ path stays until phases 12 and 13 replace the transport.
 `MAX_REQ_5_SEC` is deliberately kept: `maxRequests5Seconds` still bounds
 `IncrAndTestGuildTokenComboLock` and `BlacklistTokenForDuration` on that path.
 
+## Removed in the second step
+
+### Premium
+
+Upstream gated features behind paid tiers. The decisive detail is that
+`GetGuildOrUserPremiumStatus` opened with `if !official { return SelfHostTier,
+NoExpiryCode }`: **self-hosters already received the full feature set
+unconditionally.** Removing the gates is therefore behaviour-preserving for
+AUVC's target deployment. Every gate was resolved to the branch a self-hoster
+already took, so no feature disappears:
+
+| Gate | Previous self-host behaviour | Now |
+| --- | --- | --- |
+| `/settings` premium settings | All settings available | Unconditional |
+| Settings embed | Split into free and 💎 premium sections | One flat list |
+| `/stats` detailed stats | Shown | Unconditional |
+| `/download` Gold requirement | Passed | Unconditional |
+| `/new` active-game lockout | Never triggered (only free tier) | Removed |
+| `/premium` command | Displayed tier info | Removed |
+
+Deleted: `pkg/premium/`, `bot/command/premium.go`, `pkg/storage/premium.go` and
+its tests, the premium lookup chain in `pkg/storage/postgres.go`
+(`isUserPremium`, `GetGuildOrUserPremiumStatus`, `guildOrUserPremium`,
+`getGuildPremiumStatus`), the `Premium` field on `task.UserModifyRequest`, the
+`Premium` flag on `setting.Setting`, and the `isPrem` parameters on the three
+stats embeds.
+
+### top.gg
+
+Premium could also be earned by voting on top.gg. `TOP_GG_TOKEN`, the `dbl`
+client, `TopGGID` and `setUserVoteTime` are gone, and `github.com/top-gg/go-dbl`
+left the module.
+
+### Official-mode switch and sharding
+
+`AUTOMUTEUS_OFFICIAL` separated the hosted bot from self-hosters. For a
+self-hoster it was always unset, so every guard it controlled took the same
+branch: the schema was always applied, and slash commands were always registered
+and deregistered. Those guards are now unconditional.
+
+`NUM_SHARDS`, `SHARD_ID` and `SHARDS` spread guilds across gateway shards. AUVC
+serves one community from one process, so `main.go` now starts a single bot
+instead of a slice, and `parseShards`, `defaultShard` and `isPrimaryShard` are
+gone.
+
+### Tests
+
+Three tests covering deleted functions were removed:
+`TestIsUserPremium`, `TestIsUserPremium_nilTopGG` and `TestIsUserOrGuildPremium`.
+No remaining test was weakened. `TestPostgresGuild_ToCSV` keeps its exact
+assertions; only the tier constant became the literal `5` it already expected.
+
+### Deliberately kept
+
+`PostgresGuild.Premium` stays as a struct field. The `guilds` table still has a
+`premium` column and `pgxscan` reads it with `SELECT *`, so removing the field
+would break scanning. The column disappears with the schema in phase 14.
+
 ## Dependency effect
 
 Direct modules dropped: `gin-gonic/gin`, `gorilla/mux`, `prometheus/client_golang`,
@@ -83,7 +141,14 @@ is gone entirely.
 ## Verification and limits
 
 `gofmt`, `go vet`, `go build` and `go test` are clean, and the capture test suite
-is untouched. Self-hosting still requires Redis and PostgreSQL, so "self-hosting
+is untouched.
+
+One legacy string is knowingly left in place. `bot/setting/muteSpectators.go`
+still warns about delays "when not self-hosting, or using a Premium worker bot".
+The message exists in ten locale files, so rewriting only the English fallback
+would leave nine stale translations. Product-facing legacy wording is the subject
+of [#33](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/33),
+which reworks these strings as a set. Self-hosting still requires Redis and PostgreSQL, so "self-hosting
 without these services" in the issue's acceptance criteria cannot be demonstrated
 until phase 14. Runtime verification against a live Discord guild needs the
 owner's bot token and is not part of automated validation.

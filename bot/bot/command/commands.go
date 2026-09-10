@@ -10,10 +10,8 @@ import (
 )
 
 const (
-	ISO8601               = "2006-01-02T15:04:05-0700"
-	BasePremiumURL        = "https://automute.us/premium?guild="
-	CaptureDownloadURL    = "https://capture.automute.us"
-	DefaultMaxActiveGames = 150
+	ISO8601            = "2006-01-02T15:04:05-0700"
+	CaptureDownloadURL = "https://capture.automute.us"
 )
 
 // All is all slash commands for the bot, ordered to match the README
@@ -30,7 +28,6 @@ var All = []*discordgo.ApplicationCommand{
 	&Info,
 	&Map,
 	&Stats,
-	&Premium,
 	&Debug,
 	&Download,
 }

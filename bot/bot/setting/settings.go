@@ -89,7 +89,6 @@ type Setting struct {
 	Name      string
 	ShortDesc string
 	Arguments []*discordgo.ApplicationCommandOption
-	Premium   bool
 }
 
 var phaseChoices = []*discordgo.ApplicationCommandOptionChoice{
@@ -112,7 +111,6 @@ var AllSettings = []Setting{
 		Name:      List,
 		ShortDesc: "List All Settings",
 		Arguments: []*discordgo.ApplicationCommandOption{},
-		Premium:   false,
 	},
 	{
 		Name:      Language,
@@ -124,7 +122,6 @@ var AllSettings = []Setting{
 				Description: "language-code",
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      VoiceRules,
@@ -175,7 +172,6 @@ var AllSettings = []Setting{
 				Description: "value",
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      AdminUserIDs,
@@ -205,7 +201,6 @@ var AllSettings = []Setting{
 				},
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      RoleIDs,
@@ -235,7 +230,6 @@ var AllSettings = []Setting{
 				},
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      UnmuteDead,
@@ -247,7 +241,6 @@ var AllSettings = []Setting{
 				Description: "unmute",
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      MapVersion,
@@ -259,7 +252,6 @@ var AllSettings = []Setting{
 				Description: "detailed",
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      Delays,
@@ -287,7 +279,6 @@ var AllSettings = []Setting{
 				MaxValue:    MaxDelay,
 			},
 		},
-		Premium: false,
 	},
 	{
 		Name:      MatchSummary,
@@ -301,7 +292,6 @@ var AllSettings = []Setting{
 				MaxValue:    MaxMatchSummaryDelete,
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      MatchSummaryChannel,
@@ -314,7 +304,6 @@ var AllSettings = []Setting{
 				ChannelTypes: []discordgo.ChannelType{discordgo.ChannelTypeGuildText},
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      AutoRefresh,
@@ -326,7 +315,6 @@ var AllSettings = []Setting{
 				Description: "autorefresh",
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      LeaderboardMention,
@@ -338,7 +326,6 @@ var AllSettings = []Setting{
 				Description: "use-mention",
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      LeaderboardSize,
@@ -352,7 +339,6 @@ var AllSettings = []Setting{
 				MaxValue:    MaxLeaderBoardSize,
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      LeaderboardMin,
@@ -366,7 +352,6 @@ var AllSettings = []Setting{
 				MaxValue:    MaxLeaderBoardMin,
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      MuteSpectators,
@@ -378,7 +363,6 @@ var AllSettings = []Setting{
 				Description: "mute",
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      DisplayRoomCode,
@@ -404,19 +388,16 @@ var AllSettings = []Setting{
 				},
 			},
 		},
-		Premium: true,
 	},
 	{
 		Name:      Show,
 		ShortDesc: "Show All Current Settings",
 		Arguments: []*discordgo.ApplicationCommandOption{},
-		Premium:   false,
 	},
 	{
 		Name:      Reset,
 		ShortDesc: "Reset Bot Settings",
 		Arguments: []*discordgo.ApplicationCommandOption{},
-		Premium:   false,
 	},
 }
 
@@ -425,9 +406,6 @@ func ConstructEmbedForSetting(value string, setting *Setting, sett *settings.Gui
 		return discordgo.MessageEmbed{}
 	}
 	title := setting.Name
-	if setting.Premium {
-		title = "💎 " + title
-	}
 	if value == "" {
 		value = "null"
 	}
