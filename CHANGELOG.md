@@ -32,6 +32,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Removed
 
+- The inert upstream CI configuration nested at `bot/.github/` and
+  `capture/.github/`: four Docker/goreleaser/build workflows, a second
+  Dependabot config, upstream issue templates and a `FUNDING.yml` whose custom
+  sponsor link pointed at `automute.us/premium`. GitHub only reads the
+  repository-root `.github/`, which already provides all of these, so the nested
+  copies were dead weight that named another project as owner and publisher.
 - Phase 4, first step: the public HTTP API and its generated Swagger package,
   the Prometheus metrics endpoint, the Kubernetes liveness/readiness probes,
   the request telemetry at twelve call sites, and the secondary worker bot token
