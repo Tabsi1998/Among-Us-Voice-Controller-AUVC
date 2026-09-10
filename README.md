@@ -37,7 +37,7 @@ for removal in separate phases.
 | Path | Responsibility |
 | --- | --- |
 | `bot/` | Unmodified AutoMuteUs baseline; future Discord/server application |
-| `capture/` | Unmodified AmongUsCapture baseline; future Windows capture application |
+| `capture/` | AmongUsCapture import with baseline build repairs and regression tests |
 | `protocol/` | Planned versioned schemas and compatibility fixtures |
 | `deploy/` | Planned Docker and self-hosting configuration |
 | `docs/` | Requirements, architecture, development and roadmap |
