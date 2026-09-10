@@ -131,6 +131,25 @@ The [installation and release contract](windows-installation-and-releases.md)
 defines artifacts, triggers, signing/distribution prerequisites, UX acceptance
 and clean-Windows installation/update tests. Track this work in issues #20–#24.
 
+## Branding and product design
+
+AUVC requires an independent design system across Capture, Discord, GitHub,
+documentation, installers, updates and releases. Before replacing existing assets,
+inventory their path, purpose, format, source and license. Present at least three
+different visual directions, then wait for explicit owner selection. Present a
+refined brand board and realistic Capture prototype for a second approval before
+implementation.
+
+The approved system includes editable logo/banner/icon masters, reproducible
+exports, central design tokens, German/English layouts, accessible status/focus
+states and high-DPI support. Only original or demonstrably permitted assets may
+ship. Keep historical AutoMuteUs/AmongUsCapture names in licenses, credits and
+provenance while removing obsolete product-facing branding.
+
+Implement visual surfaces in separate PRs without mixing memory/offset, protocol
+or voice-policy behavior. Track the complete acceptance contract in the
+[branding plan](branding-and-design.md) and issue #33.
+
 ## Protocol, pairing and recovery
 
 Version the capture-to-bot schema. Example envelope:
