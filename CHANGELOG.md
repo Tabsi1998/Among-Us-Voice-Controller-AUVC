@@ -10,6 +10,9 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   `DesiredVoiceState` of every managed player, following the ghost-chat table in
   `docs/requirements.md`. Pure and fully tested; not wired into the bot yet, the
   reconciler follows.
+- `scripts/check_upstream_references.py` fails CI when a new reference to
+  AutoMuteUs-controlled infrastructure appears. The forty that still exist are
+  baselined and tracked in #33 and #44; the list may only shrink.
 - Phase 7: `bot/pkg/au` defines the complete `/au` command tree with real
   Discord option types, the authorization rules for each subcommand, and
   configuration validation. A test asserts the tree against the command list in

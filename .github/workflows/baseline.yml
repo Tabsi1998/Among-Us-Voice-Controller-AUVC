@@ -26,6 +26,7 @@ jobs:
         with:
           python-version: '3.13'
       - run: python scripts/verify_repository.py
+      - run: python scripts/check_upstream_references.py
       - name: Download verified Gitleaks
         shell: bash
         run: |
