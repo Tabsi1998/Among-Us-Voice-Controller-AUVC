@@ -7,13 +7,15 @@ below are a sequence proposal; issue numbers are independent. Do not start the
 next phase until the current one is cleanly complete unless the owner explicitly
 directs otherwise. Existing failing checks block merge, including baseline failures.
 
-Phases 1 to 3 are merged. Phase 4 removes the public service infrastructure in
-staged steps, recorded in [service-removal.md](service-removal.md). Phase 3 moved the bot to a supported Go toolchain and
-the current DiscordGo API; its decisions and breaking changes are recorded in
-[go-modernization.md](go-modernization.md). The owner performs each merge after
-reviewing its checks. No AUVC runtime feature is complete yet. See
-[the build baseline](baseline-build.md). [Requirements](requirements.md) define
-the acceptance contract.
+Phases 1 to 3 are complete. Phase 4 removed the public API, metrics, worker pool,
+premium, top.gg, official mode and sharding; final Galactus/Redis/PostgreSQL
+removal waits for the new protocol and transport. The phase 5 domain projection,
+phase 6 SQLite package and phase 7 typed command contract are merged foundations.
+The active phase 7 integration registers `/au`, opens `/data/amongus.db`, and
+connects setup, settings and persistent links to the application service.
+Capture pairing, session control and voice policy remain future phases. The owner
+performs each merge after reviewing its checks. See [the build baseline](baseline-build.md)
+and the binding [requirements](requirements.md).
 
 | Phase | Scope | Proposed branch | Tracking issue |
 | --- | --- | --- | --- |

@@ -10,12 +10,17 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   Discord option types, the authorization rules for each subcommand, and
   configuration validation. A test asserts the tree against the command list in
   `docs/requirements.md`, so a documented command cannot quietly disappear.
-  Not registered yet; handlers follow.
+- `/au` is registered and routed before the Redis-backed legacy command path.
+  Setup, settings, persistent link/unlink, basic doctor and version handlers use
+  a Discord-independent application service with typed inputs and authorization.
+  Capture and session handlers report their staged status until their services
+  exist.
 - Phase 6: SQLite persistence in `bot/pkg/storage/sqlite` for guild
   configuration and Discord player links, with versioned embedded migrations,
   a gapless-version check and a refusal to open a database newer than the
   binary. Uses the pure-Go `modernc.org/sqlite` driver so the `CGO_ENABLED=0`
-  Docker build keeps working. Not wired into the bot yet; see
+  Docker build keeps working. The bot now opens `/data/amongus.db`, and the
+  baseline image provides the writable persistent volume; see
   [docs/persistence.md](docs/persistence.md).
 - Phase-2 Windows test project with 11 offset/CLI regression cases, locked NuGet
   restores, root Go/Windows/Docker/provenance/secret CI and Dependabot.
