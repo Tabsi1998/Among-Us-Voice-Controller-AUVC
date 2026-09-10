@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"github.com/automuteus/automuteus/v8/pkg/premium"
 	"strings"
 	"testing"
 )
@@ -10,7 +9,7 @@ func TestPostgresGuild_ToCSV(t *testing.T) {
 	g := PostgresGuild{
 		GuildID:       123,
 		GuildName:     "test_name",
-		Premium:       int16(premium.SelfHostTier),
+		Premium:       5,
 		TxTimeUnix:    nil,
 		TransferredTo: nil,
 		InheritsFrom:  nil,

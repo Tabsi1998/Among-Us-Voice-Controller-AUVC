@@ -32,6 +32,13 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   [docs/service-removal.md](docs/service-removal.md).
 - Dependencies dropped as a result: gin, gorilla/mux, prometheus/client_golang,
   the swaggo family and golang.org/x/exp, plus about 29 indirect modules.
+- Phase 4, second step: premium tiers and the `/premium` command, the top.gg
+  vote integration, the `AUTOMUTEUS_OFFICIAL` switch and gateway sharding.
+  Self-hosters already received the full feature set unconditionally, so every
+  gate resolved to the branch they already took and no feature is lost; the
+  settings embed is now one flat list instead of a free/premium split.
+  `TOP_GG_TOKEN`, `NUM_SHARDS`, `SHARD_ID` and `SHARDS` are gone, and
+  `github.com/top-gg/go-dbl` left the module.
 
 ### Fixed
 

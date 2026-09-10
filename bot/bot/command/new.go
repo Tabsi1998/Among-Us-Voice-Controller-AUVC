@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"github.com/automuteus/automuteus/v8/pkg/settings"
 	"github.com/bwmarrin/discordgo"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -12,7 +11,6 @@ type NewStatus int
 const (
 	NewSuccess NewStatus = iota
 	NewNoVoiceChannel
-	NewLockout
 )
 
 type NewInfo struct {
@@ -74,17 +72,6 @@ func NewResponse(status NewStatus, info NewInfo, sett *settings.GuildSettings) *
 			ID:    "commands.new.nochannel",
 			Other: "Please join a voice channel before starting a match!",
 		})
-	case NewLockout:
-		content = sett.LocalizeMessage(&i18n.Message{
-			ID: "commands.new.lockout",
-			Other: "If I start any more games, Discord will lock me out, or throttle the games I'm running! 😦\n" +
-				"Please try again in a few minutes, or consider AutoMuteUs Premium (`/premium`)\n" +
-				"Current Games: {{.Games}}",
-		}, map[string]interface{}{
-			"Games": fmt.Sprintf("%d/%d", info.ActiveGames, DefaultMaxActiveGames),
-		})
-		flags = discordgo.MessageFlags(0) // public message
-
 	}
 	return &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,

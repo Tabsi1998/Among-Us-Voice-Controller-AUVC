@@ -62,10 +62,6 @@ var Help = discordgo.ApplicationCommand{
 					Value: Stats.Name,
 				},
 				{
-					Name:  Premium.Name,
-					Value: Premium.Name,
-				},
-				{
 					Name:  Debug.Name,
 					Value: Debug.Name,
 				},

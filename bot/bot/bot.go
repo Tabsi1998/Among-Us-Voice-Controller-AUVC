@@ -9,14 +9,12 @@ import (
 	"github.com/automuteus/automuteus/v8/pkg/amongus"
 	"github.com/automuteus/automuteus/v8/pkg/discord"
 	"github.com/automuteus/automuteus/v8/pkg/game"
-	"github.com/automuteus/automuteus/v8/pkg/premium"
 	"github.com/automuteus/automuteus/v8/pkg/rediskey"
 	"github.com/automuteus/automuteus/v8/pkg/settings"
 	storageutils "github.com/automuteus/automuteus/v8/pkg/storage"
 	"github.com/automuteus/automuteus/v8/pkg/token"
 	"github.com/automuteus/automuteus/v8/storage"
 	"github.com/bwmarrin/discordgo"
-	"github.com/top-gg/go-dbl"
 	"log"
 	"os"
 	"strconv"
@@ -25,10 +23,9 @@ import (
 )
 
 type Bot struct {
-	version  string
-	commit   string
-	official bool
-	url      string
+	version string
+	commit  string
+	url     string
 
 	// mapping of socket connections to the game connect codes
 	ConnsToGames map[string]string
@@ -43,8 +40,6 @@ type Bot struct {
 
 	TokenProvider *tokenprovider.TokenProvider
 
-	TopGGClient *dbl.Client
-
 	RedisInterface *RedisInterface
 
 	StorageInterface *storage.StorageInterface
@@ -58,23 +53,16 @@ type Bot struct {
 
 // MakeAndStartBot does what it sounds like
 // TODO collapse these fields into proper structs?
-func MakeAndStartBot(version, commit, botToken, topGGToken, url, emojiGuildID string, numShards, shardID int, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, psql *storageutils.PsqlInterface, logPath string) *Bot {
+func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, psql *storageutils.PsqlInterface, logPath string) *Bot {
 	dg, err := discordgo.New("Bot " + botToken)
 	if err != nil {
 		log.Println("error creating Discord session,", err)
 		return nil
 	}
 
-	if numShards > 1 {
-		log.Printf("Identifying to the Discord API with %d total shards, and shard ID=%d\n", numShards, shardID)
-		dg.ShardCount = numShards
-		dg.ShardID = shardID
-	}
-
 	bot := Bot{
 		version:      version,
 		commit:       commit,
-		official:     os.Getenv("AUTOMUTEUS_OFFICIAL") != "",
 		url:          url,
 		ConnsToGames: make(map[string]string),
 		StatusEmojis: emptyStatusEmojis(),
@@ -132,16 +120,6 @@ func MakeAndStartBot(version, commit, botToken, topGGToken, url, emojiGuildID st
 	err = dg.UpdateStatusComplex(*status)
 	if err != nil {
 		log.Println(err)
-	}
-
-	if topGGToken != "" {
-		dblClient, err := dbl.NewClient(topGGToken)
-		if err != nil {
-			log.Println("Error creating Top.gg client: ", err)
-		}
-		bot.TopGGClient = dblClient
-	} else {
-		log.Println("No TOP_GG_TOKEN provided")
 	}
 
 	return &bot
@@ -362,24 +340,6 @@ func (bot *Bot) newGame(dgs *GameState) (_ command.NewStatus, activeGames int64)
 		delete(bot.EndGameChannels, dgs.ConnectCode)
 
 		dgs.Reset()
-	} else {
-		premStatus, days, err := bot.PostgresInterface.GetGuildOrUserPremiumStatus(
-			bot.official, bot.TopGGClient, dgs.GuildID, dgs.GameStateMsg.LeaderID)
-		if err != nil {
-			log.Println("Error in /newgame get premium:", err)
-		}
-		premTier := premium.FreeTier
-		if !premium.IsExpired(premStatus, days) {
-			premTier = premStatus
-		}
-
-		// Premium users should always be allowed to start new games; only check the free guilds
-		if premTier == premium.FreeTier {
-			activeGames = rediskey.GetActiveGames(context.Background(), bot.RedisInterface.client, GameTimeoutSeconds)
-			if activeGames > command.DefaultMaxActiveGames {
-				return command.NewLockout, activeGames
-			}
-		}
 	}
 
 	dgs.ConnectCode = generateConnectCode(dgs.GuildID)

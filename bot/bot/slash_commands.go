@@ -15,7 +15,6 @@ import (
 	"github.com/automuteus/automuteus/v8/bot/setting"
 	redis_common "github.com/automuteus/automuteus/v8/common"
 	"github.com/automuteus/automuteus/v8/pkg/discord"
-	"github.com/automuteus/automuteus/v8/pkg/premium"
 	"github.com/automuteus/automuteus/v8/pkg/settings"
 	"github.com/bwmarrin/discordgo"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -252,12 +251,8 @@ func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.Interacti
 			if !isAdmin {
 				return command.InsufficientPermissionsResponse(sett)
 			}
-			premStatus, days, err := bot.PostgresInterface.GetGuildOrUserPremiumStatus(bot.official, bot.TopGGClient, i.GuildID, i.Member.User.ID)
-			if err != nil {
-				log.Println("Err in /settings get premium:", err)
-			}
 			setting, args := command.GetSettingsParams(i.ApplicationCommandData().Options)
-			msg := bot.HandleSettingsCommand(i.GuildID, sett, setting, args, !premium.IsExpired(premStatus, days))
+			msg := bot.HandleSettingsCommand(i.GuildID, sett, setting, args)
 			return command.SettingsResponse(msg)
 
 		case command.New.Name:
@@ -400,25 +395,17 @@ func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.Interacti
 
 		case command.Stats.Name:
 			action, opType, id := command.GetStatsParams(bot.PrimarySession, i.GuildID, i.ApplicationCommandData().Options)
-			prem := true
-			tier, days, err := bot.PostgresInterface.GetGuildOrUserPremiumStatus(bot.official, bot.TopGGClient, i.GuildID, i.Member.User.ID)
-			if err != nil {
-				log.Println("Error in /stats getPremium:", err)
-			}
-			if premium.IsExpired(tier, days) {
-				prem = false
-			}
 			if action == setting.View {
 				var embed *discordgo.MessageEmbed
 				switch opType {
 				case command.User:
-					embed = bot.UserStatsEmbed(id, i.GuildID, sett, prem)
+					embed = bot.UserStatsEmbed(id, i.GuildID, sett)
 				case command.Guild:
-					embed = bot.GuildStatsEmbed(i.GuildID, sett, prem)
+					embed = bot.GuildStatsEmbed(i.GuildID, sett)
 				case command.Match:
 					if MatchIDRegex.Match([]byte(id)) {
 						tokens := strings.Split(id, ":")
-						embed = bot.GameStatsEmbed(i.GuildID, tokens[1], tokens[0], prem, sett)
+						embed = bot.GameStatsEmbed(i.GuildID, tokens[1], tokens[0], sett)
 					} else {
 						err := fmt.Errorf("invalid match code provided: %s, should resemble something like `1A2B3C4D:12345`", id)
 						return command.PrivateErrorResponse(command.Stats.Name+" "+command.Match, err, sett)
@@ -470,17 +457,6 @@ func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.Interacti
 					},
 				}
 			}
-
-		case command.Premium.Name:
-			premArg := command.GetPremiumParams(i.ApplicationCommandData().Options)
-			premStatus, days, err := bot.PostgresInterface.GetGuildOrUserPremiumStatus(bot.official, bot.TopGGClient, i.GuildID, i.Member.User.ID)
-			if err != nil {
-				log.Println("Err in /premium get guild prem:", err)
-			}
-			if premium.IsExpired(premStatus, days) {
-				premStatus = premium.FreeTier
-			}
-			return command.PremiumResponse(i.GuildID, premStatus, days, premArg, isAdmin, sett)
 
 		case command.Debug.Name:
 			action, opType, id := command.GetDebugParams(bot.PrimarySession, i.Member.User.ID, i.ApplicationCommandData().Options)
@@ -558,17 +534,6 @@ func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.Interacti
 		case command.Download.Name:
 			if !isAdmin {
 				return command.InsufficientPermissionsResponse(sett)
-			}
-			// don't send the userid because downloading is restricted to Gold members
-			premStatus, days, err := bot.PostgresInterface.GetGuildOrUserPremiumStatus(bot.official, bot.TopGGClient, i.GuildID, "")
-			if err != nil {
-				log.Println("Err in /download get guild prem:", err)
-			}
-			if premium.IsExpired(premStatus, days) {
-				premStatus = premium.FreeTier
-			}
-			if premStatus != premium.SelfHostTier && premStatus != premium.GoldTier {
-				return command.DownloadNotGoldResponse(sett)
 			}
 			missingPerms = checkPermissions(perm, DownloadPermissions)
 			if missingPerms > 0 {
