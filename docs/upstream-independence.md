@@ -59,11 +59,43 @@ Note on the file format: `Offsets.json` uses hexadecimal literals such as
 `python -m json.tool`, do not. The file is kept byte-identical to the imported
 upstream blob rather than reformatted.
 
+### Map images
+
+`FormMapUrl` fell back to `DefaultMapsUrl`, a hardcoded
+`raw.githubusercontent.com/automuteus/automuteus/.../assets/maps/`. The images
+were already committed under `bot/assets/maps/`, but nothing read them, and the
+runtime Docker image never copied that directory, so reading from disk was not an
+option either.
+
+The eleven images moved to `bot/pkg/game/maps/` and are embedded with `//go:embed`.
+That is the only delivery that works for both the container and a bare binary,
+and it costs about 3.8 MB in a 26 MB binary. `DefaultMapsUrl` is gone: `FormMapUrl`
+now returns an empty string unless an operator sets `BASE_MAP_URL`.
+
+`/map` answers from the embedded image, attached to the response as a file. It
+needs no network and no configuration.
+
+**The game-state thumbnail is deliberately not converted.** It is decorative, and
+the message carrying it is edited on nearly every game event —
+`DispatchRefreshOrEdit` is called from more than ten places in `eventHandler.go`.
+Attaching an image up to 1 MB on every edit would be wasteful where Discord
+currently caches one URL server-side, and reworking attachment retention across
+edits touches the most exercised path in the bot without any way to verify it
+against a live guild here.
+
+So the thumbnail now appears only when `BASE_MAP_URL` is configured, and is
+omitted otherwise. The silent dependency is gone either way; what remains is an
+opt-in. Restoring it as an attachment belongs with the game-state message rework
+in [#33](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/33),
+where it can be tested against a real guild.
+
+Incidentally, `airship.png` and `airship_detailed.png` are byte-identical
+upstream. Both are kept so the naming scheme stays predictable.
+
 ## Open
 
 | Dependency | Where | Planned handling |
 | --- | --- | --- |
-| Map images | `bot/pkg/game/map.go`, `DefaultMapsUrl` | Images already exist under `bot/assets/maps/`, but Discord renders embed images from a URL, so serving them locally means uploading attachments and referencing `attachment://`. Own change. |
 | Hats, pets, pants, sounds | `capture/AUCapture-WPF/Converters/*`, `App.xaml.cs` | Fetched from `CDN.automute.us`. Needs the asset licence review that [#33](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/33) already requires; then embed, replace or drop. |
 | Capture download link | `bot/bot/command/commands.go`, `CaptureDownloadURL` | Points at the upstream download site. Can only move once AUVC has its own release channel, see [#24](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/24). |
 | Product links | `command/help.go`, `info.go`, `privacy.go`, `setting/language.go` | Website, invite, Discord, privacy policy and Crowdin of the upstream project. Product-facing text belongs to #33. |

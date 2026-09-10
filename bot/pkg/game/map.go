@@ -1,10 +1,6 @@
 package game
 
-import "fmt"
-
 type PlayMap int
-
-const DefaultMapsUrl = "https://raw.githubusercontent.com/automuteus/automuteus/refs/heads/master/assets/maps/"
 
 const (
 	SKELD PlayMap = iota
@@ -35,27 +31,17 @@ var nameToPlayMap = map[string]int32{
 	"NoMap":     -1,
 }
 
+// FormMapUrl builds a map image URL from an operator-provided base URL.
+// AUVC ships no default base URL: an empty baseUrl means no external image
+// source is configured and callers use the bundled image instead.
 func FormMapUrl(baseUrl string, mapType PlayMap, detailed bool) string {
-	if mapType == EMPTYMAP {
-		return ""
-	}
 	if baseUrl == "" {
-		baseUrl = DefaultMapsUrl
+		return ""
 	}
 
-	mapString := ""
-	for i, v := range nameToPlayMap {
-		if v == int32(mapType) {
-			mapString = i
-			break
-		}
-	}
-	if mapString == "" {
+	name := MapFileName(mapType, detailed)
+	if name == "" {
 		return ""
 	}
-	// only have the simple variant of dleks
-	if detailed && mapType != DLEKS {
-		return fmt.Sprintf("%s%s_detailed.png", baseUrl, mapString)
-	}
-	return fmt.Sprintf("%s%s.png", baseUrl, mapString)
+	return baseUrl + name
 }

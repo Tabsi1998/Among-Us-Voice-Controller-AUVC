@@ -11,6 +11,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- Map images are embedded in the bot binary instead of being fetched from the
+  upstream GitHub repository. `/map` now answers from the bundled image with no
+  network access; `BASE_MAP_URL` has no default, so nothing points at a foreign
+  host unless an operator configures one. The decorative game-state thumbnail
+  appears only when `BASE_MAP_URL` is set. See
+  [docs/upstream-independence.md](docs/upstream-independence.md).
+
+### Changed
+
 - Capture no longer needs a third-party host to read the game. The offset index
   in `capture/Offsets.json` was already committed and used as a test fixture but
   never read at runtime; it is now embedded in `AUOffsetManager` and used as the
