@@ -1,0 +1,25 @@
+# Build-only legacy baseline, not the final standalone AUVC deployment.
+FROM golang:1.19.13-alpine AS build
+WORKDIR /src
+COPY bot/go.mod bot/go.sum ./
+RUN go mod download
+COPY bot/ ./
+ARG VERSION=dev
+ARG COMMIT=unknown
+RUN CGO_ENABLED=0 go build -buildvcs=false -trimpath \
+    -ldflags="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT}" \
+    -o /out/auvc .
+
+FROM alpine:3.22
+RUN apk add --no-cache ca-certificates && \
+    addgroup -g 10001 auvc && adduser -D -u 10001 -G auvc auvc && \
+    mkdir -p /app/logs && chown auvc:auvc /app/logs
+WORKDIR /app
+COPY --from=build /out/auvc /app/auvc
+COPY bot/locales/ /app/locales/
+COPY LICENSE THIRD_PARTY_NOTICES.md /app/
+COPY LICENSES/ /app/LICENSES/
+ENV LOCALE_PATH=/app/locales LOG_PATH=/app/logs
+USER auvc
+EXPOSE 5000 8080 2112
+ENTRYPOINT ["/app/auvc"]

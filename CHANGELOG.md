@@ -6,6 +6,17 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase-2 Windows test project with 11 offset/CLI regression cases, locked NuGet
+  restores, root Go/Windows/Docker/provenance/secret CI and Dependabot.
+
+### Fixed
+
+- Full capture solution build: the old offset helper now exports its historical
+  2020 format independently and requires explicit `--legacy-sample` selection.
+- C# baseline whitespace formatting, without memory algorithm/offset changes.
+
+### Bootstrap foundation
+
 - Independent AUVC repository foundation and MIT license for new contributions.
 - Unmodified squash-subtree imports of AutoMuteUs and AmongUsCapture.
 - Original license copies, credits and pinned upstream provenance.

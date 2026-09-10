@@ -7,14 +7,15 @@ Repository: https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC
 
 ## Project status
 
-Phase 1 contains unchanged upstream imports, licensing and the project foundation.
-AUVC is not yet a working standalone replacement. The imported applications retain
-legacy behavior and dependencies; the new runtime features below are planned.
+The repository contains the original upstream imports plus a build/test baseline.
+AUVC is not yet a working standalone replacement. The applications retain legacy
+behavior and dependencies; the new runtime features below are planned.
 
-The bootstrap is prepared for review. Go vet/tests/build and the capture WPF
-build pass locally. The full capture solution has inherited build errors,
-both upstreams have formatting differences, and capture has no test projects.
-See the [validation report](docs/bootstrap-validation.md).
+The full capture solution now builds locally and its 11 regression tests pass.
+Root CI checks Go, Windows capture, Docker, provenance and secrets. See the
+[current build guide](docs/baseline-build.md) for commands, merge procedure and
+remaining legacy warnings, and the [historical import report](docs/bootstrap-validation.md)
+for the original findings. Current Among Us/Discord gameplay has not been verified.
 
 Development follows the [20-phase roadmap](docs/roadmap.md) and
 [v1.0.0 milestone](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/milestone/1).
@@ -111,7 +112,7 @@ runtime database with source-controlled configuration.
 
 ## Troubleshooting and /au doctor
 
-For current build failures see [bootstrap validation](docs/bootstrap-validation.md).
+For build setup and known limitations see [the baseline guide](docs/baseline-build.md).
 `/au doctor` is planned to diagnose Discord, SQLite/migrations, channels,
 permissions, capture/protocol/heartbeat, game-state detection and build version
 using ✅ / ⚠️ / ❌. Report problems with redacted diagnostics and exact versions.

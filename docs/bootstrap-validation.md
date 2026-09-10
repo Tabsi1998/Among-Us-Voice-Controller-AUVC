@@ -1,5 +1,9 @@
 # Bootstrap validation
 
+Historical phase-1 report. Phase 2 repairs and current commands are documented
+in [baseline-build.md](baseline-build.md); the failures below describe the original
+import inspection and are intentionally retained as evidence.
+
 Date: 2026-09-10. Scope: unchanged imports and first-party bootstrap files on
 `codex/001-bootstrap`. This is an initial inspection, not completion of the
 separate build-baseline or runtime modernization phases.

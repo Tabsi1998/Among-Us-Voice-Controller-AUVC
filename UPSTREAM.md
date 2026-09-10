@@ -71,6 +71,19 @@ ports separately; do not advance the full-import SHA for a partial port.
 Review capture upstream when Among Us updates and before each AUVC release.
 Never force-push or rewrite main. Preserve original notices when copying code.
 
+## Reviewed local changes after import
+
+Phase 2 (`codex/002-baseline-build`) retains both import commits and their exact
+original trees. It separately formats C# whitespace, isolates AUOffsetHelper's
+historical 2020 export from current model classes, adds 11 regression tests, pins
+the baseline SDK/NuGet resolution and introduces root build CI. Memory algorithms
+and bundled offset values are not changed. See [baseline-build.md](docs/baseline-build.md).
+
+The current-tree pristine check remains in `scripts/verify_bootstrap.py` for
+historical phase 1 checkouts. Current CI uses `scripts/verify_repository.py` to
+verify original import ancestry/tree IDs and license bytes alongside application
+tests. Preserve that ancestry with normal merge commits for the initial PRs.
+
 ## Installer reference (not imported)
 
 On 2026-09-10, reviewed https://github.com/automuteus/capture-install at

@@ -1,0 +1,22 @@
+# Deliberate allowlist: no repository metadata, local credentials or tool caches.
+**
+!bot/
+!bot/**
+!deploy/
+!deploy/Dockerfile.baseline
+!LICENSE
+!LICENSES/
+!LICENSES/*.txt
+!THIRD_PARTY_NOTICES.md
+**/.git
+**/.github
+**/.env*
+**/*.key
+**/*.pem
+**/*.pfx
+**/*.p12
+**/*.log
+**/*.exe
+**/*.db
+**/bin
+**/obj
