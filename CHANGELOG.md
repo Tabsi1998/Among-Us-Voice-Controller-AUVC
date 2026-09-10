@@ -28,6 +28,14 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- Dependabot now groups minor and patch updates per ecosystem and ignores the
+  Redis/PostgreSQL packages that phase 14 deletes, plus the .NET majors that
+  need the phase 11 LTS migration. Both sets are documented with the phase that
+  re-enables them. `docs/development.md` records why NuGet bumps fail with
+  `NU1004` and the exact commands that resolve it.
+
+### Changed
+
 - Map images are embedded in the bot binary instead of being fetched from the
   upstream GitHub repository. `/map` now answers from the bundled image with no
   network access; `BASE_MAP_URL` has no default, so nothing points at a foreign
