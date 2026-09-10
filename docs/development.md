@@ -55,6 +55,54 @@ Use Python 3.11+ for the standard-library-only bootstrap verifier and Gitleaks
 not be committed. Root CI checks Go vet/format/tests/build, Windows restore/format/
 build/tests, Docker, provenance and secrets. Legacy dependency warnings are reported.
 
+## Dependency updates
+
+Dependabot is configured in `.github/dependabot.yml` for Go modules, NuGet,
+GitHub Actions and Docker. Minor and patch updates are grouped so a quiet week
+produces one pull request per ecosystem rather than one per package.
+
+Two sets of packages are deliberately ignored, each with the phase that will
+re-enable them:
+
+- **Redis and PostgreSQL packages** (`go-redis`, `redislock`, `jackc/*`, `scany`,
+  `pgxmock`) are reachable only from the layers phase 14 removes. Updating them
+  means taking breaking-change risk on code with a scheduled deletion date.
+- **Major bumps of `Discord.Net`, `Config.Net` and `HandyControl`** need code
+  changes that belong to the .NET LTS migration in phase 11. Until then such a
+  bump only produces a red pull request.
+
+Remove the corresponding `ignore` entries in those phases, together with the code.
+
+### NuGet updates and the lock files
+
+CI restores with `dotnet restore --locked-mode`, so `packages.lock.json` must
+match the project files exactly. Dependabot updates the `.csproj` of the package
+it bumps and that project's lock file, but **not** the lock files of projects
+that reference it. `AUCapture-Console` and `AUCapture-WPF` both reference
+`AmongUsCapture`, so a bump there fails the Windows job with:
+
+```
+error NU1004: The project references amonguscapture whose dependencies has changed.
+```
+
+This is not a broken update. Regenerate the lock files and commit them onto the
+Dependabot branch:
+
+```sh
+cd capture
+dotnet restore AmongUsCapture.sln --force-evaluate
+git add **/packages.lock.json
+```
+
+Then verify the way CI does, from `capture/`:
+
+```sh
+dotnet restore AmongUsCapture.sln --locked-mode
+dotnet format whitespace AmongUsCapture.sln --verify-no-changes --no-restore
+dotnet build AmongUsCapture.sln --configuration Release --no-restore
+dotnet test AUVC.Capture.Tests/AUVC.Capture.Tests.csproj --configuration Release --no-build --no-restore
+```
+
 ## License and sync checks
 
 `python scripts/verify_repository.py` verifies the preserved import commits and

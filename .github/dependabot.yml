@@ -1,18 +1,67 @@
 version: 2
+
 updates:
   - package-ecosystem: gomod
     directory: /bot
     schedule:
       interval: weekly
+    # Batch the rest so a quiet week produces one pull request instead of five.
+    open-pull-requests-limit: 5
+    groups:
+      go-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # These packages are only reachable from the Redis and PostgreSQL layers
+      # that phase 14 removes (see docs/service-removal.md). Updating them means
+      # taking breaking-change risk on code with a scheduled deletion date, and
+      # every such pull request has to be triaged and closed again by hand.
+      #
+      # Remove these entries in phase 14, together with the code.
+      - dependency-name: github.com/go-redis/redis/v8
+      - dependency-name: github.com/bsm/redislock
+      - dependency-name: github.com/jackc/*
+      - dependency-name: github.com/georgysavva/scany
+      - dependency-name: github.com/pashagolub/pgxmock
+
   - package-ecosystem: nuget
     directory: /capture
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dotnet-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Capture still targets .NET 5 and these majors need code changes that
+      # belong to the .NET LTS migration in phase 11 (#10). Until then a major
+      # bump only produces a red pull request. Re-enable them in phase 11.
+      - dependency-name: Discord.Net
+        update-types: [version-update:semver-major]
+      - dependency-name: Config.Net
+        update-types: [version-update:semver-major]
+      - dependency-name: HandyControl
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns:
+          - "*"
+
   - package-ecosystem: docker
     directory: /deploy
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      base-images:
+        patterns:
+          - "*"
