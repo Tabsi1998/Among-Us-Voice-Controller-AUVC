@@ -32,15 +32,16 @@ Discord API. Only one Windows computer runs capture. Other players need no mods
 or additional software. The bot is self-hosted.
 
 The [architecture](docs/architecture.md) separates protocol validation, Game State,
-Voice Policy and the Discord Reconciler. Configuration will persist in SQLite.
-Galactus, Redis, PostgreSQL and premium/public-worker infrastructure are scheduled
-for removal in separate phases.
+Voice Policy and the Discord Reconciler. AUVC settings and player links now use
+SQLite. Galactus, Redis and PostgreSQL remain on legacy game/session paths until
+the direct protocol and transport replace them; premium and public-worker code
+has already been removed.
 
 ## Repository layout
 
 | Path | Responsibility |
 | --- | --- |
-| `bot/` | Unmodified AutoMuteUs baseline; future Discord/server application |
+| `bot/` | Discord/server application evolving from the AutoMuteUs baseline |
 | `capture/` | AmongUsCapture import with baseline build repairs and regression tests |
 | `protocol/` | Planned versioned schemas and compatibility fixtures |
 | `deploy/` | Planned Docker and self-hosting configuration |
@@ -58,10 +59,13 @@ See [development](docs/development.md) for commands and limitations.
 
 ## Discord Bot Setup
 
-AUVC-specific setup is not implemented yet. The target bot needs a Discord
-application and effective View Channel, Connect, Move Members, Mute Members and
-Deafen Members permissions in the configured channels. Administrative commands
-will be limited to authorized users/roles.
+The current development build registers `/au setup channels` and
+`/au setup permissions`; settings persist in SQLite. It still needs the legacy
+Redis/PostgreSQL services for game sessions and is not a supported deployment.
+The target bot needs a Discord application and effective View Channel, Connect,
+Move Members, Mute Members and Deafen Members permissions in the configured
+channels. The guild owner, Discord administrators and the configured AUVC admin
+role may change administration and voice settings.
 
 Do not commit a real bot token or populated environment file. Historical setup
 instructions in [bot/README.md](bot/README.md) describe upstream, not a supported
@@ -95,16 +99,19 @@ Capture timeout defaults to unmute/undeafen, pause and warn.
 
 ## Slash Commands
 
-Planned groups: `/au setup`, `/au settings`, `/au capture`, `/au session`.
-Planned individual commands: `/au link`, `/au unlink`, `/au doctor`, `/au version`.
-The [complete command contract](docs/requirements.md#discord-commands-and-permissions)
-defines typed options and authorization. These commands are not implemented yet.
+The development build registers `/au setup`, `/au settings`, `/au capture` and
+`/au session`, plus `/au link`, `/au unlink`, `/au doctor` and `/au version`.
+Setup, settings, persistent links and version are operational. Doctor currently
+checks SQLite and configuration readiness. Capture pairing, session control and
+full Discord/capture diagnostics remain staged behind their protocol, policy and
+diagnostics phases. The [complete command contract](docs/requirements.md#discord-commands-and-permissions)
+defines the typed options and final behavior.
 
 ## Docker Installation
 
-No supported AUVC image or Compose installation exists yet.
-The [deployment plan](deploy/README.md) uses a persistent `/data` volume for
-`/data/amongus.db` and direct authenticated WSS.
+No supported AUVC image or Compose installation exists yet. The build-only image
+creates a persistent `/data` volume for `/data/amongus.db`; it still runs the
+legacy bot dependencies. See the [deployment plan](deploy/README.md).
 
 ## Upgrade
 
@@ -118,9 +125,10 @@ runtime database with source-controlled configuration.
 ## Troubleshooting and /au doctor
 
 For build setup and known limitations see [the baseline guide](docs/baseline-build.md).
-`/au doctor` is planned to diagnose Discord, SQLite/migrations, channels,
-permissions, capture/protocol/heartbeat, game-state detection and build version
-using ✅ / ⚠️ / ❌. Report problems with redacted diagnostics and exact versions.
+`/au doctor` currently diagnoses SQLite migrations and stored configuration using
+✅ / ⚠️ / ❌. Discord permissions, capture/protocol/heartbeat, game-state detection
+and complete build diagnostics follow in phase 16. Report problems with redacted
+diagnostics and exact versions.
 
 ## Security
 

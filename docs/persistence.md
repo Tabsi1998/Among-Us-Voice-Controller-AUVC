@@ -82,7 +82,10 @@ means copying the file alone during operation can miss recent writes.
 
 ## Status
 
-The package is complete and tested but not yet wired into the bot. Guild
-settings still come from the legacy Redis and PostgreSQL paths; moving them over
-happens with the `/au` command work in phase 7 and the final service removal in
-phase 14.
+The bot opens the database from `AUVC_DATABASE_PATH`, defaulting to
+`/data/amongus.db`, and the `/au` application service persists setup, settings
+and player links there. The build-only Docker image creates a non-root-writable
+`/data` volume. Legacy guild settings and active game state still coexist in
+Redis/PostgreSQL until their callers move to AUVC services in phase 14. Full
+container restart/volume recovery remains an acceptance test before issue #5 can
+close.

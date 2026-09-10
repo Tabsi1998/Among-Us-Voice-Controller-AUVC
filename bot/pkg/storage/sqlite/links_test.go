@@ -87,6 +87,25 @@ func TestSaveLinkRejectsEmptyValues(t *testing.T) {
 	}
 }
 
+func TestReplaceLinkRemovesTheUsersPreviousName(t *testing.T) {
+	db, _ := openTemp(t)
+
+	if err := db.ReplaceLink("guild", "Red", "user"); err != nil {
+		t.Fatalf("first replace: %v", err)
+	}
+	if err := db.ReplaceLink("guild", "Blue", "user"); err != nil {
+		t.Fatalf("second replace: %v", err)
+	}
+
+	links, err := db.Links("guild")
+	if err != nil {
+		t.Fatalf("read links: %v", err)
+	}
+	if len(links) != 1 || links[0].InGameName != "Blue" || links[0].DiscordUserID != "user" {
+		t.Errorf("replacement left stale data: %+v", links)
+	}
+}
+
 // Unlinking must be idempotent: /au unlink should not fail because the user
 // already unlinked.
 func TestDeleteLinkIsIdempotent(t *testing.T) {

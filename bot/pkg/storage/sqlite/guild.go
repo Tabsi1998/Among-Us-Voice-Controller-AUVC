@@ -13,29 +13,29 @@ const CurrentConfigVersion = 1
 
 // GuildConfig is the per-guild configuration required by docs/requirements.md.
 type GuildConfig struct {
-	GuildID string
+	GuildID string `json:"guild_id"`
 
-	Enabled bool
+	Enabled bool `json:"enabled"`
 
-	MainVoiceChannelID   string
-	GhostVoiceChannelID  string
-	ControlTextChannelID string
-	AdminRoleID          string
+	MainVoiceChannelID   string `json:"main_voice_channel_id"`
+	GhostVoiceChannelID  string `json:"ghost_voice_channel_id"`
+	ControlTextChannelID string `json:"control_text_channel_id"`
+	AdminRoleID          string `json:"admin_role_id"`
 
-	VoicePolicy     string
-	AutoMoveGhosts  bool
-	EnforceChannels bool
+	VoicePolicy     string `json:"voice_policy"`
+	AutoMoveGhosts  bool   `json:"auto_move_ghosts"`
+	EnforceChannels bool   `json:"enforce_channels"`
 
-	CaptureTimeoutSeconds int
-	CaptureTimeoutAction  string
+	CaptureTimeoutSeconds int    `json:"capture_timeout_seconds"`
+	CaptureTimeoutAction  string `json:"capture_timeout_action"`
 
-	AutoStart bool
+	AutoStart bool `json:"auto_start"`
 
-	ConfigVersion int
+	ConfigVersion int `json:"config_version"`
 
 	// CreatedAt and UpdatedAt are Unix seconds, maintained by the store.
-	CreatedAt int64
-	UpdatedAt int64
+	CreatedAt int64 `json:"created_at"`
+	UpdatedAt int64 `json:"updated_at"`
 }
 
 // DefaultGuildConfig returns the configuration a guild starts with. The values

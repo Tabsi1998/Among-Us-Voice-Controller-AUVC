@@ -50,6 +50,10 @@ builds and the new .NET 8 test host. Run the full solution and the actual
 AUVC.Capture.Tests project as described in [baseline-build.md](baseline-build.md).
 Application migration to supported .NET LTS belongs to phase 11.
 
+The bot reads AUVC configuration from `AUVC_DATABASE_PATH`. Containers default
+to `/data/amongus.db`; for a local development run set it to a writable path such
+as `./data/amongus.db`. Never commit the database or use it for secrets.
+
 Use Python 3.11+ for the standard-library-only bootstrap verifier and Gitleaks
 8.30.1 for the initial scan. Tool archives/caches/logs are local-only and must
 not be committed. Root CI checks Go vet/format/tests/build, Windows restore/format/

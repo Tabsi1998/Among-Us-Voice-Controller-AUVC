@@ -2,6 +2,8 @@ package command
 
 import (
 	"fmt"
+
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/discord"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
@@ -16,6 +18,7 @@ const (
 
 // All is all slash commands for the bot, ordered to match the README
 var All = []*discordgo.ApplicationCommand{
+	au.Command(),
 	&Help,
 	&New,
 	&Refresh,

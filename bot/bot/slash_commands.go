@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"log"
 	"regexp"
 	"strconv"
@@ -14,8 +13,10 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/setting"
 	redis_common "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/common"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/discord"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/bwmarrin/discordgo"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -120,6 +121,10 @@ func (bot *Bot) handleInteractionCreate(s *discordgo.Session, i *discordgo.Inter
 }
 
 func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) *discordgo.InteractionResponse {
+	if i.Type == discordgo.InteractionApplicationCommand && i.ApplicationCommandData().Name == au.Name {
+		return bot.handleAUCommand(s, i)
+	}
+
 	if i.Member != nil && i.Member.User != nil {
 		if redis_common.IsUserBanned(bot.RedisInterface.client, i.Member.User.ID) {
 			return nil

@@ -10,8 +10,10 @@ No Galactus, Redis, PostgreSQL, premium services or public worker bots in v1.0.0
 The historical Dockerfile remains at [bot/Dockerfile](../bot/Dockerfile).
 The build-only [Dockerfile.baseline](Dockerfile.baseline) supports the monorepo
 without requiring a nested Git checkout or an upstream release tag. CI builds it
-and checks its non-root user and license files. It still runs the legacy bot;
-this is not the final standalone deployment or a published image.
+and checks its non-root user and license files. It creates `/data`, assigns it to
+the non-root AUVC user, declares it as a volume and points
+`AUVC_DATABASE_PATH` at `/data/amongus.db`. It still runs the legacy game/session
+dependencies; this is not the final standalone deployment or a published image.
 
 Release packaging must provide a bot image, signed Windows Setup EXE/MSI,
 `AmongUsVoiceCapture-win-x64.zip`, checksums, signed update manifests,

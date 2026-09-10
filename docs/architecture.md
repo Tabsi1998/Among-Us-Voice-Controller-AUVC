@@ -2,12 +2,13 @@
 
 ## Baseline versus target
 
-Phase 1 imports the existing applications without restructuring them.
 The bot is the Go 1.27 module
-`github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot` and still
-retains its public-service, Redis, PostgreSQL and premium integrations.
-Capture still uses .NET 5 and its upstream transports and memory detection.
-This document describes the intended AUVC architecture, not working AUVC features.
+`github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot`. Public API, metrics,
+worker, premium and sharding integrations have been removed. Legacy game/session
+paths still require Galactus, Redis and PostgreSQL. SQLite-backed `/au` setup,
+settings and links form the first independent runtime slice. Capture still uses
+.NET 5 and its upstream transports and memory detection. The target flow below is
+therefore only partially implemented.
 
 ## Target data flow
 

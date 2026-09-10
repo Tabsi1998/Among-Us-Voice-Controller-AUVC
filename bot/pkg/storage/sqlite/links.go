@@ -14,6 +14,42 @@ type PlayerLink struct {
 	UpdatedAt     int64
 }
 
+// ReplaceLink atomically keeps one persistent player link per Discord user.
+// The player-name primary key already guarantees the inverse direction. Doing
+// both statements in one transaction avoids losing the user's previous link if
+// the replacement insert fails.
+func (d *DB) ReplaceLink(guildID, inGameName, discordUserID string) error {
+	if guildID == "" || inGameName == "" || discordUserID == "" {
+		return errors.New("replace link: guild, player name and user id are all required")
+	}
+
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("begin replacing link %s/%s: %w", guildID, discordUserID, err)
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(
+		"DELETE FROM player_link WHERE guild_id = ? AND discord_user_id = ?", guildID, discordUserID,
+	); err != nil {
+		return fmt.Errorf("remove previous link %s/%s: %w", guildID, discordUserID, err)
+	}
+	if _, err := tx.Exec(`
+		INSERT INTO player_link (guild_id, in_game_name, discord_user_id, updated_at)
+		VALUES (?, ?, ?, unixepoch())
+		ON CONFLICT(guild_id, in_game_name) DO UPDATE SET
+			discord_user_id = excluded.discord_user_id,
+			updated_at      = unixepoch()`,
+		guildID, inGameName, discordUserID,
+	); err != nil {
+		return fmt.Errorf("write replacement link %s/%s: %w", guildID, inGameName, err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit replacement link %s/%s: %w", guildID, inGameName, err)
+	}
+	return nil
+}
+
 // SaveLink records or replaces the link for an Among Us player name.
 //
 // A name maps to at most one Discord user per guild, enforced by the primary

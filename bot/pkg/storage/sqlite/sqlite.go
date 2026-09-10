@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -32,6 +33,15 @@ type DB struct {
 //
 // Use ":memory:" for tests.
 func Open(path string) (*DB, error) {
+	if strings.TrimSpace(path) == "" {
+		return nil, errors.New("sqlite database path is empty")
+	}
+	if path != ":memory:" {
+		if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+			return nil, fmt.Errorf("create sqlite database directory: %w", err)
+		}
+	}
+
 	// Foreign keys are off by default in SQLite and busy_timeout avoids an
 	// immediate SQLITE_BUSY when two goroutines write at once.
 	dsn := path + "?_pragma=foreign_keys(1)&_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)"
