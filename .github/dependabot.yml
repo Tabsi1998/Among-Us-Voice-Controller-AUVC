@@ -43,8 +43,14 @@ updates:
         update-types: [version-update:semver-major]
       - dependency-name: Config.Net
         update-types: [version-update:semver-major]
+      # HandyControl broke on a minor, not a major: 3.0.0 to 3.5.1 changes the
+      # ResourceHelper.GetTheme signature and fails the build with CS1501 at
+      # capture/AUCapture-WPF/Contributors.xaml.cs:40. Minors are therefore
+      # ignored too; patches still come through.
       - dependency-name: HandyControl
-        update-types: [version-update:semver-major]
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
 
   - package-ecosystem: github-actions
     directory: /
