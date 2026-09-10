@@ -92,6 +92,30 @@ where it can be tested against a real guild.
 Incidentally, `airship.png` and `airship_detailed.png` are byte-identical
 upstream. Both are kept so the naming scheme stays predictable.
 
+### Guarding against regression
+
+`scripts/check_upstream_references.py` runs in CI and fails when a new reference
+to `automute.us`, `raw.githubusercontent.com/automuteus`,
+`raw.githubusercontent.com/denverquane` or the upstream Crowdin project appears
+in the source.
+
+The references that still exist are recorded in
+`scripts/upstream_references_baseline.txt`, so the check passes today while
+refusing anything new. Forty entries at the time of writing, twenty-five of them
+translated product text in `bot/locales`.
+
+The list may only shrink. Removing a reference makes the check fail on the stale
+baseline entry, which keeps the file honest; regenerate it with:
+
+```sh
+python scripts/check_upstream_references.py --update
+```
+
+Provenance is deliberately exempt. `UPSTREAM.md`, `LICENSES/`,
+`THIRD_PARTY_NOTICES.md` and the documentation name upstream on purpose. This
+check is about what the running product reaches for, not about hiding where the
+code came from.
+
 ## Open
 
 | Dependency | Where | Planned handling |
