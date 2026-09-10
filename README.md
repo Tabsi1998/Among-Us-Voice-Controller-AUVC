@@ -21,6 +21,10 @@ Development follows the [20-phase roadmap](docs/roadmap.md) and
 [v1.0.0 milestone](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/milestone/1).
 Each phase uses a separate feature branch and PR.
 
+AUVC will receive an independent logo, visual system and complete Capture/Discord/
+installer styling rework. The [branding plan](docs/branding-and-design.md) requires
+multiple previews and explicit owner approval before existing assets are replaced.
+
 ## How it works
 
 Target: Among Us → AmongUsVoiceCapture.exe → authenticated WSS → AUVC Bot →

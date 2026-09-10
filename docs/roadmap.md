@@ -42,6 +42,20 @@ changes, purpose, exact validation results, migrations and known limitations.
 
 ## Release progression
 
+### AUVC branding and product design
+
+[Issue #33](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/33)
+tracks the complete visual rework across Capture, Discord, GitHub, documentation,
+installer, updater and releases. The [branding plan](branding-and-design.md)
+requires an asset/license inventory, three distinct preview directions and explicit
+owner approval before broad implementation. A refined UI prototype has a second
+approval gate.
+
+Design discovery can begin after the build baseline. Implementation remains split
+into small PRs and follows the relevant architecture, .NET, command, installer and
+release phases. Historical names and notices stay in provenance/license documents;
+product-facing legacy branding is replaced only after approval.
+
 ### Windows usability and automated delivery work packages
 
 The [Windows installation and release contract](windows-installation-and-releases.md)

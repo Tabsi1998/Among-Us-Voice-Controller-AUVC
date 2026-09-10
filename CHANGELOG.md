@@ -8,6 +8,8 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 - Phase-2 Windows test project with 11 offset/CLI regression cases, locked NuGet
   restores, root Go/Windows/Docker/provenance/secret CI and Dependabot.
+- Branding and product-design roadmap with asset/license inventory, multiple
+  visual concepts, owner approval gates and staged Capture/Discord/installer work.
 
 ### Fixed
 
