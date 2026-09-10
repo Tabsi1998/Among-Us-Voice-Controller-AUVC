@@ -391,7 +391,7 @@ func (bot *Bot) slashCommandHandler(s *discordgo.Session, i *discordgo.Interacti
 
 		case command.Map.Name:
 			mapType, detailed := command.GetMapParams(i.ApplicationCommandData().Options)
-			return command.MapResponse(mapType, detailed)
+			return command.MapResponse(mapType, detailed, sett)
 
 		case command.Stats.Name:
 			action, opType, id := command.GetStatsParams(bot.PrimarySession, i.GuildID, i.ApplicationCommandData().Options)
