@@ -70,3 +70,13 @@ ports separately; do not advance the full-import SHA for a partial port.
 
 Review capture upstream when Among Us updates and before each AUVC release.
 Never force-push or rewrite main. Preserve original notices when copying code.
+
+## Installer reference (not imported)
+
+On 2026-09-10, reviewed https://github.com/automuteus/capture-install at
+`c08906336fb60fb2e8feb0ac2e033f76c17bfb0a`, default branch `main`.
+License: MIT, Copyright (c) 2021 automuteus. No scripts/assets were imported or
+executed, so this is a design reference rather than a third subtree.
+Before any future reuse, preserve the original license and attribution and add
+the copied license/provenance to LICENSES and THIRD_PARTY_NOTICES.
+See the [installer/release plan](docs/windows-installation-and-releases.md).

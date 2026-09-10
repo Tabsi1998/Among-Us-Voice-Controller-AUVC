@@ -104,6 +104,33 @@ controlled migration. Confirm non-use before removing backup projects/artifacts.
 Keep memory/offset detection easy to compare with upstream. Produce a
 self-contained Windows x64 `AmongUsVoiceCapture-win-x64.zip`.
 
+## Windows installation, usability and updates
+
+The Windows capture application must be straightforward for nontechnical users:
+download a graphical Setup EXE, install, pair once and play. No BAT, terminal,
+manual .NET installation or configuration-file editing in the normal user flow.
+The self-hosted bot remains a separate administrator setup; other players do not
+need capture installed.
+
+Automatically build `AmongUsVoiceCapture-Setup-win-x64.exe`,
+`AmongUsVoiceCapture-win-x64.msi` and the self-contained portable ZIP from the
+same tested payload. Provide coordinated upgrade identity, repair, cancellation,
+uninstall, explicit data-retention choices and a tested SemVer-to-MSI mapping.
+
+Provide guided first-run pairing, clear game/bot/session status, actionable errors,
+German/English UI, keyboard/high-DPI support and redacted diagnostics. Preserve
+settings and protected pairing across restarts/upgrades. Autostart is opt-in.
+
+Stable is the default update channel; Preview is opt-in. Validate signed metadata,
+artifact signatures, checksums and bot/protocol compatibility before installation.
+Updates must not interrupt active rounds. Interrupted/corrupt updates retain a
+usable installation; rollback respects data compatibility and never silently
+downgrades. Do not embed GitHub/download/signing credentials in shipped files.
+
+The [installation and release contract](windows-installation-and-releases.md)
+defines artifacts, triggers, signing/distribution prerequisites, UX acceptance
+and clean-Windows installation/update tests. Track this work in issues #20–#24.
+
 ## Protocol, pairing and recovery
 
 Version the capture-to-bot schema. Example envelope:
@@ -184,9 +211,19 @@ Docker build; secret scan and meaningful dependency scan. Dependabot:
 Go Modules, NuGet, GitHub Actions and Docker. Keep tests intact when failures occur.
 
 Semantic Versioning: early `v0.1.0-alpha.1`, `v0.1.0-alpha.2`, then
-`v0.5.0`, stable `v1.0.0`. Releases include a bot Docker image, capture ZIP,
-checksums, release notes and upgrade/migration instructions. Intended GHCR image:
+`v0.5.0`, stable `v1.0.0`. Releases include a bot Docker image, signed Windows
+EXE/MSI installers and capture ZIP, checksums, signed update metadata,
+SBOM/provenance, release notes and upgrade/migration instructions. Intended GHCR image:
 `ghcr.io/tabsi1998/amongus-voice-controller` (registry paths are lowercase).
+
+Automate release preparation via explicit version/changelog PRs. Their approved
+merge creates the intended tag; the tag is the single publishing trigger.
+SemVer alpha/beta/rc tags publish Pre-Releases/Preview only; stable SemVer tags
+publish Stable only after checks for the exact SHA, packaging and signing pass.
+Ordinary PR/main builds publish no user release. Manual retries must preserve
+gates and artifact identity; never overwrite published versions. Publish complete
+artifact sets before switching feeds/image aliases. Private repository download
+access and publisher/signing prerequisites must be resolved before distribution.
 
 README must cover purpose, data flow, prerequisites, Discord setup, capture
 setup, ghost behavior, slash commands, Docker, upgrade, troubleshooting, doctor,

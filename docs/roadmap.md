@@ -40,9 +40,32 @@ changes, purpose, exact validation results, migrations and known limitations.
 
 ## Release progression
 
+### Windows usability and automated delivery work packages
+
+The [Windows installation and release contract](windows-installation-and-releases.md)
+extends the original ZIP-only target with a graphical EXE installer, MSI, guided
+first-run setup, secure updates and fully automated release delivery after an
+explicit release trigger. These are planned features, not available downloads.
+
+| Issue | Deliverable | Placement |
+| --- | --- | --- |
+| [#20](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/20) | Self-contained EXE/MSI/ZIP, repair/upgrade/uninstall | After .NET modernization; phase 17 |
+| [#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21) | Guided pairing, clear status and accessible German/English GUI | Phases 11/13/16 |
+| [#22](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/22) | Verified Stable/Preview updates and recovery | After protocol/recovery; phase 17 |
+| [#23](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/23) | Release preparation, tag-triggered Pre-Releases/Stable, complete artifacts | Phase 17; release gates in phase 20 |
+| [#24](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/24) | Signing/publisher identity and accessible downloads | Plan prerequisites early; phase 17 |
+
+Use a separate `codex/<number>-<topic>` branch and PR per work package when its
+prerequisites are ready. Phase 17 is split into small deliverables. Extend #17
+with clean-Windows installation/update tests, #16 with user guides and #18 with
+all installer/signing/distribution gates. The main phase sequence is unchanged.
+
+### Version sequence
+
 Early development: `v0.1.0-alpha.1`, `v0.1.0-alpha.2`.
 Broader integration: `v0.5.0`. Stable: `v1.0.0` after acceptance.
 
-Required artifacts: bot Docker image, self-contained Windows x64 capture ZIP,
-checksums, release notes and upgrade/migration instructions. No release is
-created by the bootstrap phase.
+Required artifacts: bot Docker image, signed Windows x64 Setup EXE/MSI and
+self-contained portable ZIP, checksums, signed update metadata, SBOM/provenance,
+release notes and upgrade/migration instructions. Preview never updates the Stable
+feed or latest image alias. No release is created by the bootstrap phase.

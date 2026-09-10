@@ -63,10 +63,13 @@ AUVC installation.
 
 ## Capture Setup
 
-The planned `AmongUsVoiceCapture-win-x64.zip` will contain a self-contained
-Windows x64 application. Pair it once using an expiring `/au capture pair` code;
-its long-term credential will be securely stored on Windows and revocable.
-This flow and artifact are not available yet. The imported source and historical
+The planned recommended download is a graphical
+`AmongUsVoiceCapture-Setup-win-x64.exe` installer, with MSI and self-contained
+portable ZIP alternatives. Install, follow the first-run guide, pair using an
+expiring `/au capture pair` code and play. No BAT, terminal or manual .NET
+installation should be needed. Long-term credentials will be securely stored on
+Windows and revocable. See the [installation/release plan](docs/windows-installation-and-releases.md).
+This flow and these artifacts are not available yet. The imported source and historical
 instructions are in [capture/](capture/README.md).
 
 ## Ghost Channel behavior
@@ -100,8 +103,11 @@ The [deployment plan](deploy/README.md) uses a persistent `/data` volume for
 ## Upgrade
 
 There is no released AUVC version to upgrade yet. Future releases must provide
-versioned migration and backup/recovery instructions. Never replace a runtime
-database with source-controlled configuration.
+versioned migration and backup/recovery instructions. The planned GUI updater
+defaults to Stable; Preview is opt-in. Verified updates preserve settings/pairing
+and must not interrupt active rounds. Release preparation and tag-triggered
+EXE/MSI/ZIP builds, signing and publication will be automated. Never replace a
+runtime database with source-controlled configuration.
 
 ## Troubleshooting and /au doctor
 
