@@ -86,6 +86,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Removed
 
+- The four unused backup project files under `capture/`. None was in
+  `AmongUsCapture.sln` or referenced by any `ProjectReference`; they were older
+  snapshots targeting netcoreapp3.1 and outdated package versions. Dependabot
+  was maintaining projects nobody builds.
 - The inert upstream CI configuration nested at `bot/.github/` and
   `capture/.github/`: four Docker/goreleaser/build workflows, a second
   Dependabot config, upstream issue templates and a `FUNDING.yml` whose custom
