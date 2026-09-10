@@ -13,7 +13,6 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/pashagolub/pgxmock v1.8.0
 	github.com/top-gg/go-dbl v0.0.0-20201116001615-e844586b1159
-	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6
 	golang.org/x/text v0.42.0
 )
 

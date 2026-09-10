@@ -194,12 +194,6 @@ func discordMainWrapper() error {
 	}
 
 	tokenProvider := tokenprovider.NewTokenProvider(nil, nil, taskTimeoutms, maxReq)
-	var extraTokens []string
-	extraTokenStr := strings.ReplaceAll(os.Getenv("WORKER_BOT_TOKENS"), " ", "")
-	if extraTokenStr != "" {
-		extraTokens = strings.Split(extraTokenStr, ",")
-	}
-
 	bots := make([]*bot.Bot, len(shards))
 	for i, shard := range shards {
 		bots[i] = bot.MakeAndStartBot(version, commit, discordToken, topGGToken, url, emojiGuildID, numShards, int(shard), &redisClient, &storageInterface, &psql, logPath)
@@ -213,7 +207,6 @@ func discordMainWrapper() error {
 	for i := 0; i < len(shards); i++ {
 		bots[i].TokenProvider = tokenProvider
 	}
-	tokenProvider.PopulateAndStartSessions(extraTokens)
 	// empty string entry = global
 	slashCommandGuildIds := []string{""}
 	slashCommandGuildIdStr := strings.ReplaceAll(os.Getenv("SLASH_COMMAND_GUILD_IDS"), " ", "")
