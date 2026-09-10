@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +11,7 @@ namespace AmongUsCapture.Memory.Structs
         public string Name { get; set; }
         public bool IsImpostor { get; set; }
 
-        public void SetImpostor (bool imp)
+        public void SetImpostor(bool imp)
         {
             this.IsImpostor = imp;
         }

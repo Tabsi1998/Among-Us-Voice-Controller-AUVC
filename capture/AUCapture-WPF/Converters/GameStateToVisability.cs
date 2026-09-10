@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,15 +11,15 @@ namespace AUCapture_WPF.Converters
 {
     class BrushInverter : IValueConverter
     {
-        public static Color Invert (Color color)
+        public static Color Invert(Color color)
         {
-            return Color.FromRgb((byte) (255 - color.R), (byte) (255 - color.G), (byte) (255 - color.B));
+            return Color.FromRgb((byte)(255 - color.R), (byte)(255 - color.G), (byte)(255 - color.B));
         }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is SolidColorBrush)
             {
-                var brushy = (SolidColorBrush) value;
+                var brushy = (SolidColorBrush)value;
                 var inverted = Invert(brushy.Color);
                 return new SolidColorBrush(inverted);
             }

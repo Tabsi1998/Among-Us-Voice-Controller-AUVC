@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
@@ -34,8 +34,8 @@ namespace AUCapture_WPF.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-             var color = value as PlayerColor? ?? PlayerColor.Red;
-             return BrushMapping[color];
+            var color = value as PlayerColor? ?? PlayerColor.Red;
+            return BrushMapping[color];
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -45,15 +45,16 @@ namespace AUCapture_WPF.Converters
     }
     public class PlayerColorToBrushShaded : IValueConverter
     {
-        public static Color shadeColor(Color inColor, float percent) {
-            
+        public static Color shadeColor(Color inColor, float percent)
+        {
+
             float R = (inColor.R * (100 + percent)) / 100;
             float G = (inColor.G * (100 + percent)) / 100;
             float B = (inColor.B * (100 + percent)) / 100;
             R = R < 255 ? R : 255;
             G = G < 255 ? G : 255;
             B = B < 255 ? B : 255;
-            return Color.FromArgb(255, (byte) R, (byte) G, (byte) B);
+            return Color.FromArgb(255, (byte)R, (byte)G, (byte)B);
         }
 
         private static readonly Dictionary<PlayerColor, SolidColorBrush> BrushMapping = new() {

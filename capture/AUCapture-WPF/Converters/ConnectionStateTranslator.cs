@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -15,22 +15,25 @@ namespace AUCapture_WPF.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Count() == 2) {
+            if (values.Count() == 2)
+            {
                 if (values[0] is null)
                 {
                     return string.Empty;
                 }
-                try {
+                try
+                {
                     var ThingString = values[0] as string;
-                    return TranslationFor("ConnectionStatus."+ThingString.ToUpper()).Translated;
+                    return TranslationFor("ConnectionStatus." + ThingString.ToUpper()).Translated;
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     return string.Empty;
                 }
-                    
-                
-            } 
-            
+
+
+            }
+
             return "";
         }
         public static ITranslation TranslationFor(string key, ErrorHandling errorHandling = ErrorHandling.ReturnErrorInfoPreserveNeutral)

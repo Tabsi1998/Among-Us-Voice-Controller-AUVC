@@ -23,7 +23,7 @@ namespace AmongUsCapture.DBus
         private bool _serverIsStarted;
         private bool _isHostInstance;
         private Task _serverTask;
-        
+
         public override URIStartResult HandleURIStart(string[] args)
         {
             var myProcessId = Process.GetCurrentProcess().Id;
@@ -61,7 +61,7 @@ namespace AmongUsCapture.DBus
                         {
                             var capproc = Process.GetProcessById(pidint);
                             var iscapture = false;
-                            
+
                             foreach (ProcessModule mod in capproc.Modules)
                             {
                                 // If we find amonguscapturedll in the modules, we can be certain
@@ -95,7 +95,7 @@ namespace AmongUsCapture.DBus
                     pidwriter.Write(myProcessId);
                 }
             }
-            
+
 
             if (!_isHostInstance) // send it to already existing instance if applicable, then close
             {
@@ -186,8 +186,8 @@ namespace AmongUsCapture.DBus
             var xdg_path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "applications");
             var xdg_file = Path.Join(xdg_path, "aucapture-opener.desktop");
-            
-            if(File.Exists(xdg_file))
+
+            if (File.Exists(xdg_file))
             {
                 File.Delete(xdg_file);
             }
@@ -204,7 +204,7 @@ namespace AmongUsCapture.DBus
             using (Connection conn = new Connection(Address.Session))
             {
                 await conn.ConnectAsync();
-                
+
                 var _ipclink = conn.CreateProxy<IConnectLink>("org.AmongUsCapture.ConnectLink",
                     "/org/AmongUsCapture/ConnectLink");
 
@@ -216,7 +216,7 @@ namespace AmongUsCapture.DBus
 
         public override Task SendToken(string host, string connectCode)
         {
-            var st = new StartToken {ConnectCode = connectCode, Host = host};
+            var st = new StartToken { ConnectCode = connectCode, Host = host };
             OnTokenEvent(st);
             return Task.CompletedTask;
         }
@@ -239,7 +239,7 @@ namespace AmongUsCapture.DBus
                         obj.SentLink += RespondToDbus;
 
                         _serverIsStarted = true;
-                        
+
                         while (!_cancellation.IsCancellationRequested)
                         {
                             _cancellation.Token.ThrowIfCancellationRequested();

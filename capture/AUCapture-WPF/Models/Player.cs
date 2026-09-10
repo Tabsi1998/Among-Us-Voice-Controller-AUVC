@@ -1,4 +1,4 @@
-﻿using System.CodeDom;
+using System.CodeDom;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using AmongUsCapture;

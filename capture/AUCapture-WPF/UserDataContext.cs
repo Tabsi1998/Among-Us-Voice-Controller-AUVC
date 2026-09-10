@@ -1,4 +1,4 @@
-﻿using ControlzEx.Theming;
+using ControlzEx.Theming;
 using MahApps.Metro.Controls.Dialogs;
 using Octokit;
 using System;
@@ -186,7 +186,7 @@ namespace AUCapture_WPF
             ExecuteDelegate = x =>
             {
                 if (!Directory.Exists(App.LogFolder)) return;
-                Process.Start(new ProcessStartInfo(App.LogFolder) {UseShellExecute = true});
+                Process.Start(new ProcessStartInfo(App.LogFolder) { UseShellExecute = true });
 
             }
         };
@@ -195,14 +195,15 @@ namespace AUCapture_WPF
             CanExecuteDelegate = x => true,
             ExecuteDelegate = x =>
             {
-                Application.Current.Invoke(()=>
+                Application.Current.Invoke(() =>
                 {
                     IPCAdapter.getInstance().mutex.ReleaseMutex(); //Release the mutex so the other app does not see us. 
                     ProcessStartInfo startInfo = new ProcessStartInfo(Process.GetCurrentProcess().MainModule.FileName);
-                    if (StartToken.LastRawToken is not null) {
+                    if (StartToken.LastRawToken is not null)
+                    {
                         startInfo.Arguments = $"\"{StartToken.LastRawToken}\"";
                     }
-                    
+
                     Process.Start(startInfo);
                     Application.Current.Shutdown(0);
                 });
@@ -222,9 +223,10 @@ namespace AUCapture_WPF
             ExecuteDelegate = x =>
             {
                 if (!Directory.Exists(App.LogFolder)) return;
-                if(!File.Exists(Path.Join(App.LogFolder, "latest.log"))) return;
+                if (!File.Exists(Path.Join(App.LogFolder, "latest.log"))) return;
                 string logText = File.ReadAllText(Path.Join(App.LogFolder, "latest.log"));
-                if (logText.Length <= 1994) {
+                if (logText.Length <= 1994)
+                {
                     logText = $"```{logText}```";
                 }
                 Clipboard.SetText(logText);
@@ -240,14 +242,18 @@ namespace AUCapture_WPF
                 OnPropertyChanged();
             }
         }
-        private static void OpenBrowser(string url) {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                Process.Start(new ProcessStartInfo(url) {UseShellExecute = true});
+        private static void OpenBrowser(string url)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
                 Process.Start("xdg-open", url);
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
                 Process.Start("open", url);
             }
         }
@@ -341,14 +347,15 @@ namespace AUCapture_WPF
         }
         private static void Shuffle<T>(List<T> list)
         {
-            Random rng = new Random(); 
-            int n = list.Count;  
-            while (n > 1) {  
-                n--;  
-                int k = rng.Next(n + 1);  
-                T value = list[k];  
-                list[k] = list[n];  
-                list[n] = value;  
+            Random rng = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
             }
         }
         public void GeneratePlayers(int numOfPlayers)
@@ -388,7 +395,7 @@ namespace AUCapture_WPF
                 {
                     latest = client.Repository.Release.GetLatest("denverquane", "amonguscapture").Result;
                 }
-                
+
                 LatestReleaseAssetURL = latest.Assets.First(x => x.Name == "AmongUsCapture.zip").BrowserDownloadUrl;
                 if (latest.Assets.Any(x => x.Name == "AmongUsCapture.zip.sha256.pgp"))
                     LatestReleaseAssetSignedHashURL = latest.Assets.First(x => x.Name == "AmongUsCapture.zip.sha256.pgp").BrowserDownloadUrl;
@@ -420,19 +427,21 @@ namespace AUCapture_WPF
                         MessageDialogStyle.AffirmativeAndNegative,
                         new MetroDialogSettings
                         {
-                            AnimateHide = true, AffirmativeButtonText = "Restart", NegativeButtonText = "Later",
-                            DefaultButtonFocus = MessageDialogResult.Affirmative, 
+                            AnimateHide = true,
+                            AffirmativeButtonText = "Restart",
+                            NegativeButtonText = "Later",
+                            DefaultButtonFocus = MessageDialogResult.Affirmative,
                         }).Result;
                     if (selection == MessageDialogResult.Affirmative)
                     {
-                        Application.Current.Invoke(()=>
+                        Application.Current.Invoke(() =>
                         {
                             IPCAdapter.getInstance().mutex.ReleaseMutex(); //Release the mutex so the other app does not see us. 
                             Process.Start(Process.GetCurrentProcess().MainModule.FileName);
                             Application.Current.Shutdown(0);
                         });
                     }
-                    
+
                 }));
 
 

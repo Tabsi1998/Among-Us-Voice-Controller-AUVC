@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using AUOffsetManager;
 using Discord;
 
 namespace AmongUsCapture
 {
-    
+
     public class PlayerInfo
     {
         public byte PlayerId;
@@ -28,18 +28,21 @@ namespace AmongUsCapture
 
         public IntPtr _object; //Assume this always has largest offset
 
-        public PlayerInfo(IntPtr baseAddr, ProcessMemory MemInstance, GameOffsets CurrentOffsets) {
-            unsafe {
+        public PlayerInfo(IntPtr baseAddr, ProcessMemory MemInstance, GameOffsets CurrentOffsets)
+        {
+            unsafe
+            {
                 var baseAddrCopy = baseAddr;
                 int last = MemInstance.OffsetAddress(ref baseAddrCopy, 0, 0);
                 var intPtrSize = MemInstance.is64Bit ? 8 : 4;
-                int size = ((int)Math.Ceiling((decimal) ((intPtrSize + CurrentOffsets.PlayerInfoStructOffsets.ObjectOffset)/8)))*8; //Find the nearest multiple of 8
+                int size = ((int)Math.Ceiling((decimal)((intPtrSize + CurrentOffsets.PlayerInfoStructOffsets.ObjectOffset) / 8))) * 8; //Find the nearest multiple of 8
                 byte[] buffer = MemInstance.Read(baseAddrCopy + last, size);
                 PlayerInfoStructOffsets pOf = CurrentOffsets.PlayerInfoStructOffsets;
                 PlayerOutfitStructOffsets oOf = CurrentOffsets.PlayerOutfitStructOffsets;
                 var outfit = MemInstance.Read<IntPtr>(baseAddrCopy, pOf.OutfitsOffset);
-                fixed (byte* ptr = buffer) {
-                    var buffptr = (IntPtr) ptr;
+                fixed (byte* ptr = buffer)
+                {
+                    var buffptr = (IntPtr)ptr;
                     PlayerId = Marshal.ReadByte(buffptr, pOf.PlayerIDOffset);
                     Disconnected = Marshal.ReadByte(buffptr, pOf.DisconnectedOffset) > 0;
                     Tasks = Marshal.ReadIntPtr(buffptr, pOf.TasksOffset);
@@ -65,14 +68,15 @@ namespace AmongUsCapture
                 }
             }
         }
-        public string GetPlayerName() {
+        public string GetPlayerName()
+        {
             return PlayerName;
         }
         public bool GetIsDead()
         {
             return IsDead;
         }
-        
+
         public bool GetIsImposter()
         {
             return IsImpostor;

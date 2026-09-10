@@ -9,12 +9,12 @@ namespace AmongUsCapture.DBus
     {
         Task SendConnectUriAsync(string uri);
     }
-    
+
     public class IPCLink : IConnectLink
     {
         public ObjectPath ObjectPath => new ObjectPath("/org/AmongUsCapture/ConnectLink");
         public event Action<string> SentLink;
-        
+
         public Task SendConnectUriAsync(string uri)
         {
             // Call event and send URI.

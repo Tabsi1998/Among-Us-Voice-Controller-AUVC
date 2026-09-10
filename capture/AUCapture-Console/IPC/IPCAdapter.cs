@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -39,7 +39,7 @@ namespace AUCapture_Console.IPC
             // Safely raise the event for all subscribers
             OnToken?.Invoke(this, e);
         }
-        
+
         public abstract URIStartResult HandleURIStart(string[] args);
         public abstract Task<bool> SendToken(string jsonText);
         public abstract Task SendToken(string host, string connectCode);
@@ -51,8 +51,8 @@ namespace AUCapture_Console.IPC
             return Task.CompletedTask;
         }
     }
-    
-    
+
+
     public enum URIStartResult
     {
         CLOSE,

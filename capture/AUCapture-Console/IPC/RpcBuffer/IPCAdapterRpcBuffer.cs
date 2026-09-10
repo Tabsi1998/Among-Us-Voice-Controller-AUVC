@@ -44,7 +44,7 @@ namespace AUCapture_Console.IPC.RpcBuffer
 
         public override Task SendToken(string host, string connectCode)
         {
-            var st = new StartToken {ConnectCode = connectCode, Host = host};
+            var st = new StartToken { ConnectCode = connectCode, Host = host };
             OnTokenEvent(st);
             return Task.CompletedTask;
         }
@@ -89,7 +89,7 @@ namespace AUCapture_Console.IPC.RpcBuffer
                 var serverResponse = "Carbon has a huge pp also this is debug messages.";
                 var gotData = Encoding.UTF8.GetString(payload, 0, payload.Length);
                 Console.WriteLine($"RPCMinion: Got data: {gotData}");
-                OnTokenEvent(StartToken.FromString(gotData));; //Invoke method and return.
+                OnTokenEvent(StartToken.FromString(gotData)); ; //Invoke method and return.
                 return Encoding.UTF8.GetBytes(serverResponse);
             });
             return Task.CompletedTask;
@@ -101,5 +101,5 @@ namespace AUCapture_Console.IPC.RpcBuffer
             return Task.CompletedTask;
         }
     }
-    
+
 }

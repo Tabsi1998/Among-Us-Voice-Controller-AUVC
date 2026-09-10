@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -34,18 +34,19 @@ namespace AUCapture_WPF
         public static string LogFolder = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AmongUsCapture", "logs");
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public void SetupLoggingConfig() {
+        public void SetupLoggingConfig()
+        {
             var LoggingConfig = new NLog.Config.LoggingConfiguration();
             FileVersionInfo v = FileVersionInfo.GetVersionInfo(App.GetExecutablePath());
             var logfile = new NLog.Targets.FileTarget("logfile")
             {
                 FileName = "${specialfolder:folder=ApplicationData:cached=true}/AmongUsCapture/logs/latest.log",
-                ArchiveFileName= "${specialfolder:folder=ApplicationData:cached=true}/AmongUsCapture/logs/{#}.log",
-                ArchiveNumbering= ArchiveNumberingMode.Date,
+                ArchiveFileName = "${specialfolder:folder=ApplicationData:cached=true}/AmongUsCapture/logs/{#}.log",
+                ArchiveNumbering = ArchiveNumberingMode.Date,
                 Layout = "${time:universalTime=True}|${level:uppercase=true}|${logger}|${message}",
                 MaxArchiveFiles = 100,
                 ArchiveOldFileOnStartup = true,
-                ArchiveDateFormat= "yyyy-MM-dd HH_mm_ss",
+                ArchiveDateFormat = "yyyy-MM-dd HH_mm_ss",
                 Header = $"Capture version: {v.FileMajorPart}.{v.FileMinorPart}.{v.FileBuildPart}.{v.FilePrivatePart}\n",
                 Footer = $"\nCapture version: {v.FileMajorPart}.{v.FileMinorPart}.{v.FileBuildPart}.{v.FilePrivatePart}"
             };
@@ -80,12 +81,12 @@ namespace AUCapture_WPF
             SetupLoggingConfig();
             var args = e.Args;
 
-             // needs to be the first call in the program to prevent weird bugs
-             if (Settings.PersistentSettings.debugConsole)
-                 AllocConsole();
+            // needs to be the first call in the program to prevent weird bugs
+            if (Settings.PersistentSettings.debugConsole)
+                AllocConsole();
 
             var uriStart = IPCAdapter.getInstance().HandleURIStart(e.Args);
-            
+
             switch (uriStart)
             {
                 case URIStartResult.CLOSE:
@@ -99,9 +100,10 @@ namespace AUCapture_WPF
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Console.WriteLine(string.Join(", ",Assembly.GetExecutingAssembly().GetManifestResourceNames())); //Gets all the embedded resources
-            
-            try {
+            Console.WriteLine(string.Join(", ", Assembly.GetExecutingAssembly().GetManifestResourceNames())); //Gets all the embedded resources
+
+            try
+            {
                 config = new ConfigurationBuilder<IAppSettings>()
                     .UseJsonFile(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                         "\\AmongUsCapture\\AmongUsGUI", "Settings.json")).Build();
@@ -114,14 +116,14 @@ namespace AUCapture_WPF
                     .UseJsonFile(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                         "\\AmongUsCapture\\AmongUsGUI", "Settings.json")).Build();
             }
-            
+
             var r = new Random();
             var rValue = r.Next(101);
             var goingToPop = rValue == 1;
             var goingToDouche = rValue == 2;
             var goingToMonke = rValue == 3;
-            var Valentines = DateTime.UtcNow >= new DateTime(2021, 2, 7) && DateTime.UtcNow <= new DateTime(2021, 2, 20);  
-            if (!config.startupMemes||(!goingToPop && !goingToDouche && !goingToMonke)||Valentines)
+            var Valentines = DateTime.UtcNow >= new DateTime(2021, 2, 7) && DateTime.UtcNow <= new DateTime(2021, 2, 20);
+            if (!config.startupMemes || (!goingToPop && !goingToDouche && !goingToMonke) || Valentines)
             {
                 if (DateTime.Now.Month == 12)
                 {
@@ -137,12 +139,12 @@ namespace AUCapture_WPF
                 }
                 //Console.WriteLine(string.Join(", ",Assembly.GetExecutingAssembly().GetManifestResourceNames())); //Gets all the embedded resources
             }
-            else if(goingToPop)
+            else if (goingToPop)
             {
                 new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenPop.png").Show(true);
                 PlaySound("https://cdn.automute.us/Eggs/popcat.wav");
             }
-            else if(goingToDouche)
+            else if (goingToDouche)
             {
                 new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenDouche.png").Show(true);
                 PlaySound("https://cdn.automute.us/Eggs/douchebag.wav");
@@ -152,7 +154,7 @@ namespace AUCapture_WPF
                 new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenMonke.png").Show(true);
                 PlaySound("https://cdn.automute.us/Eggs/stinky.wav");
             }
-            
+
             var mainWindow = new MainWindow();
             this.MainWindow = mainWindow;
             IPCAdapter.getInstance().OnToken += OnTokenHandler;
@@ -176,7 +178,7 @@ namespace AUCapture_WPF
             return Process.GetCurrentProcess().MainModule.FileName;
         }
 
-        
+
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool AllocConsole();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using Newtonsoft.Json;
 using WebSocketSharp;
@@ -24,11 +24,11 @@ namespace AmongUsCapture
             EventData = JsonConvert.SerializeObject(eventData);
         }
     }
-    
+
     public class Regrets : WebSocketBehavior
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        protected override void OnOpen ()
+        protected override void OnOpen()
         {
             GameMemReader.getInstance().GameStateChanged += GameStateChangedHandler;
             GameMemReader.getInstance().PlayerChanged += PlayerChangedHandler;

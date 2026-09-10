@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,9 +10,9 @@ using AmongUsCapture;
 
 namespace AUCapture_WPF.Converters
 {
-    class GameStateToVisability: IValueConverter
+    class GameStateToVisability : IValueConverter
     {
-        
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is GameState statey)
@@ -37,9 +37,9 @@ namespace AUCapture_WPF.Converters
             throw new NotImplementedException();
         }
     }
-    class GameStateToVisabilityI: IValueConverter
+    class GameStateToVisabilityI : IValueConverter
     {
-        
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is GameState statey)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace AUCapture_WPF.Converters
         {
             if (value == null)
                 return System.Windows.Visibility.Visible;
-            else if ((System.Windows.Visibility) value == System.Windows.Visibility.Hidden)
+            else if ((System.Windows.Visibility)value == System.Windows.Visibility.Hidden)
             {
                 return System.Windows.Visibility.Visible;
             }

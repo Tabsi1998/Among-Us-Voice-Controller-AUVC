@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows;
 using Config.Net;
@@ -47,14 +47,14 @@ namespace AmongUsCapture
 
         [Option(Alias = "IndexURL", DefaultValue = "https://raw.githubusercontent.com/automuteus/amonguscapture/master/Offsets.json")]
         string IndexURL { get; set; }
-        
+
     }
 
     public interface IGameOffsets
     {
         //Types allowed: bool, double, int, long, string, TimeSpan, DateTime, Uri, Guid
         //DateTime is always converted to UTC
-        
+
         [Option(Alias = "GameHash", DefaultValue = "FF1DAE62454312FCE09A39061999C26FD26440FDA5F36C1E6424290A34D05B08")]
         string GameHash { get; }
 

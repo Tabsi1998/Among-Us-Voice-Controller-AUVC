@@ -22,3 +22,13 @@ insert_final_newline = unset
 trim_trailing_whitespace = unset
 indent_style = unset
 indent_size = unset
+
+# Phase 2 adopts deterministic formatting for active source files.
+[bot/**/*.go]
+end_of_line = lf
+indent_style = tab
+
+[capture/**/*.cs]
+end_of_line = lf
+indent_style = space
+indent_size = 4

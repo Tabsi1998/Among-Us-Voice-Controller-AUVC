@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -30,9 +30,9 @@ namespace AUCapture_WPF.Converters
                 }
                 return !alive
                     ? null
-                    : FileCache.Hit($"https://CDN.automute.us/svg/Pants/{pantID}.svg");;
-            } 
-            
+                    : FileCache.Hit($"https://CDN.automute.us/svg/Pants/{pantID}.svg"); ;
+            }
+
             return "";
         }
 

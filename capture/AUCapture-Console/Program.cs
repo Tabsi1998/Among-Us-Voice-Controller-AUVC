@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -13,8 +13,9 @@ namespace AUCapture_Console
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public static readonly ClientSocket socket = new ClientSocket();
-        
-        public static void OnTokenHandler(object sender, StartToken token) {
+
+        public static void OnTokenHandler(object sender, StartToken token)
+        {
             Logger.Info("Attempting to connect to host {host} with connect code {connectCode}", token.Host, token.ConnectCode);
             socket.Connect(token.Host, token.ConnectCode);
         }
@@ -27,7 +28,7 @@ namespace AUCapture_Console
         {
             Console.WriteLine(Process.GetCurrentProcess().MainModule.ModuleName);
             var uriStart = IPCAdapter.getInstance().HandleURIStart(args);
-            
+
             switch (uriStart)
             {
                 case URIStartResult.CLOSE:
@@ -51,7 +52,7 @@ namespace AUCapture_Console
                 GameMemReader.getInstance().GameOver += OnGameOver;
                 GameMemReader.getInstance().JoinedLobby += OnJoinedLobby;
                 var gameReader = Task.Factory.StartNew(() => GameMemReader.getInstance().RunLoop()); // run loop in background
-                
+
                 socketTask.Wait();
                 IPCAdapter.getInstance().RegisterMinion();
                 if (uriStart == URIStartResult.PARSE) IPCAdapter.getInstance().SendToken(args[0]);
@@ -69,7 +70,7 @@ namespace AUCapture_Console
         {
             Logger.Debug("Joined lobby: {lobbyCode}", e.LobbyCode);
         }
-        
+
 
         private static void UserForm_PlayerChanged(object? sender, PlayerChangedEventArgs e)
         {

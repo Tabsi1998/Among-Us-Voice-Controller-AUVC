@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -123,12 +123,12 @@ namespace AUCapture_WPF.Converters
                 return "";
             }
 
-            
+
             if (hatID == 0)
             {
                 return "";
             }
-            var finalName = hatID + "-" + Hats[(hatID%95).ToString()];
+            var finalName = hatID + "-" + Hats[(hatID % 95).ToString()];
             return $"https://CDN.automute.us/SVG/Hats/1-1.svg";
 
 
@@ -243,11 +243,12 @@ namespace AUCapture_WPF.Converters
         {
             var hatID = values[0] as uint? ?? 0;
             var alive = values[1] as bool? ?? false;
-            if (!alive) {
+            if (!alive)
+            {
                 return null;
             }
 
-            
+
             if (hatID <= 0 || hatID > 94)
             {
                 return null;
@@ -376,7 +377,7 @@ namespace AUCapture_WPF.Converters
                 return 0;
             }
 
-            if (Hats[(hatID%95).ToString()] == 1)
+            if (Hats[(hatID % 95).ToString()] == 1)
             {
                 return 1;
             }

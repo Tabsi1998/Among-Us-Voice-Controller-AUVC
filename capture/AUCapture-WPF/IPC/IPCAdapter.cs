@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -28,7 +28,7 @@ namespace AUCapture_WPF.IPC
             // Safely raise the event for all subscribers
             OnToken?.Invoke(this, e);
         }
-        
+
         public abstract URIStartResult HandleURIStart(string[] args);
         public abstract Task<bool> SendToken(string jsonText);
         public abstract Task SendToken(string host, string connectCode);
@@ -40,8 +40,8 @@ namespace AUCapture_WPF.IPC
             return Task.CompletedTask;
         }
     }
-    
-    
+
+
     public enum URIStartResult
     {
         CLOSE,
@@ -57,7 +57,8 @@ namespace AUCapture_WPF.IPC
 
         public static StartToken FromString(string rawToken)
         {
-            try {
+            try
+            {
                 LastRawToken = rawToken;
                 rawToken = new string(rawToken.Where(c => !char.IsControl(c)).ToArray());
                 Uri uri = new Uri(rawToken);

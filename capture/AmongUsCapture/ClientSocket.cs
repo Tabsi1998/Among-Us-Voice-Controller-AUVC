@@ -36,12 +36,13 @@ namespace AmongUsCapture
                 // Report the connection
                 //Settings.form.setConnectionStatus(true);
                 Logger.Info("Connected successfully");
-                
+
                 // Alert any listeners that the connection has occurred.
-                OnConnected?.Invoke(this, new ConnectedEventArgs() {Uri = socket.ServerUri.ToString()});
+                OnConnected?.Invoke(this, new ConnectedEventArgs() { Uri = socket.ServerUri.ToString() });
 
                 // On each (re)connection, send the connect code and then force-update everything.
-                socket.EmitAsync("connectCode", ConnectCode).ContinueWith((_) => {
+                socket.EmitAsync("connectCode", ConnectCode).ContinueWith((_) =>
+                {
                     Logger.Debug("Connect code {ConnectCode} sent to server", ConnectCode);
                     GameMemReader.getInstance().ForceUpdatePlayers();
                     GameMemReader.getInstance().ForceTransmitState();
@@ -65,7 +66,8 @@ namespace AmongUsCapture
                 };
                 var paramString = "";
                 Logger.Debug("Recieved task: {task}", update);
-                handler.UpdateUser(update.GuildId, update.UserId, update.Parameters.Mute, update.Parameters.Deaf).ContinueWith(x => {
+                handler.UpdateUser(update.GuildId, update.UserId, update.Parameters.Mute, update.Parameters.Deaf).ContinueWith(x =>
+                {
                     Logger.Debug("Task {TaskID} {$result}", update.TaskId, x.Result ? "completed successfully" : "failed");
                     socket.EmitAsync(x.Result ? "taskComplete" : "taskFailed", update.TaskId);
                 }).Wait();
@@ -82,7 +84,7 @@ namespace AmongUsCapture
                 //Settings.form.setConnectionStatus(false);
                 //Settings.conInterface.WriteTextFormatted($"[§bClientSocket§f] Lost connection!");
                 Logger.Info("Connection lost");
-                
+
                 // Alert any listeners that the disconnection has occured.
                 OnDisconnected?.Invoke(this, EventArgs.Empty);
             };
@@ -93,7 +95,7 @@ namespace AmongUsCapture
         private void OnRequestData(SocketIOResponse resp)
         {
             int requestedData = resp.GetValue<int>();
-            if ((requestedData & (int) GameDataType.GameState) > 0)
+            if ((requestedData & (int)GameDataType.GameState) > 0)
             {
                 GameMemReader.getInstance().ForceTransmitState();
             }
@@ -116,14 +118,14 @@ namespace AmongUsCapture
                 {
                     socket.EmitAsync("botID", handler.DClient.CurrentUser.Id);
                     Logger.Info("Sent BotID: {BotID}", handler.DClient.CurrentUser.Id);
-                    
+
                 }
                 catch
                 {
                     this.handler = null;
                 }
             }
-            
+
         }
         private void OnConnectionFailure(AggregateException e = null)
         {

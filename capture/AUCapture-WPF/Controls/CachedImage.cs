@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -30,7 +30,7 @@ namespace AUCapture_WPF.Controls
         }
 
 
-        
+
         public string ImageUrl
         {
             get => (string)GetValue(ImageUrlProperty);
@@ -73,7 +73,7 @@ namespace AUCapture_WPF.Controls
         }
 
 
-        
+
         private static void FailedImageUrlPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         { }
 
@@ -81,11 +81,11 @@ namespace AUCapture_WPF.Controls
         {
             var url = (string)e.NewValue;
             var cachedImage = (CachedImage)obj;
-            
+
             cachedImage.Source = await LoadImageAsync(url, cachedImage);
             cachedImage.IsLoading = false;
         }
-        
+
         private static async Task<BitmapImage> LoadImageAsync(string url, CachedImage img)
         {
             System.Diagnostics.Trace.WriteLine($"Loading: {url}");
@@ -166,10 +166,10 @@ namespace AUCapture_WPF.Controls
         }
 
 
-        
+
         public static readonly DependencyProperty ImageUrlProperty = DependencyProperty.Register(nameof(ImageUrl),
             typeof(string), typeof(CachedImage), new PropertyMetadata("", ImageUrlPropertyChanged));
-        
+
         public static readonly DependencyProperty FailedImageProperty = DependencyProperty.Register(nameof(FailedImage),
             typeof(BitmapImage), typeof(CachedImage), new PropertyMetadata(null, FailedImageUrlPropertyChanged));
 

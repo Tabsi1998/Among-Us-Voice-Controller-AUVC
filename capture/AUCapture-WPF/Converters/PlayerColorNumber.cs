@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,21 +18,21 @@ namespace AUCapture_WPF.Converters
             {
                 return 0;
             }
-            return (int) (PlayerColor) value;
+            return (int)(PlayerColor)value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             try
             {
-                return (PlayerColor) (int) value;
+                return (PlayerColor)(int)value;
             }
             catch (Exception e)
             {
                 return PlayerColor.Red;
             }
-            
-            
+
+
         }
     }
 }

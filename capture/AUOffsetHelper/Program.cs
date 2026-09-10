@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AUOffsetManager;
 using Newtonsoft.Json;
@@ -41,26 +41,27 @@ namespace AUOffsetHelper
                 TempDataOffset = TempDataOffset,
                 GameOptionsOffset = GameOptionsOffset,
 
-                MeetingHudPtr = new []{MeetingHudOffset, 0x5C, 0},
-                MeetingHudCachePtrOffsets = new []{0x8},
-                MeetingHudStateOffsets = new []{0x84},
-                GameStateOffsets = new []{ AmongUsClientOffset, 0x5C, 0, 0x64 },
-                AllPlayerPtrOffsets = new []{ GameDataOffset, 0x5C, 0, 0x24},
-                AllPlayersOffsets = new []{0x08},
-                PlayerCountOffsets = new []{0x0C},
-                ExiledPlayerIdOffsets = new []{MeetingHudOffset, 0x5C, 0, 0x94, 0x08},
-                RawGameOverReasonOffsets = new []{TempDataOffset, 0x5c, 0x4},
-                WinningPlayersPtrOffsets = new []{TempDataOffset, 0x5C, 0xC},
-                WinningPlayersOffsets = new []{0x08},
-                WinningPlayerCountOffsets = new []{0x0C},
-                GameCodeOffsets = new []{GameStartManagerOffset, 0x5c, 0, 0x20, 0x28 },
-                PlayRegionOffsets = new []{ServerManagerOffset, 0x5c, 0, 0x10, 0x8, 0x8},
-                PlayMapOffsets = new []{GameOptionsOffset, 0x5c, 0x4, 0x10},
-                StringOffsets = new []{0x8, 0xC},
+                MeetingHudPtr = new[] { MeetingHudOffset, 0x5C, 0 },
+                MeetingHudCachePtrOffsets = new[] { 0x8 },
+                MeetingHudStateOffsets = new[] { 0x84 },
+                GameStateOffsets = new[] { AmongUsClientOffset, 0x5C, 0, 0x64 },
+                AllPlayerPtrOffsets = new[] { GameDataOffset, 0x5C, 0, 0x24 },
+                AllPlayersOffsets = new[] { 0x08 },
+                PlayerCountOffsets = new[] { 0x0C },
+                ExiledPlayerIdOffsets = new[] { MeetingHudOffset, 0x5C, 0, 0x94, 0x08 },
+                RawGameOverReasonOffsets = new[] { TempDataOffset, 0x5c, 0x4 },
+                WinningPlayersPtrOffsets = new[] { TempDataOffset, 0x5C, 0xC },
+                WinningPlayersOffsets = new[] { 0x08 },
+                WinningPlayerCountOffsets = new[] { 0x0C },
+                GameCodeOffsets = new[] { GameStartManagerOffset, 0x5c, 0, 0x20, 0x28 },
+                PlayRegionOffsets = new[] { ServerManagerOffset, 0x5c, 0, 0x10, 0x8, 0x8 },
+                PlayMapOffsets = new[] { GameOptionsOffset, 0x5c, 0x4, 0x10 },
+                StringOffsets = new[] { 0x8, 0xC },
                 isEpic = false,
                 AddPlayerPtr = 4,
                 PlayerListPtr = 0x10,
-                PlayerInfoStructOffsets = new PlayerInfoStructOffsets() {
+                PlayerInfoStructOffsets = new PlayerInfoStructOffsets()
+                {
                     PlayerIDOffset = 16,
                     PlayerNameOffset = 24,
                     ColorIDOffset = 36,
@@ -73,7 +74,8 @@ namespace AUOffsetHelper
                     DeadOffset = 65,
                     ObjectOffset = 72
                 },
-                WinningPlayerDataStructOffsets = new WinningPlayerDataStructOffsets() {
+                WinningPlayerDataStructOffsets = new WinningPlayerDataStructOffsets()
+                {
                     NameOffset = 0x8,
                     DeadOffset = 0xC,
                     ImposterOffset = 0xD,
@@ -91,7 +93,7 @@ namespace AUOffsetHelper
             //b.AddToLocalIndex(hash, a);
             Console.ReadLine();
 
-            
+
         }
     }
 }

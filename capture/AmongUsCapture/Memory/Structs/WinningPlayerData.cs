@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,7 +9,7 @@ namespace AmongUsCapture.Memory.Structs
 
     public class WinningPlayerData
     {
-        public string Name {get; }
+        public string Name { get; }
         public int ColorId { get; }
         public uint HatId { get; }
         public uint PetId { get; }
@@ -17,18 +17,21 @@ namespace AmongUsCapture.Memory.Structs
 
         public bool IsYou { get; }
         public bool IsImpostor { get; }
-        public bool IsDead{get;}
+        public bool IsDead { get; }
 
-        public WinningPlayerData(IntPtr baseAddr, ProcessMemory MemInstance, GameOffsets CurrentOffsets) {
-            unsafe {
+        public WinningPlayerData(IntPtr baseAddr, ProcessMemory MemInstance, GameOffsets CurrentOffsets)
+        {
+            unsafe
+            {
                 var baseAddrCopy = baseAddr;
                 int last = MemInstance.OffsetAddress(ref baseAddrCopy, 0, 0);
-                int size = ((int)Math.Ceiling((decimal) ((8 + CurrentOffsets.WinningPlayerDataStructOffsets.IsDeadOffset)/8)))*8; //Find the nearest multiple of 8
+                int size = ((int)Math.Ceiling((decimal)((8 + CurrentOffsets.WinningPlayerDataStructOffsets.IsDeadOffset) / 8))) * 8; //Find the nearest multiple of 8
                 byte[] buffer = MemInstance.Read(baseAddrCopy + last, size);
                 PlayerOutfitStructOffsets oOf = CurrentOffsets.PlayerOutfitStructOffsets;
                 WinningPlayerDataStructOffsets pOf = CurrentOffsets.WinningPlayerDataStructOffsets;
-                fixed (byte* ptr = buffer) {
-                    var buffptr = (IntPtr) ptr;
+                fixed (byte* ptr = buffer)
+                {
+                    var buffptr = (IntPtr)ptr;
                     Name = MemInstance.ReadString(MemInstance.Read<IntPtr>(baseAddrCopy, pOf.PlayerNameOffset), CurrentOffsets.StringOffsets[0], CurrentOffsets.StringOffsets[1]);
                     ColorId = MemInstance.Read<int>(MemInstance.Read<IntPtr>(baseAddrCopy, pOf.OutfitOffset), oOf.ColorIDOffset);
                     // TODO: Since IDs are changed from enum to string like "hat_police", renaming or mapping existing svgs to string is required
@@ -43,13 +46,14 @@ namespace AmongUsCapture.Memory.Structs
             }
         }
 
-		public string GetPlayerName() {
-			return this.Name;
-		}
+        public string GetPlayerName()
+        {
+            return this.Name;
+        }
 
-		public string Display()
-		{
-			return this.GetPlayerName() + ":" + (this.IsImpostor ? "yes" : "no");
-		}
-	}
+        public string Display()
+        {
+            return this.GetPlayerName() + ":" + (this.IsImpostor ? "yes" : "no");
+        }
+    }
 }

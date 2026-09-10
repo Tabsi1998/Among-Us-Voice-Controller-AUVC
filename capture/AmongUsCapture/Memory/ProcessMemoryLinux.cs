@@ -62,17 +62,17 @@ namespace AmongUsCapture
         public override void LoadModules()
         {
             modules = new List<Module>();
-            
+
             // Read /proc/<pid>/maps for library mapping information.
             // Reading from /proc/<pid>/maps is negligible, since this file is a kernel pseudofile.
             // Also, it's more reliable then using C#'s native Process object.
-            
+
             if (!File.Exists($"/proc/{process.Id}/maps"))
             {
                 // We don't have the maps file yet, or we ended up in a state where it doesn't exist.
                 return;
             }
-            
+
             var proc_maps = File.ReadLines($"/proc/{process.Id}/maps")
                 .Where(s => s.Contains("GameAssembly.dll"))
                 .ToList();
@@ -88,23 +88,23 @@ namespace AmongUsCapture
 
             // We want the first one, since that represents the beginning
             // of the GameAssembly.dll memory space.
-            
+
             // /proc/pid/maps legend:
             // address           perms offset  dev   inode   pathname
 
             string[] map_lines1 = proc_maps[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
             string[] addr_vals1 = map_lines1[0].Split('-');
-            
+
             // Under linux, we can confirm the actual 'start' location, but not the end. The 'end' is the
             // end of the initial instance of 'GameAssembly.dll", which is likely not the entire entry.
             // Therefore, our module will only really 'know' where the first entry ends.
-            
+
             // We will have to change this if it becomes necessary, but for now, everything is working as intended.
-            
+
             uint addr_start = UInt32.Parse(addr_vals1[0], System.Globalization.NumberStyles.HexNumber);
             uint addr_end = UInt32.Parse(addr_vals1[1], System.Globalization.NumberStyles.HexNumber);
-            uint memsize =  addr_end - addr_start;
-            
+            uint memsize = addr_end - addr_start;
+
 
             // Ensure we have an absolute path by catting all potential additional strings after index 5.
             StringBuilder pathbuilder = new StringBuilder();
@@ -114,11 +114,11 @@ namespace AmongUsCapture
             }
 
             string librarypath = pathbuilder.ToString();
-            
+
             modules.Add(new Module()
             {
                 Name = librarypath.Split('/').Last().Trim(), // Make sure hidden characters aren't there.
-                BaseAddress = (IntPtr) addr_start,
+                BaseAddress = (IntPtr)addr_start,
                 FileName = librarypath,
                 MemorySize = memsize,
                 EntryPointAddress = IntPtr.Zero
@@ -149,7 +149,7 @@ namespace AmongUsCapture
                 byte[] buffer = Read(address + last, size);
                 fixed (byte* ptr = buffer)
                 {
-                    return *(T*) ptr;
+                    return *(T*)ptr;
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace AmongUsCapture
             IntPtr[] ints = new IntPtr[size];
             for (int i = 0; i < size; i++)
             {
-                ints[i] = (IntPtr) BitConverter.ToUInt32(bytes, i * 4);
+                ints[i] = (IntPtr)BitConverter.ToUInt32(bytes, i * 4);
             }
 
             return ints;
@@ -188,7 +188,7 @@ namespace AmongUsCapture
             IntPtr buffer_marshal;
             IntPtr local_ptr;
             IntPtr remote_ptr;
-            
+
             unsafe
             {
                 // We need to work unsafe here to get the size of the iovec structures, then malloc them.
@@ -218,11 +218,11 @@ namespace AmongUsCapture
                 LinuxAPI.process_vm_readv(process.Id, local_ptr, 1, remote_ptr, 1, 0);
 
                 Marshal.Copy(local.iov_base, buffer, 0, buffer.Length);
-                
+
                 if (is64Bit)
-                    address = (IntPtr) BitConverter.ToUInt64(buffer, 0);
+                    address = (IntPtr)BitConverter.ToUInt64(buffer, 0);
                 else
-                    address = (IntPtr) BitConverter.ToUInt32(buffer, 0);
+                    address = (IntPtr)BitConverter.ToUInt32(buffer, 0);
                 if (address == IntPtr.Zero)
                     break;
             }
@@ -252,7 +252,7 @@ namespace AmongUsCapture
                 local_ptr = Marshal.AllocHGlobal(sizeof(iovec));
                 remote_ptr = Marshal.AllocHGlobal(sizeof(iovec));
             }
-            
+
             var local = new iovec()
             {
                 iov_base = buffer_marshal,
@@ -263,7 +263,7 @@ namespace AmongUsCapture
                 iov_base = address,
                 iov_len = numBytes
             };
-            
+
             Marshal.StructureToPtr(local, local_ptr, true);
             Marshal.StructureToPtr(remote, remote_ptr, true);
 

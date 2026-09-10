@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -15,7 +15,8 @@ namespace AUCapture_WPF.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Count() == 2) {
+            if (values.Count() == 2)
+            {
                 if (values[0] is null)
                 {
                     return string.Empty;
@@ -24,15 +25,15 @@ namespace AUCapture_WPF.Converters
                 try
                 {
                     EnumString = Enum.GetName(values[0].GetType(), values[0]);
-                    return TranslationFor("GameState."+EnumString.ToUpper()).Translated;
+                    return TranslationFor("GameState." + EnumString.ToUpper()).Translated;
                 }
                 catch
                 {
                     return string.Empty;
                 }
-                
-            } 
-            
+
+            }
+
             return "";
         }
         public static ITranslation TranslationFor(string key, ErrorHandling errorHandling = ErrorHandling.ReturnErrorInfoPreserveNeutral)

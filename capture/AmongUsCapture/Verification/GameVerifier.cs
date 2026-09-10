@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -21,7 +21,7 @@ namespace AmongUsCapture
     {
         public AmongUsValidity Validity;
     }
-    
+
     public static class GameVerifier
     {
         private const string steamapi32_orig_hash = "07407c1bc2f3114042dbcfe8183b77f73e178be7";
@@ -31,10 +31,10 @@ namespace AmongUsCapture
 
         public static bool VerifySteamHash(string executablePath)
         {
-           if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-           {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
                 //Get Steam_api.dll from (parent)filepath\Among Us_Data\Plugins\x86\steam_api.dll and steam_api64.dll
-                var baseDllFolder = Path.Join(Directory.GetParent(executablePath).FullName,"/Among Us_Data/Plugins/x86/");
+                var baseDllFolder = Path.Join(Directory.GetParent(executablePath).FullName, "/Among Us_Data/Plugins/x86/");
                 if (!Directory.Exists(baseDllFolder))
                 {
                     baseDllFolder = Path.Join(Directory.GetParent(executablePath).FullName, "/Among Us_Data/Plugins/x86_64/");
@@ -46,21 +46,21 @@ namespace AmongUsCapture
                 //Settings.conInterface.WriteModuleTextColored("GameVerifier",Color.Yellow,$"steam_apiCert: {steam_apiCert}");
                 //Settings.conInterface.WriteModuleTextColored("GameVerifier",Color.Yellow,$"steam_api64Cert: {steam_api64Cert}");
                 return (steam_apiCert) && (steam_api64Cert);
-           }
-            
-           if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-           {
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
                 var baseDllFolder = Path.Join(Directory.GetParent(executablePath).FullName,
                     "/Among Us_Data/Plugins/x86/");
-                
+
                 var steam_apiPath = Path.Join(baseDllFolder, "steam_api.dll");
                 var steam_api64Path = Path.Join(baseDllFolder, "steam_api64.dll");
                 var steam_apiHash = String.Empty;
                 var steam_api64Hash = String.Empty;
-                
+
                 using (SHA1Managed sha1 = new SHA1Managed())
                 {
-                    
+
                     using (FileStream fs = new FileStream(steam_apiPath, FileMode.Open))
                     {
                         using (var bs = new BufferedStream(fs))
@@ -74,8 +74,8 @@ namespace AmongUsCapture
 
                             steam_apiHash = steam_apihashSb.ToString();
                         }
-                    }    
-                    
+                    }
+
                     using (FileStream fs = new FileStream(steam_api64Path, FileMode.Open))
                     {
                         using (var bs = new BufferedStream(fs))
@@ -95,11 +95,11 @@ namespace AmongUsCapture
                 return (String.Equals(steamapi32_orig_hash.ToUpper(), steam_apiHash) &&
                         String.Equals(steamapi64_orig_hash.ToUpper(), steam_api64Hash));
 
-           }
-            
-           throw new PlatformNotSupportedException();
+            }
+
+            throw new PlatformNotSupportedException();
         }
-        
+
         public static bool VerifyGameHash(string executablePath)
         {
             // This is for Beta detection.
@@ -109,7 +109,7 @@ namespace AmongUsCapture
             var gameassembly_dllPath = Path.Join(baseDllFolder, "GameAssembly.dll");
             var amongus_exeHash = String.Empty;
             var gameassembly_dllHash = String.Empty;
-            
+
             using (SHA1Managed sha1 = new SHA1Managed())
             {
                 using (FileStream fs = new FileStream(amongus_exePath, FileMode.Open))
@@ -125,8 +125,8 @@ namespace AmongUsCapture
 
                         amongus_exeHash = steam_apihashSb.ToString();
                     }
-                }    
-                    
+                }
+
                 using (FileStream fs = new FileStream(gameassembly_dllPath, FileMode.Open))
                 {
                     using (var bs = new BufferedStream(fs))

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using AmongUsCapture;
@@ -10,28 +10,28 @@ namespace AUCapture_WPF.Controls
     /// </summary>
     public partial class PlayerControl : UserControl
     {
-        public static readonly DependencyProperty AliveProperty = 
-            DependencyProperty.Register("AliveStatus", 
+        public static readonly DependencyProperty AliveProperty =
+            DependencyProperty.Register("AliveStatus",
                 typeof(bool), typeof(PlayerControl));
 
-        public static readonly DependencyProperty PlayerNameProperty = 
-            DependencyProperty.Register("PlayerName", 
+        public static readonly DependencyProperty PlayerNameProperty =
+            DependencyProperty.Register("PlayerName",
                 typeof(string), typeof(PlayerControl));
 
-        public static readonly DependencyProperty PlayerHatDependencyProperty = 
-            DependencyProperty.Register("PlayerHatID", 
+        public static readonly DependencyProperty PlayerHatDependencyProperty =
+            DependencyProperty.Register("PlayerHatID",
                 typeof(uint), typeof(PlayerControl));
 
-        public static readonly DependencyProperty PlayerPetDependencyProperty = 
-            DependencyProperty.Register("PlayerPetID", 
+        public static readonly DependencyProperty PlayerPetDependencyProperty =
+            DependencyProperty.Register("PlayerPetID",
                 typeof(uint), typeof(PlayerControl));
 
-        public static readonly DependencyProperty PlayerPantsDependencyProperty = 
-            DependencyProperty.Register("PlayerPantsID", 
+        public static readonly DependencyProperty PlayerPantsDependencyProperty =
+            DependencyProperty.Register("PlayerPantsID",
                 typeof(uint), typeof(PlayerControl));
 
-        public static readonly DependencyProperty ColorProperty = 
-            DependencyProperty.Register("Color", 
+        public static readonly DependencyProperty ColorProperty =
+            DependencyProperty.Register("Color",
                 typeof(PlayerColor), typeof(PlayerControl));
 
         private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)

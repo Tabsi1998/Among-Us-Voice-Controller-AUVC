@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -38,9 +38,9 @@ namespace AUCapture_WPF
             {
                 SharedResourceDictionary.SharedDictionaries.Clear();
                 ResourceHelper.GetTheme("HandyTheme", Resources).Skin = SkinType.Dark;
-                
+
             }
-            
+
             DataContext = CurrentContributors;
             AddContributors();
 
@@ -48,9 +48,9 @@ namespace AUCapture_WPF
 
         public async void AddContributors()
         {
-            List<long> BlockedIDs = new List<long> {25180681, 49699333};
+            List<long> BlockedIDs = new List<long> { 25180681, 49699333 };
             GitHubClient client = new GitHubClient(new ProductHeaderValue("AmongUsCapture"));
-            var autoMuteUsOrgRepos = new List<int>{294825566, 295776544};
+            var autoMuteUsOrgRepos = new List<int> { 294825566, 295776544 };
             var ListOfContribs = new List<BetterRepoContributor>();
             foreach (var repo in autoMuteUsOrgRepos)
             {
@@ -59,7 +59,7 @@ namespace AUCapture_WPF
                 {
                     if (ListOfContribs.All(x => x.HtmlUrl != contributor.HtmlUrl))
                     {
-                        ListOfContribs.Add(new BetterRepoContributor(contributor.Id,contributor.Contributions, contributor.AvatarUrl, contributor.HtmlUrl, contributor.Login));
+                        ListOfContribs.Add(new BetterRepoContributor(contributor.Id, contributor.Contributions, contributor.AvatarUrl, contributor.HtmlUrl, contributor.Login));
                     }
                     else
                     {
@@ -69,10 +69,10 @@ namespace AUCapture_WPF
                 }
             }
 
-            var tempList = ListOfContribs.Where(x => !BlockedIDs.Contains(x.Id)).OrderByDescending(x=>x.Contributions).ToList();
+            var tempList = ListOfContribs.Where(x => !BlockedIDs.Contains(x.Id)).OrderByDescending(x => x.Contributions).ToList();
             RepoContributorsToBeAdded = new Queue<BetterRepoContributor>(tempList);
             CurrentContributors.Add(RepoContributorsToBeAdded.Dequeue());
-            
+
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += dispatcherTimer_Tick;
             dispatcherTimer.Interval = TimeSpan.FromMilliseconds(1);
@@ -80,7 +80,7 @@ namespace AUCapture_WPF
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            
+
             if (RepoContributorsToBeAdded.Count != 0)
             {
                 var c = RepoContributorsToBeAdded.Dequeue();
@@ -91,7 +91,7 @@ namespace AUCapture_WPF
                 var timer = sender as DispatcherTimer;
                 timer.Stop();
             }
-            
+
 
         }
         public static void OpenBrowser(string url)
@@ -119,17 +119,17 @@ namespace AUCapture_WPF
             try
             {
                 var tarContext = tar.DataContext as BetterRepoContributor;
-                if(tarContext is not null)
+                if (tarContext is not null)
                 {
                     OpenBrowser(tarContext.HtmlUrl);
                 }
-                
+
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
             }
-            
+
         }
     }
 

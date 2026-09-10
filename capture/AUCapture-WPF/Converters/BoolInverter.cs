@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace AUCapture_WPF.Converters
             if (value == null)
                 return false;
             else
-                return !(bool) value;
+                return !(bool)value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

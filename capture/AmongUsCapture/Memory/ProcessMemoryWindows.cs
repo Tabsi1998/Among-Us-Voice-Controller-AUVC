@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AmongUsCapture
 {
- public class ProcessMemoryWindows : ProcessMemory
+    public class ProcessMemoryWindows : ProcessMemory
     {
 
         public override bool HookProcess(string name)
@@ -107,7 +107,7 @@ namespace AmongUsCapture
             IntPtr[] ints = new IntPtr[size];
             for (int i = 0; i < size; i++)
             {
-                ints[i] = (IntPtr) BitConverter.ToUInt32(bytes, i * 4);
+                ints[i] = (IntPtr)BitConverter.ToUInt32(bytes, i * 4);
             }
             return ints;
         }
