@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"github.com/automuteus/automuteus/v8/internal/server"
 	"github.com/automuteus/automuteus/v8/pkg/settings"
 	"sync"
 	"time"
@@ -135,9 +134,6 @@ func (bot *Bot) DispatchRefreshOrEdit(readOnlyDgs *GameState, dgsRequest GameSta
 	if readOnlyDgs.shouldRefresh() {
 		bot.RefreshGameStateMessage(dgsRequest, sett)
 	} else {
-		edited := readOnlyDgs.dispatchEdit(bot.PrimarySession, bot.gameStateResponse(readOnlyDgs, sett))
-		if edited {
-			server.RecordDiscordRequests(bot.RedisInterface.client, server.MessageEdit, 1)
-		}
+		readOnlyDgs.dispatchEdit(bot.PrimarySession, bot.gameStateResponse(readOnlyDgs, sett))
 	}
 }

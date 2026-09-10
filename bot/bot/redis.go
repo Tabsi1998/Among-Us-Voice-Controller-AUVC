@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/automuteus/automuteus/v8/internal/server"
 	"github.com/automuteus/automuteus/v8/pkg/rediskey"
 	"github.com/automuteus/automuteus/v8/storage"
 	"github.com/bsm/redislock"
@@ -53,7 +52,6 @@ func (bot *Bot) refreshGameLiveness(code string) {
 
 func (bot *Bot) rateLimitEventCallback(_ *discordgo.Session, rl *discordgo.RateLimit) {
 	log.Println(rl.Message)
-	server.RecordDiscordRequests(bot.RedisInterface.client, server.InvalidRequest, 1)
 }
 
 func (redisInterface *RedisInterface) AddUniqueGuildCounter(guildID string) {

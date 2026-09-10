@@ -166,12 +166,6 @@ func (tokenProvider *TokenProvider) ModifyUsers(guildID, connectCode string, req
 	tasksChannel := make(chan task.UserModify, len(request.Users))
 	wg := sync.WaitGroup{}
 
-	mdsc := task.MuteDeafenSuccessCounts{
-		Worker:    0,
-		Capture:   0,
-		Official:  0,
-		RateLimit: 0,
-	}
 	uniqueTokensUsed := make(map[string]struct{})
 	lock := sync.Mutex{}
 	tokenLock := sync.RWMutex{}
@@ -194,20 +188,11 @@ func (tokenProvider *TokenProvider) ModifyUsers(guildID, connectCode string, req
 					}
 				}
 				if hToken != "" {
-					lock.Lock()
-					mdsc.Worker++
-					lock.Unlock()
-
 					tokenLock.Lock()
 					uniqueTokensUsed[hToken] = struct{}{}
 					tokenLock.Unlock()
 				} else {
-					success := tokenProvider.attemptOnCaptureBot(guildID, connectCode, gid, req)
-					if success {
-						lock.Lock()
-						mdsc.Capture++
-						lock.Unlock()
-					} else {
+					if !tokenProvider.attemptOnCaptureBot(guildID, connectCode, gid, req) {
 						log.Printf("Applying mute=%v, deaf=%v using primary bot\n", req.Mute, req.Deaf)
 						err := task.ApplyMuteDeaf(tokenProvider.primarySession, guildID, userIDStr, req.Mute, req.Deaf)
 						if err != nil {
@@ -216,10 +201,6 @@ func (tokenProvider *TokenProvider) ModifyUsers(guildID, connectCode string, req
 							lock.Unlock()
 							log.Println("Error on primary bot:")
 							log.Println(err)
-						} else {
-							lock.Lock()
-							mdsc.Official++
-							lock.Unlock()
 						}
 					}
 				}
@@ -234,8 +215,6 @@ func (tokenProvider *TokenProvider) ModifyUsers(guildID, connectCode string, req
 	}
 	wg.Wait()
 	close(tasksChannel)
-
-	RecordDiscordRequestsByCounts(tokenProvider.client, mdsc)
 
 	// note, this should probably be more systematic on startup, not when a mute/deafen task comes in. But this is a
 	// context in which we already have the guildID, successful tokens, AND the premium limit...

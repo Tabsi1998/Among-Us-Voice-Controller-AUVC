@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/automuteus/automuteus/v8/bot/command"
 	"github.com/automuteus/automuteus/v8/bot/tokenprovider"
-	"github.com/automuteus/automuteus/v8/internal/server"
 	"github.com/automuteus/automuteus/v8/pkg/amongus"
 	"github.com/automuteus/automuteus/v8/pkg/discord"
 	"github.com/automuteus/automuteus/v8/pkg/game"
@@ -152,10 +151,6 @@ func (bot *Bot) InitTokenProvider(tp *tokenprovider.TokenProvider) {
 	tp.Init(bot.RedisInterface.client, bot.PrimarySession)
 }
 
-func (bot *Bot) StartMetricsServer(nodeID string) error {
-	return server.PrometheusMetricsServer(bot.RedisInterface.client, nodeID, "2112")
-}
-
 func (bot *Bot) Close() {
 	bot.PrimarySession.Close()
 	bot.RedisInterface.Close()
@@ -247,10 +242,7 @@ func (bot *Bot) forceEndGame(gsr GameStateRequest) {
 		lock, dgs = bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
 	}
 
-	deleted := dgs.DeleteGameStateMsg(bot.PrimarySession, true)
-	if deleted {
-		go server.RecordDiscordRequests(bot.RedisInterface.client, server.MessageCreateDelete, 1)
-	}
+	dgs.DeleteGameStateMsg(bot.PrimarySession, true)
 
 	bot.RedisInterface.SetDiscordGameState(dgs, lock)
 
@@ -284,14 +276,8 @@ func (bot *Bot) RefreshGameStateMessage(gsr GameStateRequest, sett *settings.Gui
 		return false // no-op; no active game to refresh
 	}
 
-	deleted := dgs.DeleteGameStateMsg(bot.PrimarySession, false) // delete the old message
-	created := dgs.CreateMessage(bot.PrimarySession, bot.gameStateResponse(dgs, sett), dgs.GameStateMsg.MessageChannelID, dgs.GameStateMsg.LeaderID)
-
-	if deleted && created {
-		go server.RecordDiscordRequests(bot.RedisInterface.client, server.MessageCreateDelete, 2)
-	} else if deleted || created {
-		go server.RecordDiscordRequests(bot.RedisInterface.client, server.MessageCreateDelete, 1)
-	}
+	dgs.DeleteGameStateMsg(bot.PrimarySession, false) // delete the old message
+	dgs.CreateMessage(bot.PrimarySession, bot.gameStateResponse(dgs, sett), dgs.GameStateMsg.MessageChannelID, dgs.GameStateMsg.LeaderID)
 
 	bot.RedisInterface.SetDiscordGameState(dgs, lock)
 	// if for whatever reason the message failed to create, this would catch it
