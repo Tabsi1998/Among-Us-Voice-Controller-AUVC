@@ -17,6 +17,11 @@ See [UPSTREAM.md](UPSTREAM.md) for pinned commits, dates and the sync procedure.
 The root [LICENSE](LICENSE) covers new AUVC contributions:
 Copyright (c) 2026 IT-Tabelander. It does not replace upstream copyright notices.
 
+`capture/Offsets.json` is an unchanged upstream data file from AmongUsCapture and
+is embedded into the shipped `AUOffsetManager` assembly so capture can read the
+game without contacting a third-party host. It carries the AmongUsCapture MIT
+license and copyright listed above.
+
 Dependency manifests and upstream assets remain unchanged in the baseline.
 Their presence does not imply that every dependency or asset is MIT-licensed.
 Dependency and distributable-asset license review is required before packaging

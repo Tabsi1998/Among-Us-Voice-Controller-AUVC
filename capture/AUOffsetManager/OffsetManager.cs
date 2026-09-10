@@ -11,6 +11,11 @@ namespace AUOffsetManager
     public class OffsetManager
     {
         public static int GameMemReaderVersion = 1; //GameMemReader should update this.
+
+        // Offset index shipped inside the assembly. AUVC must be able to read the game
+        // without contacting a third-party host, so this is the base layer that is
+        // always present; cached and remote entries are merged on top of it.
+        private const string BundledIndexResource = "AUOffsetManager.Offsets.json";
         private Dictionary<string, GameOffsets> OffsetIndex = new Dictionary<string, GameOffsets>();
         private Dictionary<string, GameOffsets> LocalOffsetIndex = new Dictionary<string, GameOffsets>();
         public string indexURL;
@@ -21,6 +26,8 @@ namespace AUOffsetManager
         public OffsetManager(string indexURL = "")
         {
             this.indexURL = indexURL;
+            OffsetIndex = LoadBundledIndex();
+
             if (File.Exists(StorageLocation))
             {
                 LocalOffsetIndex = JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(File.ReadAllText(StorageLocation));
@@ -32,45 +39,100 @@ namespace AUOffsetManager
 
             indexTask = RefreshIndex();
         }
+
+        /// <summary>
+        /// Reads the offset index embedded in this assembly. It is the only source that
+        /// cannot be taken away by a network failure or by a third party moving a file.
+        /// </summary>
+        public static Dictionary<string, GameOffsets> LoadBundledIndex()
+        {
+            using var stream = typeof(OffsetManager).Assembly.GetManifestResourceStream(BundledIndexResource);
+            if (stream is null)
+            {
+                return new Dictionary<string, GameOffsets>();
+            }
+
+            using var reader = new StreamReader(stream);
+            return JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(reader.ReadToEnd())
+                   ?? new Dictionary<string, GameOffsets>();
+        }
+
+        private void MergeOver(Dictionary<string, GameOffsets> updates)
+        {
+            if (updates is null)
+            {
+                return;
+            }
+
+            foreach (var entry in updates)
+            {
+                OffsetIndex[entry.Key] = entry.Value;
+            }
+        }
         public async Task RefreshIndex()
         {
-            if (indexURL == "")
+            if (string.IsNullOrWhiteSpace(indexURL))
             {
-                OffsetIndex = new Dictionary<string, GameOffsets>();
+                // No remote configured. The bundled index stands on its own; a cache
+                // from an earlier run may still add newer game versions on top.
+                MergeOver(ReadCache());
                 return;
             }
 
             try
             {
                 using var httpClient = new HttpClient();
-                try
-                {
-                    var json = await httpClient.GetStringAsync(indexURL);
-                    OffsetIndex = JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(json);
-                    await using StreamWriter sw = File.CreateText(StorageLocationCache);
-                    await sw.WriteAsync(JsonConvert.SerializeObject(OffsetIndex, Formatting.Indented));
-                }
-                catch (Exception e)
-                {
-                    indexURL = "https://raw.githubusercontent.com/denverquane/amonguscapture/master/Offsets.json";
-                    var json = await httpClient.GetStringAsync(indexURL);
-                    OffsetIndex = JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(json);
-                    await using StreamWriter sw = File.CreateText(StorageLocationCache);
-                    await sw.WriteAsync(JsonConvert.SerializeObject(OffsetIndex, Formatting.Indented));
-                    Console.WriteLine(e);
-                }
-
+                var json = await httpClient.GetStringAsync(indexURL);
+                var fetched = JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(json);
+                MergeOver(fetched);
+                WriteCache(fetched);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                if (File.Exists(StorageLocationCache))
-                {
-                    OffsetIndex = JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(await File.ReadAllTextAsync(StorageLocationCache));
-                }
-                Console.WriteLine("If you are reading this that means that the site is down, and you have never used our program before. If github still exists in the future, try again in 30 minutes. - Carbon ");
+                // A failed refresh is not fatal: the bundled index already covers the
+                // game versions known at build time. Never fall back to a third-party host.
+                Console.WriteLine("Offset index refresh from " + indexURL + " failed, using the bundled index. " + e.Message);
+                MergeOver(ReadCache());
+            }
+        }
+
+        private Dictionary<string, GameOffsets> ReadCache()
+        {
+            try
+            {
+                return File.Exists(StorageLocationCache)
+                    ? JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(File.ReadAllText(StorageLocationCache))
+                    : null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Could not read the cached offset index. " + e.Message);
+                return null;
+            }
+        }
+
+        private void WriteCache(Dictionary<string, GameOffsets> index)
+        {
+            if (index is null)
+            {
+                return;
             }
 
+            try
+            {
+                var directory = Path.GetDirectoryName(StorageLocationCache);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                File.WriteAllText(StorageLocationCache, JsonConvert.SerializeObject(index, Formatting.Indented));
+            }
+            catch (Exception e)
+            {
+                // Caching is a convenience. Failing to write it must not discard a good fetch.
+                Console.WriteLine("Could not cache the offset index. " + e.Message);
+            }
         }
 
         public GameOffsets FetchForHash(string sha256Hash)

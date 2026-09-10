@@ -11,6 +11,16 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- Capture no longer needs a third-party host to read the game. The offset index
+  in `capture/Offsets.json` was already committed and used as a test fixture but
+  never read at runtime; it is now embedded in `AUOffsetManager` and used as the
+  always-present base layer. `IndexURL` defaults to empty, so a remote refresh is
+  opt-in, and the hardcoded fallback to a second foreign repository is removed.
+  Remote and cached entries merge on top of the bundled index instead of
+  replacing it. See [docs/upstream-independence.md](docs/upstream-independence.md).
+
+### Changed
+
 - Phase 3: Go toolchain modernized from the end-of-life 1.19.13 to the supported
   1.27.1 in the module directive, CI and the Docker build stage together, which
   is what the pinned baseline previously made impossible.

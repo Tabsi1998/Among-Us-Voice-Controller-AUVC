@@ -88,8 +88,8 @@ jobs:
         run: |
           [xml]$report = Get-Content ../artifacts/tests/capture.trx
           $counters = $report.TestRun.ResultSummary.Counters
-          if ([int]$counters.executed -lt 11 -or [int]$counters.failed -ne 0) {
-            throw 'Expected at least 11 executed baseline tests with no failures.'
+          if ([int]$counters.executed -lt 15 -or [int]$counters.failed -ne 0) {
+            throw 'Expected at least 15 executed baseline tests with no failures.'
           }
       - name: Report legacy dependency vulnerabilities
         run: dotnet list AmongUsCapture.sln package --vulnerable --include-transitive
