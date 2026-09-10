@@ -1,0 +1,136 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <RootNamespace>AUCapture_WPF</RootNamespace>
+    <UseWPF>true</UseWPF>
+    <UseWinForms>false</UseWinForms>
+    <StartupObject>AUCapture_WPF.App</StartupObject>
+    <Platforms>AnyCPU;x86;x64</Platforms>
+    <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <StartupHookSupport>false</StartupHookSupport>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <DebuggerSupport>false</DebuggerSupport>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+    <TrimMode>link</TrimMode>
+    <NoWin32Manifest>true</NoWin32Manifest>
+    <Nullable>disable</Nullable>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <NeutralLanguage />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\1-1.png" />
+    <None Remove="Resources\1-1.svg" />
+    <None Remove="Resources\AutoMuteUs_PK.asc" />
+    <None Remove="Icon.ico" />
+    <None Remove="Resources\Hats\103-1.png" />
+    <None Remove="Resources\Misc\AutoBG.png" />
+    <None Remove="Resources\Misc\status-connected.png" />
+    <None Remove="Resources\Misc\status-disconnected.png" />
+    <None Remove="Resources\Misc\Transparent_Nebula.png" />
+    <None Remove="Resources\Misc\voteCancel.png" />
+    <None Remove="Resources\Misc\voteConfirm.png" />
+    <None Remove="SplashScreens\capture-splashscreen-lovely.png" />
+    <None Remove="SplashScreens\SplashScreenDouche.png" />
+    <None Remove="SplashScreens\SplashScreenLovely.png" />
+    <None Remove="SplashScreens\SplashScreenMonke.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\AutoMuteUs_PK.asc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Config.Net" Version="4.15.0" />
+    <PackageReference Include="Config.Net.Json" Version="4.15.0" />
+    <PackageReference Include="Gu.Wpf.Localization" Version="6.7.0" />
+    <PackageReference Include="HandyControl" Version="3.0.0" />
+    <PackageReference Include="Humanizer.Core" Version="2.10.1" />
+    <PackageReference Include="LoadingIndicators.WPF.Core" Version="1.0.1" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.5" />
+    <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="Octokit" Version="0.50.0" />
+    <PackageReference Include="PgpCore" Version="5.2.0" />
+    <PackageReference Include="SharedMemory" Version="2.2.3" />
+    <PackageReference Include="SharpVectors" Version="1.7.1" />
+    <PackageReference Include="WpfScreenHelper" Version="1.0.0" />
+  </ItemGroup>
+
+  <Target Name="ConfigureTrimming" BeforeTargets="PrepareForILLink">
+    <ItemGroup>
+      <ManagedAssemblyToLink Condition="'%(Filename)' == 'System.Windows.Forms'">
+        <IsTrimmable>true</IsTrimmable>
+      </ManagedAssemblyToLink>
+      <ManagedAssemblyToLink Condition="'%(Filename)' == 'System.Windows.Forms.Design'">
+        <IsTrimmable>true</IsTrimmable>
+      </ManagedAssemblyToLink>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AmongUsCapture\AmongUsCapture.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icon.ico" />
+    <Resource Include="Resources\1-1.svg" />
+    <Resource Include="Resources\AUFont.ttf" />
+    <Resource Include="Resources\Misc\AutoBG.png" />
+    <Resource Include="Resources\Misc\status-connected.png" />
+    <Resource Include="Resources\Misc\status-disconnected.png" />
+    <Resource Include="SplashScreens\SplashScreenChristmas.png" />
+    <Resource Include="SplashScreens\SplashScreenDouche.png" />
+    <Resource Include="SplashScreens\SplashScreenLovely.png" />
+    <Resource Include="SplashScreens\SplashScreenMonke.png" />
+    <Resource Include="SplashScreens\SplashScreenNormal.png" />
+    <Resource Include="SplashScreens\SplashScreenPop.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.en.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.ru.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+
+</Project>
