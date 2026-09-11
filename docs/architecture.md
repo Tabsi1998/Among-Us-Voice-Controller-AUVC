@@ -47,6 +47,17 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   ghost-chat table is tested cell by cell. Unmanaged players are absent from the
   result rather than filtered later: a player who is not in the map cannot be
   moved by mistake.
+- **Channel enforcement:** `enforce_channels` is on by default and is what
+  returns a player who switched channels themselves: a living player who walks
+  into the ghost channel goes back to main, and a dead one who walks into main
+  goes back to ghost. An administrator turns it off with
+  `/au settings ghosts enforce_channels:false`, which is the override the
+  requirements call for. Off, the policy emits no channel for a living player
+  and the reconciler leaves them where they are, while still muting and
+  deafening them as the phase demands, so wandering is not a way to listen in.
+  It does not switch ghost chat off with it — moving the dead into the ghost
+  channel is what `auto_move_ghosts` governs — and it never suppresses the
+  return to main at the end of a round, or ghosts would be stranded.
 - **Discord Reconciler:** compare observed and desired states and apply only
   differences. Serialize guild/session work, reject stale work and respect rate
   limits. Handle asynchronous voice events without move loops or duplicate actions.

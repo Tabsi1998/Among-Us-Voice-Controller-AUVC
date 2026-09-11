@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 )
 
 func testService(t *testing.T) (*Service, *sqlite.DB) {
@@ -202,5 +203,61 @@ func TestVersionDoesNotClaimAProductionBuildWhenMetadataIsEmpty(t *testing.T) {
 	}
 	if content != "AUVC development (`unknown`)" {
 		t.Errorf("version response = %q", content)
+	}
+}
+
+// VoiceConfig is the only route the stored configuration takes to the voice
+// policy. A field that is not copied here is a setting an administrator can
+// change with no effect, which is worse than one that does not exist.
+func TestVoiceConfigCarriesEveryVoiceSettingToThePolicy(t *testing.T) {
+	service, db := testService(t)
+
+	stored := sqlite.DefaultGuildConfig("guild")
+	stored.MainVoiceChannelID = "main"
+	stored.GhostVoiceChannelID = "ghost"
+	stored.AutoMoveGhosts = false
+	stored.EnforceChannels = false
+	if err := db.SaveGuildConfig(stored); err != nil {
+		t.Fatalf("save configuration: %v", err)
+	}
+
+	config, ready, err := service.VoiceConfig("guild")
+	if err != nil {
+		t.Fatalf("read voice configuration: %v", err)
+	}
+	if !ready {
+		t.Error("a guild with both channels set and the bot enabled is ready")
+	}
+
+	want := voice.Config{MainChannelID: "main", GhostChannelID: "ghost"}
+	if config != want {
+		t.Errorf("got %+v, want %+v", config, want)
+	}
+}
+
+// The requirements default channel enforcement to on, and a fresh guild must
+// arrive at the policy that way rather than relying on a later write.
+func TestVoiceConfigDefaultsToEnforcingChannels(t *testing.T) {
+	service, _ := testService(t)
+
+	config, _, err := service.VoiceConfig("fresh-guild")
+	if err != nil {
+		t.Fatalf("read voice configuration: %v", err)
+	}
+	if !config.EnforceChannels {
+		t.Error("a guild that has never been configured must still enforce channels")
+	}
+	if !config.AutoMoveGhosts {
+		t.Error("a guild that has never been configured must still move ghosts")
+	}
+}
+
+// A guild that has not run /au setup channels is not ready, whatever else is
+// set: there is no ghost channel to move anyone into.
+func TestVoiceConfigIsNotReadyWithoutChannels(t *testing.T) {
+	service, _ := testService(t)
+
+	if _, ready, err := service.VoiceConfig("fresh-guild"); err != nil || ready {
+		t.Errorf("expected a fresh guild not to be ready, got ready=%v err=%v", ready, err)
 	}
 }

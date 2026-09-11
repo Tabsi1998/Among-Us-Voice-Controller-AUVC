@@ -12,8 +12,15 @@ const (
 	ghost = "ghost-channel"
 )
 
+// ghostChat is a guild configured the way the requirements default: ghost chat
+// on and channel enforcement on.
 func ghostChat() Config {
-	return Config{MainChannelID: main, GhostChannelID: ghost, AutoMoveGhosts: true}
+	return Config{
+		MainChannelID:   main,
+		GhostChannelID:  ghost,
+		AutoMoveGhosts:  true,
+		EnforceChannels: true,
+	}
 }
 
 func stateWith(phase game.Phase, players ...session.PlayerState) session.State {
@@ -124,7 +131,7 @@ func TestUnmanagedPlayersAreAbsentFromTheResult(t *testing.T) {
 // silenced rather than left audible: the living stop being deafened the moment
 // the phase changes, and a stray voice would give the round away.
 func TestWithoutGhostMovesTheDeadAreSilencedInMain(t *testing.T) {
-	config := Config{MainChannelID: main, GhostChannelID: ghost, AutoMoveGhosts: false}
+	config := Config{MainChannelID: main, GhostChannelID: ghost, AutoMoveGhosts: false, EnforceChannels: true}
 
 	for _, phase := range []game.Phase{game.TASKS, game.DISCUSS} {
 		got := Desired(stateWith(phase, dead("u")), config)["u"]
@@ -140,7 +147,7 @@ func TestWithoutGhostMovesTheDeadAreSilencedInMain(t *testing.T) {
 // feature being switched off. Emitting a move to an empty channel id would make
 // the reconciler either fail per player or move somebody nowhere.
 func TestAnUnconfiguredGhostChannelBehavesLikeTheFeatureBeingOff(t *testing.T) {
-	config := Config{MainChannelID: main, AutoMoveGhosts: true}
+	config := Config{MainChannelID: main, AutoMoveGhosts: true, EnforceChannels: true}
 
 	got := Desired(stateWith(game.TASKS, dead("u")), config)["u"]
 
