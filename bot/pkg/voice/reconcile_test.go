@@ -293,3 +293,64 @@ func TestPolicyAndReconcilerAgreeDuringTasks(t *testing.T) {
 		t.Errorf("a dead player was already open and must not be re-muted, got %+v", dead)
 	}
 }
+
+// A player who dies exactly as a meeting starts produces one reconciliation
+// carrying both "undeafen the living" and "move the dead to ghost". Relaxing
+// the living first lets them hear a corpse still in the main channel, which
+// gives the round away. Moves therefore have to be applied first.
+func TestMovesAreAppliedBeforeRelaxingTheLiving(t *testing.T) {
+	// zzz sorts last by user id, so only the move-first rule can put it first.
+	observed := map[string]Observed{
+		"aaa-living": {ChannelID: main, Muted: true, Deafened: true},
+		"zzz-dead":   {ChannelID: main},
+	}
+	desired := map[string]DesiredVoiceState{
+		"aaa-living": {TargetChannelID: main},
+		"zzz-dead":   {TargetChannelID: ghost},
+	}
+
+	changes := Diff(observed, desired)
+	if len(changes) != 2 {
+		t.Fatalf("expected both players to change, got %+v", changes)
+	}
+
+	if changes[0].UserID != "zzz-dead" {
+		t.Errorf("the move must be applied first, got %q", changes[0].UserID)
+	}
+	if changes[0].MoveTo == nil || *changes[0].MoveTo != ghost {
+		t.Errorf("expected the ghost move first, got %+v", changes[0])
+	}
+	if changes[1].UserID != "aaa-living" {
+		t.Errorf("the living player must be relaxed last, got %q", changes[1].UserID)
+	}
+}
+
+// Within the moves, and within the rest, the order stays by user id so a
+// reconciliation is reproducible.
+func TestOrderingIsStableWithinEachGroup(t *testing.T) {
+	observed := map[string]Observed{
+		"m-b": {ChannelID: main},
+		"m-a": {ChannelID: main},
+		"v-b": {ChannelID: main, Muted: true},
+		"v-a": {ChannelID: main, Muted: true},
+	}
+	desired := map[string]DesiredVoiceState{
+		"m-b": {TargetChannelID: ghost},
+		"m-a": {TargetChannelID: ghost},
+		"v-b": {TargetChannelID: main},
+		"v-a": {TargetChannelID: main},
+	}
+
+	changes := Diff(observed, desired)
+	got := []string{}
+	for _, change := range changes {
+		got = append(got, change.UserID)
+	}
+
+	want := []string{"m-a", "m-b", "v-a", "v-b"}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("order is %v, want %v", got, want)
+		}
+	}
+}

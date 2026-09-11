@@ -6,6 +6,27 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- The game handlers now apply the AUVC voice policy: `handleTrackedMembers`
+  reconciles observed against desired voice states instead of following the
+  legacy rules. Because it compares against what Discord reports rather than
+  against the intent recorded on the last run, a mute that failed or a player
+  somebody unmuted by hand is now corrected instead of staying wrong for the
+  rest of the round. A failure reports the missing Discord permissions by name.
+  Guilds that are disabled, have not run `/au setup channels`, or whose
+  configuration cannot be read keep the legacy behaviour until phase 14.
+
+### Fixed
+
+- The reconciler applies moves before relaxing the living. Dying at the moment
+  a meeting started could otherwise undeafen the living while the fresh corpse
+  was still in the main channel, giving the round away.
+- A delayed voice change now applies the state as it is when the delay ends.
+  Someone dying during the delay before a phase change used to be ignored,
+  because the change had already been decided from the state as it was when
+  the delay started.
+
+### Added
+
 - The Discord side of the voice reconciler: observing server mute and deafen
   from the guild voice states, turning a reconciler change into a member edit,
   and resolving the effective permissions on the configured channels. Not wired

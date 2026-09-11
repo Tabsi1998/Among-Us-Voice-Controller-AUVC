@@ -55,13 +55,26 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   update caused by our own move cannot trigger another one. `voice.Reconciler`
   serializes work per guild so two asynchronous observations of the same guild
   cannot race. An unset channel target is never sent, because Discord reads an
-  empty channel id as a disconnect.
+  empty channel id as a disconnect. Moves are applied before the living are
+  relaxed: when a player dies as a meeting starts, undeafening the living
+  first would let them hear a corpse still sitting in the main channel.
 - **Permissions:** `bot/pkg/permission` reports which Discord permissions AUVC
   lacks and what each one breaks, from effective bitmasks with overwrites already
   applied. Checking up front turns a mid-round API failure per player into one
   sentence an administrator can act on. Administrator is honoured as granting
   everything, and an unconfigured channel is a setup question rather than a
   permission report.
+
+- **Voice switch-over:** the game handlers call the policy and the reconciler
+  through `(*Bot).reconcileVoice`, which reads the guild configuration, projects
+  the session, releases the game state lock and only then talks to Discord.
+  Holding that lock across an API call would block every other handler for the
+  guild. A guild that is disabled or has not run `/au setup channels`, and a
+  configuration that cannot be read at all, fall back to the legacy voice rules
+  rather than leaving players muted with no way out; phase 14 removes that
+  fallback together with the legacy settings. Changes go out over the primary
+  session rather than the token provider, whose purpose is spreading rate limits
+  across the several bot tokens of a hosted deployment.
 
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.

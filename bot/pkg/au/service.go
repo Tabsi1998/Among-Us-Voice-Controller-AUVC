@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 )
 
 var (
@@ -37,6 +38,42 @@ type Service struct {
 
 func NewService(store Store, version, commit string) *Service {
 	return &Service{store: store, version: version, commit: commit}
+}
+
+// GuildConfig returns a guild's configuration, creating the default row when
+// the guild has not been configured yet.
+//
+// It takes the same lock as Handle. A command performs a read-modify-write, and
+// reading between those two halves would hand out a configuration that is about
+// to change - which for the voice path means acting on channels an
+// administrator has just replaced.
+func (s *Service) GuildConfig(guildID string) (sqlite.GuildConfig, error) {
+	if s == nil || s.store == nil {
+		return sqlite.GuildConfig{}, errors.New("AUVC configuration store is unavailable")
+	}
+	if guildID == "" {
+		return sqlite.GuildConfig{}, fmt.Errorf("%w: guild is required", ErrInvalidInput)
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.store.EnsureGuildConfig(guildID)
+}
+
+// VoiceConfig returns the part of a guild's configuration the voice policy
+// reads, and whether the guild is set up well enough to manage voice at all.
+func (s *Service) VoiceConfig(guildID string) (voice.Config, bool, error) {
+	config, err := s.GuildConfig(guildID)
+	if err != nil {
+		return voice.Config{}, false, err
+	}
+
+	return voice.Config{
+		MainChannelID:  config.MainVoiceChannelID,
+		GhostChannelID: config.GhostVoiceChannelID,
+		AutoMoveGhosts: config.AutoMoveGhosts,
+	}, Ready(config), nil
 }
 
 // Handle serializes configuration changes so two simultaneous Discord
