@@ -6,6 +6,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- The Discord side of the voice reconciler: observing server mute and deafen
+  from the guild voice states, turning a reconciler change into a member edit,
+  and resolving the effective permissions on the configured channels. Not wired
+  into the game handlers yet.
 - Phase 9: `bot/pkg/permission` names the Discord permissions AUVC is missing
   and what each one breaks, grouped so a permission missing on both channels is
   explained once. Not wired into the bot yet.
