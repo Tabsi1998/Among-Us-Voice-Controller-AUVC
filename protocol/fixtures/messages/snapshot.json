@@ -1,0 +1,27 @@
+{
+  "protocol": 1,
+  "type": "snapshot",
+  "session": "7f3a1c9e-2b4d-4a6f-8e1b-5c9d0a3f7e21",
+  "seq": 3,
+  "phase": "tasks",
+  "players": [
+    {
+      "name": "Red",
+      "color": 0,
+      "dead": false,
+      "disconnected": false
+    },
+    {
+      "name": "Blue",
+      "color": 1,
+      "dead": false,
+      "disconnected": false
+    },
+    {
+      "name": "Green",
+      "color": 2,
+      "dead": true,
+      "disconnected": false
+    }
+  ]
+}
