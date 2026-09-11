@@ -21,7 +21,13 @@ updates:
       # Remove these entries in phase 14, together with the code.
       - dependency-name: github.com/go-redis/redis/v8
       - dependency-name: github.com/bsm/redislock
+      # jackc is deliberately NOT blanket-ignored. govulncheck found reachable
+      # SQL injection advisories in pgx/v4 and pgproto3/v2, so security fixes
+      # within the current major line have to keep arriving. Only majors are
+      # held back, because a v5 migration is a breaking change to code phase 14
+      # deletes.
       - dependency-name: github.com/jackc/*
+        update-types: [version-update:semver-major]
       - dependency-name: github.com/georgysavva/scany
       - dependency-name: github.com/pashagolub/pgxmock
 
