@@ -4,6 +4,36 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Phase 11: capture targets .NET 10, the current LTS, instead of .NET 5, and
+  `capture/global.json` pins SDK 10.0.401. .NET 8 was deliberately not chosen:
+  its support ends in November 2026, which would have meant doing this
+  migration twice. Every project builds and all tests pass on the new target
+  with no source changes to the memory or offset code.
+
+### Added
+
+- The Windows CI job proves the win-x64 payload is self-contained, so the app
+  still starts on a machine with no .NET installed, and fails the build if the
+  payload turns framework-dependent.
+- Tests for what the framework move actually risks: the shipped assemblies
+  target the expected LTS, the test host runs it, and the offset index parses
+  identically under a comma-decimal culture. Nineteen cases, up from fifteen.
+- Nullable reference types are enabled where the code is already clean under
+  them and switched off deliberately elsewhere, each project recording the
+  measured warning count and what unblocks it. The table is in
+  `docs/development.md`.
+
+### Security
+
+- `System.Drawing.Common` 4.7.0 (critical, GHSA-rxg9-xrhp-64gj) and
+  `Tmds.DBus` 0.9.1 (high, GHSA-xrw6-gwf8-vvr9) are gone. The first arrived
+  through Config.Net and is cut off by pinning a modern
+  `System.Configuration.ConfigurationManager`, which avoids an untested
+  Config.Net major. All six capture projects now report no vulnerable packages,
+  and CI fails if that changes.
+
 ### Added
 
 - Phase 10: `enforce_channels` is honoured. On by default, it returns a player

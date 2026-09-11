@@ -93,11 +93,32 @@ jobs:
         run: |
           [xml]$report = Get-Content ../artifacts/tests/capture.trx
           $counters = $report.TestRun.ResultSummary.Counters
-          if ([int]$counters.executed -lt 15 -or [int]$counters.failed -ne 0) {
-            throw 'Expected at least 15 executed baseline tests with no failures.'
+          if ([int]$counters.executed -lt 19 -or [int]$counters.failed -ne 0) {
+            throw 'Expected at least 19 executed baseline tests with no failures.'
           }
-      - name: Report legacy dependency vulnerabilities
-        run: dotnet list AmongUsCapture.sln package --vulnerable --include-transitive
+      # Phase 11 has to prove the app still ships without a .NET install on the
+      # player's machine. Packaging it into the release archives is phase 17.
+      - name: Prove the self-contained win-x64 payload
+        run: |
+          dotnet publish AUCapture-WPF/AUCapture-WPF.csproj --configuration Release --runtime win-x64 --self-contained true -o ../artifacts/publish/win-x64
+          $exe = '../artifacts/publish/win-x64/AUCapture-WPF.exe'
+          if (-not (Test-Path $exe)) { throw 'The self-contained publish produced no executable.' }
+          $config = Get-Content ../artifacts/publish/win-x64/AUCapture-WPF.runtimeconfig.json -Raw | ConvertFrom-Json
+          if (-not $config.runtimeOptions.includedFrameworks) {
+            throw 'The payload is framework-dependent: it would need .NET installed on the player machine.'
+          }
+          foreach ($name in 'hostfxr.dll', 'coreclr.dll', 'PresentationFramework.dll') {
+            if (-not (Test-Path "../artifacts/publish/win-x64/$name")) { throw "The payload is missing $name." }
+          }
+      - name: Fail on vulnerable dependencies
+        run: |
+          $report = dotnet list AmongUsCapture.sln package --vulnerable --include-transitive | Out-String
+          Write-Host $report
+          # Vulnerable packages are listed as '> name version severity' rows.
+          # The surrounding prose is localized; this marker is not.
+          if ($report -match '(?m)^\s*>\s') {
+            throw 'Vulnerable NuGet packages are present. Update them, or cut the dependency chain and record why.'
+          }
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:

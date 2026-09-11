@@ -45,10 +45,41 @@ release. See [go-modernization.md](go-modernization.md) for the selected
 toolchain, the dependencies that were updated and the ones deliberately left at
 baseline versions because their code is scheduled for removal.
 
-Capture targets `net5.0` / `net5.0-windows`; SDK 8.0.424 is pinned for baseline
-builds and the new .NET 8 test host. Run the full solution and the actual
-AUVC.Capture.Tests project as described in [baseline-build.md](baseline-build.md).
-Application migration to supported .NET LTS belongs to phase 11.
+Capture targets `net10.0` / `net10.0-windows`; SDK 10.0.401 is pinned in
+`capture/global.json` with `rollForward: disable`, and CI installs exactly that
+SDK from the same file. .NET 10 is the current LTS, supported until November
+2028; .NET 8 was not chosen because its support ends in November 2026. Run the
+full solution and the AUVC.Capture.Tests project as described in
+[baseline-build.md](baseline-build.md).
+
+Nullable reference types are enabled where the code is already clean under them
+and switched off deliberately elsewhere, with the reason recorded in each
+project file. The backlog is measurable rather than implied:
+
+| Project | Nullable | Warnings if enabled today |
+| --- | --- | --- |
+| AUVC.Capture.Tests | enabled | 0 |
+| AUOffsetHelper | enabled | 0 |
+| AUOffsetManager | disabled | 56 |
+| AmongUsCapture | disabled | 168 |
+| AUCapture-Console | disabled | 194 |
+| AUCapture-WPF | disabled | 572 |
+
+A full rebuild reports around 104 compiler warnings, none of them errors. The
+largest groups are `CS8632` (nullable annotations in code compiled without the
+nullable context), `CS0168`/`CS0169` (unused locals and fields), `SYSLIB0021`
+and `SYSLIB0014` (APIs the newer framework marks obsolete) and `CA1416`
+(Windows-only APIs). They are reported rather than suppressed, and CI does not
+gate on them; the transport rewrite in phases 12 and 13 removes a large part of
+the code they come from. `NU1701` covers `WebSocketSharp`, a .NET Framework
+package restored through the compatibility fallback, which the same rewrite
+replaces.
+
+Reproduce a column with
+`dotnet build <project> -c Release -t:Rebuild -p:Nullable=enable`. Annotating
+the memory and offset code is held back on purpose: the phase 11 contract keeps
+it comparable with upstream, and phases 12 and 13 replace the legacy transport
+that makes up much of the rest.
 
 The bot reads AUVC configuration from `AUVC_DATABASE_PATH`. Containers default
 to `/data/amongus.db`; for a local development run set it to a writable path such
@@ -57,7 +88,9 @@ as `./data/amongus.db`. Never commit the database or use it for secrets.
 Use Python 3.11+ for the standard-library-only bootstrap verifier and Gitleaks
 8.30.1 for the initial scan. Tool archives/caches/logs are local-only and must
 not be committed. Root CI checks Go vet/format/tests/build, Windows restore/format/
-build/tests, Docker, provenance and secrets. Legacy dependency warnings are reported.
+build/tests, Docker, provenance and secrets. The Windows job fails on vulnerable
+NuGet packages and proves that the win-x64 payload is self-contained, so it
+still runs on a machine with no .NET installed.
 
 ## Dependency updates
 

@@ -1,7 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Nullable reference types are off deliberately, not by omission:
+         enabling them reports 56 warnings here today. This is offset code, which the phase 11 contract keeps unchanged and
+         comparable with upstream. Annotating it is a separate, reviewable change. -->
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

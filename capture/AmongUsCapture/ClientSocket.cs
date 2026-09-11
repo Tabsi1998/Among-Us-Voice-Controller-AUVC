@@ -63,7 +63,7 @@ namespace AmongUsCapture
                 {
                     socket.EmitAsync("taskFailed", update.TaskId);
                     return;
-                };
+                }
                 var paramString = "";
                 Logger.Debug("Recieved task: {task}", update);
                 handler.UpdateUser(update.GuildId, update.UserId, update.Parameters.Mute, update.Parameters.Deaf).ContinueWith(x =>

@@ -51,10 +51,9 @@ has already been removed.
 
 ## Prerequisites
 
-Checks use Go 1.27.1, Windows and .NET SDK 8.0.424 to build the imported .NET 5
-projects. Python 3.11+ runs the bootstrap verifier. The Go toolchain is supported
-as of phase 3; the capture .NET version remains a baseline observation until
-phase 11.
+Checks use Go 1.27.1, Windows and .NET SDK 10.0.401 to build the capture
+projects. Python 3.11+ runs the bootstrap verifier. Both toolchains are on
+supported releases as of phases 3 and 11.
 See [development](docs/development.md) for commands and limitations.
 
 ## Discord Bot Setup

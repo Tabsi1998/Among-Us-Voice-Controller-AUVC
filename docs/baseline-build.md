@@ -17,11 +17,13 @@ The owner performs the merge; no main merge is automated.
 - No replacement memory addresses or speculative modern offset mappings were added.
   Capture memory algorithms and the bundled `Offsets.json` are unchanged apart
   from mechanical C# whitespace formatting.
-- An actual test project executes 11 cases on .NET 8: historical golden output,
-  explicit CLI behavior, both bundled 2024 records and malformed input.
+- An actual test project executes 19 cases on .NET 10: historical golden output,
+  explicit CLI behavior, both bundled 2024 records, malformed input, the target
+  framework of the shipped assemblies and culture-independent offset parsing.
   This is regression coverage, not live game or full capture coverage.
-- SDK 8.0.424 is pinned in `capture/global.json`. Application targets remain
-  .NET 5 until phase 11. The .NET 8 test host does not upgrade the application.
+- SDK 10.0.401 is pinned in `capture/global.json` with `rollForward: disable`.
+  Since phase 11 every project targets `net10.0` / `net10.0-windows`, the current
+  LTS. A test asserts the target framework, so a project cannot be left behind.
 - NuGet lock files include all solution projects; CI uses locked restore.
 - Root CI checks provenance/secrets, Go format/vet/race tests/build, Windows
   restore/format/full solution build/executed tests and a Docker baseline build.
@@ -47,10 +49,10 @@ go build ./...
 
 An empty gofmt listing is success. Linux CI additionally uses `go test -race ./...`.
 The Go toolchain and the dependencies AUVC keeps were modernized in phase 3; see
-[go-modernization.md](go-modernization.md). The capture .NET SDK and its NuGet
-dependencies deliberately remain baseline versions until phase 11.
+[go-modernization.md](go-modernization.md). The capture .NET SDK moved to the
+current LTS in phase 11; its remaining NuGet baselines are listed there.
 
-From `capture/`, using SDK 8.0.424 (honored by global.json):
+From `capture/`, using SDK 10.0.401 (honored by global.json):
 
 ```sh
 dotnet restore AmongUsCapture.sln --locked-mode
