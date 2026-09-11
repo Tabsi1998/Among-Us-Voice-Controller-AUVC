@@ -6,6 +6,9 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 9: `bot/pkg/permission` names the Discord permissions AUVC is missing
+  and what each one breaks, grouped so a permission missing on both channels is
+  explained once. Not wired into the bot yet.
 - Phase 8: `voice.Diff` and `voice.Reconciler` apply only the differences
   between the observed and desired voice states, idempotently and serialized per
   guild. Not wired into the bot yet.
