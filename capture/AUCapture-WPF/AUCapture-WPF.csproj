@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>AUCapture_WPF</RootNamespace>
     <UseWPF>true</UseWPF>
     <UseWinForms>false</UseWinForms>
@@ -20,6 +20,10 @@
     <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
     <TrimMode>link</TrimMode>
     <NoWin32Manifest>true</NoWin32Manifest>
+    <!-- Nullable reference types are off deliberately, not by omission:
+         enabling them reports 572 warnings here today. The GUI is reworked for
+         guided setup and DE/EN in a later phase (#21); annotating it first would
+         be work thrown away. -->
     <Nullable>disable</Nullable>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <NeutralLanguage />

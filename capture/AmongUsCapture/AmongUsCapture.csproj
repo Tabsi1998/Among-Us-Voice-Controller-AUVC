@@ -2,7 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Nullable reference types are off deliberately, not by omission:
+         enabling them reports 168 warnings here today. Most of this is the memory reader and the legacy socket transport. Phases 12
+         and 13 replace the transport, so annotating it now would be work thrown away. -->
+    <Nullable>disable</Nullable>
     <UseWindowsForms>false</UseWindowsForms>
   </PropertyGroup>
 
@@ -24,6 +28,12 @@
 
   <ItemGroup>
     <PackageReference Include="Config.Net" Version="4.15.0" />
+    <!-- Config.Net 4.15.0 reaches System.Drawing.Common 4.7.0 through
+         System.Configuration.ConfigurationManager, and that version carries a
+         critical advisory (GHSA-rxg9-xrhp-64gj). The modern ConfigurationManager
+         has no such dependency, so pinning it directly removes the vulnerable
+         package instead of taking an untested Config.Net major. -->
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
     <PackageReference Include="Config.Net.Json" Version="4.15.0" />
     <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
