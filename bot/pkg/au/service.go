@@ -70,9 +70,10 @@ func (s *Service) VoiceConfig(guildID string) (voice.Config, bool, error) {
 	}
 
 	return voice.Config{
-		MainChannelID:  config.MainVoiceChannelID,
-		GhostChannelID: config.GhostVoiceChannelID,
-		AutoMoveGhosts: config.AutoMoveGhosts,
+		MainChannelID:   config.MainVoiceChannelID,
+		GhostChannelID:  config.GhostVoiceChannelID,
+		AutoMoveGhosts:  config.AutoMoveGhosts,
+		EnforceChannels: config.EnforceChannels,
 	}, Ready(config), nil
 }
 

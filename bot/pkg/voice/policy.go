@@ -40,6 +40,14 @@ type Config struct {
 	// to each other. With it off, or with no ghost channel configured, dead
 	// players stay in the main channel and are silenced instead.
 	AutoMoveGhosts bool
+	// EnforceChannels returns players who switch channels themselves. It is on
+	// by default. With it off the bot stops deciding where a living player
+	// sits during a round and only manages what they can say and hear.
+	//
+	// It does not switch off ghost moves: moving the dead into the ghost
+	// channel is the feature AutoMoveGhosts governs, not a correction of a
+	// player who wandered off.
+	EnforceChannels bool
 }
 
 // usesGhostChannel reports whether dead players can actually be moved.
@@ -49,6 +57,19 @@ type Config struct {
 // reconciler either fail per player or, worse, move somebody nowhere.
 func (c Config) usesGhostChannel() bool {
 	return c.AutoMoveGhosts && c.GhostChannelID != ""
+}
+
+// enforcedMain is the main channel when the guild lets the bot decide where
+// players sit during a round, and an empty string when it does not.
+//
+// An empty target is how the policy says "leave this player where they are":
+// the reconciler never sends one, because Discord reads an empty channel id
+// as a disconnect.
+func (c Config) enforcedMain() string {
+	if !c.EnforceChannels {
+		return ""
+	}
+	return c.MainChannelID
 }
 
 // Desired returns the voice state every managed player should be in, keyed by
@@ -70,6 +91,11 @@ func (c Config) usesGhostChannel() bool {
 //
 // Discussion covers meetings and voting, which the game state reports as one
 // phase. Menu means no round is running and is handled like Ended.
+//
+// The channel half of that table is what Config.EnforceChannels governs. With
+// enforcement off a living player keeps the mute and deafen their phase calls
+// for but is left in whatever channel they chose, so an admin can hand that
+// decision back to the players without giving up the round.
 func Desired(state session.State, config Config) map[string]DesiredVoiceState {
 	desired := make(map[string]DesiredVoiceState)
 
@@ -80,15 +106,13 @@ func Desired(state session.State, config Config) map[string]DesiredVoiceState {
 }
 
 func desiredFor(phase game.Phase, alive bool, config Config) DesiredVoiceState {
-	open := Open(config.MainChannelID)
-
 	switch phase {
 	case game.TASKS:
 		if alive {
 			// Living players cannot talk and cannot hear anything while the
 			// round is running.
 			return DesiredVoiceState{
-				TargetChannelID: config.MainChannelID,
+				TargetChannelID: config.enforcedMain(),
 				Muted:           true,
 				Deafened:        true,
 			}
@@ -101,11 +125,11 @@ func desiredFor(phase game.Phase, alive bool, config Config) DesiredVoiceState {
 		// Without a ghost channel the dead stay put. They are silenced rather
 		// than left audible, because the living stop being deafened the moment
 		// the phase changes and a stray voice would leak the round.
-		return DesiredVoiceState{TargetChannelID: config.MainChannelID, Muted: true}
+		return DesiredVoiceState{TargetChannelID: config.enforcedMain(), Muted: true}
 
 	case game.DISCUSS:
 		if alive {
-			return open
+			return DesiredVoiceState{TargetChannelID: config.enforcedMain()}
 		}
 		if config.usesGhostChannel() {
 			// Ghosts keep talking during meetings and voting.
@@ -113,12 +137,16 @@ func desiredFor(phase game.Phase, alive bool, config Config) DesiredVoiceState {
 		}
 		// The living can hear now, so a dead player in the main channel would
 		// reveal the round. Silence them.
-		return DesiredVoiceState{TargetChannelID: config.MainChannelID, Muted: true}
+		return DesiredVoiceState{TargetChannelID: config.enforcedMain(), Muted: true}
 
 	default:
 		// Lobby, Menu and Ended: everyone back in the main channel, audible.
 		// Dead players are released here even when they were in the ghost
 		// channel, which is what ends a round cleanly.
-		return open
+		//
+		// This one ignores EnforceChannels on purpose. Ghosts have to come back
+		// out of the ghost channel however the guild is configured, or a round
+		// ends with half the players stranded somewhere the bot put them.
+		return Open(config.MainChannelID)
 	}
 }

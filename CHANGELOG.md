@@ -6,6 +6,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 10: `enforce_channels` is honoured. On by default, it returns a player
+  who switched channels themselves — a living player who walks into the ghost
+  channel goes back to main, a dead one who walks into main goes back to ghost.
+  `/au settings ghosts enforce_channels:false` is the administrator override:
+  the bot then stops deciding where a living player sits and still mutes and
+  deafens them as the phase demands, so wandering into the ghost channel is
+  never a way to listen in. Turning it off does not turn ghost chat off with
+  it, and does not suppress the return to main at the end of a round.
+
 - The game handlers now apply the AUVC voice policy: `handleTrackedMembers`
   reconciles observed against desired voice states instead of following the
   legacy rules. Because it compares against what Discord reports rather than
