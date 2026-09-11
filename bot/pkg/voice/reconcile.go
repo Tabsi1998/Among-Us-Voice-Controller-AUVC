@@ -88,7 +88,21 @@ func Diff(observed map[string]Observed, desired map[string]DesiredVoiceState) []
 		}
 	}
 
+	// Moves go first, and this is a correctness requirement rather than tidiness.
+	//
+	// When a player dies at the moment a meeting starts, one reconciliation
+	// carries both "undeafen the living" and "move the dead to the ghost
+	// channel". Relaxing the living first lets them hear a corpse still sitting
+	// in the main channel, which gives the round away. Moving people into the
+	// right room before changing who can hear is the ordering that cannot leak.
+	//
+	// Within each group the order is by user id so a reconciliation stays
+	// reproducible and its log readable.
 	sort.Slice(changes, func(i, j int) bool {
+		iMoves, jMoves := changes[i].MoveTo != nil, changes[j].MoveTo != nil
+		if iMoves != jMoves {
+			return iMoves
+		}
 		return changes[i].UserID < changes[j].UserID
 	})
 	return changes

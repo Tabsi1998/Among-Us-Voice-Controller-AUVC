@@ -2,8 +2,10 @@ package bot
 
 import (
 	"context"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/permission"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/task"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/bsm/redislock"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -91,6 +93,10 @@ func (bot *Bot) handleTrackedMembers(sess *discordgo.Session, sett *settings.Gui
 
 	if err != nil || g == nil {
 		lock.Release(ctx)
+		return
+	}
+
+	if bot.reconcileVoice(g, dgs, lock, gsr, delay) {
 		return
 	}
 
@@ -203,4 +209,90 @@ func (bot *Bot) handleTrackedMembers(sess *discordgo.Session, sett *settings.Gui
 
 func (bot *Bot) issueMutesAndRecord(guildID, connectCode string, req task.UserModifyRequest, lock *redislock.Lock) error {
 	return bot.TokenProvider.ModifyUsers(guildID, connectCode, req, lock)
+}
+
+// voicePolicyConfig reports a guild's voice configuration and whether AUVC
+// should take charge of voice at all.
+//
+// Taking over requires an administrator to have configured AUVC: a guild that
+// has not run /au setup channels has no ghost channel to move anyone into, so
+// the legacy voice rules stay in charge rather than the bot silently doing
+// nothing. That fallback disappears with the legacy settings in phase 14.
+//
+// A configuration that cannot be read is treated the same way. Voice is the
+// visible half of a round, so an unreachable database must degrade to the old
+// behaviour instead of leaving players muted with no way out.
+func (bot *Bot) voicePolicyConfig(guildID string) (voice.Config, bool) {
+	if bot.Reconciler == nil {
+		return voice.Config{}, false
+	}
+
+	config, ready, err := bot.AUVC.VoiceConfig(guildID)
+	if err != nil {
+		log.Println("Could not read the AUVC configuration, using the legacy voice rules:", err)
+		return voice.Config{}, false
+	}
+	return config, ready
+}
+
+// reconcileVoice applies the AUVC voice policy and reports whether it handled
+// the guild. A false result means the caller has to fall back to the legacy
+// voice rules, and that the game state lock is still held.
+//
+// Unlike the legacy path, this compares against what Discord reports rather
+// than against the intent recorded on the last run, so a mute that failed or a
+// player somebody unmuted by hand is corrected on the next reconciliation.
+//
+// Changes go out over the primary session rather than the token provider. The
+// provider exists to spread Discord rate limits across several bot tokens,
+// which is part of the hosted AutoMuteUs setup that phase 14 removes; a
+// self-hosted AUVC runs one token and has nothing to spread.
+func (bot *Bot) reconcileVoice(g *discordgo.Guild, dgs *GameState, lock *redislock.Lock, gsr GameStateRequest, delay int) bool {
+	config, ready := bot.voicePolicyConfig(dgs.GuildID)
+	if !ready {
+		return false
+	}
+
+	// Read everything needed from the game state before releasing it.
+	running := dgs.Running
+	state := dgs.SessionState()
+
+	// Release the game state before sleeping or touching Discord: holding it
+	// across an API call blocks every other handler for this guild.
+	bot.RedisInterface.SetDiscordGameState(dgs, lock)
+
+	if !running {
+		return true
+	}
+
+	if delay > 0 {
+		log.Printf("Sleeping for %d seconds before applying voice changes\n", delay)
+		time.Sleep(time.Second * time.Duration(delay))
+
+		// The delay gives players a moment, it does not freeze the round. A
+		// death or a phase change during it is handled by its own call, and
+		// applying the state from before the sleep would undo that work. Reading
+		// the state again is safe precisely because the reconciler is
+		// idempotent: whatever the other call already applied produces no change
+		// here.
+		if current := bot.RedisInterface.GetReadOnlyDiscordGameState(gsr); current != nil {
+			if !current.Running {
+				return true
+			}
+			state = current.SessionState()
+		}
+	}
+
+	if err := bot.Reconciler.Reconcile(g.ID, observeVoiceStates(g), voice.Desired(state, config)); err != nil {
+		log.Println("Applying voice changes failed:", err)
+
+		// A permission problem surfaces as an opaque API error per player.
+		// Naming it turns that into something an administrator can act on.
+		if summary := permission.Summary(permission.Audit(
+			bot.voiceChannelPermissions(config.MainChannelID, config.GhostChannelID)...,
+		)); summary != "" {
+			log.Print(summary)
+		}
+	}
+	return true
 }

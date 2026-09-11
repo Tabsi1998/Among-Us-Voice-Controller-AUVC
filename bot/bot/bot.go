@@ -20,6 +20,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
 	storageutils "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/token"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
 	"github.com/bwmarrin/discordgo"
 )
@@ -50,6 +51,11 @@ type Bot struct {
 
 	AUVC *au.Service
 
+	// Reconciler applies the voice policy. It is held on the bot rather than
+	// created per call because it serializes work per guild, which only works
+	// if every reconciliation goes through the same instance.
+	Reconciler *voice.Reconciler
+
 	logPath string
 
 	captureTimeout int
@@ -78,6 +84,7 @@ func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisI
 		StorageInterface:  storageInterface,
 		PostgresInterface: psql,
 		AUVC:              auvc,
+		Reconciler:        voice.NewReconciler(discordApplier{session: dg}),
 		logPath:           logPath,
 		captureTimeout:    GameTimeoutSeconds,
 	}
