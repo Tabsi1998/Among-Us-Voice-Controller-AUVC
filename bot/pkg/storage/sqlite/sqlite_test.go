@@ -19,6 +19,22 @@ func openTemp(t *testing.T) (*DB, string) {
 	return db, path
 }
 
+// latestMigration is derived from the embedded scripts rather than written
+// down, so adding a migration does not mean editing a number in two places
+// and the test keeps asserting what it means: every migration is applied.
+func latestMigration(t *testing.T) int {
+	t.Helper()
+
+	migrations, err := loadMigrations()
+	if err != nil {
+		t.Fatalf("load migrations: %v", err)
+	}
+	if len(migrations) == 0 {
+		t.Fatal("no migrations are embedded")
+	}
+	return migrations[len(migrations)-1].version
+}
+
 func TestOpenAppliesMigrations(t *testing.T) {
 	db, _ := openTemp(t)
 
@@ -26,8 +42,8 @@ func TestOpenAppliesMigrations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("schema version: %v", err)
 	}
-	if version != 1 {
-		t.Errorf("schema version = %d, want 1", version)
+	if want := latestMigration(t); version != want {
+		t.Errorf("schema version = %d, want %d", version, want)
 	}
 }
 
@@ -65,8 +81,8 @@ func TestOpenIsIdempotent(t *testing.T) {
 		if err != nil {
 			t.Fatalf("schema version %d: %v", i, err)
 		}
-		if version != 1 {
-			t.Errorf("open %d: schema version = %d, want 1", i, version)
+		if want := latestMigration(t); version != want {
+			t.Errorf("open %d: schema version = %d, want %d", i, version, want)
 		}
 		db.Close()
 	}

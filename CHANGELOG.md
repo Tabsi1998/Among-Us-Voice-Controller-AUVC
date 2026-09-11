@@ -6,6 +6,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 13, first half: capture pairing and credentials. `/au capture pair`
+  issues a code that works once and expires after ten minutes, `/au capture
+  status` reports whether a capture is paired and when it was last seen, and
+  `/au capture revoke` withdraws every credential and cancels any outstanding
+  code. All three replies are ephemeral, which is what makes it acceptable to
+  put a pairing code in one.
+- Only hashes are stored, so no secret can be recovered from the database, a
+  backup or a support bundle. `credential.Secret` redacts itself from fmt and
+  encoding/json, so the rule that credentials never reach a log is enforced by
+  the type instead of by everyone remembering it. Comparison is constant time.
+- A pairing code is single use and expires; a wrong code does not consume the
+  real one, so a typing error does not cost an administrator a new code.
+  Requesting a new code replaces the outstanding one, which is how a code read
+  out to the wrong person is cancelled.
+
+### Added
+
 - Phase 12: the capture-to-bot protocol, as a transport-independent contract.
   `protocol/README.md` defines the versioned envelope, all eleven message
   types, the handshake order and the sequence rules; `bot/pkg/protocol`
