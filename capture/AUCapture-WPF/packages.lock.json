@@ -71,11 +71,11 @@
       },
       "PgpCore": {
         "type": "Direct",
-        "requested": "[5.2.0, )",
-        "resolved": "5.2.0",
-        "contentHash": "NWuMzPQusUOB5dQYmPDUsVaFOhQ/D8DNDBH1m83qvAJvB2zPNi57vk/jjT0f3h2yFYoi3b66zrqPyUFZfta4yA==",
+        "requested": "[8.0.0, )",
+        "resolved": "8.0.0",
+        "contentHash": "2daGOFiuJNAn2Zwyuc3l63RWQowoleHBllwSD/PWeHMxdThWcAWfBx1N2XnE1iQbz6/L4DtOfOeOQ+eS2GlAbg==",
         "dependencies": {
-          "Portable.BouncyCastle": "1.8.9"
+          "BouncyCastle.Cryptography": "2.4.0"
         }
       },
       "SharedMemory": {
@@ -95,6 +95,11 @@
         "requested": "[1.0.0, )",
         "resolved": "1.0.0",
         "contentHash": "OX9vitUalpiYOf1p3ZGeWAts9daluQ7PlID4ByUGcjXZALCDMZi9A6668WIXoebezV1aQx+I1k4y0k6eMCIt4Q=="
+      },
+      "BouncyCastle.Cryptography": {
+        "type": "Transitive",
+        "resolved": "2.4.0",
+        "contentHash": "SwXsAV3sMvAU/Nn31pbjhWurYSjJ+/giI/0n6tCrYoupEK34iIHCuk3STAd9fx8yudM85KkLSVdn951vTng/vQ=="
       },
       "Castle.Core": {
         "type": "Transitive",
@@ -194,11 +199,6 @@
         "type": "Transitive",
         "resolved": "13.0.1",
         "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
-      },
-      "Portable.BouncyCastle": {
-        "type": "Transitive",
-        "resolved": "1.8.9",
-        "contentHash": "wlJo8aFoeyl+W93iFXTK5ShzDYk5WBqoUPjTNEM0Xv9kn1H+4hmuCjF0/n8HLm9Nnp1aY6KNndWqQTNk+NGgRQ=="
       },
       "SocketIOClient": {
         "type": "Transitive",
