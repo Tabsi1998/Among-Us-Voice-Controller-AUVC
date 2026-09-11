@@ -11,9 +11,13 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
     <ProjectReference Include="../AUOffsetHelper/AUOffsetHelper.csproj" />
     <ProjectReference Include="../AUOffsetManager/AUOffsetManager.csproj" />
+    <ProjectReference Include="../AUVC.Protocol/AUVC.Protocol.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../Offsets.json" Link="Fixtures/Offsets.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures/legacy-2020.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- The protocol fixtures are shared with the Go tests. Both languages
+         read the same files, so a change that breaks one breaks the other. -->
+    <None Include="../../protocol/fixtures/**/*.json" LinkBase="Fixtures/protocol" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

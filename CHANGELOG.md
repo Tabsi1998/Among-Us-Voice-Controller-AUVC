@@ -4,6 +4,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- Phase 12: the capture-to-bot protocol, as a transport-independent contract.
+  `protocol/README.md` defines the versioned envelope, all eleven message
+  types, the handshake order and the sequence rules; `bot/pkg/protocol`
+  receives and `capture/AUVC.Protocol` sends. Neither implementation is the
+  reference: both are tested against the shared fixtures in
+  `protocol/fixtures`, so a message type cannot be added, renamed or reshaped
+  on one side alone without failing the other side's tests.
+- The receiver refuses what it cannot safely act on: an incompatible protocol
+  version, game data before authentication, and events before a complete
+  snapshot. A gap in the sequence costs the session its snapshot and blocks
+  events until a new one arrives, because applying only the events that did
+  arrive would leave the bot confidently wrong about who is alive. Duplicates
+  and late messages are ignored silently rather than answered with an error,
+  since retransmission is ordinary on a reconnecting transport.
+
 ### Changed
 
 - Phase 11: capture targets .NET 10, the current LTS, instead of .NET 5, and

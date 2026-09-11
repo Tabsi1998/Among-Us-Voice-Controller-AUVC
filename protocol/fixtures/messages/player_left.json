@@ -1,0 +1,12 @@
+{
+  "protocol": 1,
+  "type": "player_left",
+  "session": "7f3a1c9e-2b4d-4a6f-8e1b-5c9d0a3f7e21",
+  "seq": 9,
+  "player": {
+    "name": "Blue",
+    "color": 5,
+    "dead": false,
+    "disconnected": true
+  }
+}

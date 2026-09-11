@@ -35,6 +35,14 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   memory/offset logic; send snapshots, events and heartbeats.
 - **Protocol:** versioned envelopes and validation, authenticated session ownership,
   explicit compatibility errors, ordering and reconnect snapshot contract.
+  Defined in [protocol/README.md](../protocol/README.md) and implemented twice:
+  `bot/pkg/protocol` receives, `capture/AUVC.Protocol` sends. Neither is the
+  reference; both are tested against the shared fixtures in `protocol/fixtures`,
+  so the two cannot drift apart without a test failing. The receiver is a pure
+  state machine over messages with no transport and no clock, which is what lets
+  a reconnect, a duplicate and a lost event be tested by replaying a sequence.
+  A gap in the sequence costs the session its snapshot: applying the events that
+  did arrive would leave the bot confidently wrong about who is alive.
 - **Game State:** authoritative session phase, player identity, alive/dead state and
   persistent Discord links. No direct Discord API calls from game event handlers.
   `bot/pkg/session` holds this projection as plain values with no discordgo,
