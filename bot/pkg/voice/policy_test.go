@@ -31,7 +31,17 @@ func living(userID string) session.PlayerState {
 	return session.PlayerState{UserID: userID, InGameName: "Player-" + userID, Alive: true}
 }
 
+// dead is a player whose death a meeting has already announced. Most of the
+// policy is about what happens after that.
 func dead(userID string) session.PlayerState {
+	return session.PlayerState{
+		UserID: userID, InGameName: "Player-" + userID, Alive: false, Revealed: true,
+	}
+}
+
+// secretlyDead is a player who has just been killed and whose death nobody
+// has been told about yet.
+func secretlyDead(userID string) session.PlayerState {
 	return session.PlayerState{UserID: userID, InGameName: "Player-" + userID, Alive: false}
 }
 
@@ -50,6 +60,7 @@ func TestGhostChatTable(t *testing.T) {
 
 		{"tasks, living", game.TASKS, true,
 			DesiredVoiceState{TargetChannelID: main, Muted: true, Deafened: true}},
+		// A death the meeting already announced.
 		{"tasks, dead", game.TASKS, false, DesiredVoiceState{TargetChannelID: ghost}},
 
 		// Discussion covers meetings and voting; the game state reports both as

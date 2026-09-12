@@ -55,6 +55,16 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   ghost-chat table is tested cell by cell. Unmanaged players are absent from the
   result rather than filtered later: a player who is not in the map cannot be
   moved by mistake.
+- **Death secrecy:** a death is secret until a meeting announces it, and the
+  voice policy treats it that way. A freshly killed player is silenced and left
+  in whatever channel they are in; only once a meeting has made the death public
+  do they move to the ghost channel. Moving them at the moment of the kill would
+  announce it, because a channel change is visible to every member of the
+  server. `session.Live` marks deaths as revealed when the phase becomes
+  Discussion, and a snapshot treats deaths as still secret — the worst case is a
+  ghost who waits for the next meeting, where the other way round would give a
+  fresh kill away.
+
 - **Channel enforcement:** `enforce_channels` is on by default and is what
   returns a player who switched channels themselves: a living player who walks
   into the ghost channel goes back to main, and a dead one who walks into main

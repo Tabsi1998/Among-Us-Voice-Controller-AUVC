@@ -263,7 +263,7 @@ func TestReconcileSerializesPerGuild(t *testing.T) {
 func TestPolicyAndReconcilerAgreeDuringTasks(t *testing.T) {
 	state := session.State{Phase: game.TASKS, Players: []session.PlayerState{
 		{UserID: "alive", InGameName: "Red", Alive: true},
-		{UserID: "ghost-player", InGameName: "Blue"},
+		{UserID: "ghost-player", InGameName: "Blue", Revealed: true},
 	}}
 	observed := map[string]Observed{"alive": inMain(), "ghost-player": inMain()}
 

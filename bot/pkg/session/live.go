@@ -16,6 +16,10 @@ type GamePlayer struct {
 	Color        int
 	Alive        bool
 	Disconnected bool
+	// Revealed marks a death the other players have been told about, which
+	// happens when a meeting starts. Until then the bot must not act on the
+	// death in any way the living can see.
+	Revealed bool
 }
 
 // Live is the mutable session a capture stream drives.
@@ -65,17 +69,45 @@ func (l *Live) Reset(phase game.Phase, players []GamePlayer) {
 		if player.Name == "" {
 			continue
 		}
+		// A snapshot says who is dead, not who knows it. Treating a death as
+		// still secret is the safe way to be wrong: the worst case is a ghost
+		// who waits for the next meeting to reach the ghost channel, where the
+		// other way round would announce a fresh kill.
+		player.Revealed = false
 		l.players[player.Name] = player
+	}
+
+	// Unless the snapshot itself arrives during a meeting, when the game has
+	// just told everyone.
+	if phase == game.DISCUSS {
+		l.revealDeaths()
 	}
 }
 
 // SetPhase records a phase transition and reports whether it changed anything.
+//
+// A meeting is where the game tells everyone who is dead, so every death on
+// record becomes public at that moment. Before it, a death is known only to
+// the killer and the victim.
 func (l *Live) SetPhase(phase game.Phase) bool {
 	if l.phase == phase {
 		return false
 	}
 	l.phase = phase
+	if phase == game.DISCUSS {
+		l.revealDeaths()
+	}
 	return true
+}
+
+// revealDeaths marks every death on record as public.
+func (l *Live) revealDeaths() {
+	for name, player := range l.players {
+		if !player.Alive {
+			player.Revealed = true
+			l.players[name] = player
+		}
+	}
 }
 
 // Upsert adds or replaces one player.
@@ -105,6 +137,7 @@ func (l *Live) EndRound() {
 
 	for name, player := range l.players {
 		player.Alive = true
+		player.Revealed = false
 		l.players[name] = player
 	}
 }
@@ -137,6 +170,7 @@ func (l *Live) Project(resolve func(inGameName string) (userID string, isBot boo
 			UserID:     userID,
 			InGameName: player.Name,
 			Alive:      player.Alive,
+			Revealed:   player.Revealed,
 			Bot:        isBot,
 		})
 	}

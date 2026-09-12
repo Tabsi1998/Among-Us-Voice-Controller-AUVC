@@ -76,7 +76,8 @@ roles/users and validate configuration before saving.
 | Phase | Living players | Dead players |
 | --- | --- | --- |
 | Lobby | Main, unmuted, undeafened | All managed players reset to main/open |
-| Tasks | Main, muted, deafened | Ghost, unmuted, undeafened |
+| Tasks, death not yet announced | Main, muted, deafened | Left where they are, muted |
+| Tasks, death announced | Main, muted, deafened | Ghost, unmuted, undeafened |
 | Meeting/discussion | Main, unmuted, undeafened | Ghost, unmuted, undeafened |
 | Voting | Main, unmuted, undeafened | Ghost, unmuted, undeafened |
 | Ended | Main, unmuted, undeafened | Main, unmuted, undeafened |
@@ -85,9 +86,20 @@ Central policy produces `DesiredVoiceState` with `TargetChannelID`, `Muted`
 and `Deafened`. Game handlers never directly mutate Discord voice state.
 The reconciler applies only differences, idempotently, with concurrency control.
 
-On death: update alive state, resolve the Discord link, move to ghost, clear
-server mute/deafen, then recheck observed state. Ghosts remain in ghost throughout
-the active round and may speak during meetings and voting.
+On death: update alive state, resolve the Discord link, silence the player, and
+leave them where they are. The move to the ghost channel waits for the next
+meeting.
+
+This matters because a channel change is visible to every member of the
+server. Moving a victim the moment they are killed announces the kill: the
+ghost channel fills up in plain sight while the survivors are still meant to
+be guessing who is missing. A meeting is where the game itself tells
+everyone, so that is when the bot may act on a death visibly.
+
+Once announced, ghosts stay in the ghost channel for the rest of the round,
+including through later task phases, and may speak throughout. Sending them
+back would be the same leak in reverse and would cost them ghost chat for the
+rest of the game.
 
 Default `enforce_channels = true`: linked living players entering ghost return
 to main; linked dead players entering main return to ghost. Provide a configurable
