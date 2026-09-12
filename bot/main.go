@@ -79,6 +79,7 @@ func run() error {
 	// The session commands need the bot, and the bot needed the service to
 	// answer commands at all, so they are connected once both exist.
 	auvcService.AttachSessionControl(bot.NewSessionControl(controller))
+	auvcService.AttachDoctor(bot.NewDoctor(controller))
 
 	// The capture listener starts after the bot, because the bot is what
 	// applies the messages it receives.

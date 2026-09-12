@@ -4,6 +4,20 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- `/au doctor` is a real diagnosis. It reports the Discord connection, SQLite
+  and its migration state, the three configured channels, the five effective
+  voice permissions, capture pairing, heartbeat freshness, protocol version,
+  what AUVC believes about the running game, and the build version.
+- Each finding says what to do about it. A warning without a next step makes a
+  reader feel worse without helping, and a fresh server is incomplete rather
+  than broken.
+- Passing checks are listed too, so the reader can see what was checked rather
+  than guess whether the rest was skipped.
+- A configured channel that no longer exists is reported. It is the failure
+  nobody thinks to look for, because the configuration still names it.
+
 ### Fixed
 
 - A capture that reconnected while its previous socket was still draining

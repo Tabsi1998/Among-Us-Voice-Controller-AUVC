@@ -31,6 +31,13 @@ type Store interface {
 	SchemaVersion() (int, error)
 }
 
+// Diagnostician answers /au doctor. Like SessionController it returns a
+// finished reply: what to say about a broken setup is Discord knowledge, and it
+// lives with the code that can actually look at Discord.
+type Diagnostician interface {
+	Diagnose(guildID string) (string, error)
+}
+
 // SessionController answers the /au session commands.
 //
 // It returns finished replies rather than values this service renders: what to
@@ -49,6 +56,7 @@ type Service struct {
 	store   Store
 	capture *pairing.Service
 	session SessionController
+	doctor  Diagnostician
 	version string
 	commit  string
 	mu      sync.Mutex
@@ -74,6 +82,15 @@ func (s *Service) AttachSessionControl(controller SessionController) {
 	defer s.mu.Unlock()
 
 	s.session = controller
+}
+
+// AttachDoctor enables the full /au doctor report. Without it the command
+// still answers, with the checks that need no Discord connection.
+func (s *Service) AttachDoctor(diagnostician Diagnostician) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.doctor = diagnostician
 }
 
 // GuildConfig returns a guild's configuration, creating the default row when
@@ -111,6 +128,27 @@ func (s *Service) VoiceConfig(guildID string) (voice.Config, bool, error) {
 		AutoMoveGhosts:  config.AutoMoveGhosts,
 		EnforceChannels: config.EnforceChannels,
 	}, Ready(config), nil
+}
+
+// CaptureStatus reports a guild's capture pairing, for /au doctor.
+func (s *Service) CaptureStatus(guildID string) (pairing.Status, error) {
+	if s.capture == nil {
+		return pairing.Status{}, errors.New("capture pairing is unavailable in this build")
+	}
+	return s.capture.Status(guildID)
+}
+
+// Version is the build, rendered the way /au version renders it.
+func (s *Service) Version() string {
+	return fmt.Sprintf("AUVC %s (`%s`)", fallback(s.version, "development"), fallback(s.commit, "unknown"))
+}
+
+// SchemaVersion reports the highest applied migration.
+func (s *Service) SchemaVersion() (int, error) {
+	if s == nil || s.store == nil {
+		return 0, errors.New("AUVC configuration store is unavailable")
+	}
+	return s.store.SchemaVersion()
 }
 
 // Handle serializes configuration changes so two simultaneous Discord
@@ -287,6 +325,9 @@ func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (stri
 		return fmt.Sprintf("✅ Removed persistent Among Us links for <@%s>.", userID), nil
 
 	case Doctor:
+		if s.doctor != nil {
+			return s.doctor.Diagnose(request.GuildID)
+		}
 		version, err := s.store.SchemaVersion()
 		if err != nil {
 			return "", fmt.Errorf("read database schema: %w", err)
@@ -301,7 +342,7 @@ func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (stri
 		if Valid(config) && Ready(config) {
 			lines = append(lines, "✅ Guild configuration is valid and has both voice channels.")
 		}
-		lines = append(lines, "⚠️ Discord permission, capture heartbeat and protocol checks arrive in the diagnostics phase.")
+		lines = append(lines, "⚠️ Discord, permission and capture checks need a running bot and are unavailable here.")
 		return strings.Join(lines, "\n"), nil
 
 	case Version:
