@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"time"
 )
@@ -28,15 +27,4 @@ func GetActiveGames(ctx context.Context, client *redis.Client, secs int64) int64
 		return 0
 	}
 	return count
-}
-
-func RefreshTotalGames(ctx context.Context, client *redis.Client, pool *pgxpool.Pool) int64 {
-	v := queryTotalGames(ctx, pool)
-	if v != NotFound {
-		err := client.Set(ctx, TotalGames, v, TotalGameExpiration).Err()
-		if err != nil {
-			log.Println(err)
-		}
-	}
-	return v
 }

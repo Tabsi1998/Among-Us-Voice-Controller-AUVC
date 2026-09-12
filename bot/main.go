@@ -22,7 +22,6 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/capture"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
-	storage2 "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
 	"github.com/bwmarrin/discordgo"
@@ -33,9 +32,6 @@ var (
 	commit  = "none"
 	date    = "unknown"
 )
-
-//go:embed storage/postgres.sql
-var postgresFileContents string
 
 const (
 	DefaultURL                   = "http://localhost:8123"
@@ -117,27 +113,6 @@ func discordMainWrapper() error {
 
 	locale.InitLang(os.Getenv("LOCALE_PATH"), os.Getenv("BOT_LANG"))
 
-	psql := storage2.PsqlInterface{}
-	pAddr := os.Getenv("POSTGRES_ADDR")
-	if pAddr == "" {
-		return errors.New("no POSTGRES_ADDR specified; exiting")
-	}
-
-	pUser := os.Getenv("POSTGRES_USER")
-	if pUser == "" {
-		return errors.New("no POSTGRES_USER specified; exiting")
-	}
-
-	pPass := os.Getenv("POSTGRES_PASS")
-	if pPass == "" {
-		return errors.New("no POSTGRES_PASS specified; exiting")
-	}
-
-	err := psql.Init(storage2.ConstructPsqlConnectURL(pAddr, pUser, pPass))
-	if err != nil {
-		return err
-	}
-
 	databasePath := os.Getenv("AUVC_DATABASE_PATH")
 	if databasePath == "" {
 		databasePath = DefaultDatabasePath
@@ -151,14 +126,6 @@ func discordMainWrapper() error {
 	// /au capture pair is the same one the transport checks later.
 	pairingService := pairing.NewService(auvcDB)
 	auvcService := au.NewServiceWithPairing(auvcDB, pairingService, version, commit)
-
-	go func() {
-		err := psql.ExecFromString(postgresFileContents)
-		if err != nil {
-			log.Println("Exiting with fatal error when attempting to execute postgres.sql:")
-			log.Fatal(err)
-		}
-	}()
 
 	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
@@ -181,7 +148,7 @@ func discordMainWrapper() error {
 	}
 
 	tokenProvider := tokenprovider.NewTokenProvider(nil, nil, taskTimeoutms, maxReq)
-	b := bot.MakeAndStartBot(version, commit, discordToken, url, emojiGuildID, &redisClient, &storageInterface, &psql, auvcService, logPath)
+	b := bot.MakeAndStartBot(version, commit, discordToken, url, emojiGuildID, &redisClient, &storageInterface, auvcService, logPath)
 	if b == nil {
 		return errors.New("bot failed to initialize; did you provide a valid Discord Bot Token?")
 	}

@@ -23,25 +23,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MODULE = ROOT / "bot"
 
-# Vulnerabilities the bot calls into, which are accepted for now.
+# Vulnerabilities the bot calls into that are accepted despite having no fix.
 #
-# Both live in the PostgreSQL layer that phase 14 removes together with Redis,
-# and neither has a fix in the v4/v2 line the upstream code uses: fixing them
-# means migrating to pgx/v5, a breaking change to code with a scheduled deletion
-# date. They are listed here so the decision is visible rather than implied by
-# a silent scan, and so phase 14 has a concrete reason to stay on schedule.
+# This map is empty, and that is the point: the two entries it used to hold were
+# both in the PostgreSQL layer, and phase 14 removed that layer rather than
+# living with them. Nothing reachable from this module has a known advisory.
 #
-# Anything not listed here fails. Removing the PostgreSQL layer empties this map.
-ACCEPTED = {
-    "GO-2026-5004": (
-        "SQL injection via dollar-quoted placeholders in github.com/jackc/pgx/v4. "
-        "No fix in the v4 line; removed with the PostgreSQL layer in phase 14 (#4, #14)."
-    ),
-    "GO-2026-4518": (
-        "Denial of service in github.com/jackc/pgproto3/v2. "
-        "No fix in the v2 line; removed with the PostgreSQL layer in phase 14 (#4, #14)."
-    ),
-}
+# An entry here needs a reason and the phase that removes it. The check fails on
+# anything unlisted, and equally on a listed advisory that no longer applies, so
+# the map cannot quietly drift out of step with reality.
+ACCEPTED: dict[str, str] = {}
 
 
 def stream_json(text: str):

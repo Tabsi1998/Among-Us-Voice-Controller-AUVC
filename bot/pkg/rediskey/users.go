@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/go-redis/redis/v8"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"time"
 )
@@ -19,17 +18,6 @@ func GetTotalUsers(ctx context.Context, client *redis.Client) int64 {
 		return v
 	}
 	return NotFound
-}
-
-func RefreshTotalUsers(ctx context.Context, client *redis.Client, pool *pgxpool.Pool) int64 {
-	v := queryTotalUsers(ctx, pool)
-	if v != NotFound {
-		err := client.Set(ctx, TotalUsers, v, TotalUsersExpiration).Err()
-		if err != nil {
-			log.Println(err)
-		}
-	}
-	return v
 }
 
 func GetCachedUserInfo(ctx context.Context, client *redis.Client, userID, guildID string) string {

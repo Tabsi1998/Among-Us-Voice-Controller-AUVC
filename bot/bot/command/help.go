@@ -46,10 +46,6 @@ var Help = discordgo.ApplicationCommand{
 					Value: Settings.Name,
 				},
 				{
-					Name:  Privacy.Name,
-					Value: Privacy.Name,
-				},
-				{
 					Name:  Info.Name,
 					Value: Info.Name,
 				},
@@ -58,16 +54,8 @@ var Help = discordgo.ApplicationCommand{
 					Value: Map.Name,
 				},
 				{
-					Name:  Stats.Name,
-					Value: Stats.Name,
-				},
-				{
 					Name:  Debug.Name,
 					Value: Debug.Name,
-				},
-				{
-					Name:  Download.Name,
-					Value: Download.Name,
 				},
 			},
 			Required: false,
