@@ -76,9 +76,25 @@ const (
 // VoicePolicies are the accepted values for voice_policy.
 var VoicePolicies = []string{"ghost-chat"}
 
+// What to do when capture stops responding.
+const (
+	// CaptureTimeoutFailOpen releases every managed player: unmuted,
+	// undeafened and back in the main channel. It is the default because
+	// nothing in Discord expires a server mute, so a round left muted stays
+	// muted until somebody notices.
+	CaptureTimeoutFailOpen = "fail-open"
+	// CaptureTimeoutPause suspends the session and leaves players exactly as
+	// they are.
+	CaptureTimeoutPause = "pause"
+
+	// DefaultCaptureTimeoutSeconds is what a guild gets when its
+	// configuration cannot be read. A fail-safe that switches itself off
+	// when a database blinks is not one.
+	DefaultCaptureTimeoutSeconds = 60
+)
+
 // CaptureTimeoutActions are the accepted values for capture_timeout_action.
-// fail-open releases players; pause suspends the session and warns in Discord.
-var CaptureTimeoutActions = []string{"fail-open", "pause"}
+var CaptureTimeoutActions = []string{CaptureTimeoutFailOpen, CaptureTimeoutPause}
 
 func choices(values ...string) []*discordgo.ApplicationCommandOptionChoice {
 	list := make([]*discordgo.ApplicationCommandOptionChoice, 0, len(values))

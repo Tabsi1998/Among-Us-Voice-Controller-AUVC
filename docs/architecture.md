@@ -131,6 +131,19 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   Redis. A self-hosted bot is one process: the session lives in it, the locks are
   mutexes, and the configuration is a file. Six direct Go dependencies remain.
 
+- **Capture fail-safe:** a capture that dies mid-round would leave every living
+  player server-muted and deafened. Nothing in Discord expires a server mute, so
+  the players would stay stuck until an administrator noticed. A watchdog checks
+  every second whether a running session has heard from its capture inside
+  `capture_timeout_seconds`, and applies `capture_timeout_action`: `fail-open`
+  releases everyone through the ordinary voice policy and pauses the session;
+  `pause` suspends it and leaves players as they are. Either way the control
+  channel is told once, not once per tick. When capture returns, the session
+  goes back to the mode the administrator had chosen — a pause caused by a fault
+  is undone, a pause somebody asked for is not. An unreadable configuration
+  falls back to the documented default rather than to no timeout: a fail-safe
+  that switches itself off when a database blinks is not one.
+
 - **Session control:** `/au session start|stop|pause|resume|status` decides
   whether the bot acts on what capture reports. Stopped and paused are
   deliberately different: stopping releases everyone, pausing leaves them

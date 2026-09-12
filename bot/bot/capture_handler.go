@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/permission"
@@ -79,6 +80,18 @@ type guildSession struct {
 	mu   sync.Mutex
 	live *session.Live
 	mode Mode
+
+	// lastSeen is when capture last said anything at all. Every accepted
+	// message counts, not only heartbeats: a session sending game events is
+	// evidently alive.
+	lastSeen time.Time
+
+	// stalled marks a session the capture timeout interrupted, and
+	// stalledFrom is the mode it was in at the time. Capture coming back
+	// restores what the administrator chose, rather than leaving a session
+	// paused by a fault nobody asked for.
+	stalled     bool
+	stalledFrom Mode
 }
 
 // CaptureSessions holds the live session of every guild that has a capture
@@ -154,6 +167,11 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 	if guildID == "" {
 		return fmt.Errorf("capture message carries no guild")
 	}
+
+	// Any accepted message proves capture is alive, not only a heartbeat: a
+	// session sending game events is evidently running.
+	bot.CaptureSessions.seen(guildID, time.Now())
+	bot.captureReturned(guildID)
 
 	guild := bot.CaptureSessions.forGuild(guildID)
 
@@ -359,34 +377,7 @@ func (bot *Bot) PauseSession(guildID string) Mode {
 }
 
 // StopSession stops managing voice and releases everyone.
-//
-// Releasing runs through the ordinary voice policy with the phase forced to
-// Menu, rather than through a special path that unmutes people directly. The
-// policy already knows what "between rounds" looks like, and a second
-// implementation of it would be a second thing that can disagree.
 func (bot *Bot) StopSession(guildID string) error {
 	bot.CaptureSessions.SetMode(guildID, Stopped)
-
-	config, ready := bot.voicePolicyConfig(guildID)
-	if !ready {
-		return nil
-	}
-
-	resolve, err := bot.linkResolver(guildID)
-	if err != nil {
-		return err
-	}
-
-	guild := bot.CaptureSessions.forGuild(guildID)
-	guild.mu.Lock()
-	state := guild.live.Project(resolve)
-	guild.mu.Unlock()
-	state.Phase = game.MENU
-
-	discordGuild, err := bot.PrimarySession.State.Guild(guildID)
-	if err != nil || discordGuild == nil {
-		return fmt.Errorf("discord guild %s is unavailable: %w", guildID, err)
-	}
-
-	return bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), voice.Desired(state, config))
+	return bot.releaseEveryone(guildID)
 }

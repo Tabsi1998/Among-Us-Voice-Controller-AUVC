@@ -4,6 +4,22 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The capture fail-safe. A capture that dies mid-round used to leave every
+  living player server-muted and deafened with no way out, because nothing in
+  Discord expires a server mute. A watchdog now notices when a running session
+  has not heard from its capture within `capture_timeout_seconds` and applies
+  `capture_timeout_action`: `fail-open` releases everyone and pauses the
+  session, `pause` suspends it and leaves players where they are.
+- The control channel is warned once per stall rather than once per check, and
+  told again when capture comes back.
+- A session interrupted by the timeout returns to the mode the administrator
+  had chosen when capture reconnects. A pause caused by a fault is undone; a
+  pause somebody asked for is not.
+- Any accepted protocol message counts as a life sign, not only a heartbeat: a
+  session sending game events is evidently running.
+
 ### Fixed
 
 - A kill is no longer announced by Discord. Dead players used to be moved to
