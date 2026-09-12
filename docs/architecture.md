@@ -106,6 +106,12 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   message, and is handed straight to the pairing service without ever being
   logged.
 
+- **Capture client:** `capture/AUVC.Transport` builds and numbers the messages,
+  runs the handshake and keeps the credential. The connection sits behind an
+  `IMessageChannel` interface, so the handshake, a refusal and a reconnect are
+  all testable without a socket. The credential is stored through the Windows
+  Data Protection API rather than in a file capture could read back on its own.
+
 - **Capture credentials:** `/au capture pair` issues a code that works once and
   expires after ten minutes; typing it into capture exchanges it for a
   long-lived credential. `bot/pkg/credential` decides what a secret is worth and

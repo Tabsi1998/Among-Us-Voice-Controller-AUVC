@@ -93,8 +93,8 @@ jobs:
         run: |
           [xml]$report = Get-Content ../artifacts/tests/capture.trx
           $counters = $report.TestRun.ResultSummary.Counters
-          if ([int]$counters.executed -lt 65 -or [int]$counters.failed -ne 0) {
-            throw 'Expected at least 65 executed baseline tests with no failures.'
+          if ([int]$counters.executed -lt 99 -or [int]$counters.failed -ne 0) {
+            throw 'Expected at least 99 executed baseline tests with no failures.'
           }
       # Phase 11 has to prove the app still ships without a .NET install on the
       # player's machine. Packaging it into the release archives is phase 17.

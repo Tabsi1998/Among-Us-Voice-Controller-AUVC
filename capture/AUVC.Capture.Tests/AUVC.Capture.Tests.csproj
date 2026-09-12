@@ -12,6 +12,7 @@
     <ProjectReference Include="../AUOffsetHelper/AUOffsetHelper.csproj" />
     <ProjectReference Include="../AUOffsetManager/AUOffsetManager.csproj" />
     <ProjectReference Include="../AUVC.Protocol/AUVC.Protocol.csproj" />
+    <ProjectReference Include="../AUVC.Transport/AUVC.Transport.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../Offsets.json" Link="Fixtures/Offsets.json" CopyToOutputDirectory="PreserveNewest" />
