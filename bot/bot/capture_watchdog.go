@@ -94,6 +94,16 @@ func (c *CaptureSessions) seen(guildID string, at time.Time) {
 	guild.lastSeen = at
 }
 
+// LastSeen reports when capture last said anything, and whether it ever has.
+func (c *CaptureSessions) LastSeen(guildID string) (time.Time, bool) {
+	guild := c.forGuild(guildID)
+
+	guild.mu.Lock()
+	defer guild.mu.Unlock()
+
+	return guild.lastSeen, !guild.lastSeen.IsZero()
+}
+
 // WatchCapture runs the capture timeout until the returned function is called.
 //
 // The fail-safe exists because a capture that dies mid-round leaves every

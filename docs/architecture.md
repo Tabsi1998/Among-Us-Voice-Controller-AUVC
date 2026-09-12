@@ -154,6 +154,19 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   falls back to the documented default rather than to no timeout: a fail-safe
   that switches itself off when a database blinks is not one.
 
+- **Doctor:** `/au doctor` reports the Discord connection, SQLite and its
+  migration state, the three configured channels, the five effective voice
+  permissions, capture pairing, heartbeat freshness, protocol version, what AUVC
+  currently believes about the game, and the build. `pkg/doctor` decides how a
+  finding reads and `bot/doctor.go` gathers the facts, so the rendering is
+  testable and cannot fail halfway through a Discord call. Failing to produce a
+  diagnosis is the one thing a diagnosis may not do, so a bot with no Discord
+  connection still reports — saying that is what is wrong. Every check is listed,
+  passing ones included: a report that only shows problems leaves the reader
+  unsure whether the rest was checked or skipped. Nothing gathered is a secret,
+  because the checks describe whether something works rather than what it was
+  configured with.
+
 - **Session control:** `/au session start|stop|pause|resume|status` decides
   whether the bot acts on what capture reports. Stopped and paused are
   deliberately different: stopping releases everyone, pausing leaves them
