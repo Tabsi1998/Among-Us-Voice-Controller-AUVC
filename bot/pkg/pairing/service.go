@@ -23,6 +23,7 @@ import (
 type Store interface {
 	SavePairing(pairing sqlite.Pairing) error
 	Pairing(guildID string) (sqlite.Pairing, error)
+	PairingByCodeHash(codeHash string) (sqlite.Pairing, error)
 	DeletePairing(guildID string) error
 	RedeemPairing(guildID string, issued sqlite.CaptureCredential) error
 	CaptureCredentialByID(id string) (sqlite.CaptureCredential, error)
@@ -151,6 +152,63 @@ func (s *Service) Redeem(guildID, typed string) (credential.Credential, error) {
 	}
 
 	return issued, nil
+}
+
+// RedeemCode exchanges a typed pairing code for a credential without being told
+// which guild it belongs to, and reports the guild it turned out to be.
+//
+// Capture only ever sees the code. Requiring a guild id as well would mean
+// asking a player to copy a Discord snowflake out of a developer menu, which is
+// not a setup flow anybody finishes.
+//
+// The code is found by its hash, so the stored value is still never compared in
+// the clear. Looking it up across guilds is safe for the same reasons the code
+// is safe at all: single use, minutes of life, and one online attempt per guess.
+func (s *Service) RedeemCode(typed string) (string, credential.Credential, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	normalized := credential.NewSecret(credential.NormalizePairingCode(typed))
+	if normalized.Empty() {
+		return "", credential.Credential{}, credential.ErrMismatch
+	}
+
+	stored, err := s.store.PairingByCodeHash(credential.Hash(normalized))
+	if errors.Is(err, sqlite.ErrNoPairing) {
+		// An unknown code and an already redeemed one are the same thing to
+		// whoever is typing: ask an administrator for a new one.
+		return "", credential.Credential{}, credential.ErrMismatch
+	}
+	if err != nil {
+		return "", credential.Credential{}, err
+	}
+
+	now := s.now()
+	if now.Unix() > stored.ExpiresAt {
+		if err := s.store.DeletePairing(stored.GuildID); err != nil {
+			return "", credential.Credential{}, err
+		}
+		return "", credential.Credential{}, credential.ErrExpired
+	}
+
+	issued, err := credential.NewCredential()
+	if err != nil {
+		return "", credential.Credential{}, err
+	}
+
+	if err := s.store.RedeemPairing(stored.GuildID, sqlite.CaptureCredential{
+		ID:         issued.ID,
+		GuildID:    stored.GuildID,
+		SecretHash: credential.Hash(issued.Secret),
+		CreatedAt:  now.Unix(),
+	}); err != nil {
+		if errors.Is(err, sqlite.ErrNoPairing) {
+			return "", credential.Credential{}, credential.ErrUsed
+		}
+		return "", credential.Credential{}, err
+	}
+
+	return stored.GuildID, issued, nil
 }
 
 // Authenticate checks a token capture presented and returns the guild it speaks

@@ -78,6 +78,33 @@ func (d *DB) Pairing(guildID string) (Pairing, error) {
 	return pairing, nil
 }
 
+// PairingByCodeHash finds the guild an outstanding pairing code belongs to.
+//
+// Capture only ever sees the code, never a guild id, because asking a player to
+// copy a Discord snowflake out of a developer menu is not a setup flow anyone
+// completes. The code is looked up across guilds instead, which is safe for the
+// same reasons it is safe at all: it is single use, it expires in minutes, and
+// a wrong guess buys one online attempt rather than an offline search.
+func (d *DB) PairingByCodeHash(codeHash string) (Pairing, error) {
+	if codeHash == "" {
+		return Pairing{}, ErrNoPairing
+	}
+
+	var pairing Pairing
+	err := d.db.QueryRow(`
+		SELECT guild_id, code_hash, created_by, created_at, expires_at
+		FROM capture_pairing WHERE code_hash = ?`, codeHash,
+	).Scan(&pairing.GuildID, &pairing.CodeHash, &pairing.CreatedBy, &pairing.CreatedAt, &pairing.ExpiresAt)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return Pairing{}, ErrNoPairing
+	}
+	if err != nil {
+		return Pairing{}, fmt.Errorf("look up pairing by code: %w", err)
+	}
+	return pairing, nil
+}
+
 // DeletePairing removes a guild's outstanding pairing code.
 //
 // A code is single use, so it is deleted the moment it is redeemed rather than
