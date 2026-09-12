@@ -21,6 +21,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/capture"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	storage2 "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
@@ -146,7 +147,9 @@ func discordMainWrapper() error {
 		return fmt.Errorf("open AUVC database: %w", err)
 	}
 	defer auvcDB.Close()
-	auvcService := au.NewService(auvcDB, version, commit)
+	// The pairing service shares the database, so a credential issued by
+	// /au capture pair is the same one the transport checks later.
+	auvcService := au.NewServiceWithPairing(auvcDB, pairing.NewService(auvcDB), version, commit)
 
 	go func() {
 		err := psql.ExecFromString(postgresFileContents)

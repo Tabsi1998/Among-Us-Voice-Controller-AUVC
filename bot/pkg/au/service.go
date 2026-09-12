@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/credential"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 )
@@ -31,13 +34,22 @@ type Store interface {
 // Service executes /au commands without depending on a Discord connection.
 type Service struct {
 	store   Store
+	capture *pairing.Service
 	version string
 	commit  string
 	mu      sync.Mutex
 }
 
+// NewService builds a service without capture pairing. The /au capture
+// commands report their staged status until a pairing service is supplied.
 func NewService(store Store, version, commit string) *Service {
 	return &Service{store: store, version: version, commit: commit}
+}
+
+// NewServiceWithPairing builds a service that can issue and withdraw capture
+// credentials.
+func NewServiceWithPairing(store Store, capture *pairing.Service, version, commit string) *Service {
+	return &Service{store: store, capture: capture, version: version, commit: commit}
 }
 
 // GuildConfig returns a guild's configuration, creating the default row when
@@ -111,7 +123,7 @@ func (s *Service) Handle(request Request) (string, error) {
 	case GroupSettings:
 		return s.handleSettings(request, config)
 	case GroupCapture:
-		return captureStatus(request.Command), nil
+		return s.handleCapture(request)
 	case GroupSession:
 		return sessionStatus(request.Command), nil
 	case "":
@@ -314,8 +326,59 @@ func joinProblems(problems []Problem) string {
 	return strings.Join(parts, "; ")
 }
 
-func captureStatus(command string) string {
-	return fmt.Sprintf("⚠️ `/au capture %s` is registered, but direct AUVC pairing and WSS are implemented in the protocol and transport phases.", command)
+// handleCapture runs the pairing commands.
+//
+// Every /au reply is ephemeral, which is what makes it acceptable to put a
+// pairing code in one at all: it reaches the administrator who asked and
+// nobody else in the channel.
+func (s *Service) handleCapture(request Request) (string, error) {
+	if s.capture == nil {
+		return captureStaged(request.Command), nil
+	}
+
+	switch request.Command {
+	case CapturePair:
+		code, expires, err := s.capture.Pair(request.GuildID, request.Invoker.UserID)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf(
+			"🔗 Pairing code: `%s`\n\n"+
+				"Type it into the AUVC capture app on the PC that runs Among Us. "+
+				"It works once and expires %s (in %s). "+
+				"Running this command again replaces it.",
+			code.Display(), expires.UTC().Format(time.RFC3339), credential.PairingCodeLifetime), nil
+
+	case CaptureStatus:
+		status, err := s.capture.Status(request.GuildID)
+		if err != nil {
+			return "", err
+		}
+		return status.Describe(), nil
+
+	case CaptureRevoke:
+		confirmed, ok := request.Values.Bool(OptionConfirm)
+		if !ok || !confirmed {
+			return "", fmt.Errorf("%w: revoke requires confirm=true", ErrInvalidInput)
+		}
+		revoked, err := s.capture.Revoke(request.GuildID)
+		if err != nil {
+			return "", err
+		}
+		if revoked == 0 {
+			return "✅ Nothing to revoke: no capture was paired. Any outstanding pairing code was cancelled.", nil
+		}
+		return fmt.Sprintf(
+			"✅ Revoked %d capture credential(s) and cancelled any outstanding pairing code. "+
+				"Run `/au capture pair` to connect a capture app again.", revoked), nil
+
+	default:
+		return "", fmt.Errorf("%w: capture %q", ErrUnknownPath, request.Command)
+	}
+}
+
+func captureStaged(command string) string {
+	return fmt.Sprintf("⚠️ `/au capture %s` is registered, but capture pairing is unavailable in this build.", command)
 }
 
 func sessionStatus(command string) string {

@@ -97,6 +97,21 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
 
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.
+
+- **Capture credentials:** `/au capture pair` issues a code that works once and
+  expires after ten minutes; typing it into capture exchanges it for a
+  long-lived credential. `bot/pkg/credential` decides what a secret is worth and
+  `bot/pkg/pairing` ties that to storage. Only hashes are stored, so a secret
+  cannot leak from a database file, a backup or a support bundle, and a capture
+  install that loses its credential has to pair again — the intended cost of
+  keeping no recoverable copy. A plain SHA-256 is used rather than a password
+  hash because these are 256-bit random values with nothing to guess; pairing
+  codes are short, which is exactly why they are single use and short-lived.
+  `credential.Secret` redacts itself from fmt and encoding/json, so the
+  requirement that credentials never appear in a log is enforced by the type
+  rather than by everyone remembering. `/au capture revoke` withdraws every
+  credential and cancels any outstanding code, because revoking one without the
+  other would leave a way back in the administrator was not told about.
 - **Commands/doctor:** typed Discord options, authorization and human-readable
   diagnostics, operating through application services.
 
