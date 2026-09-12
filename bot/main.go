@@ -156,6 +156,9 @@ func discordMainWrapper() error {
 	// The capture listener starts after the bot, because the bot is what
 	// applies the messages it receives.
 	b.AUVCLinks = auvcDB
+	// The session commands need the bot, and the bot needed the service to
+	// answer commands at all, so they are connected once both exist.
+	auvcService.AttachSessionControl(bot.NewSessionControl(b))
 	stopCaptureListener := startCaptureListener(pairingService, b)
 	defer stopCaptureListener()
 

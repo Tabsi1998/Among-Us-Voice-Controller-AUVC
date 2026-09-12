@@ -31,10 +31,24 @@ type Store interface {
 	SchemaVersion() (int, error)
 }
 
+// SessionController answers the /au session commands.
+//
+// It returns finished replies rather than values this service renders: what to
+// say about a running session is Discord knowledge, and it lives with the code
+// that owns the session. This service stays a router.
+type SessionController interface {
+	Start(guildID string) (string, error)
+	Stop(guildID string) (string, error)
+	Pause(guildID string) (string, error)
+	Resume(guildID string) (string, error)
+	Status(guildID string) (string, error)
+}
+
 // Service executes /au commands without depending on a Discord connection.
 type Service struct {
 	store   Store
 	capture *pairing.Service
+	session SessionController
 	version string
 	commit  string
 	mu      sync.Mutex
@@ -50,6 +64,16 @@ func NewService(store Store, version, commit string) *Service {
 // credentials.
 func NewServiceWithPairing(store Store, capture *pairing.Service, version, commit string) *Service {
 	return &Service{store: store, capture: capture, version: version, commit: commit}
+}
+
+// AttachSessionControl enables the /au session commands. It is set after
+// construction because the controller needs the bot, and the bot needs this
+// service to answer commands at all.
+func (s *Service) AttachSessionControl(controller SessionController) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.session = controller
 }
 
 // GuildConfig returns a guild's configuration, creating the default row when
@@ -125,7 +149,7 @@ func (s *Service) Handle(request Request) (string, error) {
 	case GroupCapture:
 		return s.handleCapture(request)
 	case GroupSession:
-		return sessionStatus(request.Command), nil
+		return s.handleSession(request)
 	case "":
 		return s.handleDirect(request, config)
 	default:
@@ -381,8 +405,28 @@ func captureStaged(command string) string {
 	return fmt.Sprintf("⚠️ `/au capture %s` is registered, but capture pairing is unavailable in this build.", command)
 }
 
-func sessionStatus(command string) string {
-	return fmt.Sprintf("⚠️ `/au session %s` is registered, but session control is enabled after the voice policy service is connected.", command)
+// handleSession routes the session commands to the controller.
+func (s *Service) handleSession(request Request) (string, error) {
+	if s.session == nil {
+		return fmt.Sprintf(
+			"⚠️ `/au session %s` is registered, but session control is unavailable in this build.",
+			request.Command), nil
+	}
+
+	switch request.Command {
+	case SessionStart:
+		return s.session.Start(request.GuildID)
+	case SessionStop:
+		return s.session.Stop(request.GuildID)
+	case SessionPause:
+		return s.session.Pause(request.GuildID)
+	case SessionResume:
+		return s.session.Resume(request.GuildID)
+	case SessionStatus:
+		return s.session.Status(request.GuildID)
+	default:
+		return "", fmt.Errorf("%w: session %q", ErrUnknownPath, request.Command)
+	}
 }
 
 func fallback(value, replacement string) string {

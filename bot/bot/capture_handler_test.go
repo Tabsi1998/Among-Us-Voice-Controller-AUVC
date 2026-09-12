@@ -230,18 +230,18 @@ func TestAMessageWithoutAGuildIsRefused(t *testing.T) {
 func TestGuildsKeepSeparateSessions(t *testing.T) {
 	sessions := NewCaptureSessions()
 
-	first, _ := sessions.forGuild("guild-1")
-	second, _ := sessions.forGuild("guild-2")
+	first := sessions.forGuild("guild-1")
+	second := sessions.forGuild("guild-2")
 
-	apply(t, first, &protocol.Snapshot{
+	apply(t, first.live, &protocol.Snapshot{
 		Phase:   protocol.PhaseTasks,
 		Players: []protocol.Player{{Name: "Red"}},
 	})
 
-	if phase, players := sessions.Snapshot("guild-2"); len(players) != 0 || phase == game.TASKS {
+	if _, phase, players := sessions.Snapshot("guild-2"); len(players) != 0 || phase == game.TASKS {
 		t.Errorf("guild-2 saw guild-1's session: phase=%v players=%+v", phase, players)
 	}
-	if second.Phase() == game.TASKS {
+	if second.live.Phase() == game.TASKS {
 		t.Error("the second guild inherited the first guild's phase")
 	}
 }
@@ -249,8 +249,8 @@ func TestGuildsKeepSeparateSessions(t *testing.T) {
 func TestTheSameGuildKeepsTheSameSession(t *testing.T) {
 	sessions := NewCaptureSessions()
 
-	first, _ := sessions.forGuild("guild-1")
-	again, _ := sessions.forGuild("guild-1")
+	first := sessions.forGuild("guild-1")
+	again := sessions.forGuild("guild-1")
 
 	if first != again {
 		t.Error("a guild got a different session on the second lookup")
