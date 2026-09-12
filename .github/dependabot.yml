@@ -12,16 +12,6 @@ updates:
         update-types:
           - minor
           - patch
-    ignore:
-      # Only reachable from the Redis layer, which the rest of phase 14 removes
-      # (see docs/service-removal.md). Updating them means taking
-      # breaking-change risk on code with a scheduled deletion date, and every
-      # such pull request has to be triaged and closed again by hand.
-      #
-      # The PostgreSQL entries are already gone: that layer was deleted rather
-      # than kept on a leash.
-      - dependency-name: github.com/go-redis/redis/v8
-      - dependency-name: github.com/bsm/redislock
 
   - package-ecosystem: nuget
     directory: /capture

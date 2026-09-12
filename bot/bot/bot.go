@@ -1,56 +1,32 @@
 package bot
 
 import (
-	"context"
-	"errors"
-	"fmt"
 	"log"
 	"os"
-	"sync"
-	"time"
 
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/tokenprovider"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/amongus"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/discord"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/token"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
 	"github.com/bwmarrin/discordgo"
 )
 
+// Bot is the Discord side of AUVC.
+//
+// It holds no game state of its own. The session a capture drives lives in
+// CaptureSessions, the configuration and player links live in SQLite, and the
+// voice decisions are made by pkg/voice. What is left here is the Discord
+// connection and the wiring between those.
 type Bot struct {
 	version string
 	commit  string
-	url     string
-
-	// mapping of socket connections to the game connect codes
-	ConnsToGames map[string]string
-
-	StatusEmojis AlivenessEmojis
-
-	EndGameChannels map[string]chan EndGameMessage
-
-	ChannelsMapLock sync.RWMutex
 
 	PrimarySession *discordgo.Session
 
-	TokenProvider *tokenprovider.TokenProvider
-
-	RedisInterface *RedisInterface
-
-	StorageInterface *storage.StorageInterface
-
+	// AUVC answers the /au commands.
 	AUVC *au.Service
 
 	// CaptureSessions holds the live session of every guild whose capture is
-	// connected directly. It replaces the Redis-backed game state for that
-	// path: a self-hosted bot is one process, so a session that lives in it
-	// needs no external store to be found again.
+	// connected. A self-hosted bot is one process, so a session that lives in
+	// it needs no external store to be found again.
 	CaptureSessions *CaptureSessions
 
 	// AUVCLinks reads the persistent player links the capture path resolves
@@ -61,291 +37,89 @@ type Bot struct {
 	// created per call because it serializes work per guild, which only works
 	// if every reconciliation goes through the same instance.
 	Reconciler *voice.Reconciler
-
-	logPath string
-
-	captureTimeout int
 }
 
-// MakeAndStartBot does what it sounds like
-// TODO collapse these fields into proper structs?
-func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, auvc *au.Service, logPath string) *Bot {
+// MakeAndStartBot connects to Discord and returns the running bot, or nil if
+// the connection could not be made.
+func MakeAndStartBot(version, commit, botToken string, auvc *au.Service) *Bot {
 	dg, err := discordgo.New("Bot " + botToken)
 	if err != nil {
-		log.Println("error creating Discord session,", err)
+		log.Println("Could not create the Discord session:", err)
 		return nil
 	}
 
 	bot := Bot{
-		version:      version,
-		commit:       commit,
-		url:          url,
-		ConnsToGames: make(map[string]string),
-		StatusEmojis: emptyStatusEmojis(),
-
-		EndGameChannels:  make(map[string]chan EndGameMessage),
-		ChannelsMapLock:  sync.RWMutex{},
-		PrimarySession:   dg,
-		RedisInterface:   redisInterface,
-		StorageInterface: storageInterface,
-		AUVC:             auvc,
-		Reconciler:       voice.NewReconciler(discordApplier{session: dg}),
-		CaptureSessions:  NewCaptureSessions(),
-		logPath:          logPath,
-		captureTimeout:   GameTimeoutSeconds,
+		version:         version,
+		commit:          commit,
+		PrimarySession:  dg,
+		AUVC:            auvc,
+		CaptureSessions: NewCaptureSessions(),
+		Reconciler:      voice.NewReconciler(discordApplier{session: dg}),
 	}
 	dg.LogLevel = discordgo.LogInformational
 
-	dg.AddHandler(bot.handleVoiceStateChange)
-	dg.AddHandler(bot.newGuild(emojiGuildID))
-	dg.AddHandler(bot.leaveGuild)
-	dg.AddHandler(bot.rateLimitEventCallback)
-	// Slash commands
 	dg.AddHandler(bot.handleInteractionCreate)
-
-	dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is now online according to discord Ready handler")
+	dg.AddHandler(func(_ *discordgo.Session, _ *discordgo.Ready) {
+		log.Println("Connected to Discord and ready for events")
 	})
 
-	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildVoiceStates | discordgo.IntentsGuilds)
+	// Guild voice states are what the reconciler compares against, and guilds
+	// are needed to resolve members and channels. Nothing else is requested:
+	// AUVC reads the game from capture, not from Discord messages.
+	dg.Identify.Intents = discordgo.MakeIntent(
+		discordgo.IntentsGuildVoiceStates | discordgo.IntentsGuilds)
 
-	token.WaitForToken(bot.RedisInterface.client, botToken)
-	token.LockForToken(bot.RedisInterface.client, botToken)
-	// Open a websocket connection to Discord and begin listening.
-	err = dg.Open()
-	if err != nil {
-		log.Println("Could not connect Bot to the Discord Servers with error:", err)
+	if err := dg.Open(); err != nil {
+		log.Println("Could not connect to Discord:", err)
 		return nil
 	}
 
-	log.Println("Finished identifying to the Discord API. Now ready for incoming events")
-
-	listeningTo := os.Getenv("AUTOMUTEUS_LISTENING")
-	if listeningTo == "" {
-		listeningTo = "/help"
-	}
-
-	// pretty sure this needs to happen per-shard
-	status := &discordgo.UpdateStatusData{
-		IdleSince: nil,
-		Activities: []*discordgo.Activity{&discordgo.Activity{
-			Name: listeningTo,
-			Type: discordgo.ActivityTypeListening,
-		}},
-		AFK:    false,
-		Status: "",
-	}
-	err = dg.UpdateStatusComplex(*status)
-	if err != nil {
-		log.Println(err)
-	}
+	log.Println("Finished identifying to the Discord API")
+	bot.announce()
 
 	return &bot
 }
 
-func (bot *Bot) InitTokenProvider(tp *tokenprovider.TokenProvider) {
-	tp.Init(bot.RedisInterface.client, bot.PrimarySession)
+// announce sets the activity Discord shows under the bot's name.
+func (bot *Bot) announce() {
+	listeningTo := os.Getenv("AUVC_LISTENING")
+	if listeningTo == "" {
+		listeningTo = "/au"
+	}
+
+	err := bot.PrimarySession.UpdateStatusComplex(discordgo.UpdateStatusData{
+		Activities: []*discordgo.Activity{{
+			Name: listeningTo,
+			Type: discordgo.ActivityTypeListening,
+		}},
+	})
+	if err != nil {
+		log.Println("Could not set the bot activity:", err)
+	}
 }
 
+// Close shuts the Discord connection down.
 func (bot *Bot) Close() {
-	bot.PrimarySession.Close()
-	bot.RedisInterface.Close()
-	bot.StorageInterface.Close()
-}
-
-var EmojiLock = sync.Mutex{}
-
-func (bot *Bot) newGuild(emojiGuildID string) func(s *discordgo.Session, m *discordgo.GuildCreate) {
-	return func(s *discordgo.Session, m *discordgo.GuildCreate) {
-		log.Printf("Added to new Guild, id %s, name %s", m.Guild.ID, m.Guild.Name)
-		bot.RedisInterface.AddUniqueGuildCounter(m.Guild.ID)
-
-		if emojiGuildID == "" {
-			log.Println("[This is not an error] No explicit guildID provided for emojis; using the current guild default")
-			emojiGuildID = m.Guild.ID
-		}
-		// only check/add emojis to the server denoted for emojis, OR, this server that we picked as a fallback above ^
-		uploadMissingEmojis := emojiGuildID == m.Guild.ID
-
-		EmojiLock.Lock()
-		// only add the emojis if they haven't been added already. Saves api calls for bots in guilds
-		if bot.StatusEmojis.isEmpty() {
-			allEmojis, err := s.GuildEmojis(emojiGuildID)
-			if err != nil {
-				log.Println(err)
-			} else {
-				bot.verifyEmojis(s, emojiGuildID, true, allEmojis, uploadMissingEmojis)
-				bot.verifyEmojis(s, emojiGuildID, false, allEmojis, uploadMissingEmojis)
-			}
-		}
-		EmojiLock.Unlock()
-
-		games := bot.RedisInterface.LoadAllActiveGames(m.Guild.ID)
-
-		for _, connCode := range games {
-			gsr := GameStateRequest{
-				GuildID:     m.Guild.ID,
-				ConnectCode: connCode,
-			}
-			lock, dgs := bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
-			for lock == nil {
-				lock, dgs = bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
-			}
-			if dgs != nil && dgs.ConnectCode != "" {
-				log.Println("Resubscribing to Redis events for an old game: " + connCode)
-				killChan := make(chan EndGameMessage)
-				go bot.SubscribeToGameByConnectCode(gsr.GuildID, dgs.ConnectCode, killChan)
-				dgs.Subscribed = true
-
-				bot.RedisInterface.SetDiscordGameState(dgs, lock)
-
-				bot.ChannelsMapLock.Lock()
-				bot.EndGameChannels[dgs.ConnectCode] = killChan
-				bot.ChannelsMapLock.Unlock()
-			}
-			lock.Release(ctx)
-		}
+	if err := bot.PrimarySession.Close(); err != nil {
+		log.Println("Could not close the Discord session cleanly:", err)
 	}
 }
 
-func (bot *Bot) leaveGuild(_ *discordgo.Session, m *discordgo.GuildDelete) {
-	log.Println("Bot was removed from Guild " + m.ID)
-	bot.RedisInterface.LeaveUniqueGuildCounter(m.ID)
-
-	err := bot.StorageInterface.DeleteGuildSettings(m.ID)
-	if err != nil {
-		log.Println(err)
+// handleInteractionCreate routes Discord interactions. AUVC registers one
+// command, so there is one thing to route to.
+func (bot *Bot) handleInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type != discordgo.InteractionApplicationCommand {
+		return
 	}
-}
-
-func (bot *Bot) forceEndGame(gsr GameStateRequest) {
-	// lock because we don't want anyone else modifying while we delete
-	lock, dgs := bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
-
-	for lock == nil {
-		lock, dgs = bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
+	if i.ApplicationCommandData().Name != au.Name {
+		return
 	}
 
-	dgs.DeleteGameStateMsg(bot.PrimarySession, true)
-
-	bot.RedisInterface.SetDiscordGameState(dgs, lock)
-
-	bot.RedisInterface.RemoveOldGame(dgs.GuildID, dgs.ConnectCode)
-
-	// Note, this shouldn't be necessary with the TTL of the keys, but it can't hurt to clean up...
-	bot.RedisInterface.DeleteDiscordGameState(dgs)
-}
-
-func MessageDeleteWorker(s *discordgo.Session, msgChannelID, msgID string, waitDur time.Duration) {
-	log.Printf("Message worker is sleeping for %s before deleting message", waitDur.String())
-	time.Sleep(waitDur)
-	err := s.ChannelMessageDelete(msgChannelID, msgID)
-	if err != nil {
-		log.Println(err)
+	response := bot.handleAUCommand(s, i)
+	if response == nil {
+		return
 	}
-}
-
-func (bot *Bot) RefreshGameStateMessage(gsr GameStateRequest, sett *settings.GuildSettings) bool {
-	lock, dgs := bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
-	for lock == nil {
-		lock, dgs = bot.RedisInterface.GetDiscordGameStateAndLock(gsr)
+	if err := s.InteractionRespond(i.Interaction, response); err != nil {
+		log.Println("Could not answer an interaction:", err)
 	}
-
-	// don't try to edit this message, because we're about to delete it
-	RemovePendingDGSEdit(dgs.GameStateMsg.MessageID)
-
-	// note, this checks the variables being set, not whether or not the actual Discord message still exists
-	gameExists := dgs.GameStateMsg.Exists()
-	if !gameExists {
-		return false // no-op; no active game to refresh
-	}
-
-	dgs.DeleteGameStateMsg(bot.PrimarySession, false) // delete the old message
-	dgs.CreateMessage(bot.PrimarySession, bot.gameStateResponse(dgs, sett), dgs.GameStateMsg.MessageChannelID, dgs.GameStateMsg.LeaderID)
-
-	bot.RedisInterface.SetDiscordGameState(dgs, lock)
-	// if for whatever reason the message failed to create, this would catch it
-	return dgs.GameStateMsg.Exists()
-}
-
-func (bot *Bot) getInfo() command.BotInfo {
-	totalGuilds := rediskey.GetGuildCounter(context.Background(), bot.RedisInterface.client)
-	activeGames := rediskey.GetActiveGames(context.Background(), bot.RedisInterface.client, GameTimeoutSeconds)
-
-	// The lifetime totals came from the hosted deployment's Postgres database.
-	// A self-hosted bot has no such history, so the counters report what this
-	// process can actually see rather than a number that would always be zero.
-	totalUsers := rediskey.GetTotalUsers(context.Background(), bot.RedisInterface.client)
-	totalGames := rediskey.GetTotalGames(context.Background(), bot.RedisInterface.client)
-	return command.BotInfo{
-		Version:     bot.version,
-		Commit:      bot.commit,
-		ShardID:     bot.PrimarySession.ShardID,
-		ShardCount:  bot.PrimarySession.ShardCount,
-		TotalGuilds: totalGuilds,
-		ActiveGames: activeGames,
-		TotalUsers:  totalUsers,
-		TotalGames:  totalGames,
-	}
-}
-
-func linkPlayer(redis *RedisInterface, dgs *GameState, userID, color string) (command.LinkStatus, error) {
-	var auData amongus.PlayerData
-	found := false
-	if game.IsColorString(color) {
-		auData, found = dgs.GameData.GetByColor(color)
-	}
-	if found {
-		foundID := dgs.AttemptPairingByUserIDs(auData, map[string]interface{}{userID: struct{}{}})
-		if foundID != "" {
-			err := redis.AddUsernameLink(dgs.GuildID, userID, auData.Name)
-			if err != nil {
-				log.Println(err)
-			}
-			return command.LinkSuccess, nil
-		} else {
-			err := fmt.Sprintf("No player in the current game was found matching %s", discord.MentionByUserID(userID))
-			return command.LinkNoPlayer, errors.New(err)
-		}
-	} else {
-		err := fmt.Errorf("no game data found for player %s and color %s", discord.MentionByUserID(userID), color)
-		return command.LinkNoGameData, err
-	}
-}
-
-func unlinkPlayer(dgs *GameState, userID string) command.UnlinkStatus {
-	// if we found the player and cleared their data
-	success := dgs.ClearPlayerData(userID)
-	if success {
-		return command.UnlinkSuccess
-	} else {
-		return command.UnlinkNoPlayer
-	}
-}
-
-func getTrackingChannel(guild *discordgo.Guild, userID string) string {
-	// loop over all the channels in the discord and cross-reference with the one that the .au new author is in
-	for _, v := range guild.VoiceStates {
-		// if the User who typed au new is in a voice channel
-		if v.UserID == userID {
-			return v.ChannelID
-		}
-	}
-	return ""
-}
-
-func (bot *Bot) newGame(dgs *GameState) (_ command.NewStatus, activeGames int64) {
-	if dgs.GameStateMsg.Exists() {
-		if v, ok := bot.EndGameChannels[dgs.ConnectCode]; ok {
-			v <- true
-		}
-		delete(bot.EndGameChannels, dgs.ConnectCode)
-
-		dgs.Reset()
-	}
-
-	dgs.ConnectCode = generateConnectCode(dgs.GuildID)
-	dgs.Subscribed = true
-
-	return command.NewSuccess, activeGames
 }

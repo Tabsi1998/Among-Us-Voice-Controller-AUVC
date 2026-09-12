@@ -114,6 +114,13 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   serialized per guild, since a reconnect can overlap the tail of the previous
   connection.
 
+- **No external services:** the bot talks to Discord, reads and writes one
+  SQLite file, and listens for a capture connection. Redis, PostgreSQL, Galactus
+  and the token provider are gone, and with them the game state store, the event
+  queue, the distributed locks, the rate limiter and the per-guild settings in
+  Redis. A self-hosted bot is one process: the session lives in it, the locks are
+  mutexes, and the configuration is a file. Six direct Go dependencies remain.
+
 - **Session control:** `/au session start|stop|pause|resume|status` decides
   whether the bot acts on what capture reports. Stopped and paused are
   deliberately different: stopping releases everyone, pausing leaves them

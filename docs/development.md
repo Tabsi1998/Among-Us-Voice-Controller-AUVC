@@ -104,14 +104,13 @@ Dependabot is configured in `.github/dependabot.yml` for Go modules, NuGet,
 GitHub Actions and Docker. Minor and patch updates are grouped so a quiet week
 produces one pull request per ecosystem rather than one per package.
 
-Two sets of packages are deliberately ignored, each with the phase that will
-re-enable them:
+Nothing in the Go module is ignored any more. The Redis and PostgreSQL
+packages used to be, because they were reachable only from layers with a
+scheduled deletion date; phase 14 deleted those layers instead, and the bot is
+down to six direct dependencies.
 
-- **Redis packages** (`go-redis`, `redislock`) are reachable only from the layer
-  the rest of phase 14 removes. Updating them means taking breaking-change risk
-  on code with a scheduled deletion date. The PostgreSQL packages are no longer
-  listed because that layer is gone: `jackc/*`, `scany` and `pgxmock` left the
-  module graph entirely, and with them the only two advisories the bot had.
+One set of packages is still ignored:
+
 - **Major bumps of `Discord.Net` and `Config.Net`**, and **major or minor bumps
   of `HandyControl`**, need code changes that belong to the .NET LTS migration in
   phase 11. Until then such a bump only produces a red pull request. HandyControl
