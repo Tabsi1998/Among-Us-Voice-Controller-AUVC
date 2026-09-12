@@ -10,7 +10,7 @@ require (
 	github.com/go-redis/redis/v8 v8.8.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgconn v1.14.3
-	github.com/jackc/pgx/v4 v4.18.2
+	github.com/jackc/pgx/v4 v4.18.3
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/pashagolub/pgxmock v1.8.0
 	golang.org/x/text v0.42.0
