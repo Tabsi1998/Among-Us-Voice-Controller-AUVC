@@ -168,6 +168,25 @@ Only requests without an `Origin` header are upgraded. Capture is a desktop
 application and sends none; a browser always does, so a web page cannot reach
 the handshake at all.
 
+### The capture side
+
+`capture/AUVC.Transport` is the other end. `CaptureSession` builds the messages
+and numbers them; `CaptureConnection` runs the handshake over an
+`IMessageChannel`, which `WebSocketMessageChannel` implements. The channel is an
+interface for the same reason the protocol has no socket in it: the rules can
+then be tested without one.
+
+`PairingClient` redeems a code against `/capture/pair`. `DpapiCredentialStore`
+keeps the result encrypted with the Windows Data Protection API, tied to the
+current user account, so the file is unreadable to another account and to anyone
+who copies it elsewhere. That is not protection against the user's own account
+being compromised — nothing stored on a machine is — which is what
+`/au capture revoke` exists for.
+
+The bot does not acknowledge a successful authentication. It answers only to
+refuse, and then closes. A connection still open after the handshake is an
+authenticated one.
+
 ### TLS
 
 `AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make the listener terminate

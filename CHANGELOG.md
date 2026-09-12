@@ -6,6 +6,25 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 13 completed: the capture side of the connection. `capture/AUVC.Transport`
+  builds and numbers protocol messages, runs the handshake, redeems a pairing
+  code against the bot and keeps the credential it gets back. The connection
+  sits behind an interface, so the handshake, a refusal and a reconnect are
+  tested without opening a socket.
+- The credential is stored with the Windows Data Protection API, tied to the
+  current user account: the file is unreadable to another account on the same
+  machine and to anyone who copies it elsewhere. A test asserts that the bytes
+  on disk do not contain the credential, which is the part that matters.
+- Capture refuses its own mistakes locally rather than learning about them
+  from a refusal mid-round: an event before the snapshot, a message before the
+  session is open, or authentication without a credential all fail where the
+  mistake was made.
+- A bot that cannot be reached is reported as unreachable, not as a bad
+  pairing code. Telling someone to ask for a new code when the address is
+  wrong sends them down entirely the wrong path.
+
+### Added
+
 - Phase 13, second half: the direct capture connection. `bot/pkg/transport`
   serves `POST /capture/pair`, which exchanges a typed pairing code for a
   credential, and `GET /capture/link`, the WebSocket that carries the protocol.

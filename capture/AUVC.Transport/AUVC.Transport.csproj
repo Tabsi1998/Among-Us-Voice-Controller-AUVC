@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- New AUVC code, clean under nullable reference types from the start. -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The Windows Data Protection API. It is the platform's own answer to
+         "store this secret for this user", which is what the requirements ask
+         for; rolling our own key management instead would be worse in every
+         way that matters. -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AUVC.Protocol/AUVC.Protocol.csproj" />
+  </ItemGroup>
+
+</Project>
