@@ -92,9 +92,9 @@
       },
       "WpfScreenHelper": {
         "type": "Direct",
-        "requested": "[1.0.0, )",
-        "resolved": "1.0.0",
-        "contentHash": "OX9vitUalpiYOf1p3ZGeWAts9daluQ7PlID4ByUGcjXZALCDMZi9A6668WIXoebezV1aQx+I1k4y0k6eMCIt4Q=="
+        "requested": "[2.1.0, )",
+        "resolved": "2.1.0",
+        "contentHash": "ZzS/lkme7QcYIvQgsVw9D1OuI/fSrNnoDXXDCrFmacYVvdGXOQlGEeQBbKdBP9r4k+3CsUQMZq59RU99I9Mjhw=="
       },
       "Castle.Core": {
         "type": "Transitive",
