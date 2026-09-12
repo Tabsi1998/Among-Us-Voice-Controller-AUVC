@@ -114,6 +114,18 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   serialized per guild, since a reconnect can overlap the tail of the previous
   connection.
 
+- **Session control:** `/au session start|stop|pause|resume|status` decides
+  whether the bot acts on what capture reports. Stopped and paused are
+  deliberately different: stopping releases everyone, pausing leaves them
+  exactly where they are and keeps following the game, so resuming acts on the
+  round as it is then rather than as it was when the pause began. Stopping
+  releases people through the ordinary voice policy with the phase forced to
+  Menu, rather than through a second path that unmutes directly — the policy
+  already knows what "between rounds" looks like, and a second implementation
+  would be a second thing that can disagree. `auto_start` decides whether a
+  connecting capture starts a session on its own; a guild that left it off has
+  said it wants to decide, so a snapshot must not quietly take over.
+
 - **Transport:** `bot/pkg/transport` carries the protocol over a WebSocket and
   decides nothing about it: `bot/pkg/protocol` owns the rules, and this layer
   moves bytes and closes connections that break them. That split is what let the

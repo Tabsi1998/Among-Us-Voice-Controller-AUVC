@@ -47,6 +47,40 @@ func playerFromProtocol(player protocol.Player) session.GamePlayer {
 	}
 }
 
+// Mode is whether the bot is acting on a guild's session.
+type Mode int
+
+const (
+	// Stopped means the session is tracked but nobody is moved or muted. It is
+	// where a guild starts unless auto_start is on.
+	Stopped Mode = iota
+	// Running means the voice policy is applied on every change.
+	Running
+	// Paused means the session keeps being tracked and Discord is left exactly
+	// as it is. It is what an administrator reaches for mid-round, and it is
+	// deliberately different from Stopped: stopping releases everyone, pausing
+	// leaves them where they are.
+	Paused
+)
+
+func (m Mode) String() string {
+	switch m {
+	case Running:
+		return "running"
+	case Paused:
+		return "paused"
+	default:
+		return "stopped"
+	}
+}
+
+// guildSession is one guild's session and whether the bot is acting on it.
+type guildSession struct {
+	mu   sync.Mutex
+	live *session.Live
+	mode Mode
+}
+
 // CaptureSessions holds the live session of every guild that has a capture
 // connected.
 //
@@ -55,42 +89,59 @@ func playerFromProtocol(player protocol.Player) session.GamePlayer {
 // writing the same session would interleave into a state neither of them sent.
 type CaptureSessions struct {
 	mu       sync.Mutex
-	sessions map[string]*session.Live
-	locks    map[string]*sync.Mutex
+	sessions map[string]*guildSession
 }
 
 // NewCaptureSessions returns an empty set.
 func NewCaptureSessions() *CaptureSessions {
-	return &CaptureSessions{
-		sessions: map[string]*session.Live{},
-		locks:    map[string]*sync.Mutex{},
-	}
+	return &CaptureSessions{sessions: map[string]*guildSession{}}
 }
 
-// forGuild returns a guild's session and the lock that guards it, creating
-// both on first use.
-func (c *CaptureSessions) forGuild(guildID string) (*session.Live, *sync.Mutex) {
+// forGuild returns a guild's session, creating it on first use.
+func (c *CaptureSessions) forGuild(guildID string) *guildSession {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	live, ok := c.sessions[guildID]
+	existing, ok := c.sessions[guildID]
 	if !ok {
-		live = session.NewLive()
-		c.sessions[guildID] = live
-		c.locks[guildID] = &sync.Mutex{}
+		existing = &guildSession{live: session.NewLive(), mode: Stopped}
+		c.sessions[guildID] = existing
 	}
-	return live, c.locks[guildID]
+	return existing
 }
 
-// Snapshot returns a copy of a guild's session for reading. It is what /au
-// session status and /au doctor report.
-func (c *CaptureSessions) Snapshot(guildID string) (game.Phase, []session.GamePlayer) {
-	live, lock := c.forGuild(guildID)
+// SetMode records whether the bot should act on a guild and returns the mode it
+// was in before.
+func (c *CaptureSessions) SetMode(guildID string, mode Mode) Mode {
+	guild := c.forGuild(guildID)
 
-	lock.Lock()
-	defer lock.Unlock()
+	guild.mu.Lock()
+	defer guild.mu.Unlock()
 
-	return live.Phase(), live.Players()
+	previous := guild.mode
+	guild.mode = mode
+	return previous
+}
+
+// Mode reports whether the bot is acting on a guild.
+func (c *CaptureSessions) Mode(guildID string) Mode {
+	guild := c.forGuild(guildID)
+
+	guild.mu.Lock()
+	defer guild.mu.Unlock()
+
+	return guild.mode
+}
+
+// Snapshot returns a guild's session for reading. It is what /au session status
+// and /au doctor report.
+func (c *CaptureSessions) Snapshot(guildID string) (Mode, game.Phase, []session.GamePlayer) {
+	guild := c.forGuild(guildID)
+
+	guild.mu.Lock()
+	defer guild.mu.Unlock()
+
+	return guild.mode, guild.live.Phase(), guild.live.Players()
 }
 
 // HandleCapture applies one accepted protocol message and brings Discord voice
@@ -104,15 +155,31 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 		return fmt.Errorf("capture message carries no guild")
 	}
 
-	live, lock := bot.CaptureSessions.forGuild(guildID)
+	guild := bot.CaptureSessions.forGuild(guildID)
 
-	lock.Lock()
-	changed, err := applyCaptureMessage(live, message)
-	lock.Unlock()
+	guild.mu.Lock()
+	changed, err := applyCaptureMessage(guild.live, message)
+	mode := guild.mode
+	guild.mu.Unlock()
 
 	if err != nil || !changed {
 		return err
 	}
+
+	// auto_start exists so a guild that always wants AUVC does not have to run
+	// a command before every match. A guild that left it off has said it wants
+	// to decide, so a snapshot must not quietly take over.
+	if mode == Stopped {
+		if !bot.autoStart(guildID) {
+			return nil
+		}
+		bot.CaptureSessions.SetMode(guildID, Running)
+	} else if mode == Paused {
+		// The session keeps being tracked so that resuming acts on the round as
+		// it is now, not as it was when the pause started.
+		return nil
+	}
+
 	return bot.reconcileCaptureSession(guildID)
 }
 
@@ -188,17 +255,17 @@ func (bot *Bot) reconcileCaptureSession(guildID string) error {
 		return err
 	}
 
-	live, lock := bot.CaptureSessions.forGuild(guildID)
-	lock.Lock()
-	state := live.Project(resolve)
-	lock.Unlock()
+	guild := bot.CaptureSessions.forGuild(guildID)
+	guild.mu.Lock()
+	state := guild.live.Project(resolve)
+	guild.mu.Unlock()
 
-	guild, err := bot.PrimarySession.State.Guild(guildID)
-	if err != nil || guild == nil {
+	discordGuild, err := bot.PrimarySession.State.Guild(guildID)
+	if err != nil || discordGuild == nil {
 		return fmt.Errorf("discord guild %s is unavailable: %w", guildID, err)
 	}
 
-	if err := bot.Reconciler.Reconcile(guildID, observeVoiceStates(guild), voice.Desired(state, config)); err != nil {
+	if err := bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), voice.Desired(state, config)); err != nil {
 		if summary := permission.Summary(permission.Audit(
 			bot.voiceChannelPermissions(config.MainChannelID, config.GhostChannelID)...,
 		)); summary != "" {
@@ -261,4 +328,65 @@ type LinkStore interface {
 // really offers what isBotAccount needs.
 var _ = func(s *discordgo.Session, guildID, userID string) (*discordgo.Member, error) {
 	return s.State.Member(guildID, userID)
+}
+
+// autoStart reports whether the guild wants AUVC to take over on its own.
+//
+// A configuration that cannot be read answers no. Taking over a guild's voice
+// channels because a database was briefly unavailable is the wrong way to be
+// wrong; the administrator can always run /au session start.
+func (bot *Bot) autoStart(guildID string) bool {
+	config, err := bot.AUVC.GuildConfig(guildID)
+	if err != nil {
+		return false
+	}
+	return config.AutoStart
+}
+
+// StartSession begins applying the voice policy and brings Discord into line
+// immediately, so the effect is visible rather than waiting for the next event.
+func (bot *Bot) StartSession(guildID string) error {
+	bot.CaptureSessions.SetMode(guildID, Running)
+	return bot.reconcileCaptureSession(guildID)
+}
+
+// PauseSession stops applying voice changes and leaves Discord exactly as it is.
+//
+// The session keeps being tracked, so resuming acts on the round as it is then,
+// not as it was when the pause started.
+func (bot *Bot) PauseSession(guildID string) Mode {
+	return bot.CaptureSessions.SetMode(guildID, Paused)
+}
+
+// StopSession stops managing voice and releases everyone.
+//
+// Releasing runs through the ordinary voice policy with the phase forced to
+// Menu, rather than through a special path that unmutes people directly. The
+// policy already knows what "between rounds" looks like, and a second
+// implementation of it would be a second thing that can disagree.
+func (bot *Bot) StopSession(guildID string) error {
+	bot.CaptureSessions.SetMode(guildID, Stopped)
+
+	config, ready := bot.voicePolicyConfig(guildID)
+	if !ready {
+		return nil
+	}
+
+	resolve, err := bot.linkResolver(guildID)
+	if err != nil {
+		return err
+	}
+
+	guild := bot.CaptureSessions.forGuild(guildID)
+	guild.mu.Lock()
+	state := guild.live.Project(resolve)
+	guild.mu.Unlock()
+	state.Phase = game.MENU
+
+	discordGuild, err := bot.PrimarySession.State.Guild(guildID)
+	if err != nil || discordGuild == nil {
+		return fmt.Errorf("discord guild %s is unavailable: %w", guildID, err)
+	}
+
+	return bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), voice.Desired(state, config))
 }

@@ -4,6 +4,20 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- `/au session start`, `stop`, `pause`, `resume` and `status` work. They were
+  registered and reported themselves as staged; they now control whether the
+  bot acts on what capture reports.
+- Stopping and pausing are deliberately different. Stopping releases everyone
+  and returns them to the main channel; pausing leaves them exactly where they
+  are and keeps following the game, so resuming acts on the round as it stands
+  rather than as it stood when the pause began.
+- `auto_start` decides whether a connecting capture starts managing voice on
+  its own. A guild that left it off has said it wants to decide, so a snapshot
+  does not quietly take over; a configuration that cannot be read answers no
+  for the same reason.
+
 ### Removed
 
 - PostgreSQL is gone, with everything that only existed to feed it: match
