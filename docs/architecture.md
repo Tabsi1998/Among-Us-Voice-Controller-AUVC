@@ -98,6 +98,22 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.
 
+- **Live session:** `session.Live` is the mutable session a capture stream
+  drives, and `State` is what comes out of it for the voice policy. Keeping the
+  mutation apart from the projection is what lets the policy stay a pure
+  function over a value. A snapshot replaces the player set rather than merging
+  into it, which is the whole reason snapshots exist: after a reconnect the bot
+  cannot know which remembered players are still in the game, and keeping a
+  stale one would mean managing the voice of somebody who left.
+
+  `(*Bot).HandleCapture` applies protocol messages to it, resolves in-game names
+  through the SQLite player links, and reconciles. That path reaches the same
+  policy and reconciler as the legacy one without touching Redis: the session
+  lives in this process, because a self-hosted bot is one process and a session
+  that lives in it needs no external store to be found again. Work is
+  serialized per guild, since a reconnect can overlap the tail of the previous
+  connection.
+
 - **Transport:** `bot/pkg/transport` carries the protocol over a WebSocket and
   decides nothing about it: `bot/pkg/protocol` owns the rules, and this layer
   moves bytes and closes connections that break them. That split is what let the

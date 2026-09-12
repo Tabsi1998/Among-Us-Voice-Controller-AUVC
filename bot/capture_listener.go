@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/transport"
 )
 
@@ -20,7 +19,7 @@ import (
 // The listener is off unless AUVC_CAPTURE_ADDR names an address. A bot that is
 // still driven by the legacy transport must not start opening ports nobody
 // asked for.
-func startCaptureListener(pairingService *pairing.Service) func() {
+func startCaptureListener(pairingService *pairing.Service, handler transport.Handler) func() {
 	address := os.Getenv("AUVC_CAPTURE_ADDR")
 	if address == "" {
 		log.Println("AUVC_CAPTURE_ADDR is not set; the direct capture connection is disabled")
@@ -44,7 +43,7 @@ func startCaptureListener(pairingService *pairing.Service) func() {
 			address)
 	}
 
-	server := transport.NewServer(pairingService, transport.HandlerFunc(logCaptureMessage), nil)
+	server := transport.NewServer(pairingService, handler, nil)
 
 	httpServer := &http.Server{
 		Addr:    address,
@@ -76,18 +75,4 @@ func startCaptureListener(pairingService *pairing.Service) func() {
 			log.Println("Capture listener did not shut down cleanly:", err)
 		}
 	}
-}
-
-// logCaptureMessage is the handler until the session service reads these
-// messages.
-//
-// Phase 13 delivers the connection: a paired capture can reach the bot, is
-// authenticated and is held to the protocol. Turning its messages into game
-// state replaces the Redis event path and belongs to that phase, so until then
-// an accepted message is recorded rather than silently dropped.
-func logCaptureMessage(guildID string, message protocol.Message) error {
-	envelope := protocol.Envelope(message)
-	log.Printf("capture %s sent %s (seq %d) for guild %s",
-		envelope.Session, envelope.Type, envelope.Seq, guildID)
-	return nil
 }
