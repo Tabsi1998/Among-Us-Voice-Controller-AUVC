@@ -29,10 +29,29 @@ behavior and shortcuts are deliberate choices. Never show permanent credentials.
 | `AmongUsVoiceCapture-Setup-win-x64.exe` | Recommended graphical installer |
 | `AmongUsVoiceCapture-win-x64.msi` | Windows Installer package for direct/managed installation |
 | `AmongUsVoiceCapture-win-x64.zip` | Self-contained portable application |
+| `AUVC-bot-win-x64.zip` | The bot as a Windows executable, for running it on the same PC |
+| `AUVC-bot-linux-amd64.tar.gz`, `AUVC-bot-linux-arm64.tar.gz` | The bot for a server, a NAS or a Raspberry Pi |
 | `SHA256SUMS` | Checksums of the final signed downloadable artifacts |
 | Channel-specific signed update manifest | Version, platform, protocol compatibility and verified asset metadata |
 | Release notes, SBOM and provenance | Changes, migration instructions, dependencies and source/build identity |
-| Bot Docker image | Matching self-hosted bot release |
+| Bot Docker image | The same bot, for anyone who would rather run a container |
+
+AUVC is two programs. Capture reads the game on the Windows PC that plays it;
+the bot talks to Discord and can run anywhere. They are released together and
+must match, because the protocol between them is versioned and a mismatch is
+refused at the handshake.
+
+The bot ships as a plain executable as well as a container, because the two
+answer different situations. One person playing on one PC wants to run the bot
+there and be done; somebody with a server or a Raspberry Pi wants it to stay
+online when the gaming PC is off. Neither is more correct, and the bot is a
+single static binary with no runtime to install, so offering both costs a build
+matrix entry rather than a second architecture.
+
+The bot needs no installer and no signing to be useful: it is started by whoever
+runs it, not double-clicked by somebody who downloaded it expecting a program to
+install. Capture is the one that faces that problem, and that is what the
+signing and publisher-identity work is for.
 
 EXE and MSI use the same tested capture payload and coordinated installation
 identity, not two competing installations. Prefer per-user installation and

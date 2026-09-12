@@ -1,17 +1,52 @@
-# Self-hosting AUVC
+# Running AUVC
+
+AUVC is two programs, and it helps to know which is which before choosing how to
+run them.
+
+| Program | Runs on | Does |
+| --- | --- | --- |
+| **Capture** | The Windows PC playing Among Us | Reads the game and reports what happens |
+| **Bot** | Anywhere with internet | Talks to Discord: mutes, deafens, moves people |
+
+Capture has to be on the gaming PC, because that is where the game is. The bot
+can be anywhere, and there are two sensible places:
+
+- **On the same PC.** Simplest: two programs, no network to think about. The bot
+  is online while that PC is on, which for one person playing with friends is
+  usually exactly when it needs to be.
+- **On a server, NAS or Raspberry Pi.** The bot stays online when the gaming PC
+  is off, and somebody else can start a game without you.
+
+The bot is a single executable with nothing to install. Pick whichever suits
+you; the setup inside Discord is identical.
+
+## On the same PC
+
+Download `AUVC-bot-win-x64.zip`, unpack it, and start the bot with your token:
+
+```powershell
+$env:DISCORD_BOT_TOKEN = "your-token"
+.\auvc.exe
+```
+
+It keeps its database under `%LOCALAPPDATA%\AUVC` and listens on
+`127.0.0.1:8123` for the capture app on the same machine. Nothing is exposed to
+the network. To keep it running without a console window, register it as a
+scheduled task or a service.
+
+Then jump to [Set it up in Discord](#set-it-up-in-discord).
+
+## In a container
 
 One container, one SQLite file, one Discord bot token. No Redis, no PostgreSQL,
 no Galactus, no worker-bot pool: those belonged to the hosted service AUVC is
 not, and phase 14 removed them.
 
-## What you need
+You need Docker with Compose, a Discord bot token from an application you create
+at [discord.com/developers](https://discord.com/developers/applications), and a
+Windows PC running Among Us for the capture app.
 
-- Docker with Compose.
-- A Discord bot token, from an application you create at
-  [discord.com/developers](https://discord.com/developers/applications).
-- A Windows PC that runs Among Us, for the capture app.
-
-## Start it
+### Start it
 
 ```sh
 cd deploy

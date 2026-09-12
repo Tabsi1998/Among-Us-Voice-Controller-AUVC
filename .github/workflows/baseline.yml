@@ -61,6 +61,19 @@ jobs:
       - run: go vet ./...
       - run: go test -race ./...
       - run: go build ./...
+      # AUVC ships as a Windows executable as well as a container, so a change
+      # that only compiles on Linux has to fail here rather than in somebody's
+      # download. CGO stays off: the pure-Go SQLite driver is what makes
+      # cross-compiling possible at all.
+      - name: Cross-compile the bot for every supported target
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          set -euo pipefail
+          for target in windows/amd64 linux/amd64 linux/arm64; do
+            GOOS="${target%/*}" GOARCH="${target#*/}" go build -trimpath -o /dev/null .
+            echo "built $target"
+          done
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
       - name: Check known vulnerabilities

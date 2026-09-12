@@ -15,17 +15,27 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/transport"
 )
 
+// defaultCaptureAddr is where the capture app looks when nothing says
+// otherwise. Localhost covers the common case, which is one person running
+// the bot and the game on the same PC.
+const defaultCaptureAddr = "127.0.0.1:8123"
+
 // startCaptureListener brings up the direct capture connection, if one is
 // configured. It returns a function that shuts the listener down, which is a
 // no-op when no listener was started.
 //
-// The listener is off unless AUVC_CAPTURE_ADDR names an address. A bot that is
-// still driven by the legacy transport must not start opening ports nobody
-// asked for.
+// AUVC_CAPTURE_ADDR sets the address. It defaults to localhost, which is the
+// answer when the bot and the game run on the same machine, and is the safe
+// one everywhere else: reaching a capture on another machine is a decision an
+// operator makes deliberately. AUVC_CAPTURE_ADDR=off turns the listener off,
+// which leaves a bot no capture can reach and is only useful for testing.
 func startCaptureListener(pairingService *pairing.Service, controller *bot.Bot) func() {
 	address := os.Getenv("AUVC_CAPTURE_ADDR")
 	if address == "" {
-		log.Println("AUVC_CAPTURE_ADDR is not set; the direct capture connection is disabled")
+		address = defaultCaptureAddr
+	}
+	if strings.EqualFold(address, "off") {
+		log.Println("AUVC_CAPTURE_ADDR is off; no capture app can connect")
 		return func() {}
 	}
 
