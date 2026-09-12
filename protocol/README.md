@@ -134,6 +134,48 @@ every invalid fixture is rejected either while decoding or while validating.
 Adding a message type therefore means adding a fixture, or both test suites
 fail — which is the point.
 
+## Carrying it
+
+The bot exposes two endpoints, off unless `AUVC_CAPTURE_ADDR` names an address:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /capture/pair` | Exchange a typed pairing code for a credential. |
+| `GET /capture/link` | The WebSocket that carries the messages above. |
+
+Pairing sits outside the WebSocket on purpose. It happens once, before there is
+a session to speak in, and folding it into the protocol would have meant a
+message that exists only for the first connection of a capture install's life.
+The request carries the code and nothing else: capture never sees a guild id,
+because asking a player to copy a Discord snowflake out of a developer menu is
+not a setup flow anyone finishes.
+
+The credential is returned by that one response and never again. Only its hash
+is stored.
+
+Authentication failures close the connection rather than answering and carrying
+on. The receiver has already recorded that an authentication message arrived in
+the right order by the time the credential is checked, so a session that stayed
+open would believe it was authenticated when it was not.
+
+A refusal ends the connection when the session cannot recover from it — an
+incompatible protocol, a session that never said hello, a failed credential, a
+frame that is not a message. `snapshot_required` does not: the session fixes it
+by sending a snapshot, and closing the connection would turn an ordinary
+recovery into a reconnect loop.
+
+Only requests without an `Origin` header are upgraded. Capture is a desktop
+application and sends none; a browser always does, so a web page cannot reach
+the handshake at all.
+
+### TLS
+
+`AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make the listener terminate
+TLS itself. Without them it serves plain HTTP and logs a warning on every start,
+because terminating TLS at a reverse proxy is a legitimate and common way to run
+this — and a plain listener that is *not* behind one carries credentials in the
+clear with nothing else to say so.
+
 ## Changing this protocol
 
 Bump `protocol` and record the change here. The version exists so that a capture

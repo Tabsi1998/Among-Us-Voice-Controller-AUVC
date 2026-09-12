@@ -81,6 +81,12 @@ the memory and offset code is held back on purpose: the phase 11 contract keeps
 it comparable with upstream, and phases 12 and 13 replace the legacy transport
 that makes up much of the rest.
 
+The direct capture connection is off unless `AUVC_CAPTURE_ADDR` names a listen
+address such as `:8123`. `AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make
+it terminate TLS itself; without them it serves plain HTTP and warns on every
+start, because a plain listener is only safe behind a reverse proxy that
+terminates TLS for it. See [protocol/README.md](../protocol/README.md).
+
 The bot reads AUVC configuration from `AUVC_DATABASE_PATH`. Containers default
 to `/data/amongus.db`; for a local development run set it to a writable path such
 as `./data/amongus.db`. Never commit the database or use it for secrets.

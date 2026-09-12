@@ -6,6 +6,26 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 13, second half: the direct capture connection. `bot/pkg/transport`
+  serves `POST /capture/pair`, which exchanges a typed pairing code for a
+  credential, and `GET /capture/link`, the WebSocket that carries the protocol.
+  Both are off unless `AUVC_CAPTURE_ADDR` names an address.
+- Capture never sees a guild id: a pairing code is found by its hash across
+  guilds, because asking a player to copy a Discord snowflake out of a
+  developer menu is not a setup flow anyone finishes.
+- A failed credential closes the connection rather than answering and carrying
+  on. The protocol receiver has already recorded that an authentication
+  message arrived in the right order by the time the credential is checked, so
+  a session left open would believe it was authenticated when it was not.
+  A missing snapshot, by contrast, keeps the connection: the session repairs
+  it by sending one, and closing would turn a recovery into a reconnect loop.
+- Only requests without an `Origin` header are upgraded, so a web page cannot
+  reach the handshake. `AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make
+  the listener terminate TLS itself; without them it warns on every start that
+  it needs a reverse proxy in front of it.
+
+### Added
+
 - Phase 13, first half: capture pairing and credentials. `/au capture pair`
   issues a code that works once and expires after ten minutes, `/au capture
   status` reports whether a capture is paired and when it was last seen, and

@@ -98,6 +98,14 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.
 
+- **Transport:** `bot/pkg/transport` carries the protocol over a WebSocket and
+  decides nothing about it: `bot/pkg/protocol` owns the rules, and this layer
+  moves bytes and closes connections that break them. That split is what let the
+  protocol be tested without a socket and lets the transport be tested without a
+  game. A credential passes through exactly one place, the authentication
+  message, and is handed straight to the pairing service without ever being
+  logged.
+
 - **Capture credentials:** `/au capture pair` issues a code that works once and
   expires after ten minutes; typing it into capture exchanges it for a
   long-lived credential. `bot/pkg/credential` decides what a secret is worth and

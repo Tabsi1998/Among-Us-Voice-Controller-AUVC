@@ -149,7 +149,11 @@ func discordMainWrapper() error {
 	defer auvcDB.Close()
 	// The pairing service shares the database, so a credential issued by
 	// /au capture pair is the same one the transport checks later.
-	auvcService := au.NewServiceWithPairing(auvcDB, pairing.NewService(auvcDB), version, commit)
+	pairingService := pairing.NewService(auvcDB)
+	auvcService := au.NewServiceWithPairing(auvcDB, pairingService, version, commit)
+
+	stopCaptureListener := startCaptureListener(pairingService)
+	defer stopCaptureListener()
 
 	go func() {
 		err := psql.ExecFromString(postgresFileContents)

@@ -8,6 +8,7 @@ require (
 	github.com/bwmarrin/discordgo v0.29.0
 	github.com/georgysavva/scany v0.2.7
 	github.com/go-redis/redis/v8 v8.8.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgconn v1.14.3
 	github.com/jackc/pgx/v4 v4.18.2
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
@@ -23,7 +24,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
