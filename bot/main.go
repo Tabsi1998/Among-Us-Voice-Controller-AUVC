@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 
@@ -25,9 +27,28 @@ var (
 	date    = "unknown"
 )
 
-// DefaultDatabasePath is where the container keeps the SQLite database. It is
-// a mounted volume, so a container restart does not lose the configuration.
-const DefaultDatabasePath = "/data/amongus.db"
+// containerDatabasePath is where the image keeps the database. It is a mounted
+// volume, so a container restart does not lose the configuration.
+const containerDatabasePath = "/data/amongus.db"
+
+// defaultDatabasePath picks a sensible place for the database when
+// AUVC_DATABASE_PATH says nothing.
+//
+// The container sets the variable itself, so this is the answer for somebody
+// running the binary directly. On Windows that is beside the user's other
+// application data: "/data/amongus.db" would land at the root of the current
+// drive, which is neither writable nor anywhere anyone would look for it.
+func defaultDatabasePath() string {
+	if runtime.GOOS == "windows" {
+		if local := os.Getenv("LOCALAPPDATA"); local != "" {
+			return filepath.Join(local, "AUVC", "amongus.db")
+		}
+	}
+	if config, err := os.UserConfigDir(); err == nil && config != "" {
+		return filepath.Join(config, "auvc", "amongus.db")
+	}
+	return containerDatabasePath
+}
 
 type registeredCommand struct {
 	GuildID            string
@@ -38,6 +59,11 @@ func main() {
 	if err := run(); err != nil {
 		log.Println("AUVC exited with the following error:")
 		log.Println(err)
+		// A failure has to be a failing exit code. A container manager, a
+		// service supervisor and a shell script all decide what to do next
+		// from this number, and zero tells all three that everything went
+		// fine.
+		os.Exit(1)
 	}
 }
 
@@ -56,8 +82,12 @@ func run() error {
 
 	databasePath := os.Getenv("AUVC_DATABASE_PATH")
 	if databasePath == "" {
-		databasePath = DefaultDatabasePath
+		databasePath = defaultDatabasePath()
 	}
+	// Said out loud because it is the first question when a setting seems to
+	// have been forgotten: the answer is usually that the database is
+	// somewhere other than where the reader assumed.
+	log.Printf("Database: %s", databasePath)
 	auvcDB, err := sqlite.Open(databasePath)
 	if err != nil {
 		return err

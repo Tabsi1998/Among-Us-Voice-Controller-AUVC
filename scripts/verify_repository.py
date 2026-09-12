@@ -41,7 +41,8 @@ def check() -> list[str]:
     for path in (
         ".github/workflows/baseline.yml", "capture/global.json",
         "capture/AUVC.Capture.Tests/AUVC.Capture.Tests.csproj",
-        "deploy/Dockerfile.baseline", "docs/baseline-build.md",
+        "deploy/Dockerfile", "deploy/docker-compose.yml", "deploy/.env.example",
+        "docs/baseline-build.md",
         "docs/architecture.md", "docs/requirements.md", "docs/roadmap.md",
         "docs/windows-installation-and-releases.md", "UPSTREAM.md", "SECURITY.md",
         "THIRD_PARTY_NOTICES.md",

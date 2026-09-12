@@ -4,6 +4,43 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The bot ships as a plain executable as well as a container: Windows x64 for
+  running it on the same PC as the game, Linux amd64 and arm64 for a server, a
+  NAS or a Raspberry Pi. It is a single static binary with nothing to install,
+  which the pure-Go SQLite driver chosen in phase 6 is what makes possible. CI
+  cross-compiles all three, so a change that only builds on Linux fails there
+  rather than in somebody's download.
+- The database lands somewhere sensible when nothing says otherwise: under
+  `%LOCALAPPDATA%\AUVC` on Windows rather than at the root of the current
+  drive, which is where the container default would have put it.
+- The capture listener defaults to `127.0.0.1:8123` instead of being off. It is
+  the only way capture can reach the bot now that the legacy transport is gone,
+  so a bot without it does nothing at all; localhost covers the same-PC case
+  and exposes nothing. `AUVC_CAPTURE_ADDR=off` turns it off.
+- Self-hosting is one `docker compose up`. `deploy/docker-compose.yml` runs a
+  single service with a volume for the SQLite file, `deploy/.env.example`
+  documents every setting without holding a token, and `deploy/README.md` walks
+  through the first run, the Discord permissions, upgrading and backups.
+- `GET /healthz` answers whether AUVC can actually work: it checks the Discord
+  connection and the database and names what failed. A check that only proved
+  the process was running would be worth little, because a bot that lost
+  either is as useless as one that crashed and only the crash restarts itself.
+- The image declares a `HEALTHCHECK`, and CI fails if a future change drops it.
+
+### Fixed
+
+- The bot exits with a failing status code when it fails to start. It logged
+  the error and exited zero, which tells a container manager, a service
+  supervisor and a shell script alike that everything went fine.
+
+### Changed
+
+- `deploy/Dockerfile.baseline` is now `deploy/Dockerfile`. It described itself
+  as a build-only baseline that still ran the legacy services; those services
+  are gone, so it is simply the image.
+
 ### Removed
 
 - The capture app's self-updater. It downloaded releases from AutoMuteUs's

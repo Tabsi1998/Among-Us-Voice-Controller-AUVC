@@ -80,6 +80,11 @@ the memory and offset code is held back on purpose: the phase 11 contract keeps
 it comparable with upstream, and phases 12 and 13 replace the legacy transport
 that makes up much of the rest.
 
+The container image sets `AUVC_CAPTURE_ADDR` itself, because the same listener
+carries `/healthz` and a container nobody can check is a container nobody
+notices has died. Publishing the port stays the operator's decision; see
+[deploy/README.md](../deploy/README.md).
+
 The direct capture connection is off unless `AUVC_CAPTURE_ADDR` names a listen
 address such as `:8123`. `AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make
 it terminate TLS itself; without them it serves plain HTTP and warns on every

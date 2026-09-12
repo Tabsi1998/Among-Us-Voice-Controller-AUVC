@@ -1,0 +1,50 @@
+# AUVC, self-hosted.
+#
+# One service. The upstream project needed Redis, PostgreSQL, Galactus and a
+# pool of worker bots; AUVC needs a Discord token and somewhere to keep one
+# SQLite file.
+#
+#   cp .env.example .env     and fill in DISCORD_BOT_TOKEN
+#   docker compose up -d
+#
+# See README.md in this directory for what to do next.
+
+services:
+  auvc:
+    # Build from this repository. Replace with
+    # image: ghcr.io/tabsi1998/amongus-voice-controller:<tag>
+    # once a release has been published.
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: auvc
+    restart: unless-stopped
+
+    env_file: .env
+
+    # The capture connection. Publish it only on the interface the Windows PC
+    # running Among Us can reach; there is no reason for it to face the
+    # internet without a reverse proxy terminating TLS in front of it.
+    ports:
+      - "127.0.0.1:8123:8123"
+
+    # Everything AUVC must not lose lives here: guild configuration, player
+    # links and capture credentials. The running game is not in it, because a
+    # reconnecting capture sends a complete snapshot anyway.
+    volumes:
+      - auvc-data:/data
+
+    # The image declares its own health check. Compose waits for it on
+    # `--wait`, which is what makes an upgrade fail loudly instead of quietly
+    # leaving a broken container running.
+    stop_grace_period: 15s
+
+    # The bot opens outbound connections and accepts one inbound port. It needs
+    # no privileges beyond that.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  auvc-data:

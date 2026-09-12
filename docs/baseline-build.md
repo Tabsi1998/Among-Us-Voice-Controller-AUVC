@@ -75,7 +75,7 @@ It is not an offset generator for current Among Us versions.
 From the repository root:
 
 ```sh
-docker build -f deploy/Dockerfile.baseline -t auvc:baseline .
+docker build -f deploy/Dockerfile -t auvc:baseline .
 ```
 
 This recipe builds the existing Go module without assuming a nested `.git`
