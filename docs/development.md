@@ -62,9 +62,9 @@ project file. The backlog is measurable rather than implied:
 | AUOffsetHelper | enabled | 0 |
 | AUOffsetManager | disabled | 56 |
 | AmongUsCapture | disabled | 168 |
-| AUCapture-WPF | disabled | 572 |
+| AUCapture-WPF | disabled | 556 |
 
-A full rebuild reports around 144 compiler warnings, none of them errors. The
+A full rebuild reports around 128 compiler warnings, none of them errors. The
 largest groups are `CS8632` (nullable annotations in code compiled without the
 nullable context), `CS0168`/`CS0169` (unused locals and fields), `SYSLIB0021`
 and `SYSLIB0014` (APIs the newer framework marks obsolete) and `CA1416`
