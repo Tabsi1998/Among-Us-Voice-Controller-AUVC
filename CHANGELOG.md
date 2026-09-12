@@ -4,6 +4,21 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Removed
+
+- The capture app's self-updater. It downloaded releases from AutoMuteUs's
+  GitHub and verified them against an embedded AutoMuteUs public key, so it
+  could never have updated AUVC correctly: it checked that a download came
+  from a project this one is no longer part of.
+- `PgpCore` and the embedded `AutoMuteUs_PK.asc` went with it. That was the
+  only path to a vulnerable `BouncyCastle`, which is why the pending NuGet
+  update failed the vulnerability check rather than the packages it bumped.
+- The contributor list stays, and so does Octokit. Crediting the upstream
+  authors is something this project wants to keep doing.
+
+  Capture has no self-update until phase 17 provides one with AUVC signing
+  and publisher identity (#24). Updating means downloading the new release.
+
 ### Added
 
 - `/au doctor` is a real diagnosis. It reports the Discord connection, SQLite

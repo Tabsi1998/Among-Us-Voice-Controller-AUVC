@@ -1,4 +1,4 @@
-﻿<mah:MetroWindow
+<mah:MetroWindow
     x:Class="AUCapture_WPF.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -320,9 +320,6 @@
                                 <mah:MetroTabItem Header="{l:Static properties:Resources.SettingsAboutTabHeader}">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <StackPanel Orientation="Vertical">
-                                            <mah:MetroHeader Header="{l:Static properties:Resources.SettingsAboutTabAutoUpdaterHeader}">
-                                                <CheckBox IsChecked="{Binding AutoUpdaterEnabled, Mode=OneWay}" IsEnabled="False" />
-                                            </mah:MetroHeader>
                                             <mah:MetroHeader Header="{l:Static properties:Resources.SettingsAboutTabAppVersion}">
                                                 <TextBox
                                                     MinWidth="150"

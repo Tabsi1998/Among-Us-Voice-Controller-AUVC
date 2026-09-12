@@ -69,15 +69,6 @@
         "resolved": "0.50.0",
         "contentHash": "J5vqespSvjxIAAtjG1Tc6ghBqyfRgDJtKnk/ifi4N0hD/f3JbPwyEDRT+Eelu/bS4C4M6mu5gt1WJqar+fByzg=="
       },
-      "PgpCore": {
-        "type": "Direct",
-        "requested": "[5.2.0, )",
-        "resolved": "5.2.0",
-        "contentHash": "NWuMzPQusUOB5dQYmPDUsVaFOhQ/D8DNDBH1m83qvAJvB2zPNi57vk/jjT0f3h2yFYoi3b66zrqPyUFZfta4yA==",
-        "dependencies": {
-          "Portable.BouncyCastle": "1.8.9"
-        }
-      },
       "SharedMemory": {
         "type": "Direct",
         "requested": "[2.2.3, )",
@@ -194,11 +185,6 @@
         "type": "Transitive",
         "resolved": "13.0.1",
         "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
-      },
-      "Portable.BouncyCastle": {
-        "type": "Transitive",
-        "resolved": "1.8.9",
-        "contentHash": "wlJo8aFoeyl+W93iFXTK5ShzDYk5WBqoUPjTNEM0Xv9kn1H+4hmuCjF0/n8HLm9Nnp1aY6KNndWqQTNk+NGgRQ=="
       },
       "SocketIOClient": {
         "type": "Transitive",
