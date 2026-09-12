@@ -85,6 +85,11 @@ func run() error {
 	stopCaptureListener := startCaptureListener(pairingService, controller)
 	defer stopCaptureListener()
 
+	// The fail-safe: a capture that dies mid-round would otherwise leave every
+	// living player server-muted, and nothing in Discord expires that on its own.
+	stopWatchdog := controller.WatchCapture()
+	defer stopWatchdog()
+
 	registered, err := registerCommands(controller)
 	if err != nil {
 		return err
