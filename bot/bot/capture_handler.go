@@ -339,6 +339,10 @@ func (bot *Bot) linkResolver(guildID string) (func(string) (string, bool, bool),
 // moved. When Discord cannot tell us, the answer is no: refusing to manage
 // every player the cache has not seen would be worse than managing one bot.
 func (bot *Bot) isBotAccount(guildID, userID string) bool {
+	if bot.PrimarySession == nil || bot.PrimarySession.State == nil {
+		return false
+	}
+
 	member, err := bot.PrimarySession.State.Member(guildID, userID)
 	if err != nil || member == nil || member.User == nil {
 		return false
