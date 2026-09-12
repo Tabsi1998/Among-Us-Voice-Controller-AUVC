@@ -22,6 +22,11 @@ type PlayerState struct {
 	// and is reported as true for them so that no caller can accidentally treat
 	// an unlinked user as a corpse.
 	Alive bool
+	// Revealed marks a death the other players have been told about, which
+	// happens when a meeting starts. A death nobody knows about yet must not
+	// change anything the living can see, and a channel change is visible to
+	// everyone in Discord.
+	Revealed bool
 	// Bot marks Discord bot accounts. The voice policy must never manage them,
 	// and neither must channel enforcement.
 	Bot bool

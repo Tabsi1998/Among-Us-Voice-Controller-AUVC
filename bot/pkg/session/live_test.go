@@ -222,3 +222,93 @@ func TestAFreshSessionProjectsNothing(t *testing.T) {
 		t.Errorf("a session with no snapshot has no players, got %+v", state.Players)
 	}
 }
+
+// A meeting is where the game tells everyone who is dead, so that is where a
+// death stops being a secret the bot has to keep.
+func TestAMeetingMakesEveryDeathPublic(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{
+		{Name: "Red", Alive: false},
+		{Name: "Blue", Alive: true},
+	})
+
+	for _, player := range live.Players() {
+		if player.Revealed {
+			t.Fatalf("%s was revealed before any meeting", player.Name)
+		}
+	}
+
+	live.SetPhase(game.DISCUSS)
+
+	for _, player := range live.Players() {
+		if !player.Alive && !player.Revealed {
+			t.Errorf("%s died and the meeting did not announce it", player.Name)
+		}
+		if player.Alive && player.Revealed {
+			t.Errorf("%s is alive and was marked as revealed", player.Name)
+		}
+	}
+}
+
+// Someone killed after the meeting is a new secret, even though earlier deaths
+// are public by then.
+func TestADeathAfterTheMeetingIsSecretAgain(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{{Name: "Red", Alive: false}, {Name: "Blue", Alive: true}})
+	live.SetPhase(game.DISCUSS)
+	live.SetPhase(game.TASKS)
+
+	live.Upsert(GamePlayer{Name: "Blue", Alive: false})
+
+	state := live.Project(linkAll)
+	for _, player := range state.Players {
+		switch player.InGameName {
+		case "Red":
+			if !player.Revealed {
+				t.Error("an announced death became secret again")
+			}
+		case "Blue":
+			if player.Revealed {
+				t.Error("a fresh kill was treated as announced")
+			}
+		}
+	}
+}
+
+// A snapshot says who is dead, not who knows it. Treating a death as still
+// secret is the safe way to be wrong: the worst case is a ghost who waits for
+// the next meeting, where the other way round would announce a fresh kill.
+func TestASnapshotTreatsDeathsAsStillSecret(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{{Name: "Red", Alive: false, Revealed: true}})
+
+	for _, player := range live.Players() {
+		if player.Revealed {
+			t.Error("a snapshot during tasks must not claim a death is public")
+		}
+	}
+}
+
+// Unless the snapshot itself arrives during a meeting, when the game has just
+// told everyone.
+func TestASnapshotDuringAMeetingMakesDeathsPublic(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.DISCUSS, []GamePlayer{{Name: "Red", Alive: false}})
+
+	if !live.Players()[0].Revealed {
+		t.Error("a snapshot during a meeting should carry public deaths")
+	}
+}
+
+// The next round starts with nothing known.
+func TestEndingARoundForgetsWhatWasAnnounced(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{{Name: "Red", Alive: false}})
+	live.SetPhase(game.DISCUSS)
+
+	live.EndRound()
+
+	if live.Players()[0].Revealed {
+		t.Error("a new round inherited the previous round's announcements")
+	}
+}

@@ -84,10 +84,16 @@ func (c Config) enforcedMain() string {
 //
 //	Lobby       living and dead   main, open
 //	Tasks       living            main, muted and deafened
-//	            dead              ghost, open
+//	            dead, secret      left where they are, muted
+//	            dead, announced   ghost, open
 //	Discussion  living            main, open
 //	            dead              ghost, open
 //	Ended       living and dead   main, open
+//
+// A death is secret until a meeting announces it. Moving the victim before
+// then would tell the whole server who died, because a channel change is
+// visible to everyone: the ghost channel would fill up in plain sight while
+// the survivors are still meant to be guessing.
 //
 // Discussion covers meetings and voting, which the game state reports as one
 // phase. Menu means no round is running and is handled like Ended.
@@ -100,12 +106,12 @@ func Desired(state session.State, config Config) map[string]DesiredVoiceState {
 	desired := make(map[string]DesiredVoiceState)
 
 	for _, player := range state.Managed() {
-		desired[player.UserID] = desiredFor(state.Phase, player.Alive, config)
+		desired[player.UserID] = desiredFor(state.Phase, player.Alive, player.Revealed, config)
 	}
 	return desired
 }
 
-func desiredFor(phase game.Phase, alive bool, config Config) DesiredVoiceState {
+func desiredFor(phase game.Phase, alive, revealed bool, config Config) DesiredVoiceState {
 	switch phase {
 	case game.TASKS:
 		if alive {
@@ -117,9 +123,21 @@ func desiredFor(phase game.Phase, alive bool, config Config) DesiredVoiceState {
 				Deafened:        true,
 			}
 		}
+		if !revealed {
+			// Nobody has been told about this death yet, and a channel change is
+			// visible to everyone in Discord. Moving the victim now would
+			// announce the kill to the whole server, which is the one thing the
+			// game is about not knowing.
+			//
+			// They stay wherever they are and are silenced. An empty target says
+			// "leave this player alone"; silencing them is not about what the
+			// living can hear right now, since they are deafened, but about what
+			// happens if that deafen ever fails.
+			return DesiredVoiceState{Muted: true}
+		}
 		if config.usesGhostChannel() {
-			// Ghosts talk among themselves. The living are deafened, so they
-			// hear none of it.
+			// A death the meeting already announced. Ghosts talk among
+			// themselves, and the living are deafened, so they hear none of it.
 			return Open(config.GhostChannelID)
 		}
 		// Without a ghost channel the dead stay put. They are silenced rather

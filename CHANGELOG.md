@@ -4,6 +4,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Fixed
+
+- A kill is no longer announced by Discord. Dead players used to be moved to
+  the ghost channel the moment they died, and a channel change is visible to
+  every member of the server: the ghost channel filled up in plain sight while
+  the survivors were still meant to be guessing who was missing. A freshly
+  killed player is now silenced and left where they are, and moves only once a
+  meeting has made the death public.
+- Once announced, ghosts keep the ghost channel for the rest of the round,
+  including through later task phases. Sending them back would be the same leak
+  in reverse and would cost them ghost chat for the rest of the game.
+
 ### Removed
 
 - Redis is gone, and with it the game state store, the event queue, the
