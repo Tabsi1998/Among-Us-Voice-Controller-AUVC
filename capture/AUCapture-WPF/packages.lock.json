@@ -4,11 +4,11 @@
     "net10.0-windows7.0": {
       "Config.Net": {
         "type": "Direct",
-        "requested": "[4.15.0, )",
-        "resolved": "4.15.0",
-        "contentHash": "pCaY046DggydAIQ6DjKjIgfR3YoAIZNcSiqvJrOUyjwMxY481pxlv1f7NIW8XH+qPTIHXIZEoTyL+NmEUOxvZA==",
+        "requested": "[4.19.0, )",
+        "resolved": "4.19.0",
+        "contentHash": "K9gBXM5mwxD0drpCWRg+5V7QIwIuz34XAlwab7PQw5rAuNJBDzTssHvFtCcTa4tp0iW7AWsfma1fQRXpKfP79A==",
         "dependencies": {
-          "Castle.Core": "4.4.0"
+          "Castle.Core": "4.4.1"
         }
       },
       "Config.Net.Json": {
@@ -59,47 +59,52 @@
       },
       "NLog": {
         "type": "Direct",
-        "requested": "[4.7.10, )",
-        "resolved": "4.7.10",
-        "contentHash": "rcegW7kYOCjl7wX0SzsqpPBqnJ51JKi1WkYb6QBVX0Wc5IgH19Pv4t/co+T0s06OS0Ne44xgkY/mHg0PdrmJow=="
+        "requested": "[4.7.15, )",
+        "resolved": "4.7.15",
+        "contentHash": "vXMmsK17hXnMsKd8BdCrJzvb8JMT0+cPgBGRfnqcXIb6y8b6RMIZexO4hMhQgifcTHgU7dbubvCR5A5wX6Ne+A=="
       },
       "Octokit": {
         "type": "Direct",
-        "requested": "[0.50.0, )",
-        "resolved": "0.50.0",
-        "contentHash": "J5vqespSvjxIAAtjG1Tc6ghBqyfRgDJtKnk/ifi4N0hD/f3JbPwyEDRT+Eelu/bS4C4M6mu5gt1WJqar+fByzg=="
+        "requested": "[0.52.0, )",
+        "resolved": "0.52.0",
+        "contentHash": "pt3YEYOzLVASiofJni6TTt/3gGZfdw9c4ENkXC7WyAaIfnhYve8y7zh3t5Q3wZ9ARtddY5Nzm5mOMnuUkg0AFQ=="
       },
       "PgpCore": {
         "type": "Direct",
-        "requested": "[5.2.0, )",
-        "resolved": "5.2.0",
-        "contentHash": "NWuMzPQusUOB5dQYmPDUsVaFOhQ/D8DNDBH1m83qvAJvB2zPNi57vk/jjT0f3h2yFYoi3b66zrqPyUFZfta4yA==",
+        "requested": "[5.13.1, )",
+        "resolved": "5.13.1",
+        "contentHash": "wKcswsLB5BLJLyC+Ia2ZFPU/LlycnoGvcrKHFbIpa3dhmxLp0QcQxGNkLRIeKzIDVEa1ZFya882kEkt+xC8ZXQ==",
         "dependencies": {
-          "Portable.BouncyCastle": "1.8.9"
+          "BouncyCastle.Cryptography": "2.1.1"
         }
       },
       "SharedMemory": {
         "type": "Direct",
-        "requested": "[2.2.3, )",
-        "resolved": "2.2.3",
-        "contentHash": "eR91cl7nHM9YzMxRukwR6jZzO1Dx31agMlgSYgJ3pOeNHXdXesqtmMA+7WbEw1A/cBk5P5kjAUNOMvBXkwvyaQ=="
+        "requested": "[2.3.2, )",
+        "resolved": "2.3.2",
+        "contentHash": "hH34Y9xzvdJpgf/vwyWE/zYlY4BdQS3Zolfdg+8hV9A+UQRsBWyBS62kcLO55mF4etmMoL0PswEbT3lVXJSlFw=="
       },
       "SharpVectors": {
         "type": "Direct",
-        "requested": "[1.7.1, )",
-        "resolved": "1.7.1",
-        "contentHash": "kTiP4pkyW0qPQMxyIYsH7r9wl+cSAmk5ySynhQvc/Ma6bgH9pWWJtM6dvEIoRM4uV2C0QIhWDQeWcTN//0XP9g=="
+        "requested": "[1.8.6, )",
+        "resolved": "1.8.6",
+        "contentHash": "XXeffdyM6CRwW7n7RhNOwhmwnpJHZY1TjVmEQIzrd9xoJHZyDOXQA8gAw7tbI4iXnpezFD7XNuAuC0MhrOBrhA=="
       },
       "WpfScreenHelper": {
         "type": "Direct",
-        "requested": "[2.1.0, )",
-        "resolved": "2.1.0",
-        "contentHash": "ZzS/lkme7QcYIvQgsVw9D1OuI/fSrNnoDXXDCrFmacYVvdGXOQlGEeQBbKdBP9r4k+3CsUQMZq59RU99I9Mjhw=="
+        "requested": "[2.1.1, )",
+        "resolved": "2.1.1",
+        "contentHash": "xNgiwHaLXOYE4jYYIQ7ddDtsN8diUnjl9t07INUA2pN6Bi/czRjbNwDYyljmixOnLjTv4NU8beDUe+wp1PMi4g=="
+      },
+      "BouncyCastle.Cryptography": {
+        "type": "Transitive",
+        "resolved": "2.1.1",
+        "contentHash": "NNQaa4eyf5YjSdLKUWGPzq5HXZQc3yGybfIOkR6UY1C/rRFWdo0UhSzBqqnxwGnq3ie4vkN0JlzhhANjfTIJIQ=="
       },
       "Castle.Core": {
         "type": "Transitive",
-        "resolved": "4.4.0",
-        "contentHash": "b5rRL5zeaau1y/5hIbI+6mGw3cwun16YjkHZnV9RRT5UyUIFsgLmNXJ0YnIN9p8Hw7K7AbG1q1UclQVU3DinAQ==",
+        "resolved": "4.4.1",
+        "contentHash": "zanbjWC0Y05gbx4eGXkzVycOQqVOFVeCjVsDSyuao9P4mtN1w3WxxTo193NGC7j3o2u3AJRswaoC6hEbnGACnQ==",
         "dependencies": {
           "NETStandard.Library": "1.6.1"
         }
@@ -192,18 +197,13 @@
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
-      },
-      "Portable.BouncyCastle": {
-        "type": "Transitive",
-        "resolved": "1.8.9",
-        "contentHash": "wlJo8aFoeyl+W93iFXTK5ShzDYk5WBqoUPjTNEM0Xv9kn1H+4hmuCjF0/n8HLm9Nnp1aY6KNndWqQTNk+NGgRQ=="
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
       },
       "SocketIOClient": {
         "type": "Transitive",
-        "resolved": "2.2.0",
-        "contentHash": "vcHjmA15Vd+5e9Es6ypJOdCk//IbBN4+8L2zh7cns02Jjr/OMWWSUdojaHaWtzD7HlBsCM4VAN52HSIcrlKEKw=="
+        "resolved": "2.3.1",
+        "contentHash": "CcFvfJ0qD3JWw9J+TwEXn4GLSJcKqzD89S1EJNpCCfm97+IfoIhCTJIabeTti4utFIfORajOhalOPYLCK8UlRA=="
       },
       "System.Interactive.Async": {
         "type": "Transitive",
@@ -227,18 +227,18 @@
         "type": "Project",
         "dependencies": {
           "AUOffsetManager": "[1.0.0, )",
-          "Config.Net": "[4.15.0, )",
+          "Config.Net": "[4.19.0, )",
           "Config.Net.Json": "[4.15.0, )",
           "Discord.Net": "[2.4.0, )",
-          "NLog": "[4.7.10, )",
-          "SocketIOClient": "[2.2.0, )",
+          "NLog": "[4.7.15, )",
+          "SocketIOClient": "[2.3.1, )",
           "WebSocketSharp": "[1.0.3-rc11, )"
         }
       },
       "auoffsetmanager": {
         "type": "Project",
         "dependencies": {
-          "Newtonsoft.Json": "[13.0.1, )"
+          "Newtonsoft.Json": "[13.0.4, )"
         }
       }
     }

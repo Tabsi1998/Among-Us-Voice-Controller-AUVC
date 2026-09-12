@@ -27,18 +27,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Config.Net" Version="4.15.0" />
+    <PackageReference Include="Config.Net" Version="4.19.0" />
     <!-- Config.Net 4.15.0 reaches System.Drawing.Common 4.7.0 through
          System.Configuration.ConfigurationManager, and that version carries a
          critical advisory (GHSA-rxg9-xrhp-64gj). The modern ConfigurationManager
          has no such dependency, so pinning it directly removes the vulnerable
          package instead of taking an untested Config.Net major. -->
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.12" />
     <PackageReference Include="Config.Net.Json" Version="4.15.0" />
     <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
-    <PackageReference Include="NLog" Version="4.7.10" />
-    <PackageReference Include="SocketIOClient" Version="2.2.0" />
+    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="SocketIOClient" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
