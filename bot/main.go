@@ -152,9 +152,6 @@ func discordMainWrapper() error {
 	pairingService := pairing.NewService(auvcDB)
 	auvcService := au.NewServiceWithPairing(auvcDB, pairingService, version, commit)
 
-	stopCaptureListener := startCaptureListener(pairingService)
-	defer stopCaptureListener()
-
 	go func() {
 		err := psql.ExecFromString(postgresFileContents)
 		if err != nil {
@@ -188,6 +185,12 @@ func discordMainWrapper() error {
 	if b == nil {
 		return errors.New("bot failed to initialize; did you provide a valid Discord Bot Token?")
 	}
+
+	// The capture listener starts after the bot, because the bot is what
+	// applies the messages it receives.
+	b.AUVCLinks = auvcDB
+	stopCaptureListener := startCaptureListener(pairingService, b)
+	defer stopCaptureListener()
 
 	b.InitTokenProvider(tokenProvider)
 	b.TokenProvider = tokenProvider

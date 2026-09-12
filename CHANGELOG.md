@@ -6,6 +6,22 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Phase 14 begins: a connected capture now drives Discord voice without Redis.
+  `session.Live` holds the running session, `(*Bot).HandleCapture` applies the
+  protocol messages to it, in-game names resolve through the SQLite player
+  links, and the existing voice policy and reconciler do the rest. This is the
+  first path from a game to a muted player that touches neither Redis nor
+  Postgres; removing the legacy one follows.
+- A snapshot replaces the player set instead of merging into it. After a
+  reconnect the bot cannot know which of the players it remembers are still in
+  the game, and keeping a stale one would mean managing the voice of somebody
+  who left.
+- Only messages that can change the voice picture cause a reconciliation. A
+  heartbeat, or a phase change to the phase already in effect, does not, so
+  the bot does not talk to Discord every few seconds for no reason.
+
+### Added
+
 - Phase 13 completed: the capture side of the connection. `capture/AUVC.Transport`
   builds and numbers protocol messages, runs the handshake, redeems a pairing
   code against the bot and keeps the credential it gets back. The connection

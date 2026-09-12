@@ -51,6 +51,16 @@ type Bot struct {
 
 	AUVC *au.Service
 
+	// CaptureSessions holds the live session of every guild whose capture is
+	// connected directly. It replaces the Redis-backed game state for that
+	// path: a self-hosted bot is one process, so a session that lives in it
+	// needs no external store to be found again.
+	CaptureSessions *CaptureSessions
+
+	// AUVCLinks reads the persistent player links the capture path resolves
+	// in-game names with.
+	AUVCLinks LinkStore
+
 	// Reconciler applies the voice policy. It is held on the bot rather than
 	// created per call because it serializes work per guild, which only works
 	// if every reconciliation goes through the same instance.
@@ -85,6 +95,7 @@ func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisI
 		PostgresInterface: psql,
 		AUVC:              auvc,
 		Reconciler:        voice.NewReconciler(discordApplier{session: dg}),
+		CaptureSessions:   NewCaptureSessions(),
 		logPath:           logPath,
 		captureTimeout:    GameTimeoutSeconds,
 	}
