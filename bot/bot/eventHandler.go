@@ -9,13 +9,11 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/discord"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/task"
 	"github.com/go-redis/redis/v8"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -57,14 +55,6 @@ func (bot *Bot) SubscribeToGameByConnectCode(guildID, connectCode string, endGam
 				bot.refreshGameLiveness(connectCode)
 				bot.RedisInterface.RefreshActiveGame(guildID, connectCode)
 
-				gameEvent := storage.PostgresGameEvent{
-					GameID:    -1,
-					UserID:    nil,
-					EventTime: int32(time.Now().Unix()),
-					EventType: int16(job.JobType),
-					Payload:   job.Payload.(string),
-				}
-				correlatedUserID := ""
 				sett := bot.StorageInterface.GetGuildSettings(guildID)
 
 				switch job.JobType {
@@ -127,7 +117,6 @@ func (bot *Bot) SubscribeToGameByConnectCode(guildID, connectCode string, endGam
 							},
 						))
 					}
-					correlatedUserID = userID
 				case task.GameOverJob:
 					var gameOverResult game.Gameover
 					// log.Println("Successfully identified game over event:")
@@ -167,8 +156,6 @@ func (bot *Bot) SubscribeToGameByConnectCode(guildID, connectCode string, endGam
 								go MessageDeleteWorker(bot.PrimarySession, msg.ChannelID, msg.ID, time.Minute*time.Duration(delTime))
 							}
 						}
-						go dumpGameToPostgres(*dgs, bot.PostgresInterface, gameOverResult)
-
 						// refresh the game message if the setting is marked (it is not locked, the previous dgs is
 						// read-only). This means the original msg is refreshed, not the gameover message
 						if sett.AutoRefresh {
@@ -184,29 +171,6 @@ func (bot *Bot) SubscribeToGameByConnectCode(guildID, connectCode string, endGam
 						dgs.MatchStartUnix = -1
 						bot.RedisInterface.SetDiscordGameState(dgs, lock)
 					}
-				}
-				if job.JobType != task.ConnectionJob {
-					go func(userID string, ge storage.PostgresGameEvent) {
-						dgs := bot.RedisInterface.GetReadOnlyDiscordGameState(dgsRequest)
-						if dgs != nil && dgs.MatchID > 0 && dgs.MatchStartUnix > 0 {
-							ge.GameID = dgs.MatchID
-							if userID != "" {
-								num, err := strconv.ParseUint(userID, 10, 64)
-								if err != nil {
-									log.Println(err)
-									ge.UserID = nil
-								} else {
-									ge.UserID = &num
-								}
-								log.Printf("Adding postgres event with user id %d\n", ge.UserID)
-							}
-
-							err := bot.PostgresInterface.AddEvent(&ge)
-							if err != nil {
-								log.Println(err)
-							}
-						}
-					}(correlatedUserID, gameEvent)
 				}
 			}
 
@@ -363,9 +327,8 @@ func (bot *Bot) processTransition(phase game.Phase, dgsRequest GameStateRequest)
 	if oldPhase == game.LOBBY && phase == game.TASKS {
 		matchStart := time.Now().Unix()
 		dgs.MatchStartUnix = matchStart
-		gameID := startGameInPostgres(*dgs, bot.PostgresInterface)
-		dgs.MatchID = int64(gameID)
-		log.Printf("New match has begun. ID %d and starttime %d\n", gameID, matchStart)
+		dgs.MatchID = -1
+		log.Printf("New match has begun at %d\n", matchStart)
 	}
 
 	bot.RedisInterface.SetDiscordGameState(dgs, lock)
@@ -419,100 +382,4 @@ func (bot *Bot) processLobby(sett *settings.GuildSettings, lobby game.Lobby, dgs
 	bot.RedisInterface.SetDiscordGameState(dgs, lock)
 
 	bot.DispatchRefreshOrEdit(dgs, dgsRequest, sett)
-}
-
-func startGameInPostgres(dgs GameState, psql *storage.PsqlInterface) uint64 {
-	if dgs.MatchStartUnix < 0 {
-		return 0
-	}
-	gid, err := strconv.ParseUint(dgs.GuildID, 10, 64)
-	if err != nil {
-		log.Println(err)
-		return 0
-	}
-	pgame := &storage.PostgresGame{
-		GameID:      -1,
-		GuildID:     gid,
-		ConnectCode: dgs.ConnectCode,
-		StartTime:   int32(dgs.MatchStartUnix),
-		WinType:     -1,
-		EndTime:     -1,
-	}
-	i, err := psql.AddInitialGame(pgame)
-	if err != nil {
-		log.Println(err)
-	}
-	return i
-}
-
-func dumpGameToPostgres(dgs GameState, psql *storage.PsqlInterface, gameOver game.Gameover) {
-	if dgs.MatchID < 0 || dgs.MatchStartUnix < 0 {
-		log.Println("dgs match id or start time is <0; not dumping game to Postgres")
-		return
-	}
-	end := time.Now().Unix()
-
-	userGames := make([]*storage.PostgresUserGame, 0)
-
-	imposterWin := gameOver.GameOverReason == game.ImpostorByKill ||
-		gameOver.GameOverReason == game.ImpostorBySabotage ||
-		gameOver.GameOverReason == game.ImpostorByVote ||
-		gameOver.GameOverReason == game.ImpostorDisconnect
-
-	for _, v := range dgs.UserData {
-		if v.GetPlayerName() != amongus.UnlinkedPlayerName {
-			inGameData, found := dgs.GameData.GetByName(v.GetPlayerName())
-			if !found {
-				log.Println("No game data found for that player")
-				continue
-			}
-
-			uid, err := strconv.ParseUint(v.User.UserID, 10, 64)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			gid, err := strconv.ParseUint(dgs.GuildID, 10, 64)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			puser, err := psql.EnsureUserExists(uid)
-			if err != nil || puser == nil {
-				log.Println(err)
-				continue
-			}
-
-			// assume crewmate by default
-			won := !imposterWin
-			role := game.CrewmateRole
-			for _, pi := range gameOver.PlayerInfos {
-				// only override for the imposters
-				if pi.IsImpostor {
-					if strings.EqualFold(pi.Name, inGameData.Name) {
-						role = game.ImposterRole
-						won = imposterWin
-						break
-					}
-				}
-			}
-
-			userGames = append(userGames, &storage.PostgresUserGame{
-				UserID:      puser.UserID,
-				GuildID:     gid,
-				GameID:      dgs.MatchID,
-				PlayerName:  inGameData.Name,
-				PlayerColor: int16(inGameData.Color),
-				PlayerRole:  int16(role),
-				PlayerWon:   won,
-			})
-		}
-	}
-	log.Printf("Game %d has been completed and recorded in postgres\n", dgs.MatchID)
-
-	err := psql.UpdateGameAndPlayers(dgs.MatchID, int16(gameOver.GameOverReason), end, userGames)
-	if err != nil {
-		log.Println(err)
-	}
 }

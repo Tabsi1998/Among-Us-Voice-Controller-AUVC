@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"sync"
 	"time"
 
@@ -18,7 +17,6 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/rediskey"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/settings"
-	storageutils "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/token"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
@@ -47,8 +45,6 @@ type Bot struct {
 
 	StorageInterface *storage.StorageInterface
 
-	PostgresInterface *storageutils.PsqlInterface
-
 	AUVC *au.Service
 
 	// CaptureSessions holds the live session of every guild whose capture is
@@ -73,7 +69,7 @@ type Bot struct {
 
 // MakeAndStartBot does what it sounds like
 // TODO collapse these fields into proper structs?
-func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, psql *storageutils.PsqlInterface, auvc *au.Service, logPath string) *Bot {
+func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisInterface *RedisInterface, storageInterface *storage.StorageInterface, auvc *au.Service, logPath string) *Bot {
 	dg, err := discordgo.New("Bot " + botToken)
 	if err != nil {
 		log.Println("error creating Discord session,", err)
@@ -87,17 +83,16 @@ func MakeAndStartBot(version, commit, botToken, url, emojiGuildID string, redisI
 		ConnsToGames: make(map[string]string),
 		StatusEmojis: emptyStatusEmojis(),
 
-		EndGameChannels:   make(map[string]chan EndGameMessage),
-		ChannelsMapLock:   sync.RWMutex{},
-		PrimarySession:    dg,
-		RedisInterface:    redisInterface,
-		StorageInterface:  storageInterface,
-		PostgresInterface: psql,
-		AUVC:              auvc,
-		Reconciler:        voice.NewReconciler(discordApplier{session: dg}),
-		CaptureSessions:   NewCaptureSessions(),
-		logPath:           logPath,
-		captureTimeout:    GameTimeoutSeconds,
+		EndGameChannels:  make(map[string]chan EndGameMessage),
+		ChannelsMapLock:  sync.RWMutex{},
+		PrimarySession:   dg,
+		RedisInterface:   redisInterface,
+		StorageInterface: storageInterface,
+		AUVC:             auvc,
+		Reconciler:       voice.NewReconciler(discordApplier{session: dg}),
+		CaptureSessions:  NewCaptureSessions(),
+		logPath:          logPath,
+		captureTimeout:   GameTimeoutSeconds,
 	}
 	dg.LogLevel = discordgo.LogInformational
 
@@ -162,18 +157,6 @@ var EmojiLock = sync.Mutex{}
 
 func (bot *Bot) newGuild(emojiGuildID string) func(s *discordgo.Session, m *discordgo.GuildCreate) {
 	return func(s *discordgo.Session, m *discordgo.GuildCreate) {
-		gid, err := strconv.ParseUint(m.Guild.ID, 10, 64)
-		if err != nil {
-			log.Println(err)
-		}
-
-		go func() {
-			_, err = bot.PostgresInterface.EnsureGuildExists(gid, m.Guild.Name)
-			if err != nil {
-				log.Println(err)
-			}
-		}()
-
 		log.Printf("Added to new Guild, id %s, name %s", m.Guild.ID, m.Guild.Name)
 		bot.RedisInterface.AddUniqueGuildCounter(m.Guild.ID)
 
@@ -289,15 +272,11 @@ func (bot *Bot) getInfo() command.BotInfo {
 	totalGuilds := rediskey.GetGuildCounter(context.Background(), bot.RedisInterface.client)
 	activeGames := rediskey.GetActiveGames(context.Background(), bot.RedisInterface.client, GameTimeoutSeconds)
 
+	// The lifetime totals came from the hosted deployment's Postgres database.
+	// A self-hosted bot has no such history, so the counters report what this
+	// process can actually see rather than a number that would always be zero.
 	totalUsers := rediskey.GetTotalUsers(context.Background(), bot.RedisInterface.client)
-	if totalUsers == rediskey.NotFound {
-		totalUsers = rediskey.RefreshTotalUsers(context.Background(), bot.RedisInterface.client, bot.PostgresInterface.Pool)
-	}
-
 	totalGames := rediskey.GetTotalGames(context.Background(), bot.RedisInterface.client)
-	if totalGames == rediskey.NotFound {
-		totalGames = rediskey.RefreshTotalGames(context.Background(), bot.RedisInterface.client, bot.PostgresInterface.Pool)
-	}
 	return command.BotInfo{
 		Version:     bot.version,
 		Commit:      bot.commit,

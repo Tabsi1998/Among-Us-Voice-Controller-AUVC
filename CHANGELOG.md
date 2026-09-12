@@ -4,6 +4,24 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Removed
+
+- PostgreSQL is gone, with everything that only existed to feed it: match
+  history, per-event recording, the cached user data, and the `/stats`,
+  `/download` and `/privacy` commands. AUVC is a self-hosted voice controller
+  for one server, and a match-history warehouse was part of the hosted service
+  it is not.
+- `jackc/*`, `scany` and `pgxmock` left the module graph entirely: nineteen
+  lines out of `go.mod` and two hundred and ten out of `go.sum`.
+
+### Security
+
+- Both accepted Go vulnerabilities are gone, because the code that reached them
+  is gone. `scripts/check_go_vulnerabilities.py` now reports that no vulnerable
+  code is reachable at all, and its list of accepted advisories is empty. The
+  guard earned its keep on the way out: it failed the build on the two entries
+  that had become stale, which is exactly what it was written to do.
+
 ### Added
 
 - Phase 14 begins: a connected capture now drives Discord voice without Redis.

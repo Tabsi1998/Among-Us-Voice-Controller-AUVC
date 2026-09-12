@@ -27,12 +27,9 @@ var All = []*discordgo.ApplicationCommand{
 	&Link,
 	&Unlink,
 	&Settings,
-	&Privacy,
 	&Info,
 	&Map,
-	&Stats,
 	&Debug,
-	&Download,
 }
 
 func DeadlockGameStateResponse(command string, sett *settings.GuildSettings) *discordgo.InteractionResponse {

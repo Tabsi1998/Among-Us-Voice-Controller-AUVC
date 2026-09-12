@@ -107,9 +107,11 @@ produces one pull request per ecosystem rather than one per package.
 Two sets of packages are deliberately ignored, each with the phase that will
 re-enable them:
 
-- **Redis and PostgreSQL packages** (`go-redis`, `redislock`, `jackc/*`, `scany`,
-  `pgxmock`) are reachable only from the layers phase 14 removes. Updating them
-  means taking breaking-change risk on code with a scheduled deletion date.
+- **Redis packages** (`go-redis`, `redislock`) are reachable only from the layer
+  the rest of phase 14 removes. Updating them means taking breaking-change risk
+  on code with a scheduled deletion date. The PostgreSQL packages are no longer
+  listed because that layer is gone: `jackc/*`, `scany` and `pgxmock` left the
+  module graph entirely, and with them the only two advisories the bot had.
 - **Major bumps of `Discord.Net` and `Config.Net`**, and **major or minor bumps
   of `HandyControl`**, need code changes that belong to the .NET LTS migration in
   phase 11. Until then such a bump only produces a red pull request. HandyControl
