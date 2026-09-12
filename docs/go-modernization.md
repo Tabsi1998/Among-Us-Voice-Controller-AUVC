@@ -11,7 +11,7 @@ left at baseline versions.
 | --- | --- | --- |
 | `bot/go.mod` directive | `go 1.19` | `go 1.27.0` |
 | CI (`.github/workflows/baseline.yml`) | `1.19.13` | `1.27.1` |
-| `deploy/Dockerfile.baseline` build stage | `golang:1.19.13-alpine` | `golang:1.27.1-alpine` |
+| `deploy/Dockerfile` build stage | `golang:1.19.13-alpine` | `golang:1.27.1-alpine` |
 
 Go 1.19 reached end of life long ago and receives no security fixes. Go supports
 the two most recent major releases, currently 1.27 and 1.26; 1.27.1 is the newest

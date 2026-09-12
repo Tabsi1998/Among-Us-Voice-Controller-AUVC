@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/transport"
 )
@@ -19,7 +22,7 @@ import (
 // The listener is off unless AUVC_CAPTURE_ADDR names an address. A bot that is
 // still driven by the legacy transport must not start opening ports nobody
 // asked for.
-func startCaptureListener(pairingService *pairing.Service, handler transport.Handler) func() {
+func startCaptureListener(pairingService *pairing.Service, controller *bot.Bot) func() {
 	address := os.Getenv("AUVC_CAPTURE_ADDR")
 	if address == "" {
 		log.Println("AUVC_CAPTURE_ADDR is not set; the direct capture connection is disabled")
@@ -43,11 +46,11 @@ func startCaptureListener(pairingService *pairing.Service, handler transport.Han
 			address)
 	}
 
-	server := transport.NewServer(pairingService, handler, nil)
+	server := transport.NewServer(pairingService, controller, nil)
 
 	httpServer := &http.Server{
 		Addr:    address,
-		Handler: server.Routes(),
+		Handler: routes(server, controller),
 		// A handshake that stalls must not hold a connection open forever. The
 		// WebSocket itself manages its own deadlines once it is upgraded.
 		ReadHeaderTimeout: 10 * time.Second,
@@ -74,5 +77,47 @@ func startCaptureListener(pairingService *pairing.Service, handler transport.Han
 		if err := httpServer.Shutdown(ctx); err != nil {
 			log.Println("Capture listener did not shut down cleanly:", err)
 		}
+	}
+}
+
+// routes puts the health endpoint beside the capture endpoints.
+//
+// It lives here rather than in pkg/transport because it is about this process
+// being able to do its job, not about the capture protocol.
+func routes(server *transport.Server, controller *bot.Bot) http.Handler {
+	mux := http.NewServeMux()
+	mux.Handle("/", server.Routes())
+	mux.HandleFunc("/healthz", health(controller))
+	return mux
+}
+
+// health answers whether AUVC can actually work right now.
+//
+// A container health check that only proves the process is running is worth
+// little: a bot that lost its Discord connection or its database is exactly as
+// useless as one that crashed, and only the crash restarts itself. So this
+// checks the two things the bot cannot do without.
+//
+// It says which one failed, because "unhealthy" on its own sends an operator
+// reading logs they may not have kept.
+func health(controller *bot.Bot) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var problems []string
+
+		if controller.PrimarySession == nil || controller.PrimarySession.State == nil ||
+			controller.PrimarySession.State.User == nil {
+			problems = append(problems, "no Discord connection")
+		}
+		if _, err := controller.AUVC.SchemaVersion(); err != nil {
+			problems = append(problems, "database unreachable")
+		}
+
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		if len(problems) > 0 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			fmt.Fprintln(w, "unhealthy: "+strings.Join(problems, ", "))
+			return
+		}
+		fmt.Fprintln(w, "ok")
 	}
 }

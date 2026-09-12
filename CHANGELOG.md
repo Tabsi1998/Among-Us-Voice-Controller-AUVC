@@ -4,6 +4,24 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- Self-hosting is one `docker compose up`. `deploy/docker-compose.yml` runs a
+  single service with a volume for the SQLite file, `deploy/.env.example`
+  documents every setting without holding a token, and `deploy/README.md` walks
+  through the first run, the Discord permissions, upgrading and backups.
+- `GET /healthz` answers whether AUVC can actually work: it checks the Discord
+  connection and the database and names what failed. A check that only proved
+  the process was running would be worth little, because a bot that lost
+  either is as useless as one that crashed and only the crash restarts itself.
+- The image declares a `HEALTHCHECK`, and CI fails if a future change drops it.
+
+### Changed
+
+- `deploy/Dockerfile.baseline` is now `deploy/Dockerfile`. It described itself
+  as a build-only baseline that still ran the legacy services; those services
+  are gone, so it is simply the image.
+
 ### Removed
 
 - The capture app's self-updater. It downloaded releases from AutoMuteUs's

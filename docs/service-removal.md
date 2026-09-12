@@ -56,7 +56,7 @@ counters. Where a counter formed the entire body of a conditional, the
 conditional was collapsed instead of being left empty, and the variables that
 only fed it (`deleted`, `created`, `edited`) became plain calls.
 
-`EXPOSE 5000 8080 2112` was dropped from `deploy/Dockerfile.baseline` because all
+`EXPOSE 5000 8080 2112` was dropped from `deploy/Dockerfile` because all
 three ports are gone.
 
 ### Worker bot token pool

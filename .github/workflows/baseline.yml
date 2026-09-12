@@ -128,16 +128,19 @@ jobs:
           retention-days: 7
 
   docker:
-    name: Docker baseline build
+    name: Docker image build
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Build without publishing
-        run: docker build -f deploy/Dockerfile.baseline --build-arg COMMIT="$GITHUB_SHA" -t auvc:baseline .
+        run: docker build -f deploy/Dockerfile --build-arg COMMIT="$GITHUB_SHA" -t auvc:baseline .
       - name: Check runtime image contract
         run: |
           test "$(docker inspect --format '{{.Config.User}}' auvc:baseline)" = auvc
           test "$(docker inspect --format '{{json .Config.Volumes}}' auvc:baseline)" = '{"/data":{}}'
+          # A published image without a health check leaves an operator to
+          # discover a dead bot themselves.
+          test -n "$(docker inspect --format '{{json .Config.Healthcheck}}' auvc:baseline)"
           docker run --rm --entrypoint sh auvc:baseline -c 'test -x /app/auvc && test -r /app/LICENSES/AutoMuteUs-MIT.txt && test -r /app/LICENSES/AmongUsCapture-MIT.txt && test -w /data && test "$AUVC_DATABASE_PATH" = /data/amongus.db'

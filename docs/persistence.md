@@ -14,7 +14,7 @@ is one process.
 `modernc.org/sqlite`, a pure-Go implementation, not the more common
 cgo-based `mattn/go-sqlite3`.
 
-`deploy/Dockerfile.baseline` builds with `CGO_ENABLED=0`. A cgo driver would not
+`deploy/Dockerfile` builds with `CGO_ENABLED=0`. A cgo driver would not
 link there at all, and switching the image to cgo would mean shipping a C
 toolchain and losing the static binary. The pure-Go driver is verified to build
 both with `CGO_ENABLED=0` and cross-compiled to `linux/amd64`.
