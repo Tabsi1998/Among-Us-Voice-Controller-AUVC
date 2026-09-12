@@ -6,6 +6,25 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- A release workflow. A `v*` tag builds the bot for Windows x64 and Linux
+  amd64/arm64, the self-contained capture payload and the container image,
+  publishes the image to GHCR and creates the GitHub release with checksums.
+  Running it on demand builds everything and publishes nothing, so the pipeline
+  can be exercised without producing a release nobody asked for.
+- The gates run again against the exact commit being released. Trusting the
+  pull request that led there would mean releasing a combination nothing ever
+  tested.
+- A pre-release tag never becomes `:latest`. Somebody pulling `latest` is asking
+  for the version they are meant to run.
+- Release notes come from `CHANGELOG.md` through `scripts/release_notes.py`,
+  which fails when the version has no section. Writing them is part of
+  preparing a release, and a silent fallback is how that step gets skipped
+  forever.
+- Licences travel with every artifact. A downloaded executable with no notices
+  beside it is what those files exist to prevent.
+
+### Added
+
 - The bot ships as a plain executable as well as a container: Windows x64 for
   running it on the same PC as the game, Linux amd64 and arm64 for a server, a
   NAS or a Raspberry Pi. It is a single static binary with nothing to install,
