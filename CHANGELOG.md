@@ -4,6 +4,21 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Removed
+
+- `AUCapture-Console`, the Linux D-Bus console host. It shipped in no release
+  artifact and spoke the socket transport whose bot-side counterpart phase 14
+  deleted, so it talked to something that no longer exists.
+
+### Fixed
+
+- Every NuGet update pull request failed the Windows job, whatever it bumped.
+  `AUCapture-Console` depended on `Mono.Posix`, which made NuGet record a
+  runtime-identifier target in its lock file — and the identifier is whatever
+  host ran the restore. Dependabot restores on Linux, CI restores on Windows,
+  and `--locked-mode` refused the mismatch with `NU1004`. The lock files are
+  platform independent now.
+
 ### Added
 
 - The capture fail-safe. A capture that dies mid-round used to leave every

@@ -62,10 +62,9 @@ project file. The backlog is measurable rather than implied:
 | AUOffsetHelper | enabled | 0 |
 | AUOffsetManager | disabled | 56 |
 | AmongUsCapture | disabled | 168 |
-| AUCapture-Console | disabled | 194 |
 | AUCapture-WPF | disabled | 572 |
 
-A full rebuild reports around 104 compiler warnings, none of them errors. The
+A full rebuild reports around 144 compiler warnings, none of them errors. The
 largest groups are `CS8632` (nullable annotations in code compiled without the
 nullable context), `CS0168`/`CS0169` (unused locals and fields), `SYSLIB0021`
 and `SYSLIB0014` (APIs the newer framework marks obsolete) and `CA1416`
@@ -146,11 +145,18 @@ back.
 
 ### NuGet updates and the lock files
 
+The lock files are platform independent, which they were not before
+`AUCapture-Console` was removed. That project depended on `Mono.Posix`, which
+made NuGet record a runtime-identifier target in its lock file — and the
+identifier is whatever host ran the restore. Dependabot restores on Linux and
+CI restores on Windows, so every NuGet bump failed the Windows job with
+`NU1004` no matter what the bump was.
+
 CI restores with `dotnet restore --locked-mode`, so `packages.lock.json` must
 match the project files exactly. Dependabot updates the `.csproj` of the package
 it bumps and that project's lock file, but **not** the lock files of projects
-that reference it. `AUCapture-Console` and `AUCapture-WPF` both reference
-`AmongUsCapture`, so a bump there fails the Windows job with:
+that reference it. `AUCapture-WPF` references `AmongUsCapture`, so a bump
+there fails the Windows job with:
 
 ```
 error NU1004: The project references amonguscapture whose dependencies has changed.
