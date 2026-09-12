@@ -6,6 +6,25 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- A Windows installer for the capture app, built by the release workflow from
+  the same payload the portable zip contains, so the two are one application
+  offered two ways rather than two builds that can disagree.
+- It installs per user with no elevation, refuses to install over a running
+  capture, and keeps settings and the paired credential through an upgrade. An
+  upgrade that made a working install pair again is an upgrade people avoid.
+- Uninstalling asks separately whether to delete local data, and says plainly
+  that removing the credential from the PC is not the same as revoking it:
+  the bot still accepts it until somebody runs `/au capture revoke`. The two
+  are easy to confuse and only one of them closes the door.
+- `docs/installer-decision.md` records why Inno Setup rather than WiX, MSIX or
+  Squirrel. MSIX was decisive: Windows refuses to install one unsigned at all.
+- The installer is unsigned, and what that looks like is written down rather
+  than left as a surprise. Somebody who is not expecting the SmartScreen
+  warning concludes the download is broken; somebody who is expecting it clicks
+  through anything that looks similar.
+
+### Added
+
 - A release workflow. A `v*` tag builds the bot for Windows x64 and Linux
   amd64/arm64, the self-contained capture payload and the container image,
   publishes the image to GHCR and creates the GitHub release with checksums.

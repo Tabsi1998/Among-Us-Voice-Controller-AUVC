@@ -65,6 +65,22 @@ Members**. Without Move Members it cannot run ghost chat; without Deafen Members
 the living can hear the dead during tasks. `/au doctor` names any that are
 missing and what each one breaks.
 
+## Install the capture app
+
+On the Windows PC that plays Among Us, either:
+
+- **`AmongUsVoiceCapture-Setup-win-x64.exe`** — installs for you only, no
+  administrator needed, with a Start Menu entry and an uninstaller.
+- **`AmongUsVoiceCapture-win-x64.zip`** — unpack and run, installs nothing.
+
+Both contain the same application and neither needs .NET installed.
+
+**Windows will warn you.** The installer is not signed yet, so SmartScreen says
+*"Windows protected your PC — Unknown publisher"*. Click **More info**, then
+**Run anyway**. If you would rather check the download first, `SHA256SUMS` on the
+release page lists the expected hash of every file; that proves the file matches
+what the release says, not who built it. Signing is planned and tracked in #24.
+
 ## Set it up in Discord
 
 ```text

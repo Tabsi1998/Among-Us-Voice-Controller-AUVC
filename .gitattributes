@@ -9,6 +9,9 @@
 # Read by Docker Compose on Linux, so it keeps Unix line endings even when
 # it is edited on Windows.
 deploy/.env.example text eol=lf
+# Inno Setup reads UTF-8 only with a byte order mark, so the script must not be
+# renormalised on the way through Git.
+installer/*.iss -text
 /LICENSE text eol=lf
 /.editorconfig text eol=lf
 /.gitattributes text eol=lf
