@@ -86,6 +86,11 @@ type guildSession struct {
 	// evidently alive.
 	lastSeen time.Time
 
+	// captureSession is the protocol session the guild is currently
+	// following. The protocol receiver lives per connection, so it cannot
+	// know that another connection replaced it: that is decided here.
+	captureSession string
+
 	// stalled marks a session the capture timeout interrupted, and
 	// stalledFrom is the mode it was in at the time. Capture coming back
 	// restores what the administrator chose, rather than leaving a session
@@ -176,6 +181,10 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 	guild := bot.CaptureSessions.forGuild(guildID)
 
 	guild.mu.Lock()
+	if !guild.follows(message) {
+		guild.mu.Unlock()
+		return nil
+	}
 	changed, err := applyCaptureMessage(guild.live, message)
 	mode := guild.mode
 	guild.mu.Unlock()
@@ -380,4 +389,32 @@ func (bot *Bot) PauseSession(guildID string) Mode {
 func (bot *Bot) StopSession(guildID string) error {
 	bot.CaptureSessions.SetMode(guildID, Stopped)
 	return bot.releaseEveryone(guildID)
+}
+
+// follows reports whether a message belongs to the capture session this guild
+// is currently listening to, adopting a new one when it introduces itself.
+//
+// Every connection gets its own protocol receiver, and a receiver cannot know
+// that a newer connection has replaced it. So a capture that reconnects while
+// the previous socket is still draining would otherwise have both streams
+// writing the same session, and the older one would undo the snapshot that just
+// rebuilt the round.
+//
+// A snapshot is what takes over, because the protocol requires one before any
+// event on every connection: the first thing a new session says is always a
+// complete picture. Anything else from a session this guild is not following is
+// late by definition and is dropped.
+//
+// The caller holds the lock.
+func (g *guildSession) follows(message protocol.Message) bool {
+	incoming := protocol.Envelope(message).Session
+	if incoming == "" || incoming == g.captureSession {
+		return true
+	}
+
+	if _, isSnapshot := message.(*protocol.Snapshot); isSnapshot {
+		g.captureSession = incoming
+		return true
+	}
+	return false
 }

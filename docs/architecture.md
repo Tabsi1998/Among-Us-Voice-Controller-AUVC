@@ -131,6 +131,16 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   Redis. A self-hosted bot is one process: the session lives in it, the locks are
   mutexes, and the configuration is a file. Six direct Go dependencies remain.
 
+- **One capture per guild:** the protocol receiver lives per connection, so it
+  cannot know that a newer connection has replaced it. A capture that reconnects
+  while the previous socket is still draining would otherwise have both streams
+  writing the same session, and the older one would undo the snapshot that just
+  rebuilt the round. The guild therefore follows one capture session at a time,
+  and a snapshot is what takes over: the protocol requires one before any event
+  on every connection, so the first thing a new session says is always a
+  complete picture. Anything else from a session the guild is not following is
+  late by definition and is dropped.
+
 - **Capture fail-safe:** a capture that dies mid-round would leave every living
   player server-muted and deafened. Nothing in Discord expires a server mute, so
   the players would stay stuck until an administrator noticed. A watchdog checks

@@ -4,6 +4,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Fixed
+
+- A capture that reconnected while its previous socket was still draining
+  could have both connections writing the same guild, and an event from the
+  old one would undo the snapshot that had just rebuilt the round. The
+  protocol receiver lives per connection and cannot know it has been replaced,
+  so the guild now follows one capture session at a time and a snapshot is what
+  takes over. The end-to-end recovery tests found this.
+
+### Added
+
+- Recovery scenarios driven through the real WebSocket server, the real
+  protocol receiver and the real handler: reconnect rebuilding a round, stale
+  events from a replaced connection, duplicates, a bot restart recovered by the
+  next snapshot, a capture crash failing open and resuming on reconnect, and a
+  reconnect that never sends a snapshot being unable to change anything.
+
 ### Removed
 
 - `AUCapture-Console`, the Linux D-Bus console host. It shipped in no release
