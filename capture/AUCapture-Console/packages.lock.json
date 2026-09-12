@@ -28,19 +28,19 @@
       },
       "Castle.Core": {
         "type": "Transitive",
-        "resolved": "4.4.0",
-        "contentHash": "b5rRL5zeaau1y/5hIbI+6mGw3cwun16YjkHZnV9RRT5UyUIFsgLmNXJ0YnIN9p8Hw7K7AbG1q1UclQVU3DinAQ==",
+        "resolved": "4.4.1",
+        "contentHash": "zanbjWC0Y05gbx4eGXkzVycOQqVOFVeCjVsDSyuao9P4mtN1w3WxxTo193NGC7j3o2u3AJRswaoC6hEbnGACnQ==",
         "dependencies": {
           "NETStandard.Library": "1.6.1"
         }
       },
       "Config.Net": {
         "type": "Transitive",
-        "resolved": "4.15.0",
-        "contentHash": "pCaY046DggydAIQ6DjKjIgfR3YoAIZNcSiqvJrOUyjwMxY481pxlv1f7NIW8XH+qPTIHXIZEoTyL+NmEUOxvZA==",
+        "resolved": "4.19.0",
+        "contentHash": "K9gBXM5mwxD0drpCWRg+5V7QIwIuz34XAlwab7PQw5rAuNJBDzTssHvFtCcTa4tp0iW7AWsfma1fQRXpKfP79A==",
         "dependencies": {
-          "Castle.Core": "4.4.0",
-          "System.Configuration.ConfigurationManager": "4.7.0"
+          "Castle.Core": "4.4.1",
+          "System.Configuration.ConfigurationManager": "6.0.0"
         }
       },
       "Config.Net.Json": {
@@ -122,18 +122,18 @@
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
       },
       "NLog": {
         "type": "Transitive",
-        "resolved": "4.7.10",
-        "contentHash": "rcegW7kYOCjl7wX0SzsqpPBqnJ51JKi1WkYb6QBVX0Wc5IgH19Pv4t/co+T0s06OS0Ne44xgkY/mHg0PdrmJow=="
+        "resolved": "4.7.15",
+        "contentHash": "vXMmsK17hXnMsKd8BdCrJzvb8JMT0+cPgBGRfnqcXIb6y8b6RMIZexO4hMhQgifcTHgU7dbubvCR5A5wX6Ne+A=="
       },
       "SocketIOClient": {
         "type": "Transitive",
-        "resolved": "2.2.0",
-        "contentHash": "vcHjmA15Vd+5e9Es6ypJOdCk//IbBN4+8L2zh7cns02Jjr/OMWWSUdojaHaWtzD7HlBsCM4VAN52HSIcrlKEKw=="
+        "resolved": "2.3.1",
+        "contentHash": "CcFvfJ0qD3JWw9J+TwEXn4GLSJcKqzD89S1EJNpCCfm97+IfoIhCTJIabeTti4utFIfORajOhalOPYLCK8UlRA=="
       },
       "System.Configuration.ConfigurationManager": {
         "type": "Transitive",
@@ -176,11 +176,11 @@
         "type": "Project",
         "dependencies": {
           "AUOffsetManager": "[1.0.0, )",
-          "Config.Net": "[4.15.0, )",
+          "Config.Net": "[4.19.0, )",
           "Config.Net.Json": "[4.15.0, )",
           "Discord.Net": "[2.4.0, )",
-          "NLog": "[4.7.10, )",
-          "SocketIOClient": "[2.2.0, )",
+          "NLog": "[4.7.15, )",
+          "SocketIOClient": "[2.3.1, )",
           "System.Configuration.ConfigurationManager": "[10.0.0, )",
           "WebSocketSharp": "[1.0.3-rc11, )"
         }
@@ -188,11 +188,11 @@
       "auoffsetmanager": {
         "type": "Project",
         "dependencies": {
-          "Newtonsoft.Json": "[13.0.1, )"
+          "Newtonsoft.Json": "[13.0.4, )"
         }
       }
     },
-    "net10.0/win-x64": {
+    "net10.0/linux-x64": {
       "Mono.Posix.NETStandard": {
         "type": "Direct",
         "requested": "[1.0.0, )",
