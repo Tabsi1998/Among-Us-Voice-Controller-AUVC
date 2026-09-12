@@ -31,7 +31,7 @@ behavior and shortcuts are deliberate choices. Never show permanent credentials.
 | `AmongUsVoiceCapture-win-x64.zip` | Self-contained portable application |
 | `AUVC-bot-win-x64.zip` | The bot as a Windows executable, for running it on the same PC |
 | `AUVC-bot-linux-amd64.tar.gz`, `AUVC-bot-linux-arm64.tar.gz` | The bot for a server, a NAS or a Raspberry Pi |
-| `SHA256SUMS` | Checksums of the final signed downloadable artifacts |
+| `SHA256SUMS` | Checksums of the downloadable artifacts |
 | Channel-specific signed update manifest | Version, platform, protocol compatibility and verified asset metadata |
 | Release notes, SBOM and provenance | Changes, migration instructions, dependencies and source/build identity |
 | Bot Docker image | The same bot, for anyone who would rather run a container |
@@ -65,9 +65,23 @@ offers an explicit local-data deletion choice; explain that deleting local
 credentials and revoking remote access are distinct actions. Portable mode must
 define its data location and update behavior explicitly.
 
-Choose the installer framework through an ADR based on UX, license/maintenance,
-CI support, MSI semantics and signing. Do not select a framework solely because
-it can wrap a BAT file. The supported .NET LTS payload should be self-contained.
+The installer framework is Inno Setup, chosen and justified in
+[installer-decision.md](installer-decision.md) against WiX/MSI, MSIX and
+Squirrel. The MSI is deferred rather than dropped: its three-field
+`ProductVersion` has no direct representation for `1.2.3-rc.1`, and that
+mapping should be designed and tested when an MSI is actually needed rather
+than guessed now.
+
+**The first releases are unsigned, by owner decision.** SmartScreen shows
+"Windows protected your PC — Unknown publisher", and the person has to click
+**More info** and then **Run anyway**. That is stated in the download
+instructions rather than left as a surprise: somebody who was not expecting
+the warning concludes the download is broken or malicious, and somebody who
+was expecting it clicks through anything that looks similar. `SHA256SUMS`
+published beside the artifacts is what a careful person can check instead,
+which proves the file matches the release page and not who built it.
+Signing is tracked in #24 and changes nothing about the installer except
+that it is signed.
 
 Keep user-facing SemVer and installer versions consistent. Define a deterministic,
 collision-free mapping for preview/stable packages, installation identity and
