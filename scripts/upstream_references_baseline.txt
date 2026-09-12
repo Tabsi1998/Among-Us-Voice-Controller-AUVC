@@ -7,10 +7,6 @@
 bot/PRIVACY.md	automute.us
 bot/README.md	automute.us
 bot/README.md	automuteus.crowdin.com
-bot/bot/command/commands.go	automute.us
-bot/bot/command/help.go	raw.githubusercontent.com/automuteus
-bot/bot/command/info.go	automute.us
-bot/bot/setting/language.go	automuteus.crowdin.com
 bot/locales/active.de.toml	automute.us
 bot/locales/active.de.toml	automuteus.crowdin.com
 bot/locales/active.en.toml	automute.us

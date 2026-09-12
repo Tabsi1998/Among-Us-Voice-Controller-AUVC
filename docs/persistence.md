@@ -4,9 +4,10 @@ Record for
 [issue #5](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/5).
 
 AUVC stores guild configuration and Discord player links in SQLite at
-`/data/amongus.db`, mounted as a Docker volume. It replaced the upstream
-PostgreSQL storage, which phase 14 removed, and replaces the Redis game state
-in the rest of that phase.
+`/data/amongus.db`, mounted as a Docker volume. It is the only store the bot
+has: phase 14 removed the upstream PostgreSQL and Redis layers rather than
+carrying them. The running session lives in memory, because a self-hosted bot
+is one process.
 
 ## Driver choice
 
@@ -86,8 +87,8 @@ means copying the file alone during operation can miss recent writes.
 The bot opens the database from `AUVC_DATABASE_PATH`, defaulting to
 `/data/amongus.db`, and the `/au` application service persists setup, settings
 and player links there. The build-only Docker image creates a non-root-writable
-`/data` volume. Legacy guild settings and active game state still live in Redis until the rest
-of phase 14 moves their callers to AUVC services; the PostgreSQL half is
-already gone, together with match history and the commands that read it. Full
+`/data` volume. Nothing else is persisted: the game state a capture drives is
+rebuilt from the snapshot it sends after every reconnect, so there is nothing
+to keep across a restart that would not be replaced anyway. Full
 container restart/volume recovery remains an acceptance test before issue #5 can
 close.

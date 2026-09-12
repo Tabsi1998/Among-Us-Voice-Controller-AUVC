@@ -35,9 +35,9 @@ func TestSlashCommandHandlerRoutesAUAroundLegacyRedis(t *testing.T) {
 		},
 	}}
 
-	// RedisInterface, StorageInterface and PostgresInterface are deliberately
-	// nil. A panic here would prove that /au still enters a legacy dependency.
-	response := controller.slashCommandHandler(session, interaction)
+	// The bot carries no game state, no session store and no reconciler here.
+	// A panic would prove that /au reaches for something it should not need.
+	response := controller.handleAUCommand(session, interaction)
 	if response == nil || response.Data == nil {
 		t.Fatal("expected an AUVC response")
 	}

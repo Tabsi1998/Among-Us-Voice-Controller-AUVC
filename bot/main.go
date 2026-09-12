@@ -1,29 +1,21 @@
 package main
 
 import (
-	_ "embed"
 	"errors"
-	"fmt"
 	"io"
 	"log"
-	"math/rand"
 	"os"
 	"os/signal"
 	"path"
-	"strconv"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/tokenprovider"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/capture"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/storage"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -33,11 +25,9 @@ var (
 	date    = "unknown"
 )
 
-const (
-	DefaultURL                   = "http://localhost:8123"
-	DefaultDatabasePath          = "/data/amongus.db"
-	DefaultMaxRequests5Sec int64 = 7
-)
+// DefaultDatabasePath is where the container keeps the SQLite database. It is
+// a mounted volume, so a container restart does not lose the configuration.
+const DefaultDatabasePath = "/data/amongus.db"
 
 type registeredCommand struct {
 	GuildID            string
@@ -45,71 +35,22 @@ type registeredCommand struct {
 }
 
 func main() {
-	// seed the rand generator (used for making connection codes)
-	rand.Seed(time.Now().Unix())
-	err := discordMainWrapper()
-	if err != nil {
-		log.Println("Program exited with the following error:")
+	if err := run(); err != nil {
+		log.Println("AUVC exited with the following error:")
 		log.Println(err)
-		return
 	}
 }
 
-func discordMainWrapper() error {
+func run() error {
 	discordToken := os.Getenv("DISCORD_BOT_TOKEN")
 	if discordToken == "" {
 		return errors.New("no DISCORD_BOT_TOKEN provided")
 	}
-	logPath := os.Getenv("LOG_PATH")
-	if logPath == "" {
-		logPath = "./"
+
+	if err := startLogging(); err != nil {
+		return err
 	}
-
-	logEntry := os.Getenv("DISABLE_LOG_FILE")
-	if logEntry == "" {
-		file, err := os.Create(path.Join(logPath, "logs.txt"))
-		if err != nil {
-			return err
-		}
-		mw := io.MultiWriter(os.Stdout, file)
-		log.SetOutput(mw)
-	}
-
-	emojiGuildID := os.Getenv("EMOJI_GUILD_ID")
-
-	log.Println(version + "-" + commit)
-
-	url := os.Getenv("HOST")
-	if url == "" {
-		log.Printf("[Info] No valid HOST provided. Defaulting to %s\n", DefaultURL)
-		url = DefaultURL
-	}
-
-	var redisClient bot.RedisInterface
-	var storageInterface storage.StorageInterface
-
-	redisAddr := os.Getenv("REDIS_ADDR")
-	redisPassword := os.Getenv("REDIS_PASS")
-	if redisAddr != "" {
-		err := redisClient.Init(storage.RedisParameters{
-			Addr:     redisAddr,
-			Username: "",
-			Password: redisPassword,
-		})
-		if err != nil {
-			log.Println(err)
-		}
-		err = storageInterface.Init(storage.RedisParameters{
-			Addr:     redisAddr,
-			Username: "",
-			Password: redisPassword,
-		})
-		if err != nil {
-			log.Println(err)
-		}
-	} else {
-		return errors.New("no REDIS_ADDR specified; exiting")
-	}
+	log.Printf("AUVC %s-%s (%s)", version, commit, date)
 
 	locale.InitLang(os.Getenv("LOCALE_PATH"), os.Getenv("BOT_LANG"))
 
@@ -119,99 +60,110 @@ func discordMainWrapper() error {
 	}
 	auvcDB, err := sqlite.Open(databasePath)
 	if err != nil {
-		return fmt.Errorf("open AUVC database: %w", err)
+		return err
 	}
 	defer auvcDB.Close()
+
 	// The pairing service shares the database, so a credential issued by
 	// /au capture pair is the same one the transport checks later.
 	pairingService := pairing.NewService(auvcDB)
 	auvcService := au.NewServiceWithPairing(auvcDB, pairingService, version, commit)
 
-	log.Println("Bot is now running.  Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-
-	taskTimeoutms := capture.DefaultCaptureBotTimeout
-
-	taskTimeoutmsStr := os.Getenv("ACK_TIMEOUT_MS")
-	num, err := strconv.ParseInt(taskTimeoutmsStr, 10, 64)
-	if err == nil {
-		log.Printf("Read from env; using ACK_TIMEOUT_MS=%d\n", num)
-		taskTimeoutms = time.Millisecond * time.Duration(num)
+	controller := bot.MakeAndStartBot(version, commit, discordToken, auvcService)
+	if controller == nil {
+		return errors.New("the bot failed to start; is the Discord bot token valid?")
 	}
+	defer controller.Close()
 
-	maxReq5Sec := os.Getenv("MAX_REQ_5_SEC")
-	maxReq := DefaultMaxRequests5Sec
-	num, err = strconv.ParseInt(maxReq5Sec, 10, 64)
-	if err == nil {
-		maxReq = num
-	}
-
-	tokenProvider := tokenprovider.NewTokenProvider(nil, nil, taskTimeoutms, maxReq)
-	b := bot.MakeAndStartBot(version, commit, discordToken, url, emojiGuildID, &redisClient, &storageInterface, auvcService, logPath)
-	if b == nil {
-		return errors.New("bot failed to initialize; did you provide a valid Discord Bot Token?")
-	}
+	controller.AUVCLinks = auvcDB
+	// The session commands need the bot, and the bot needed the service to
+	// answer commands at all, so they are connected once both exist.
+	auvcService.AttachSessionControl(bot.NewSessionControl(controller))
 
 	// The capture listener starts after the bot, because the bot is what
 	// applies the messages it receives.
-	b.AUVCLinks = auvcDB
-	// The session commands need the bot, and the bot needed the service to
-	// answer commands at all, so they are connected once both exist.
-	auvcService.AttachSessionControl(bot.NewSessionControl(b))
-	stopCaptureListener := startCaptureListener(pairingService, b)
+	stopCaptureListener := startCaptureListener(pairingService, controller)
 	defer stopCaptureListener()
 
-	b.InitTokenProvider(tokenProvider)
-	b.TokenProvider = tokenProvider
-	// empty string entry = global
-	slashCommandGuildIds := []string{""}
-	slashCommandGuildIdStr := strings.ReplaceAll(os.Getenv("SLASH_COMMAND_GUILD_IDS"), " ", "")
-	if slashCommandGuildIdStr != "" {
-		slashCommandGuildIds = strings.Split(slashCommandGuildIdStr, ",")
+	registered, err := registerCommands(controller)
+	if err != nil {
+		return err
 	}
 
-	var registeredCommands []registeredCommand
-	for _, guild := range slashCommandGuildIds {
-		for _, v := range command.All {
-			if guild == "" {
-				log.Printf("Registering command %s GLOBALLY\n", v.Name)
-			} else {
-				log.Printf("Registering command %s in guild %s\n", v.Name, guild)
-			}
+	log.Println("AUVC is running. Press CTRL-C to exit.")
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	<-signals
 
-			id, err := b.PrimarySession.ApplicationCommandCreate(b.PrimarySession.State.User.ID, guild, v)
-			if err != nil {
-				log.Panicf("Cannot create command: %v", err)
-			} else {
-				registeredCommands = append(registeredCommands, registeredCommand{
-					GuildID:            guild,
-					ApplicationCommand: id,
-				})
-			}
-		}
-	}
-	log.Println("Finishing registering all commands!")
-
-	<-sc
-	log.Printf("Received Sigterm or Kill signal. Bot will terminate in 1 second")
-	time.Sleep(time.Second)
-
-	log.Println("Deleting slash commands")
-	for _, v := range registeredCommands {
-		if v.GuildID == "" {
-			log.Printf("Deleting command %s GLOBALLY\n", v.ApplicationCommand.Name)
-		} else {
-			log.Printf("Deleting command %s on guild %s\n", v.ApplicationCommand.Name, v.GuildID)
-		}
-		err = b.PrimarySession.ApplicationCommandDelete(v.ApplicationCommand.ApplicationID, v.GuildID, v.ApplicationCommand.ID)
-		if err != nil {
-			log.Println(err)
-		}
-	}
-	log.Println("Finished deleting all commands")
-
-	b.Close()
-	tokenProvider.Close()
+	log.Println("Shutting down")
+	unregisterCommands(controller, registered)
 	return nil
+}
+
+// startLogging mirrors the log to a file unless that is switched off.
+func startLogging() error {
+	if os.Getenv("DISABLE_LOG_FILE") != "" {
+		return nil
+	}
+
+	logPath := os.Getenv("LOG_PATH")
+	if logPath == "" {
+		logPath = "./"
+	}
+
+	file, err := os.Create(path.Join(logPath, "logs.txt"))
+	if err != nil {
+		return err
+	}
+	log.SetOutput(io.MultiWriter(os.Stdout, file))
+	return nil
+}
+
+// registerCommands publishes the command tree to Discord.
+//
+// SLASH_COMMAND_GUILD_IDS registers to named guilds instead of globally, which
+// is what makes a change visible immediately: a global registration can take
+// up to an hour to appear.
+func registerCommands(controller *bot.Bot) ([]registeredCommand, error) {
+	guilds := []string{""} // empty means global
+	if configured := strings.ReplaceAll(os.Getenv("SLASH_COMMAND_GUILD_IDS"), " ", ""); configured != "" {
+		guilds = strings.Split(configured, ",")
+	}
+
+	var registered []registeredCommand
+	for _, guild := range guilds {
+		for _, definition := range command.All {
+			where := "globally"
+			if guild != "" {
+				where = "in guild " + guild
+			}
+			log.Printf("Registering /%s %s", definition.Name, where)
+
+			created, err := controller.PrimarySession.ApplicationCommandCreate(
+				controller.PrimarySession.State.User.ID, guild, definition)
+			if err != nil {
+				return registered, err
+			}
+			registered = append(registered, registeredCommand{
+				GuildID:            guild,
+				ApplicationCommand: created,
+			})
+		}
+	}
+	return registered, nil
+}
+
+// unregisterCommands removes what registerCommands published.
+//
+// A failure here is logged rather than returned: the process is already on its
+// way out, and a command left registered is a cosmetic problem next to failing
+// to shut down.
+func unregisterCommands(controller *bot.Bot, registered []registeredCommand) {
+	for _, entry := range registered {
+		err := controller.PrimarySession.ApplicationCommandDelete(
+			entry.ApplicationCommand.ApplicationID, entry.GuildID, entry.ApplicationCommand.ID)
+		if err != nil {
+			log.Printf("Could not remove /%s: %v", entry.ApplicationCommand.Name, err)
+		}
+	}
 }

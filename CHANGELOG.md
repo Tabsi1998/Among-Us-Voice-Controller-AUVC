@@ -4,6 +4,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Removed
+
+- Redis is gone, and with it the game state store, the event queue, the
+  distributed locks, the rate limiter, the username cache and the per-guild
+  settings. A self-hosted bot is one process: the session lives in it, the
+  locks are mutexes, and the configuration is a SQLite file.
+- The Galactus token provider and its worker-bot pool are gone. It existed to
+  spread Discord rate limits across several bot tokens for a hosted service
+  running many guilds; a self-hosted bot has one token and nothing to spread.
+- Thirteen legacy commands are gone. `/au` is the whole surface: `/new`,
+  `/refresh`, `/pause`, `/end`, `/link`, `/unlink`, `/settings`, `/info`,
+  `/map`, `/debug`, `/help`, `/stats` and `/download` were built around a
+  hosted service AUVC is not.
+- The Go module is down to six direct dependencies. `REDIS_ADDR`, `REDIS_PASS`,
+  `POSTGRES_*`, `HOST`, `EMOJI_GUILD_ID` and `ACK_TIMEOUT_MS` are no longer
+  read; `DISCORD_BOT_TOKEN` and `AUVC_DATABASE_PATH` are what the bot needs.
+
 ### Added
 
 - `/au session start`, `stop`, `pause`, `resume` and `status` work. They were
