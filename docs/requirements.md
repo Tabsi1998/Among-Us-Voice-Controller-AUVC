@@ -214,8 +214,10 @@ data. `/au version` exposes build/protocol version information.
 
 1. Lobby: all managed players open in main.
 2. Tasks: living players muted and deafened.
-3. Death during tasks: linked player moves to ghost.
-4. Ghost is unmuted and undeafened.
+3. Death during tasks: the victim is silenced and stays where they are, so
+   nothing visible in Discord announces the kill.
+4. The first meeting makes the death public; the ghost then moves to the
+   ghost channel, unmuted and undeafened.
 5. A second ghost joins; both remain in ghost.
 6. Meeting: living players unmuted/undeafened.
 7. Ghosts remain in ghost during meeting.

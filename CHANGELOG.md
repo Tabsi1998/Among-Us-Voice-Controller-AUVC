@@ -6,6 +6,27 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- The required scenarios from `docs/requirements.md` run as tests, one per
+  scenario, driving a real lobby through the real session, links, policy and
+  reconciler. The simulated Discord applies what the reconciler decides, so
+  each step is judged against the state the previous one produced.
+- `docs/acceptance.md` maps every scenario to where it is proved and says
+  plainly what none of it proves: that Discord does what it was asked, that
+  capture reads the game correctly, that the halves connect over a real
+  network, or that the installer installs. It carries the manual smoke test
+  that answers those.
+
+### Fixed
+
+- Scenario 3 in `docs/requirements.md` still described the old behaviour, where
+  a death moved the player to the ghost channel immediately. The ghost-chat
+  table had been corrected and the scenario list had not.
+- The capture path no longer panics when Discord is unavailable. Checking
+  whether a user is a bot account dereferenced the session without guarding
+  it, which the acceptance tests found the moment they ran without one.
+
+### Added
+
 - A Windows installer for the capture app, built by the release workflow from
   the same payload the portable zip contains, so the two are one application
   offered two ways rather than two builds that can disagree.
