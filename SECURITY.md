@@ -47,6 +47,16 @@ Protection API for the current user account, with application-specific entropy.
 **Administration.** `/au` changes require the guild owner, Discord Administrator,
 or the role set with `/au setup permissions`. Every reply is ephemeral.
 
+**Local control for the Windows app.** The AUVC Windows app starts the bot
+itself and passes it a random secret in `AUVC_LOCAL_CONTROL_SECRET`. Only then
+does the bot offer `/local/...` routes, through which the app lists servers and
+channels, saves the channel setup, stops the bot and obtains a capture
+credential without a pairing code. Every route requires the secret, compared in
+constant time, answers only connections from this computer, and refuses any
+request carrying an `Origin` header, so a web page cannot use it. A secret
+shorter than 32 characters stops the bot from starting. Without the variable,
+as in the container, the routes do not exist.
+
 **Voice.** Only linked human players are managed. When capture stops responding,
 the default fail-safe unmutes and undeafens everyone rather than leaving a room
 unable to speak.

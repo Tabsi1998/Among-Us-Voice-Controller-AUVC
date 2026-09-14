@@ -48,6 +48,19 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- A local control interface for the AUVC Windows app, the groundwork for a
+  Windows setup without PowerShell or server ids. When the app starts the bot
+  with `AUVC_LOCAL_CONTROL_SECRET`, the bot answers `/local/...` requests from
+  this computer that carry the secret: status and servers, the channels of a
+  server, saving the channel setup and auto start, the doctor's checks, a
+  capture credential without a pairing code, and a clean stop. Without the
+  variable nothing changes.
+- `SLASH_COMMAND_GUILD_IDS=*` registers `/au` in every server the bot is in,
+  including servers it is invited to while running, so the commands appear at
+  once.
+- A stopping bot releases the players of every running session: unmuted,
+  undeafened and back in the main channel. Before, stopping the bot mid-round
+  left the living server-muted until somebody fixed it by hand.
 - `docs/privacy.md`: every table and file AUVC keeps, what is in it, how long it
   stays and how to remove it, what AUVC does not collect, and the two gaps that
   are known rather than hidden.

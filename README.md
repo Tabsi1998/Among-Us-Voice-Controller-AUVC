@@ -128,7 +128,8 @@ on the voice channels it manages.
 | `AUVC_DATABASE_PATH` | `%LOCALAPPDATA%\AUVC\amongus.db` on Windows, `/data/amongus.db` in the image | The SQLite file |
 | `AUVC_CAPTURE_ADDR` | `127.0.0.1:8123`, `:8123` in the image | Where capture connects; `off` disables it |
 | `AUVC_CAPTURE_TLS_CERT`, `AUVC_CAPTURE_TLS_KEY` | — | Terminate TLS in the bot. Without them, put a TLS proxy in front whenever capture is not on the same machine |
-| `SLASH_COMMAND_GUILD_IDS` | global | Register `/au` in named servers only, which takes effect immediately |
+| `SLASH_COMMAND_GUILD_IDS` | global | Register `/au` in named servers only, which takes effect immediately. `*` registers it in every server the bot is in, including ones it joins while running |
+| `AUVC_LOCAL_CONTROL_SECRET` | — | Set by the AUVC Windows app when it starts the bot. Enables the app's setup interface, for this computer only. Leave it unset otherwise |
 | `LOG_PATH`, `DISABLE_LOG_FILE` | `./`, off | Where `logs.txt` goes, or no file at all |
 | `BOT_LANG`, `LOCALE_PATH` | English | Language of bot messages |
 | `AUVC_LISTENING` | `/au` | The activity Discord shows |

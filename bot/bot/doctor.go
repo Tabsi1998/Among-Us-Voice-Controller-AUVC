@@ -23,8 +23,14 @@ type Doctor struct {
 // NewDoctor wires the diagnosis to a bot.
 func NewDoctor(bot *Bot) *Doctor { return &Doctor{bot: bot} }
 
-// Diagnose runs every check for one guild.
+// Diagnose runs every check for one guild and renders them for Discord.
 func (d *Doctor) Diagnose(guildID string) (string, error) {
+	return d.Report(guildID).Render(), nil
+}
+
+// Report runs every check for one guild and returns them unrendered, for the
+// Windows app, which shows them in its own window rather than a message.
+func (d *Doctor) Report(guildID string) doctor.Report {
 	var report doctor.Report
 
 	d.checkDiscord(&report, guildID)
@@ -35,7 +41,7 @@ func (d *Doctor) Diagnose(guildID string) (string, error) {
 	d.checkSession(&report, guildID)
 	d.checkBuild(&report)
 
-	return report.Render(), nil
+	return report
 }
 
 // checkDiscord reports whether the bot is connected and can see the guild.
