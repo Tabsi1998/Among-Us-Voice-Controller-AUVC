@@ -5,10 +5,13 @@ The workflows imported with upstream remain under `bot/.github/workflows/` and
 
 ## baseline.yml
 
-Runs on every pull request to main and every push to main or a `codex/` branch:
+Runs once per change: on every pull request, whatever branch it targets, and on
+every push to main. A branch push without a pull request starts nothing, so a
+push to a pull request no longer runs everything twice. Before pushing, run the
+same checks locally with `python scripts/local_check.py`.
 
-- **Provenance and secrets:** `verify_repository.py`, `check_upstream_references.py`
-  and a Gitleaks scan of the history.
+- **Provenance and secrets:** `verify_repository.py`, `check_upstream_references.py`,
+  the tests of the repository scripts and a Gitleaks scan of the history.
 - **Go:** formatting, vet, tests with the race detector, a build, a Windows
   cross-compile and `govulncheck`.
 - **Windows:** locked NuGet restore, formatting, the full solution build, the

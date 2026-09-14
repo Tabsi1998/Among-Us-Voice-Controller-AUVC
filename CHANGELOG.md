@@ -13,6 +13,8 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   release dry run that publishes nothing. Environment variables that look like
   credentials are withheld from every step
   ([#111](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/111)).
+- CI: the checks run once per change, for the pull request and again on main
+  after a merge. Pushing a branch used to start them twice.
 
 ## v0.1.1-beta — 2026-09-14
 
