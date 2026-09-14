@@ -162,6 +162,36 @@ namespace AUVC.Capture.Tests
             Assert.StartsWith(local, DpapiCredentialStore.DefaultPath(), StringComparison.Ordinal);
         }
 
+        /// <summary>
+        /// The bot token and the capture credential live side by side. A file
+        /// written for one purpose must not read back as the other.
+        /// </summary>
+        [Fact]
+        public void ASecretStoredForOnePurposeCannotBeReadAsAnother()
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                return;
+            }
+
+            new DpapiCredentialStore(StorePath, DpapiCredentialStore.BotTokenPurpose).Write(Credential);
+
+            Assert.Null(new DpapiCredentialStore(StorePath, DpapiCredentialStore.CapturePurpose).Read());
+            Assert.Equal(Credential, new DpapiCredentialStore(StorePath, DpapiCredentialStore.BotTokenPurpose).Read());
+        }
+
+        [Fact]
+        public void TheBotTokenHasItsOwnFile()
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                return;
+            }
+
+            Assert.NotEqual(DpapiCredentialStore.DefaultPath(), DpapiCredentialStore.BotTokenPath());
+            Assert.Throws<ArgumentException>(() => new DpapiCredentialStore(StorePath, " "));
+        }
+
         [Fact]
         public void TheInMemoryStoreKeepsNothingBehind()
         {

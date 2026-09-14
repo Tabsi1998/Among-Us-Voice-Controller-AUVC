@@ -48,6 +48,16 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- The Windows app sets up and runs the bot itself. On first start a setup
+  window asks for the bot token and checks it with Discord, opens an invite link
+  with exactly the permissions AUVC needs, lets you choose the server and the
+  channels from lists, and connects capture to the bot without a pairing code.
+  From then on the bot starts invisibly with the app and is asked to release
+  everyone and stop when the app closes; a Windows job object ends it even if
+  the app crashes. The token is stored with the Windows Data Protection API.
+  The installer and the portable zip now carry `bot\auvc.exe`.
+- The capture window's connection indicators have names again. The resource
+  keys for "AUVC bot" were missing, so the indicator had no label.
 - A local control interface for the AUVC Windows app, the groundwork for a
   Windows setup without PowerShell or server ids. When the app starts the bot
   with `AUVC_LOCAL_CONTROL_SECRET`, the bot answers `/local/...` requests from

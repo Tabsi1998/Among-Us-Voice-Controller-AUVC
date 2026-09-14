@@ -49,6 +49,8 @@ and the failure paths.
 | `%AppData%\AmongUsCapture\AmongUsGUI\Settings.json` | Capture app settings, including the address of the bot |
 | `%AppData%\AmongUsCapture\logs` | Capture app logs. They can contain in-game names and the address of the bot; the credential is never written to them |
 | `%LOCALAPPDATA%\AUVC\credential.bin` | The paired credential, encrypted with the Windows Data Protection API for the current user account |
+| `%LOCALAPPDATA%\AUVC\bot-token.bin` | Only when the bot runs on this PC: the Discord bot token, encrypted the same way |
+| `%LOCALAPPDATA%\AUVC\amongus.db`, `%LOCALAPPDATA%\AUVC\logs` | Only when the bot runs on this PC: the bot's database and logs, as described above for the machine running the bot |
 
 The pairing code is not stored: it works once, and the capture window clears it
 as soon as pairing succeeds.

@@ -49,5 +49,13 @@ namespace AUCapture_WPF
         // setting: it works once, and a used code has no business on disk.
         [Option(DefaultValue = BotAddress.Default)]
         string host { get; set; }
+
+        // Whether this PC runs the bot itself, as the setup window arranges it.
+        [Option(DefaultValue = false)]
+        bool runBotOnThisPc { get; set; }
+
+        // The Discord server the bot on this PC manages.
+        [Option(DefaultValue = "")]
+        string botGuildId { get; set; }
     }
 }

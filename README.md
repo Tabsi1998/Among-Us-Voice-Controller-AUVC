@@ -42,6 +42,9 @@ Discord and of the game. Read this section before trying it.
 
 **Capture**
 
+- A setup window that sets up the bot on this PC: it checks the token with
+  Discord, opens the invite link, and offers the server and the channels as
+  lists. The bot then starts and stops with the app.
 - Pairing from the capture window, with the address of the bot and a code from
   `/au capture pair`. The credential is stored encrypted for the Windows user.
 - A connection that opens with a complete snapshot of the round, sends events in
@@ -59,7 +62,8 @@ Discord and of the game. Read this section before trying it.
   prove.
 - A guided first run and clear status in the capture app
   ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
-  Pairing is one small window today, and the connection is a single indicator.
+  The setup window covers the bot on this PC; the main window still shows the
+  connection as two small indicators.
 - A published release. No tag has been created and no image has been pushed.
 - Signed artifacts
   ([#24](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/24)).
@@ -110,15 +114,21 @@ and the [protocol](protocol/README.md) defines the connection.
 
 ## Running the bot
 
-Two ways, both described step by step in [deploy/README.md](deploy/README.md):
+**On the gaming PC, with the app.** This is the simple way. Install AUVC, or
+unpack the portable zip, and start it. On the first start a setup window asks
+for the bot token and checks it, opens the invite link, and lets you choose the
+server and the channels. From then on the bot starts with the app, runs in the
+background, and goes offline when you close the app. There is no console, no
+environment variable and no server id to look up.
 
-- **On the gaming PC.** Unpack `AUVC-bot-win-x64.zip`, set `DISCORD_BOT_TOKEN`,
-  run `auvc.exe`.
-- **In a container.** `docker compose up -d --wait` in `deploy/`.
+**Anywhere else.** The bot also runs on its own, as `auvc.exe`, as a Linux
+binary or in a container, so it can stay online when the gaming PC is off. See
+[deploy/README.md](deploy/README.md).
 
 The bot needs a Discord application with a bot token, invited with **View
 Channel**, **Connect**, **Move Members**, **Mute Members** and **Deafen Members**
-on the voice channels it manages.
+on the voice channels it manages, and **Send Messages** in the control channel.
+The app's invite link asks for exactly these.
 
 ### Environment
 
@@ -174,26 +184,33 @@ Every reply is visible only to whoever ran the command.
 
 ## Setting up capture
 
-On the Windows PC that plays Among Us:
+On the Windows PC that plays Among Us, install AUVC or unpack
+`AmongUsVoiceCapture-win-x64.zip`, and start it. The setup window opens by itself
+on the first start, and later behind the **Set up** button:
 
-1. Start AUVC Capture: the installer or `AmongUsVoiceCapture-win-x64.zip` from a
-   release, or a build of `capture/AUCapture-WPF`.
-2. An administrator runs `/au capture pair` in Discord.
-3. In capture, open the window behind the button with the tooltip **Pair with
-   the AUVC bot**. Enter the address of the bot and the code, then choose
-   **Pair**. The address is `http://127.0.0.1:8123` when the bot runs on the
-   same PC, which is what the field starts with.
-4. From then on capture connects by itself, also after a restart. The **AUVC
-   bot** indicator shows whether it is connected.
+1. **Bot token.** Create an application in the Discord Developer Portal, copy the
+   bot token, paste it and choose **Check token**. No redirect or callback URL is
+   needed.
+2. **Invite and server.** **Invite the bot** opens Discord's invite page with the
+   permissions AUVC needs. Once the bot has joined, choose the server in the list.
+3. **Channels.** Choose the main and the ghost voice channel, and optionally a
+   text channel for notices. Automatic start is on, so a detected game starts
+   the session.
+4. **Done.** Capture is connected to the bot without a pairing code, and the
+   bot's checks are listed.
+
+Then every player runs `/au link` once with their name in Among Us.
+
+**A bot somewhere else.** When the bot runs on a server instead, close the setup
+window. An administrator runs `/au capture pair`; in the app, open the window
+behind the button with the tooltip **Pair with the AUVC bot**, enter the address
+of the bot and the code, and choose **Pair**.
 
 If the bot refuses the connection because the credential was revoked or the
 builds do not match, capture says so and stops trying until it is paired again.
 
 These steps describe what the code does. Nobody has walked through them on a
-fresh PC yet. Planned: a guided first run
-([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)),
-and updates, repair and uninstall as described in
-[windows-installation-and-releases.md](docs/windows-installation-and-releases.md).
+fresh PC yet.
 
 ## What players hear and see
 

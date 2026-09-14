@@ -80,6 +80,27 @@ namespace AUCapture_WPF
             return new PairingOutcome(parsed, message);
         }
 
+        /// <summary>Whether capture holds a credential for some bot.</summary>
+        public static bool IsPaired => !string.IsNullOrEmpty(Credentials.Read());
+
+        /// <summary>
+        /// Points capture at the bot this app runs, with a credential obtained from
+        /// it directly instead of through a pairing code.
+        /// </summary>
+        public static async Task UseLocalBotAsync(LocalControlClient control, string guildId, bool freshCredential)
+        {
+            if (freshCredential || !IsPaired)
+            {
+                Credentials.Write(await control.IssueCredentialAsync(guildId));
+                Logger.Info("Capture obtained a credential from the bot on this PC");
+            }
+
+            // The bot on this PC gets a new port on every start, so the address is
+            // set again each time rather than remembered.
+            address = control.Address;
+            Link.Reconnect();
+        }
+
         private static async Task<IMessageChannel> ConnectAsync(CancellationToken token) =>
             await WebSocketMessageChannel.ConnectAsync(address, token);
 

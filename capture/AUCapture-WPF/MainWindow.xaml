@@ -79,6 +79,7 @@
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
 
+            <Button x:Name="SetupButton" Click="SetupButton_Click" Padding="8,0" />
             <Button Click="Settings" ToolTip="{l:Static properties:Resources.SettingsTooltip}">
                 <Button.ContentTemplate>
                     <DataTemplate>

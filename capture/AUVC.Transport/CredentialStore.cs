@@ -20,7 +20,7 @@ public interface ICredentialStore
 }
 
 /// <summary>
-/// Stores the credential encrypted with the Windows Data Protection API.
+/// Stores a secret encrypted with the Windows Data Protection API.
 /// </summary>
 /// <remarks>
 /// The requirements ask for secure Windows storage. DPAPI ties the ciphertext to
@@ -30,35 +30,58 @@ public interface ICredentialStore
 ///
 /// This is not protection against the user's own account being compromised.
 /// Nothing stored on a machine can be, and pretending otherwise would be worse
-/// than saying so: that is what <c>/au capture revoke</c> is for.
+/// than saying so: that is what <c>/au capture revoke</c> is for, and for the bot
+/// token, resetting it in the Discord developer portal.
 /// </remarks>
 [SupportedOSPlatform("windows")]
 public sealed class DpapiCredentialStore : ICredentialStore
 {
-    // Extra entropy mixed into the protection. It is not a secret and does not
-    // need to be: it scopes the ciphertext to this application, so a blob
-    // protected by some other program for the same user cannot be fed in here.
-    private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("AUVC capture credential v1");
+    /// <summary>The purpose capture's credential is stored under.</summary>
+    public const string CapturePurpose = "AUVC capture credential v1";
+
+    /// <summary>The purpose the bot token is stored under when the bot runs on this PC.</summary>
+    public const string BotTokenPurpose = "AUVC bot token v1";
 
     private readonly string _path;
+    private readonly byte[] _entropy;
 
     /// <summary>
     /// Creates a store. The default location is under the user's local
     /// application data, which is per-user and not roamed to other machines.
     /// </summary>
-    public DpapiCredentialStore(string? path = null)
+    /// <param name="purpose">
+    /// Mixed into the protection as extra entropy. It is not a secret and does not
+    /// need to be: it scopes the ciphertext to one use, so a blob protected for
+    /// another purpose, by this program or any other for the same user, cannot be
+    /// read back as this one.
+    /// </param>
+    public DpapiCredentialStore(string? path = null, string purpose = CapturePurpose)
     {
+        if (string.IsNullOrWhiteSpace(purpose))
+        {
+            throw new ArgumentException("a purpose is required", nameof(purpose));
+        }
+
         _path = path ?? DefaultPath();
+        _entropy = Encoding.UTF8.GetBytes(purpose);
     }
 
-    /// <summary>The file the credential is kept in.</summary>
+    /// <summary>The file the secret is kept in.</summary>
     public string Path => _path;
 
+    /// <summary>Where capture's credential is kept.</summary>
     public static string DefaultPath() =>
         System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "AUVC",
             "credential.bin");
+
+    /// <summary>Where the bot token is kept when the bot runs on this PC.</summary>
+    public static string BotTokenPath() =>
+        System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "AUVC",
+            "bot-token.bin");
 
     public string? Read()
     {
@@ -70,14 +93,14 @@ public sealed class DpapiCredentialStore : ICredentialStore
         try
         {
             var plaintext = ProtectedData.Unprotect(
-                File.ReadAllBytes(_path), Entropy, DataProtectionScope.CurrentUser);
+                File.ReadAllBytes(_path), _entropy, DataProtectionScope.CurrentUser);
             return Encoding.UTF8.GetString(plaintext);
         }
         catch (CryptographicException)
         {
-            // The file belongs to another user or another machine, or it is
-            // damaged. Either way there is no credential here, and saying so is
-            // more useful than a crash on start: capture asks to pair again.
+            // The file belongs to another user, another machine or another
+            // purpose, or it is damaged. Either way there is nothing usable here,
+            // and saying so is more useful than a crash on start.
             return null;
         }
         catch (IOException)
@@ -100,11 +123,11 @@ public sealed class DpapiCredentialStore : ICredentialStore
         }
 
         var ciphertext = ProtectedData.Protect(
-            Encoding.UTF8.GetBytes(credential), Entropy, DataProtectionScope.CurrentUser);
+            Encoding.UTF8.GetBytes(credential), _entropy, DataProtectionScope.CurrentUser);
 
         // Written to a temporary file and moved into place, so a crash halfway
-        // through leaves the previous credential intact rather than a truncated
-        // file that reads as "never paired".
+        // through leaves the previous value intact rather than a truncated file
+        // that reads as "never stored".
         var temporary = _path + ".new";
         File.WriteAllBytes(temporary, ciphertext);
         File.Move(temporary, _path, overwrite: true);

@@ -49,5 +49,12 @@ func (s *Service) ConfigureFromApp(guildID string, setup AppSetup) (sqlite.Guild
 	if err := s.save(config); err != nil {
 		return sqlite.GuildConfig{}, err
 	}
-	return config, nil
+
+	// Read back rather than returning what was sent: the store sets updated_at
+	// when it saves, so the values held here are already one timestamp behind.
+	stored, err := s.store.EnsureGuildConfig(guildID)
+	if err != nil {
+		return sqlite.GuildConfig{}, fmt.Errorf("read back guild configuration: %w", err)
+	}
+	return stored, nil
 }

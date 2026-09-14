@@ -158,8 +158,23 @@ namespace AUCapture_WPF
                 Task.Factory.StartNew(() => GameMemReader.getInstance().RunLoop()); // run loop in background
                 if (uriStart == URIStartResult.PARSE) IPCAdapter.getInstance().SendToken(args[0]);
             };
-            mainWindow.Closing += (sender, args2) =>
+            var closing = false;
+            mainWindow.Closing += async (sender, args2) =>
             {
+                if (!LocalBot.IsRunning)
+                {
+                    Environment.Exit(0);
+                    return;
+                }
+
+                // The bot on this PC is asked to stop rather than killed, so it
+                // releases everyone in voice first. The window goes at once; the
+                // few seconds that takes happen out of sight.
+                args2.Cancel = true;
+                if (closing) return;
+                closing = true;
+                mainWindow.Hide();
+                await LocalBot.StopAsync();
                 Environment.Exit(0);
             };
             mainWindow.Show();

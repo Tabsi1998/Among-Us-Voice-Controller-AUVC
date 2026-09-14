@@ -83,6 +83,12 @@ namespace AUCapture_WPF
             context = new UserDataContext(DialogCoordinator.Instance, config);
             DataContext = context;
             context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = BotConnectionName });
+            if (context.Settings.runBotOnThisPc)
+            {
+                SetLocalBotStatus(false);
+            }
+            SetupButton.Content = SetupText.SetupButton;
+            SetupButton.ToolTip = SetupText.SetupButtonTooltip;
             Window.Topmost = context.Settings.alwaysOnTop;
             GameMemReader.getInstance().GameStateChanged += GameStateChangedHandler;
             GameMemReader.getInstance().ProcessHook += OnProcessHook;
@@ -181,6 +187,11 @@ namespace AUCapture_WPF
         }
 
         private const string BotConnectionName = "AUVC bot";
+        private const string LocalBotConnectionName = "Discord bot";
+
+        // Set once a refused credential has been replaced from the bot on this PC.
+        // Once per run: a capture revoked on purpose must not keep coming back.
+        private bool replacedRefusedCredential;
 
         private void OnLinkStatusChanged(LinkStatus status)
         {
@@ -193,12 +204,89 @@ namespace AUCapture_WPF
                 // else would tell the person running capture what to do about it.
                 if (status.State != LinkState.Refused) return;
 
+                // The bot on this PC can issue a new credential itself, so a refused one
+                // is replaced rather than reported.
+                if (context.Settings.runBotOnThisPc && LocalBot.IsRunning && !replacedRefusedCredential &&
+                    status.Code == AUVC.Protocol.ProtocolContract.CodeUnauthenticated)
+                {
+                    replacedRefusedCredential = true;
+                    try
+                    {
+                        await LocalBot.ConnectCaptureAsync(context.Settings.botGuildId, freshCredential: true);
+                        return;
+                    }
+                    catch (Exception error) when (error is LocalControlException or System.Net.Http.HttpRequestException or InvalidOperationException)
+                    {
+                        Logger.Warn("Could not replace the refused credential: {message}", error.Message);
+                    }
+                }
+
                 var next = status.Code == AUVC.Protocol.ProtocolContract.CodeIncompatibleProtocol
                     ? "Install the capture version that matches the bot."
                     : "Ask an administrator for a new code with /au capture pair, then pair again.";
                 await this.ShowMessageAsync("The AUVC bot refused this capture",
                     status.Detail + Environment.NewLine + Environment.NewLine + next);
             });
+        }
+
+        private void SetLocalBotStatus(bool connected)
+        {
+            var status = context.ConnectionStatuses.FirstOrDefault(x => x.ConnectionName == LocalBotConnectionName);
+            if (status is null)
+            {
+                context.ConnectionStatuses.Add(new ConnectionStatus { Connected = connected, ConnectionName = LocalBotConnectionName });
+                return;
+            }
+            status.Connected = connected;
+        }
+
+        private void SetupButton_Click(object sender, RoutedEventArgs e) => OpenSetup();
+
+        private void OpenSetup()
+        {
+            var setup = new SetupWindow(context.Settings) { Owner = this };
+            setup.ShowDialog();
+            if (context.Settings.runBotOnThisPc)
+            {
+                SetLocalBotStatus(LocalBot.IsRunning);
+            }
+        }
+
+        /// <summary>
+        /// Starts the bot when this PC runs it, and offers the setup on a first start
+        /// with nothing set up at all.
+        /// </summary>
+        private async Task StartLocalBotOrOfferSetupAsync()
+        {
+            if (!context.Settings.runBotOnThisPc)
+            {
+                if (!BotConnection.IsPaired)
+                {
+                    OpenSetup();
+                }
+                return;
+            }
+
+            try
+            {
+                await LocalBot.StartAsync();
+                SetLocalBotStatus(true);
+                await LocalBot.ConnectCaptureAsync(context.Settings.botGuildId, freshCredential: false);
+            }
+            catch (Exception error) when (error is BotHostException or BotTokenException or LocalControlException
+                                              or System.Net.Http.HttpRequestException or InvalidOperationException)
+            {
+                SetLocalBotStatus(false);
+                var message = error is BotHostException hostError
+                    ? SetupText.BotStartFailed(hostError) + (hostError.LogTail.Length > 0 ? Environment.NewLine + Environment.NewLine + hostError.LogTail : "")
+                    : error.Message;
+                var answer = await this.ShowMessageAsync(SetupText.BotFailedTitle, message, MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings { AffirmativeButtonText = SetupText.OpenSetup, NegativeButtonText = SetupText.Close });
+                if (answer == MessageDialogResult.Affirmative)
+                {
+                    OpenSetup();
+                }
+            }
         }
 
         private async Task PairAsync(string address, string code)
@@ -523,7 +611,7 @@ namespace AUCapture_WPF
             });
         }
 
-        private void MainWindow_OnContentRendered(object? sender, EventArgs e)
+        private async void MainWindow_OnContentRendered(object? sender, EventArgs e)
         {
             //TestFillConsole(10);
             //setCurrentState("GAMESTATE");
@@ -535,6 +623,8 @@ namespace AUCapture_WPF
             {
                 Logger.Info("Meme Module disabled :(");
             }
+
+            await StartLocalBotOrOfferSetupAsync();
         }
 
         private async void SubmitConnectButton_OnClick(object sender, RoutedEventArgs e)

@@ -43,6 +43,12 @@ its log on every start. The listener binds to `127.0.0.1` by default.
 
 **On the capture PC.** The credential is encrypted with the Windows Data
 Protection API for the current user account, with application-specific entropy.
+When the bot runs on this PC, its Discord token is stored the same way, in its
+own file and under a different purpose, so neither file can be read back as the
+other. The app checks a pasted token with Discord and never writes it to a log.
+It starts the bot with a new random local control secret and a free loopback
+port on every start, and ties the bot to itself with a Windows job object, so
+the bot ends when the app ends, even when the app crashes.
 
 **Administration.** `/au` changes require the guild owner, Discord Administrator,
 or the role set with `/au setup permissions`. Every reply is ephemeral.

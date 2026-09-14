@@ -89,12 +89,12 @@ Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; \
 Type: filesandordirs; Name: "{app}"
 
 [Messages]
-english.WelcomeLabel2=This installs {#AppName} for you only. It needs no administrator rights.%n%nAUVC is two programs: this one reads the game on this PC, and a bot talks to Discord. You will pair them with a code from /au capture pair.
-german.WelcomeLabel2=Dies installiert {#AppName} nur für dich. Administratorrechte sind nicht nötig.%n%nAUVC besteht aus zwei Programmen: Dieses liest das Spiel auf diesem PC, ein Bot spricht mit Discord. Beide werden mit einem Code aus /au capture pair verbunden.
+english.WelcomeLabel2=This installs {#AppName} for you only. It needs no administrator rights.%n%nAUVC reads Among Us on this PC and runs your Discord bot alongside it. On the first start, a setup window walks you through connecting the bot to your Discord server.
+german.WelcomeLabel2=Dies installiert {#AppName} nur für dich. Administratorrechte sind nicht nötig.%n%nAUVC liest Among Us auf diesem PC und betreibt deinen Discord-Bot gleich mit. Beim ersten Start führt dich ein Einrichtungsfenster durch die Verbindung des Bots mit deinem Discord-Server.
 
 [CustomMessages]
-english.RemoveDataPrompt=Delete the AUVC capture settings and the paired credential from this PC?%n%nThis does not revoke access. The bot still accepts this credential until somebody runs /au capture revoke in Discord.%n%nChoose No to keep them, so reinstalling does not need pairing again.
-german.RemoveDataPrompt=Sollen die AUVC-Capture-Einstellungen und das gekoppelte Credential von diesem PC gelöscht werden?%n%nDas widerruft den Zugriff nicht. Der Bot akzeptiert dieses Credential weiterhin, bis jemand in Discord /au capture revoke ausführt.%n%nWähle Nein, um sie zu behalten; dann ist nach einer Neuinstallation kein erneutes Koppeln nötig.
+english.RemoveDataPrompt=Delete the AUVC data from this PC?%n%nThat is the settings, the stored bot token, the bot's database with channels and player links, its logs, and capture's credential.%n%nThis does not delete the bot in Discord. To stop the token from working, reset it in the Discord Developer Portal.%n%nChoose No to keep everything, so reinstalling needs no setup.
+german.RemoveDataPrompt=Sollen die AUVC-Daten von diesem PC gelöscht werden?%n%nDas sind die Einstellungen, der gespeicherte Bot-Token, die Datenbank des Bots mit Kanälen und Spieler-Verknüpfungen, seine Logs und das Credential von Capture.%n%nDer Bot in Discord wird dadurch nicht gelöscht. Damit der Token nicht mehr funktioniert, setze ihn im Discord Developer Portal zurück.%n%nWähle Nein, um alles zu behalten; dann ist nach einer Neuinstallation keine Einrichtung nötig.
 
 [Code]
 // Uninstalling asks about local data separately and explicitly, because
