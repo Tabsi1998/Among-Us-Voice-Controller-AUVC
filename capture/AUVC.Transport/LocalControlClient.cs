@@ -68,6 +68,35 @@ public sealed record LocalSetup
     [JsonPropertyName("auto_start")] public bool AutoStart { get; init; }
 }
 
+/// <summary>Who plays in the lobby, and whom the app can link them to.</summary>
+public sealed record LocalCrewmates
+{
+    [JsonPropertyName("players")] public IReadOnlyList<LocalCrewmate> Players { get; init; } = [];
+    [JsonPropertyName("members")] public IReadOnlyList<LocalMember> Members { get; init; } = [];
+}
+
+/// <summary>One player in the lobby. <see cref="UserId"/> is empty while nobody is linked.</summary>
+public sealed record LocalCrewmate
+{
+    [JsonPropertyName("name")] public string Name { get; init; } = "";
+    [JsonPropertyName("color")] public string Color { get; init; } = "";
+    [JsonPropertyName("user_id")] public string UserId { get; init; } = "";
+}
+
+/// <summary>A Discord member a crewmate can be linked to.</summary>
+public sealed record LocalMember
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = "";
+    [JsonPropertyName("name")] public string Name { get; init; } = "";
+}
+
+/// <summary>A crewmate linked to a member, or unlinked with an empty member id.</summary>
+public sealed record LocalLink
+{
+    [JsonPropertyName("player")] public string Player { get; init; } = "";
+    [JsonPropertyName("user_id")] public string UserId { get; init; } = "";
+}
+
 /// <summary>
 /// Raised when the bot refused a request. The message is the bot's, written for a
 /// person.
@@ -117,6 +146,18 @@ public sealed class LocalControlClient
     /// <summary>Saves a setup and returns the server as the bot now has it.</summary>
     public Task<LocalGuild> SetupAsync(string guildId, LocalSetup setup, CancellationToken cancellationToken = default) =>
         SendAsync<LocalGuild>(HttpMethod.Put, GuildPath(guildId) + "/setup", setup, cancellationToken);
+
+    /// <summary>The players in the lobby, and the members they can be linked to.</summary>
+    public Task<LocalCrewmates> GetCrewmatesAsync(string guildId, CancellationToken cancellationToken = default) =>
+        SendAsync<LocalCrewmates>(HttpMethod.Get, GuildPath(guildId) + "/crewmates", null, cancellationToken);
+
+    /// <summary>
+    /// Links a crewmate to a member, or unlinks it for an empty member id, and
+    /// returns the lobby as the bot now has it.
+    /// </summary>
+    public Task<LocalCrewmates> LinkAsync(string guildId, string player, string userId, CancellationToken cancellationToken = default) =>
+        SendAsync<LocalCrewmates>(HttpMethod.Put, GuildPath(guildId) + "/links",
+            new LocalLink { Player = player, UserId = userId }, cancellationToken);
 
     /// <summary>Obtains a capture credential for a server, without a pairing code.</summary>
     public async Task<string> IssueCredentialAsync(string guildId, CancellationToken cancellationToken = default)

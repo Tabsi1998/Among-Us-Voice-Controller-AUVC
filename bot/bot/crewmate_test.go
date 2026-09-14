@@ -519,7 +519,7 @@ func TestANewLinkIsAppliedToVoiceStraightAway(t *testing.T) {
 	if err := db.SaveLink(crewGuild, "Alice", "member"); err != nil {
 		t.Fatalf("link: %v", err)
 	}
-	bot.afterLinkChange(crewGuild)
+	bot.LinksChanged(crewGuild)
 
 	applier.mu.Lock()
 	defer applier.mu.Unlock()

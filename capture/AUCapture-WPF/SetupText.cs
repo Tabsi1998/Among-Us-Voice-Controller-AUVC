@@ -140,17 +140,19 @@ namespace AUCapture_WPF
         // Settings, once the bot is set up.
         public static string SettingsWindowTitle => T("AUVC · Bot-Einstellungen", "AUVC · Bot settings");
         public static string SettingsButton => T("Bot", "Bot");
-        public static string SettingsButtonTooltip => T("Token, Server, Kanäle und Status des Bots ändern", "Change the bot's token, server, channels and status");
+        public static string SettingsButtonTooltip => T("Token, Server, Kanäle, Spieler und Status des Bots ändern", "Change the bot's token, server, channels, players and status");
         public static string SectionToken => T("Token", "Token");
         public static string SectionServer => T("Server", "Server");
         public static string SectionChannels => T("Kanäle", "Channels");
         public static string SectionStatus => T("Status", "Status");
+        public static string SectionPlayers => T("Spieler", "Players");
 
         public static string SettingsTitle(int section) => section switch
         {
             0 => T("Bot-Token ändern", "Change the bot token"),
             1 => T("Server wechseln", "Change the server"),
             2 => T("Kanäle ändern", "Change the channels"),
+            4 => T("Spieler zuordnen", "Link the players"),
             _ => T("Status des Bots", "Bot status"),
         };
 
@@ -176,8 +178,8 @@ namespace AUCapture_WPF
             "The bot no longer runs on this PC. Use “Set up” in the main window to switch it back on.");
 
         public static string StatusIntro => T(
-            "Hier siehst du, ob der Bot läuft und was er über deinen Server meldet. Die anderen Bereiche oben ändern Token, Server und Kanäle.",
-            "This shows whether the bot is running and what it reports about your server. The other sections above change the token, the server and the channels.");
+            "Hier siehst du, ob der Bot läuft und was er über deinen Server meldet. Die anderen Bereiche oben ändern Token, Server, Kanäle und die Zuordnung der Spieler.",
+            "This shows whether the bot is running and what it reports about your server. The other sections above change the token, the server, the channels and which member plays which crewmate.");
 
         public static string BotRunning => T("✔ Der Bot läuft auf diesem PC.", "✔ The bot is running on this PC.");
         public static string BotStopped => T("Der Bot läuft gerade nicht. „Bot neu starten“ startet ihn.", "The bot is not running. “Restart the bot” starts it.");
@@ -185,6 +187,50 @@ namespace AUCapture_WPF
         public static string TokenChangedRestart => T(
             "Der Bot wird mit dem neuen Token neu gestartet. Ist es ein anderer Bot, lade ihn unter „Server“ ein und wähle den Server dort neu.",
             "The bot restarts with the new token. If it is a different bot, invite it under “Server” and choose the server there again.");
+
+        // Players.
+        public static string PlayersIntro => T(
+            "Hier ordnest du jeder Figur in der Lobby ein Discord-Mitglied zu, zum Beispiel für jemanden, der gerade nicht selbst wählen kann. " +
+            "Zur Auswahl steht, wer in einem Sprachkanal des Servers ist. Die Spieler können ihre Figur auch selbst im Textkanal oder mit /au link wählen.",
+            "Link each crewmate in the lobby to a Discord member here, for example for somebody who cannot pick for themselves right now. " +
+            "Everyone in a voice channel of the server can be chosen. Players can also pick their crewmate themselves in the text channel or with /au link.");
+
+        public static string Nobody => T("(niemand)", "(nobody)");
+        public static string NoLobbyYet => T("Noch keine Lobby. Starte Among Us, geh in eine Lobby und klicke auf „Aktualisieren“.",
+            "No lobby yet. Start Among Us, join a lobby and click “Refresh”.");
+        public static string NobodyInVoice => T("Niemand ist in einem Sprachkanal des Servers. Wer zugeordnet werden soll, geht zuerst in einen Sprachkanal.",
+            "Nobody is in a voice channel of the server. Whoever you want to link joins one first.");
+
+        public static string CrewmateLinked(string player, string member) =>
+            T($"✔ {member} spielt jetzt „{player}“.", $"✔ {member} now plays “{player}”.");
+
+        public static string CrewmateUnlinked(string player) =>
+            T($"✔ „{player}“ ist mit niemandem mehr verknüpft.", $"✔ “{player}” is no longer linked to anyone.");
+
+        public static string ColorName(string color) => German
+            ? color switch
+            {
+                "red" => "Rot",
+                "blue" => "Blau",
+                "green" => "Grün",
+                "pink" => "Pink",
+                "orange" => "Orange",
+                "yellow" => "Gelb",
+                "black" => "Schwarz",
+                "white" => "Weiß",
+                "purple" => "Lila",
+                "brown" => "Braun",
+                "cyan" => "Cyan",
+                "lime" => "Hellgrün",
+                "maroon" => "Weinrot",
+                "rose" => "Rosa",
+                "banana" => "Banane",
+                "gray" => "Grau",
+                "tan" => "Beige",
+                "coral" => "Koralle",
+                _ => color,
+            }
+            : string.IsNullOrEmpty(color) ? color : char.ToUpperInvariant(color[0]) + color[1..];
 
         // Main window.
         public static string BotFailedTitle => T("Der Bot auf diesem PC konnte nicht starten", "The bot on this PC could not start");

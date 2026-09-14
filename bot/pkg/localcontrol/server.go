@@ -35,6 +35,9 @@ var (
 	ErrUnknownGuild = errors.New("the bot is not in that server")
 	// ErrInvalidSetup means the app asked for a setup the bot cannot use.
 	ErrInvalidSetup = errors.New("invalid setup")
+	// ErrInvalidLink means the app asked to link a crewmate or a member the bot
+	// cannot use.
+	ErrInvalidLink = errors.New("invalid link")
 )
 
 // Backend is what the app may read and change. The bot implements it; the tests
@@ -44,6 +47,10 @@ type Backend interface {
 	Channels(guildID string) ([]Channel, error)
 	Guild(guildID string) (Guild, error)
 	Configure(guildID string, setup Setup) error
+	// Crewmates reports who plays in the lobby and whom they can be linked to.
+	Crewmates(guildID string) (Crewmates, error)
+	// Link links a crewmate to a member, or unlinks it for an empty user id.
+	Link(guildID string, link Link) error
 	IssueCredential(guildID string) (string, error)
 	// Shutdown stops the bot. It is called after the answer has been sent.
 	Shutdown()
@@ -106,6 +113,32 @@ type Setup struct {
 	AutoStart            bool   `json:"auto_start"`
 }
 
+// Crewmates is who plays in the lobby, and whom the app can link them to.
+type Crewmates struct {
+	Players []Crewmate `json:"players"`
+	Members []Member   `json:"members"`
+}
+
+// Crewmate is one player in the lobby. UserID is empty while nobody is linked.
+type Crewmate struct {
+	Name   string `json:"name"`
+	Color  string `json:"color"`
+	UserID string `json:"user_id"`
+}
+
+// Member is a Discord member the app can link a crewmate to.
+type Member struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// Link is the app linking a crewmate to a member, or unlinking it with an empty
+// user id.
+type Link struct {
+	Player string `json:"player"`
+	UserID string `json:"user_id"`
+}
+
 // Server answers the app.
 type Server struct {
 	secret  []byte
@@ -129,6 +162,8 @@ func (s *Server) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /local/guilds/{guild}", s.guard(s.guild))
 	mux.HandleFunc("GET /local/guilds/{guild}/channels", s.guard(s.channels))
 	mux.HandleFunc("PUT /local/guilds/{guild}/setup", s.guard(s.setup))
+	mux.HandleFunc("GET /local/guilds/{guild}/crewmates", s.guard(s.crewmates))
+	mux.HandleFunc("PUT /local/guilds/{guild}/links", s.guard(s.link))
 	mux.HandleFunc("POST /local/guilds/{guild}/credential", s.guard(s.credential))
 	mux.HandleFunc("POST /local/shutdown", s.guard(s.shutdown))
 }
@@ -221,6 +256,48 @@ func (s *Server) setup(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, guild)
 }
 
+func (s *Server) crewmates(w http.ResponseWriter, r *http.Request) {
+	crewmates, err := s.backend.Crewmates(r.PathValue("guild"))
+	if s.failed(w, err) {
+		return
+	}
+	writeJSON(w, http.StatusOK, filled(crewmates))
+}
+
+func (s *Server) link(w http.ResponseWriter, r *http.Request) {
+	var link Link
+	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBodyBytes))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&link); err != nil || decoder.More() || link.Player == "" {
+		writeError(w, http.StatusBadRequest, "malformed", "the request is not a link")
+		return
+	}
+
+	guildID := r.PathValue("guild")
+	if s.failed(w, s.backend.Link(guildID, link)) {
+		return
+	}
+
+	// The answer is the lobby as it now stands, like the answer to a setup.
+	crewmates, err := s.backend.Crewmates(guildID)
+	if s.failed(w, err) {
+		return
+	}
+	writeJSON(w, http.StatusOK, filled(crewmates))
+}
+
+// filled turns missing lists into empty ones, which the app reads as "none"
+// rather than as a broken answer.
+func filled(crewmates Crewmates) Crewmates {
+	if crewmates.Players == nil {
+		crewmates.Players = []Crewmate{}
+	}
+	if crewmates.Members == nil {
+		crewmates.Members = []Member{}
+	}
+	return crewmates
+}
+
 func (s *Server) credential(w http.ResponseWriter, r *http.Request) {
 	token, err := s.backend.IssueCredential(r.PathValue("guild"))
 	if s.failed(w, err) {
@@ -247,6 +324,8 @@ func (s *Server) failed(w http.ResponseWriter, err error) bool {
 		writeError(w, http.StatusNotFound, "unknown_guild", err.Error())
 	case errors.Is(err, ErrInvalidSetup):
 		writeError(w, http.StatusBadRequest, "invalid_setup", err.Error())
+	case errors.Is(err, ErrInvalidLink):
+		writeError(w, http.StatusBadRequest, "invalid_link", err.Error())
 	default:
 		writeError(w, http.StatusInternalServerError, "unavailable", err.Error())
 	}

@@ -29,6 +29,7 @@ namespace AUCapture_WPF
         private const int ServerStep = 1;
         private const int ChannelStep = 2;
         private const int DoneStep = 3;
+        private const int PlayersStep = 4;
 
         private readonly IAppSettings settings;
         private readonly bool editing;
@@ -72,6 +73,7 @@ namespace AUCapture_WPF
                 SectionList.ItemsSource = new[]
                 {
                     SetupText.SectionToken, SetupText.SectionServer, SetupText.SectionChannels, SetupText.SectionStatus,
+                    SetupText.SectionPlayers,
                 };
                 SectionList.Visibility = Visibility.Visible;
                 UseServerButton.Visibility = Visibility.Visible;
@@ -116,6 +118,9 @@ namespace AUCapture_WPF
             RestartBotButton.Content = SetupText.RestartBot;
             DisableBotButton.Content = SetupText.DisableBot;
 
+            PlayersIntro.Text = SetupText.PlayersIntro;
+            RefreshPlayersButton.Content = SetupText.Refresh;
+
             CancelButton.Content = SetupText.Cancel;
             BackButton.Content = SetupText.Back;
         }
@@ -128,6 +133,7 @@ namespace AUCapture_WPF
             ServerPanel.Visibility = Visible(step == ServerStep);
             ChannelPanel.Visibility = Visible(step == ChannelStep);
             DonePanel.Visibility = Visible(step == DoneStep);
+            PlayersPanel.Visibility = Visible(step == PlayersStep);
 
             StepTitle.Text = editing
                 ? SetupText.SettingsTitle(step)
@@ -251,6 +257,17 @@ namespace AUCapture_WPF
                 case DoneStep:
                     await RefreshChecksAsync();
                     break;
+
+                case PlayersStep:
+                    if (string.IsNullOrEmpty(guildId))
+                    {
+                        PlayersResult.Text = SetupText.ChooseServerFirst;
+                    }
+                    else if (await EnsureBotRunningAsync())
+                    {
+                        await LoadPlayersAsync();
+                    }
+                    break;
             }
         }
 
@@ -343,6 +360,7 @@ namespace AUCapture_WPF
             {
                 ChannelResult.Text = BotState.Text;
                 StatusText.Text = BotState.Text;
+                PlayersResult.Text = BotState.Text;
             }
             return LocalBot.IsRunning;
         }
@@ -543,6 +561,102 @@ namespace AUCapture_WPF
                                               or InvalidOperationException or TaskCanceledException)
             {
                 ChannelResult.Text = "✖ " + error.Message;
+            }
+            finally
+            {
+                SetBusy(false);
+            }
+        }
+
+        // The players.
+
+        private async void RefreshPlayersButton_Click(object sender, RoutedEventArgs e) => await LoadPlayersAsync();
+
+        private async Task LoadPlayersAsync()
+        {
+            var control = LocalBot.Control;
+            if (control is null)
+            {
+                CrewmateList.ItemsSource = null;
+                PlayersResult.Text = SetupText.BotNotRunning;
+                return;
+            }
+            if (string.IsNullOrEmpty(guildId))
+            {
+                PlayersResult.Text = SetupText.ChooseServerFirst;
+                return;
+            }
+
+            SetBusy(true);
+            PlayersResult.Text = "";
+            try
+            {
+                ShowCrewmates(await control.GetCrewmatesAsync(guildId));
+            }
+            catch (Exception error) when (error is HttpRequestException or LocalControlException or TaskCanceledException)
+            {
+                PlayersResult.Text = "✖ " + error.Message;
+            }
+            finally
+            {
+                SetBusy(false);
+            }
+        }
+
+        private void ShowCrewmates(LocalCrewmates crewmates)
+        {
+            CrewmateList.ItemsSource = CrewmateRow.From(crewmates);
+            if (crewmates.Players.Count == 0)
+            {
+                PlayersResult.Text = SetupText.NoLobbyYet;
+            }
+            else if (crewmates.Members.Count == 0)
+            {
+                PlayersResult.Text = SetupText.NobodyInVoice;
+            }
+        }
+
+        /// <summary>
+        /// Links the crewmate of a row to the member just chosen for it.
+        /// </summary>
+        /// <remarks>
+        /// A row's menu also reports a selection when it first shows the member the
+        /// bot already has, which must not be sent back as a change.
+        /// </remarks>
+        private async void CrewmateMember_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is not ComboBox { DataContext: CrewmateRow row } ||
+                e.AddedItems.Count != 1 || e.AddedItems[0] is not LocalMember chosen ||
+                chosen.Id == row.Selected?.Id)
+            {
+                return;
+            }
+
+            var control = LocalBot.Control;
+            if (control is null || string.IsNullOrEmpty(guildId))
+            {
+                PlayersResult.Text = control is null ? SetupText.BotNotRunning : SetupText.ChooseServerFirst;
+                return;
+            }
+
+            SetBusy(true);
+            PlayersResult.Text = SetupText.Saving;
+            try
+            {
+                var crewmates = await control.LinkAsync(guildId, row.Player, chosen.Id);
+                row.Selected = chosen;
+                ShowCrewmates(crewmates);
+                PlayersResult.Text = string.IsNullOrEmpty(chosen.Id)
+                    ? SetupText.CrewmateUnlinked(row.Player)
+                    : SetupText.CrewmateLinked(row.Player, chosen.Name);
+            }
+            catch (Exception error) when (error is HttpRequestException or LocalControlException or TaskCanceledException)
+            {
+                SetBusy(false);
+                // Show the lobby as the bot has it again, so the menu does not
+                // pretend the change was made.
+                await LoadPlayersAsync();
+                PlayersResult.Text = "✖ " + error.Message;
             }
             finally
             {

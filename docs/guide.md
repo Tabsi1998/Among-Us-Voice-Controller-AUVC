@@ -145,6 +145,10 @@ appears in Among Us, including capital letters:
 /au link player:Name
 ```
 
+**In the app.** On the PC that runs AUVC, **Bot** → **Players** links any crewmate
+to anybody in a voice channel of the server, for somebody who cannot pick for
+themselves.
+
 A link is remembered, so it only has to be done again when someone changes their
 name in the game. A link made during a round takes effect at once.
 
@@ -192,7 +196,7 @@ From then on AUVC follows the game on its own:
 ### Bot settings: the Bot button
 
 Once AUVC is set up, the button at the top of the main window reads **Bot**. It
-opens everything the setup chose, as four sections you can change one at a time:
+opens everything the setup chose, as five sections you can change one at a time:
 
 | Section | What you can do |
 | --- | --- |
@@ -200,6 +204,7 @@ opens everything the setup chose, as four sections you can change one at a time:
 | **Server** | Choose another server and click **Use this server**, then choose its channels under **Channels**. **Invite the bot** adds the bot to another server first. |
 | **Channels** | Change the main, ghost and text channel and automatic start, then click **Save**. |
 | **Status** | The bot's checks. **Restart the bot** restarts it. **Stop running the bot on this PC** keeps AUVC from starting it; the token and the settings stay stored, and **Set up** switches it back on. |
+| **Players** | Every crewmate in the current lobby, each with a menu of the members in the server's voice channels. Choose a member to link them, or *(nobody)* to remove the link. It takes effect at once. |
 
 ### App settings: the gear button
 

@@ -14,6 +14,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   shows the same menu to you alone. The message is edited in place, deleted when
   the bot stops, found again after a crash, and never shows a death before the
   meeting that announces it. A link made during a round is applied at once.
+- Linking players in the app: **Bot** → **Players** lists every crewmate in the
+  lobby with a menu of the members in the server's voice channels, for somebody
+  who cannot pick for themselves. Only crewmates in the lobby and people in
+  voice can be linked, never bots.
 - The crewmate pictures from AutoMuteUs are built into the bot and uploaded once
   as emojis of your own Discord application, so they take no emoji slot on the
   server.

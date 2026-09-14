@@ -544,7 +544,7 @@ func (bot *Bot) handleCrewmateChoice(s *discordgo.Session, interaction *discordg
 		return crewmateReply(interaction, fmt.Sprintf("❌ AUVC could not save your choice: %v", err))
 	}
 
-	go bot.afterLinkChange(interaction.GuildID)
+	go bot.LinksChanged(interaction.GuildID)
 	return crewmateReply(interaction, content)
 }
 
@@ -579,10 +579,10 @@ func (bot *Bot) inLobby(guildID, name string) bool {
 	return false
 }
 
-// afterLinkChange shows a new or removed link on the board and, while a
+// LinksChanged shows a new or removed link on the board and, while a
 // session is running, applies it to voice straight away instead of at the next
 // game event.
-func (bot *Bot) afterLinkChange(guildID string) {
+func (bot *Bot) LinksChanged(guildID string) {
 	bot.RefreshCrewmates(guildID)
 
 	if bot.CaptureSessions == nil || bot.CaptureSessions.Mode(guildID) != Running {
