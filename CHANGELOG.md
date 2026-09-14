@@ -4,7 +4,7 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
-## v0.1.0-beta.1 — 2026-09-14
+## v0.1.0-beta — 2026-09-14
 
 The first pre-release of AUVC, for trying it on one Windows PC and reporting
 what does not work. It has not yet been through a round against a real game

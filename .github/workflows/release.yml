@@ -231,7 +231,8 @@ jobs:
           # A pre-release must never become :latest. Somebody pulling latest is
           # asking for the version they are meant to run.
           case "${GITHUB_REF_NAME}" in
-            *-alpha.*|*-beta.*|*-rc.*) echo "pre-release; not tagging latest" ;;
+            # Any suffix marks a pre-release: v0.1.0-beta as well as v0.1.0-beta.2.
+            *-alpha*|*-beta*|*-rc*) echo "pre-release; not tagging latest" ;;
             *) docker tag auvc:release "${registry}:latest"; docker push "${registry}:latest" ;;
           esac
 
@@ -269,7 +270,7 @@ jobs:
           set -euo pipefail
           prerelease=""
           case "${GITHUB_REF_NAME}" in
-            *-alpha.*|*-beta.*|*-rc.*) prerelease="--prerelease" ;;
+            *-alpha*|*-beta*|*-rc*) prerelease="--prerelease" ;;
           esac
 
           gh release create "${GITHUB_REF_NAME}" artifacts/release/* \
