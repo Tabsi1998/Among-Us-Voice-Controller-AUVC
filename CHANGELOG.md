@@ -4,6 +4,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The bot answers in German
+  ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)).
+  Every `/au` reply, `/au doctor`, the session commands and the private answers
+  when choosing a crewmate come in the Discord language of whoever asked:
+  German for German, English for everyone else. Discord shows the descriptions
+  of the `/au` commands and their options in German too.
+
 ## v0.1.2-beta — 2026-09-14
 
 The third pre-release, after the first live tests in full public lobbies. Muting,

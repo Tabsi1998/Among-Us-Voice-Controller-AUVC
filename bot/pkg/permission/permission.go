@@ -12,19 +12,20 @@
 package permission
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
 // Need is one permission AUVC requires, together with what breaks without it.
 // The consequence is written for a guild administrator, not a developer.
 type Need struct {
-	Bit         int64
+	Bit int64
+	// Name is Discord's own English name for the permission.
 	Name        string
-	Consequence string
+	Consequence text.Key
 }
 
 // The permissions AUVC needs on a voice channel it manages. Players move in both
@@ -33,27 +34,27 @@ var (
 	ViewChannel = Need{
 		Bit:         discordgo.PermissionViewChannel,
 		Name:        "View Channel",
-		Consequence: "AUVC cannot see the channel and does not know who is in it",
+		Consequence: text.WithoutViewVoiceChannel,
 	}
 	Connect = Need{
 		Bit:         discordgo.PermissionVoiceConnect,
 		Name:        "Connect",
-		Consequence: "AUVC cannot move anyone into the channel",
+		Consequence: text.WithoutConnect,
 	}
 	MoveMembers = Need{
 		Bit:         discordgo.PermissionVoiceMoveMembers,
 		Name:        "Move Members",
-		Consequence: "dead players are not moved to the ghost channel and are not returned at the end of a round",
+		Consequence: text.WithoutMoveMembers,
 	}
 	MuteMembers = Need{
 		Bit:         discordgo.PermissionVoiceMuteMembers,
 		Name:        "Mute Members",
-		Consequence: "living players are not muted during tasks",
+		Consequence: text.WithoutMuteMembers,
 	}
 	DeafenMembers = Need{
 		Bit:         discordgo.PermissionVoiceDeafenMembers,
 		Name:        "Deafen Members",
-		Consequence: "living players can hear the dead talking during tasks",
+		Consequence: text.WithoutDeafenMembers,
 	}
 )
 
@@ -66,17 +67,17 @@ var (
 	SeeTextChannel = Need{
 		Bit:         discordgo.PermissionViewChannel,
 		Name:        "View Channel",
-		Consequence: "AUVC cannot see the channel, so neither the crewmate menu nor warnings appear there",
+		Consequence: text.WithoutViewTextChannel,
 	}
 	SendMessages = Need{
 		Bit:         discordgo.PermissionSendMessages,
 		Name:        "Send Messages",
-		Consequence: "AUVC cannot post the crewmate menu or warn you when capture stops",
+		Consequence: text.WithoutSendMessages,
 	}
 	EmbedLinks = Need{
 		Bit:         discordgo.PermissionEmbedLinks,
 		Name:        "Embed Links",
-		Consequence: "AUVC cannot post the crewmate menu",
+		Consequence: text.WithoutEmbedLinks,
 	}
 )
 
@@ -107,8 +108,8 @@ func Missing(effective int64, needs []Need) []Need {
 // holds on it, overwrites already applied.
 type Channel struct {
 	// Purpose is how the channel is described to an administrator, for example
-	// "main voice channel".
-	Purpose string
+	// text.PurposeMainChannel.
+	Purpose text.Key
 	// ID is the Discord channel id. An empty id means the channel is not
 	// configured yet, which is a setup question rather than a permission one.
 	ID        string
@@ -140,26 +141,26 @@ func Audit(channels ...Channel) []Report {
 	return reports
 }
 
-// Summary renders reports as text for a Discord response. It returns an empty
-// string when nothing is missing, so a caller can use it directly as a
-// condition.
+// Summary renders reports as text for a Discord response, in a language. It
+// returns an empty string when nothing is missing, so a caller can use it
+// directly as a condition.
 //
 // Permissions are named once with every channel that lacks them, rather than
 // repeating the same explanation per channel: an administrator fixes a
 // permission once, usually on the role.
-func Summary(reports []Report) string {
+func Summary(language text.Language, reports []Report) string {
 	if len(reports) == 0 {
 		return ""
 	}
 
 	// Group the affected channels by permission so each one is explained once.
 	channelsByNeed := map[string][]string{}
-	consequence := map[string]string{}
+	consequence := map[string]text.Key{}
 	order := map[string]int{}
 
 	for _, report := range reports {
 		for i, need := range report.Missing {
-			channelsByNeed[need.Name] = append(channelsByNeed[need.Name], report.Channel.Purpose)
+			channelsByNeed[need.Name] = append(channelsByNeed[need.Name], language.Say(report.Channel.Purpose))
 			consequence[need.Name] = need.Consequence
 			if _, seen := order[need.Name]; !seen {
 				order[need.Name] = i
@@ -179,10 +180,11 @@ func Summary(reports []Report) string {
 	})
 
 	var builder strings.Builder
-	builder.WriteString("AUVC is missing Discord permissions:\n")
+	builder.WriteString(language.Say(text.PermissionsMissing))
 	for _, name := range names {
-		builder.WriteString(fmt.Sprintf("- **%s** on the %s: %s\n",
-			name, strings.Join(channelsByNeed[name], " and the "), consequence[name]))
+		builder.WriteString(language.Say(text.PermissionMissingLine,
+			name, strings.Join(channelsByNeed[name], language.Say(text.PermissionChannelsJoin)),
+			language.Say(consequence[name])))
 	}
 	return builder.String()
 }

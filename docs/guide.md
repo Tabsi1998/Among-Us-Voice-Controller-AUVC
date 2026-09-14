@@ -247,7 +247,9 @@ options as you type.
 
 ## 7. Discord commands
 
-Every answer is visible only to whoever typed the command.
+Every answer is visible only to whoever typed the command. It comes in your
+Discord language: German when your Discord is set to German, English otherwise.
+Discord shows the command descriptions the same way.
 
 | Command | What it does |
 | --- | --- |

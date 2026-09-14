@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -99,6 +100,7 @@ func TestTreeSatisfiesDiscordConstraints(t *testing.T) {
 				t.Errorf("%s: description must be 1..100 characters, got %d",
 					here, len(option.Description))
 			}
+			checkTranslations(t, here, option.DescriptionLocalizations)
 
 			isGroup := option.Type == discordgo.ApplicationCommandOptionSubCommandGroup
 			isSub := option.Type == discordgo.ApplicationCommandOptionSubCommand
@@ -139,7 +141,32 @@ func TestTreeSatisfiesDiscordConstraints(t *testing.T) {
 	if !namePattern.MatchString(command.Name) {
 		t.Errorf("command name %q is not valid", command.Name)
 	}
+	if command.DescriptionLocalizations == nil {
+		t.Errorf("/%s has no translated description", command.Name)
+	} else {
+		checkTranslations(t, "/"+command.Name, *command.DescriptionLocalizations)
+	}
 	walk("/"+command.Name, command.Options, topLevel)
+}
+
+// checkTranslations holds a translated description to Discord's limit, counted
+// in characters as Discord counts it, and makes sure every language AUVC
+// describes its commands in is there. A description over the limit fails the
+// whole registration, so /au would be missing in every server.
+func checkTranslations(t *testing.T, path string, translations map[discordgo.Locale]string) {
+	t.Helper()
+
+	for locale := range DiscordLocales {
+		described := translations[locale]
+		if length := utf8.RuneCountInString(described); described == "" || length > 100 {
+			t.Errorf("%s: the %s description must be 1..100 characters, got %d", path, locale, length)
+		}
+	}
+	for locale := range translations {
+		if _, ok := DiscordLocales[locale]; !ok {
+			t.Errorf("%s: a description for %s, which AUVC does not speak", path, locale)
+		}
+	}
 }
 
 // "Use actual Discord channel, role, boolean and integer option types. Do not

@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -65,8 +66,8 @@ func TestEveryNeedExplainsWhatBreaks(t *testing.T) {
 
 func TestAuditReportsPerChannel(t *testing.T) {
 	reports := Audit(
-		Channel{Purpose: "main voice channel", ID: "main", Effective: all},
-		Channel{Purpose: "ghost voice channel", ID: "ghost", Effective: all &^ discordgo.PermissionVoiceMoveMembers},
+		Channel{Purpose: text.PurposeMainChannel, ID: "main", Effective: all},
+		Channel{Purpose: text.PurposeGhostChannel, ID: "ghost", Effective: all &^ discordgo.PermissionVoiceMoveMembers},
 	)
 
 	if len(reports) != 1 {
@@ -85,8 +86,8 @@ func TestAuditReportsPerChannel(t *testing.T) {
 // would bury the actual advice, which is to run /au setup channels.
 func TestAuditSkipsUnconfiguredChannels(t *testing.T) {
 	reports := Audit(
-		Channel{Purpose: "main voice channel", ID: "", Effective: 0},
-		Channel{Purpose: "ghost voice channel", ID: "", Effective: 0},
+		Channel{Purpose: text.PurposeMainChannel, ID: "", Effective: 0},
+		Channel{Purpose: text.PurposeGhostChannel, ID: "", Effective: 0},
 	)
 
 	if len(reports) != 0 {
@@ -95,22 +96,22 @@ func TestAuditSkipsUnconfiguredChannels(t *testing.T) {
 }
 
 func TestSummaryIsEmptyWhenNothingIsMissing(t *testing.T) {
-	if got := Summary(nil); got != "" {
+	if got := Summary(text.English, nil); got != "" {
 		t.Errorf("expected an empty summary, got %q", got)
 	}
-	if got := Summary(Audit(Channel{Purpose: "main", ID: "main", Effective: all})); got != "" {
+	if got := Summary(text.English, Audit(Channel{Purpose: "main", ID: "main", Effective: all})); got != "" {
 		t.Errorf("expected an empty summary, got %q", got)
 	}
 }
 
 func TestSummaryNamesTheConsequence(t *testing.T) {
 	reports := Audit(Channel{
-		Purpose:   "ghost voice channel",
+		Purpose:   text.PurposeGhostChannel,
 		ID:        "ghost",
 		Effective: all &^ discordgo.PermissionVoiceMoveMembers,
 	})
 
-	summary := Summary(reports)
+	summary := Summary(text.English, reports)
 	if !strings.Contains(summary, MoveMembers.Name) {
 		t.Errorf("summary does not name the permission: %q", summary)
 	}
@@ -127,11 +128,11 @@ func TestSummaryNamesTheConsequence(t *testing.T) {
 // problems.
 func TestSummaryGroupsAChannelPairUnderOnePermission(t *testing.T) {
 	reports := Audit(
-		Channel{Purpose: "main voice channel", ID: "main", Effective: all &^ discordgo.PermissionVoiceMoveMembers},
-		Channel{Purpose: "ghost voice channel", ID: "ghost", Effective: all &^ discordgo.PermissionVoiceMoveMembers},
+		Channel{Purpose: text.PurposeMainChannel, ID: "main", Effective: all &^ discordgo.PermissionVoiceMoveMembers},
+		Channel{Purpose: text.PurposeGhostChannel, ID: "ghost", Effective: all &^ discordgo.PermissionVoiceMoveMembers},
 	)
 
-	summary := Summary(reports)
+	summary := Summary(text.English, reports)
 	if got := strings.Count(summary, MoveMembers.Name); got != 1 {
 		t.Errorf("Move Members should be explained once, appeared %d times:\n%s", got, summary)
 	}
@@ -141,7 +142,7 @@ func TestSummaryGroupsAChannelPairUnderOnePermission(t *testing.T) {
 }
 
 func TestSummaryListsEveryMissingPermission(t *testing.T) {
-	summary := Summary(Audit(Channel{Purpose: "main voice channel", ID: "main", Effective: 0}))
+	summary := Summary(text.English, Audit(Channel{Purpose: text.PurposeMainChannel, ID: "main", Effective: 0}))
 
 	for _, need := range VoiceChannelNeeds {
 		if !strings.Contains(summary, need.Name) {
@@ -150,17 +151,38 @@ func TestSummaryListsEveryMissingPermission(t *testing.T) {
 	}
 }
 
+// A German administrator reads the whole summary in German; only Discord's own
+// permission names stay as Discord documents them.
+func TestSummaryIsWrittenInTheLanguageAskedFor(t *testing.T) {
+	summary := Summary(text.German, Audit(Channel{
+		Purpose:   text.PurposeGhostChannel,
+		ID:        "ghost",
+		Effective: all &^ discordgo.PermissionVoiceMoveMembers,
+	}))
+
+	for _, expected := range []string{
+		text.German.Say(text.PermissionsMissing),
+		MoveMembers.Name,
+		text.German.Say(text.PurposeGhostChannel),
+		text.German.Say(text.WithoutMoveMembers),
+	} {
+		if !strings.Contains(summary, expected) {
+			t.Errorf("the German summary is missing %q:\n%s", expected, summary)
+		}
+	}
+}
+
 // The order must be stable, or the same problem produces a different message on
 // every call and nobody can tell whether anything changed.
 func TestSummaryIsStable(t *testing.T) {
 	channels := []Channel{
-		{Purpose: "main voice channel", ID: "main", Effective: 0},
-		{Purpose: "ghost voice channel", ID: "ghost", Effective: 0},
+		{Purpose: text.PurposeMainChannel, ID: "main", Effective: 0},
+		{Purpose: text.PurposeGhostChannel, ID: "ghost", Effective: 0},
 	}
 
-	first := Summary(Audit(channels...))
+	first := Summary(text.English, Audit(channels...))
 	for i := 0; i < 5; i++ {
-		if again := Summary(Audit(channels...)); again != first {
+		if again := Summary(text.English, Audit(channels...)); again != first {
 			t.Fatalf("summary changed between calls:\n%s\n---\n%s", first, again)
 		}
 	}

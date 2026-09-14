@@ -10,6 +10,7 @@ import (
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/credential"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 const guild = "guild-1"
@@ -366,13 +367,15 @@ func TestTheStatusDescriptionCarriesNoSecret(t *testing.T) {
 		t.Fatalf("status: %v", err)
 	}
 
-	described := status.Describe()
-	if described == "" {
-		t.Fatal("the status described itself as nothing")
-	}
-	for _, secret := range []string{issued.Secret.Reveal(), issued.Token().Reveal()} {
-		if strings.Contains(described, secret) {
-			t.Errorf("the status leaked a secret: %s", described)
+	for _, language := range text.Languages {
+		described := status.Describe(language)
+		if described == "" {
+			t.Fatalf("the %s status described itself as nothing", language)
+		}
+		for _, secret := range []string{issued.Secret.Reveal(), issued.Token().Reveal()} {
+			if strings.Contains(described, secret) {
+				t.Errorf("the %s status leaked a secret: %s", language, described)
+			}
 		}
 	}
 }

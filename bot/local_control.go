@@ -12,6 +12,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/localcontrol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/transport"
 	"github.com/bwmarrin/discordgo"
 )
@@ -126,7 +127,9 @@ func (l *localBackend) Guild(guildID string) (localcontrol.Guild, error) {
 		result.CaptureConnections = l.capture.Connections(guildID)
 	}
 	if l.doctor != nil {
-		for _, check := range l.doctor.Report(guildID) {
+		// The app does not tell the bot its language yet (#112), so it gets the
+		// checks as it always has.
+		for _, check := range l.doctor.Report(guildID, text.English) {
 			result.Checks = append(result.Checks, localcontrol.Check{
 				Name: check.Name, Level: check.Level.String(), Detail: check.Detail, Fix: check.Fix,
 			})

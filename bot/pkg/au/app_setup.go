@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // LinkFromApp links a crewmate to a Discord member for the Windows app, or
@@ -75,7 +76,9 @@ func (s *Service) ConfigureFromApp(guildID string, setup AppSetup) (sqlite.Guild
 	config.ControlTextChannelID = setup.ControlTextChannelID
 	config.AutoStart = setup.AutoStart
 
-	if err := s.save(config); err != nil {
+	// The app does not send its language yet (#112), so a refusal reads as it
+	// always has.
+	if err := s.save(config, text.English); err != nil {
 		return sqlite.GuildConfig{}, err
 	}
 

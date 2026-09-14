@@ -8,6 +8,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/doctor"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/permission"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // Doctor gathers the facts /au doctor reports on.
@@ -23,35 +24,38 @@ type Doctor struct {
 // NewDoctor wires the diagnosis to a bot.
 func NewDoctor(bot *Bot) *Doctor { return &Doctor{bot: bot} }
 
-// Diagnose runs every check for one guild and renders them for Discord.
-func (d *Doctor) Diagnose(guildID string) (string, error) {
-	return d.Report(guildID).Render(), nil
+// Diagnose runs every check for one guild and renders them for Discord, in the
+// language of whoever asked.
+func (d *Doctor) Diagnose(guildID string, language text.Language) (string, error) {
+	return d.Report(guildID, language).Render(language), nil
 }
 
 // Report runs every check for one guild and returns them unrendered, for the
 // Windows app, which shows them in its own window rather than a message.
-func (d *Doctor) Report(guildID string) doctor.Report {
+func (d *Doctor) Report(guildID string, language text.Language) doctor.Report {
 	var report doctor.Report
 
-	d.checkDiscord(&report, guildID)
-	config, configured := d.checkStorage(&report, guildID)
-	d.checkChannels(&report, config, configured)
-	d.checkPermissions(&report, config, configured)
-	d.checkCrewmates(&report, config, configured)
-	d.checkCapture(&report, guildID)
-	d.checkSession(&report, guildID)
-	d.checkBuild(&report)
+	d.checkDiscord(&report, guildID, language)
+	config, configured := d.checkStorage(&report, guildID, language)
+	d.checkChannels(&report, config, configured, language)
+	d.checkPermissions(&report, config, configured, language)
+	d.checkCrewmates(&report, config, configured, language)
+	d.checkCapture(&report, guildID, language)
+	d.checkSession(&report, guildID, language)
+	d.checkBuild(&report, language)
 
 	return report
 }
 
 // checkDiscord reports whether the bot is connected and can see the guild.
-func (d *Doctor) checkDiscord(report *doctor.Report, guildID string) {
+func (d *Doctor) checkDiscord(report *doctor.Report, guildID string, language text.Language) {
+	name := language.Say(text.CheckDiscord)
+
 	if d.bot.PrimarySession == nil {
 		report.Add(doctor.Check{
-			Name: "Discord", Level: doctor.Fail,
-			Detail: "no Discord session",
-			Fix:    "Restart AUVC and check `DISCORD_BOT_TOKEN`.",
+			Name: name, Level: doctor.Fail,
+			Detail: language.Say(text.DoctorNoSession),
+			Fix:    language.Say(text.DoctorNoSessionFix),
 		})
 		return
 	}
@@ -59,42 +63,42 @@ func (d *Doctor) checkDiscord(report *doctor.Report, guildID string) {
 	guild, err := d.bot.PrimarySession.State.Guild(guildID)
 	if err != nil || guild == nil {
 		report.Add(doctor.Check{
-			Name: "Discord", Level: doctor.Fail,
-			Detail: "connected, but this server is not in the bot's cache",
-			Fix:    "Remove and re-invite the bot, then try again.",
+			Name: name, Level: doctor.Fail,
+			Detail: language.Say(text.DoctorGuildNotCached),
+			Fix:    language.Say(text.DoctorGuildNotCachedFix),
 		})
 		return
 	}
 
 	report.Add(doctor.Check{
-		Name: "Discord", Level: doctor.OK,
-		Detail: fmt.Sprintf("connected and watching **%s**", guild.Name),
+		Name: name, Level: doctor.OK,
+		Detail: language.Say(text.DoctorConnected, guild.Name),
 	})
 }
 
 // checkStorage reports on SQLite and the guild's configuration, and hands back
 // what the later checks need.
-func (d *Doctor) checkStorage(report *doctor.Report, guildID string) (voiceChannels, bool) {
+func (d *Doctor) checkStorage(report *doctor.Report, guildID string, language text.Language) (voiceChannels, bool) {
 	version, err := d.bot.AUVC.SchemaVersion()
 	if err != nil {
 		report.Add(doctor.Check{
-			Name: "Database", Level: doctor.Fail,
-			Detail: "SQLite is not reachable: " + err.Error(),
-			Fix:    "Check `AUVC_DATABASE_PATH` and that the volume is writable.",
+			Name: language.Say(text.CheckDatabase), Level: doctor.Fail,
+			Detail: language.Say(text.DoctorDatabaseUnreachable, err.Error()),
+			Fix:    language.Say(text.DoctorDatabaseUnreachableFix),
 		})
 		return voiceChannels{}, false
 	}
 
 	report.Add(doctor.Check{
-		Name: "Database", Level: doctor.OK,
-		Detail: fmt.Sprintf("SQLite reachable, schema migration %d applied", version),
+		Name: language.Say(text.CheckDatabase), Level: doctor.OK,
+		Detail: language.Say(text.DoctorDatabaseReachable, version),
 	})
 
 	config, err := d.bot.AUVC.GuildConfig(guildID)
 	if err != nil {
 		report.Add(doctor.Check{
-			Name: "Configuration", Level: doctor.Fail,
-			Detail: "could not be read: " + err.Error(),
+			Name: language.Say(text.CheckConfiguration), Level: doctor.Fail,
+			Detail: language.Say(text.DoctorConfigUnreadable, err.Error()),
 		})
 		return voiceChannels{}, false
 	}
@@ -102,9 +106,9 @@ func (d *Doctor) checkStorage(report *doctor.Report, guildID string) (voiceChann
 	if problems := au.Validate(config); len(problems) > 0 {
 		for _, problem := range problems {
 			report.Add(doctor.Check{
-				Name: "Configuration", Level: doctor.Fail,
-				Detail: problem.Error(),
-				Fix:    "Fix it with `/au settings`, or start over with `/au setup reset`.",
+				Name: language.Say(text.CheckConfiguration), Level: doctor.Fail,
+				Detail: problem.Describe(language),
+				Fix:    language.Say(text.DoctorConfigInvalidFix),
 			})
 		}
 		return voiceChannels{}, false
@@ -127,41 +131,43 @@ type voiceChannels struct {
 }
 
 // checkChannels reports on the three channels a guild configures.
-func (d *Doctor) checkChannels(report *doctor.Report, channels voiceChannels, configured bool) {
+func (d *Doctor) checkChannels(report *doctor.Report, channels voiceChannels, configured bool, language text.Language) {
 	if !configured {
 		return
 	}
 
 	if !channels.enabled {
 		report.Add(doctor.Check{
-			Name: "Enabled", Level: doctor.Warn,
-			Detail: "AUVC is switched off for this server",
-			Fix:    "Turn it on with `/au settings voice enabled:true`.",
+			Name: language.Say(text.CheckEnabled), Level: doctor.Warn,
+			Detail: language.Say(text.DoctorDisabled),
+			Fix:    language.Say(text.DoctorDisabledFix),
 		})
 	}
 
 	for _, entry := range []struct {
-		name      string
+		name      text.Key
 		channelID string
 		required  bool
-		fix       string
+		fix       text.Key
 	}{
-		{"Main voice channel", channels.main, true, "Set it with `/au setup channels`."},
-		{"Ghost voice channel", channels.ghost, true, "Set it with `/au setup channels`."},
-		{"Control text channel", channels.control, false,
-			"Set one with `/au setup channels`: players choose their crewmate there, and AUVC warns you when capture stops."},
+		{text.CheckMainChannel, channels.main, true, text.DoctorSetChannelFix},
+		{text.CheckGhostChannel, channels.ghost, true, text.DoctorSetChannelFix},
+		{text.CheckControlChannel, channels.control, false, text.DoctorControlChannelFix},
 	} {
+		name := language.Say(entry.name)
 		switch {
 		case entry.channelID == "" && entry.required:
 			report.Add(doctor.Check{
-				Name: entry.name, Level: doctor.Fail, Detail: "not set", Fix: entry.fix,
+				Name: name, Level: doctor.Fail,
+				Detail: language.Say(text.DoctorNotSet), Fix: language.Say(entry.fix),
 			})
 		case entry.channelID == "":
 			report.Add(doctor.Check{
-				Name: entry.name, Level: doctor.Warn, Detail: "not set", Fix: entry.fix,
+				Name: name, Level: doctor.Warn,
+				Detail: language.Say(text.DoctorNotSet), Fix: language.Say(entry.fix),
 			})
 		default:
-			report.Add(d.describeChannel(entry.name, entry.channelID))
+			report.Add(d.describeChannel(name, entry.channelID, language))
 		}
 	}
 }
@@ -170,18 +176,18 @@ func (d *Doctor) checkChannels(report *doctor.Report, channels voiceChannels, co
 //
 // A channel that was deleted after being configured is the failure nobody
 // thinks to look for, because the configuration still names it.
-func (d *Doctor) describeChannel(name, channelID string) doctor.Check {
+func (d *Doctor) describeChannel(name, channelID string, language text.Language) doctor.Check {
 	if d.bot.PrimarySession == nil {
 		return doctor.Check{Name: name, Level: doctor.Warn,
-			Detail: "configured, but Discord is unavailable to confirm it"}
+			Detail: language.Say(text.DoctorChannelUnconfirmed)}
 	}
 
 	channel, err := d.bot.PrimarySession.State.Channel(channelID)
 	if err != nil || channel == nil {
 		return doctor.Check{
 			Name: name, Level: doctor.Fail,
-			Detail: fmt.Sprintf("<#%s> is configured but AUVC cannot see it", channelID),
-			Fix:    "The channel may have been deleted. Set it again with `/au setup channels`.",
+			Detail: language.Say(text.DoctorChannelMissing, channelID),
+			Fix:    language.Say(text.DoctorChannelMissingFix),
 		}
 	}
 
@@ -189,7 +195,7 @@ func (d *Doctor) describeChannel(name, channelID string) doctor.Check {
 }
 
 // checkPermissions reports the effective permissions on the voice channels.
-func (d *Doctor) checkPermissions(report *doctor.Report, channels voiceChannels, configured bool) {
+func (d *Doctor) checkPermissions(report *doctor.Report, channels voiceChannels, configured bool, language text.Language) {
 	if !configured || channels.main == "" || channels.ghost == "" {
 		return
 	}
@@ -200,25 +206,26 @@ func (d *Doctor) checkPermissions(report *doctor.Report, channels voiceChannels,
 	reports := permission.Audit(d.bot.voiceChannelPermissions(channels.main, channels.ghost)...)
 	if len(reports) == 0 {
 		report.Add(doctor.Check{
-			Name: "Permissions", Level: doctor.OK,
-			Detail: "all five voice permissions are granted on both channels",
+			Name: language.Say(text.CheckPermissions), Level: doctor.OK,
+			Detail: language.Say(text.DoctorPermissionsGranted),
 		})
 		return
 	}
 
 	report.Add(doctor.Check{
-		Name: "Permissions", Level: doctor.Fail,
-		Detail: permission.Summary(reports),
-		Fix:    "Grant the missing permissions to the AUVC role, on the role or on the channel.",
+		Name: language.Say(text.CheckPermissions), Level: doctor.Fail,
+		Detail: permission.Summary(language, reports),
+		Fix:    language.Say(text.DoctorPermissionsFix),
 	})
 }
 
 // checkCrewmates reports whether players can choose their crewmate in the
 // control channel.
-func (d *Doctor) checkCrewmates(report *doctor.Report, channels voiceChannels, configured bool) {
+func (d *Doctor) checkCrewmates(report *doctor.Report, channels voiceChannels, configured bool, language text.Language) {
 	if !configured || channels.control == "" || d.bot.PrimarySession == nil {
 		return
 	}
+	name := language.Say(text.CheckCrewmateMenu)
 
 	effective, err := d.bot.PrimarySession.UserChannelPermissions(
 		d.bot.PrimarySession.State.User.ID, channels.control)
@@ -227,21 +234,21 @@ func (d *Doctor) checkCrewmates(report *doctor.Report, channels voiceChannels, c
 	}
 	if missing := permission.Missing(effective, permission.ControlChannelNeeds); len(missing) > 0 {
 		report.Add(doctor.Check{
-			Name: "Crewmate menu", Level: doctor.Fail,
-			Detail: permission.Summary([]permission.Report{{
-				Channel: permission.Channel{Purpose: "text channel", ID: channels.control, Effective: effective},
+			Name: name, Level: doctor.Fail,
+			Detail: permission.Summary(language, []permission.Report{{
+				Channel: permission.Channel{Purpose: text.PurposeTextChannel, ID: channels.control, Effective: effective},
 				Missing: missing,
 			}}),
-			Fix: "Grant the missing permissions to the AUVC role on the text channel, or invite the bot again from the AUVC app.",
+			Fix: language.Say(text.DoctorCrewmatePermissionsFix),
 		})
 		return
 	}
 
 	if d.bot.Crewmates == nil {
 		report.Add(doctor.Check{
-			Name: "Crewmate menu", Level: doctor.Warn,
-			Detail: "not available in this build",
-			Fix:    "Players can still link themselves with `/au link player:<name>`.",
+			Name: name, Level: doctor.Warn,
+			Detail: language.Say(text.DoctorCrewmateUnavailable),
+			Fix:    language.Say(text.DoctorCrewmateUnavailableFix),
 		})
 		return
 	}
@@ -249,49 +256,49 @@ func (d *Doctor) checkCrewmates(report *doctor.Report, channels voiceChannels, c
 	uploaded, total := d.bot.Crewmates.EmojiStatus()
 	if uploaded < total {
 		report.Add(doctor.Check{
-			Name: "Crewmate menu", Level: doctor.Warn,
-			Detail: fmt.Sprintf("in <#%s>, with %d of %d crewmate pictures so far", channels.control, uploaded, total),
-			Fix:    "The pictures upload when AUVC starts. If the number does not grow, the bot log says why.",
+			Name: name, Level: doctor.Warn,
+			Detail: language.Say(text.DoctorCrewmatePictures, channels.control, uploaded, total),
+			Fix:    language.Say(text.DoctorCrewmatePicturesFix),
 		})
 		return
 	}
 
 	report.Add(doctor.Check{
-		Name: "Crewmate menu", Level: doctor.OK,
-		Detail: fmt.Sprintf("in <#%s>, with every crewmate picture", channels.control),
+		Name: name, Level: doctor.OK,
+		Detail: language.Say(text.DoctorCrewmateReady, channels.control),
 	})
 }
 
 // checkCapture reports whether a capture is paired, connected and recent.
-func (d *Doctor) checkCapture(report *doctor.Report, guildID string) {
+func (d *Doctor) checkCapture(report *doctor.Report, guildID string, language text.Language) {
 	status, err := d.bot.AUVC.CaptureStatus(guildID)
 	if err != nil {
 		report.Add(doctor.Check{
-			Name: "Capture", Level: doctor.Fail,
-			Detail: "pairing state could not be read: " + err.Error(),
+			Name: language.Say(text.CheckCapture), Level: doctor.Fail,
+			Detail: language.Say(text.DoctorCaptureUnreadable, err.Error()),
 		})
 		return
 	}
 
 	if !status.Paired {
 		report.Add(doctor.Check{
-			Name: "Capture", Level: doctor.Warn,
-			Detail: "no capture app is paired",
-			Fix:    "Run `/au capture pair` and type the code into the capture app.",
+			Name: language.Say(text.CheckCapture), Level: doctor.Warn,
+			Detail: language.Say(text.DoctorCaptureNotPaired),
+			Fix:    language.Say(text.DoctorCaptureNotPairedFix),
 		})
 		return
 	}
 
 	report.Add(doctor.Check{
-		Name: "Capture", Level: doctor.OK, Detail: "paired",
+		Name: language.Say(text.CheckCapture), Level: doctor.OK, Detail: language.Say(text.DoctorCapturePaired),
 	})
 
 	lastSeen, seen := d.bot.CaptureSessions.LastSeen(guildID)
 	if !seen {
 		report.Add(doctor.Check{
-			Name: "Heartbeat", Level: doctor.Warn,
-			Detail: "capture is paired but has not connected since AUVC started",
-			Fix:    "Start the capture app on the PC running Among Us.",
+			Name: language.Say(text.CheckHeartbeat), Level: doctor.Warn,
+			Detail: language.Say(text.DoctorHeartbeatNever),
+			Fix:    language.Say(text.DoctorHeartbeatNeverFix),
 		})
 		return
 	}
@@ -300,33 +307,34 @@ func (d *Doctor) checkCapture(report *doctor.Report, guildID string) {
 	timeout := d.bot.captureTimeout(guildID)
 	if since > timeout {
 		report.Add(doctor.Check{
-			Name: "Heartbeat", Level: doctor.Fail,
-			Detail: fmt.Sprintf("nothing heard for %s, past the %s timeout", round(since), timeout),
-			Fix:    "Check that the capture app is still running and can reach this bot.",
+			Name: language.Say(text.CheckHeartbeat), Level: doctor.Fail,
+			Detail: language.Say(text.DoctorHeartbeatStale, round(since), timeout),
+			Fix:    language.Say(text.DoctorHeartbeatStaleFix),
 		})
 		return
 	}
 
 	report.Add(doctor.Check{
-		Name: "Heartbeat", Level: doctor.OK,
-		Detail: fmt.Sprintf("last message %s ago (timeout %s)", round(since), timeout),
+		Name: language.Say(text.CheckHeartbeat), Level: doctor.OK,
+		Detail: language.Say(text.DoctorHeartbeatRecent, round(since), timeout),
 	})
 
 	report.Add(doctor.Check{
-		Name: "Protocol", Level: doctor.OK,
-		Detail: fmt.Sprintf("this bot speaks version %d, and capture is connected on it", protocol.Version),
+		Name: language.Say(text.CheckProtocol), Level: doctor.OK,
+		Detail: language.Say(text.DoctorProtocol, protocol.Version),
 	})
 }
 
 // checkSession reports what AUVC currently believes about the game.
-func (d *Doctor) checkSession(report *doctor.Report, guildID string) {
+func (d *Doctor) checkSession(report *doctor.Report, guildID string, language text.Language) {
 	mode, phase, players := d.bot.CaptureSessions.Snapshot(guildID)
+	name := language.Say(text.CheckGameState)
 
 	if len(players) == 0 {
 		report.Add(doctor.Check{
-			Name: "Game state", Level: doctor.Warn,
-			Detail: "no game data yet",
-			Fix:    "Start Among Us with the capture app running.",
+			Name: name, Level: doctor.Warn,
+			Detail: language.Say(text.DoctorNoGameData),
+			Fix:    language.Say(text.DoctorNoGameDataFix),
 		})
 		return
 	}
@@ -343,23 +351,23 @@ func (d *Doctor) checkSession(report *doctor.Report, guildID string) {
 		}
 	}
 
-	detail := fmt.Sprintf("%s, %d alive and %d dead, session %s",
-		describePhase(phase), alive, dead, mode)
+	detail := language.Say(text.DoctorGameState,
+		describePhase(phase, language), alive, dead, describeMode(mode, language))
 
 	level := doctor.OK
 	fix := ""
 	if mode != Running {
 		level = doctor.Warn
-		fix = "Start managing voice with `/au session start`."
+		fix = language.Say(text.DoctorStartSessionFix)
 	}
-	report.Add(doctor.Check{Name: "Game state", Level: level, Detail: detail, Fix: fix})
+	report.Add(doctor.Check{Name: name, Level: level, Detail: detail, Fix: fix})
 }
 
 // checkBuild reports the version, which is the first thing to ask for in a bug
 // report and the last thing anybody remembers to include.
-func (d *Doctor) checkBuild(report *doctor.Report) {
+func (d *Doctor) checkBuild(report *doctor.Report, language text.Language) {
 	report.Add(doctor.Check{
-		Name: "Build", Level: doctor.OK, Detail: d.bot.AUVC.Version(),
+		Name: language.Say(text.CheckBuild), Level: doctor.OK, Detail: d.bot.AUVC.Version(),
 	})
 }
 

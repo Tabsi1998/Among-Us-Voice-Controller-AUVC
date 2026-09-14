@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // recordingController answers every session command with its own name, so the
@@ -12,23 +14,25 @@ type recordingController struct {
 	calls []string
 }
 
-func (r *recordingController) record(name, guildID string) (string, error) {
-	r.calls = append(r.calls, name+":"+guildID)
+func (r *recordingController) record(name, guildID string, language text.Language) (string, error) {
+	r.calls = append(r.calls, name+":"+guildID+":"+string(language))
 	return "handled " + name, nil
 }
 
-func (r *recordingController) Start(guildID string) (string, error) {
-	return r.record("start", guildID)
+func (r *recordingController) Start(guildID string, language text.Language) (string, error) {
+	return r.record("start", guildID, language)
 }
-func (r *recordingController) Stop(guildID string) (string, error) { return r.record("stop", guildID) }
-func (r *recordingController) Pause(guildID string) (string, error) {
-	return r.record("pause", guildID)
+func (r *recordingController) Stop(guildID string, language text.Language) (string, error) {
+	return r.record("stop", guildID, language)
 }
-func (r *recordingController) Resume(guildID string) (string, error) {
-	return r.record("resume", guildID)
+func (r *recordingController) Pause(guildID string, language text.Language) (string, error) {
+	return r.record("pause", guildID, language)
 }
-func (r *recordingController) Status(guildID string) (string, error) {
-	return r.record("status", guildID)
+func (r *recordingController) Resume(guildID string, language text.Language) (string, error) {
+	return r.record("resume", guildID, language)
+}
+func (r *recordingController) Status(guildID string, language text.Language) (string, error) {
+	return r.record("status", guildID, language)
 }
 
 func TestEverySessionCommandReachesTheController(t *testing.T) {
@@ -37,7 +41,9 @@ func TestEverySessionCommandReachesTheController(t *testing.T) {
 	service.AttachSessionControl(controller)
 
 	for _, command := range []string{SessionStart, SessionStop, SessionPause, SessionResume, SessionStatus} {
-		reply, err := service.Handle(request(GroupSession, command))
+		asked := request(GroupSession, command)
+		asked.Language = text.German
+		reply, err := service.Handle(asked)
 		if err != nil {
 			t.Fatalf("%s: %v", command, err)
 		}
@@ -50,8 +56,8 @@ func TestEverySessionCommandReachesTheController(t *testing.T) {
 		t.Errorf("expected five calls, got %v", controller.calls)
 	}
 	for _, call := range controller.calls {
-		if !strings.HasSuffix(call, ":guild") {
-			t.Errorf("a command reached the controller without its guild: %s", call)
+		if !strings.HasSuffix(call, ":guild:de") {
+			t.Errorf("a command reached the controller without its guild or language: %s", call)
 		}
 	}
 }
@@ -78,5 +84,50 @@ func TestSessionCommandsReportThemselvesWhenControlIsUnavailable(t *testing.T) {
 		if !strings.Contains(reply, command) {
 			t.Errorf("%s did not name itself: %s", command, reply)
 		}
+	}
+}
+
+// Every /au reply reaches only the member who asked, so it is written in their
+// Discord language.
+func TestARepliesInTheLanguageOfWhoeverAsked(t *testing.T) {
+	service, _ := testService(t)
+
+	link := request("", Link)
+	link.Values.Strings[OptionPlayer] = "Red"
+	link.Language = text.German
+	reply, err := service.Handle(link)
+	if err != nil {
+		t.Fatalf("link: %v", err)
+	}
+	if want := text.German.Say(text.Linked, "owner", "Red"); reply != want {
+		t.Errorf("got %q, want %q", reply, want)
+	}
+
+	show := request(GroupSettings, SettingsShow)
+	show.Language = text.German
+	settings, err := service.Handle(show)
+	if err != nil {
+		t.Fatalf("settings show: %v", err)
+	}
+	for _, expected := range []string{"AUVC-Einstellungen", "Hauptkanal", "nicht gesetzt", "ja"} {
+		if !strings.Contains(settings, expected) {
+			t.Errorf("the German settings are missing %q: %s", expected, settings)
+		}
+	}
+}
+
+// A member whose Discord language AUVC does not speak, or a request that names
+// none, is answered in English.
+func TestARequestWithoutALanguageIsAnsweredInEnglish(t *testing.T) {
+	service, _ := testService(t)
+
+	link := request("", Link)
+	link.Values.Strings[OptionPlayer] = "Red"
+	reply, err := service.Handle(link)
+	if err != nil {
+		t.Fatalf("link: %v", err)
+	}
+	if want := text.English.Say(text.Linked, "owner", "Red"); reply != want {
+		t.Errorf("got %q, want %q", reply, want)
 	}
 }

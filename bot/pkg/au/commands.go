@@ -6,7 +6,10 @@
 // live outside this package.
 package au
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
+	"github.com/bwmarrin/discordgo"
+)
 
 // Name is the single top-level command. Everything else is a subcommand or a
 // subcommand inside a group, which is as deep as Discord allows.
@@ -96,6 +99,22 @@ const (
 // CaptureTimeoutActions are the accepted values for capture_timeout_action.
 var CaptureTimeoutActions = []string{CaptureTimeoutFailOpen, CaptureTimeoutPause}
 
+// DiscordLocales are the Discord locales AUVC describes its commands in besides
+// English, which Discord shows everybody else.
+var DiscordLocales = map[discordgo.Locale]text.Language{
+	discordgo.German: text.German,
+}
+
+// describe returns a description in English and in every other language AUVC
+// speaks, for Discord to show each member in their own.
+func describe(key text.Key) (string, map[discordgo.Locale]string) {
+	translations := make(map[discordgo.Locale]string, len(DiscordLocales))
+	for locale, language := range DiscordLocales {
+		translations[locale] = language.Say(key)
+	}
+	return text.English.Say(key), translations
+}
+
 func choices(values ...string) []*discordgo.ApplicationCommandOptionChoice {
 	list := make([]*discordgo.ApplicationCommandOptionChoice, 0, len(values))
 	for _, value := range values {
@@ -104,84 +123,69 @@ func choices(values ...string) []*discordgo.ApplicationCommandOptionChoice {
 	return list
 }
 
-func sub(name, description string, options ...*discordgo.ApplicationCommandOption) *discordgo.ApplicationCommandOption {
+func option(kind discordgo.ApplicationCommandOptionType, name string, key text.Key) *discordgo.ApplicationCommandOption {
+	description, translations := describe(key)
 	return &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionSubCommand,
-		Name:        name,
-		Description: description,
-		Options:     options,
+		Type:                     kind,
+		Name:                     name,
+		Description:              description,
+		DescriptionLocalizations: translations,
 	}
 }
 
-func group(name, description string, subcommands ...*discordgo.ApplicationCommandOption) *discordgo.ApplicationCommandOption {
-	return &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionSubCommandGroup,
-		Name:        name,
-		Description: description,
-		Options:     subcommands,
-	}
+func sub(name string, key text.Key, options ...*discordgo.ApplicationCommandOption) *discordgo.ApplicationCommandOption {
+	command := option(discordgo.ApplicationCommandOptionSubCommand, name, key)
+	command.Options = options
+	return command
+}
+
+func group(name string, key text.Key, subcommands ...*discordgo.ApplicationCommandOption) *discordgo.ApplicationCommandOption {
+	command := option(discordgo.ApplicationCommandOptionSubCommandGroup, name, key)
+	command.Options = subcommands
+	return command
 }
 
 // voiceChannel builds a channel option restricted to guild voice channels, so
 // Discord itself prevents someone from picking a text channel.
-func voiceChannel(name, description string, required bool) *discordgo.ApplicationCommandOption {
-	return &discordgo.ApplicationCommandOption{
-		Type:         discordgo.ApplicationCommandOptionChannel,
-		Name:         name,
-		Description:  description,
-		Required:     required,
-		ChannelTypes: []discordgo.ChannelType{discordgo.ChannelTypeGuildVoice},
-	}
+func voiceChannel(name string, key text.Key, required bool) *discordgo.ApplicationCommandOption {
+	channel := option(discordgo.ApplicationCommandOptionChannel, name, key)
+	channel.Required = required
+	channel.ChannelTypes = []discordgo.ChannelType{discordgo.ChannelTypeGuildVoice}
+	return channel
 }
 
-func textChannel(name, description string, required bool) *discordgo.ApplicationCommandOption {
-	return &discordgo.ApplicationCommandOption{
-		Type:         discordgo.ApplicationCommandOptionChannel,
-		Name:         name,
-		Description:  description,
-		Required:     required,
-		ChannelTypes: []discordgo.ChannelType{discordgo.ChannelTypeGuildText},
-	}
+func textChannel(name string, key text.Key, required bool) *discordgo.ApplicationCommandOption {
+	channel := option(discordgo.ApplicationCommandOptionChannel, name, key)
+	channel.Required = required
+	channel.ChannelTypes = []discordgo.ChannelType{discordgo.ChannelTypeGuildText}
+	return channel
 }
 
-func boolean(name, description string, required bool) *discordgo.ApplicationCommandOption {
-	return &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionBoolean,
-		Name:        name,
-		Description: description,
-		Required:    required,
-	}
+func boolean(name string, key text.Key, required bool) *discordgo.ApplicationCommandOption {
+	flag := option(discordgo.ApplicationCommandOptionBoolean, name, key)
+	flag.Required = required
+	return flag
 }
 
-func role(name, description string, required bool) *discordgo.ApplicationCommandOption {
-	return &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionRole,
-		Name:        name,
-		Description: description,
-		Required:    required,
-	}
+func role(name string, key text.Key, required bool) *discordgo.ApplicationCommandOption {
+	picked := option(discordgo.ApplicationCommandOptionRole, name, key)
+	picked.Required = required
+	return picked
 }
 
-func user(name, description string, required bool) *discordgo.ApplicationCommandOption {
-	return &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionUser,
-		Name:        name,
-		Description: description,
-		Required:    required,
-	}
+func user(name string, key text.Key, required bool) *discordgo.ApplicationCommandOption {
+	picked := option(discordgo.ApplicationCommandOptionUser, name, key)
+	picked.Required = required
+	return picked
 }
 
-func text(name, description string, required bool, allowed ...string) *discordgo.ApplicationCommandOption {
-	option := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionString,
-		Name:        name,
-		Description: description,
-		Required:    required,
-	}
+func freeText(name string, key text.Key, required bool, allowed ...string) *discordgo.ApplicationCommandOption {
+	value := option(discordgo.ApplicationCommandOptionString, name, key)
+	value.Required = required
 	if len(allowed) > 0 {
-		option.Choices = choices(allowed...)
+		value.Choices = choices(allowed...)
 	}
-	return option
+	return value
 }
 
 // Command returns the complete /au tree.
@@ -190,83 +194,83 @@ func text(name, description string, required bool, allowed ...string) *discordgo
 // channel kind they accept, roles are role options, flags are booleans and the
 // timeout is an integer with server-side bounds. Nothing is flattened to a
 // string, so Discord rejects most bad input before the bot ever sees it.
+//
+// Every description comes in each language AUVC speaks. Discord picks the one
+// matching the member's own Discord language and falls back to English.
 func Command() *discordgo.ApplicationCommand {
 	minTimeout := float64(MinCaptureTimeoutSeconds)
 	maxTimeout := float64(MaxCaptureTimeoutSeconds)
 
-	timeout := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionInteger,
-		Name:        OptionTimeout,
-		Description: "Seconds without capture before the fail-safe runs",
-		Required:    false,
-		MinValue:    &minTimeout,
-		MaxValue:    maxTimeout,
-	}
+	timeout := option(discordgo.ApplicationCommandOptionInteger, OptionTimeout, text.DescribeTimeout)
+	timeout.MinValue = &minTimeout
+	timeout.MaxValue = maxTimeout
 
+	description, translations := describe(text.DescribeAU)
 	return &discordgo.ApplicationCommand{
-		Name:        Name,
-		Description: "Among Us Voice Controller",
+		Name:                     Name,
+		Description:              description,
+		DescriptionLocalizations: &translations,
 		Options: []*discordgo.ApplicationCommandOption{
-			group(GroupSetup, "First-time setup",
-				sub(SetupChannels, "Choose the voice and control channels",
-					voiceChannel(OptionMainChannel, "Where living players belong", true),
-					voiceChannel(OptionGhostChannel, "Where dead players are moved", true),
-					textChannel(OptionControlChannel, "Where the bot posts game status", false),
+			group(GroupSetup, text.DescribeSetup,
+				sub(SetupChannels, text.DescribeSetupChannels,
+					voiceChannel(OptionMainChannel, text.DescribeMainChannel, true),
+					voiceChannel(OptionGhostChannel, text.DescribeGhostChannel, true),
+					textChannel(OptionControlChannel, text.DescribeControlChannel, false),
 				),
-				sub(SetupPermissions, "Choose who may administer the bot",
-					role(OptionAdminRole, "Role allowed to change settings", true),
+				sub(SetupPermissions, text.DescribeSetupPermissions,
+					role(OptionAdminRole, text.DescribeAdminRole, true),
 				),
-				sub(SetupReset, "Reset this guild to the default configuration",
-					boolean(OptionConfirm, "Confirm that the current configuration is discarded", true),
+				sub(SetupReset, text.DescribeSetupReset,
+					boolean(OptionConfirm, text.DescribeConfirmReset, true),
 				),
 			),
 
-			group(GroupSettings, "Inspect and change settings",
-				sub(SettingsShow, "Show the current configuration"),
-				sub(SettingsPreset, "Apply a named configuration preset",
-					text(OptionPolicy, "Voice policy preset", true, VoicePolicies...),
+			group(GroupSettings, text.DescribeSettings,
+				sub(SettingsShow, text.DescribeSettingsShow),
+				sub(SettingsPreset, text.DescribeSettingsPreset,
+					freeText(OptionPolicy, text.DescribePolicyPreset, true, VoicePolicies...),
 				),
-				sub(SettingsVoice, "Change voice handling",
-					boolean(OptionEnabled, "Whether the bot manages voice at all", false),
-					text(OptionPolicy, "Voice policy", false, VoicePolicies...),
+				sub(SettingsVoice, text.DescribeSettingsVoice,
+					boolean(OptionEnabled, text.DescribeEnabled, false),
+					freeText(OptionPolicy, text.DescribePolicy, false, VoicePolicies...),
 				),
-				sub(SettingsGhosts, "Change how dead players are handled",
-					boolean(OptionAutoMoveGhosts, "Move dead players to the ghost channel", false),
-					boolean(OptionEnforce, "Return players who switch channels themselves", false),
+				sub(SettingsGhosts, text.DescribeSettingsGhosts,
+					boolean(OptionAutoMoveGhosts, text.DescribeAutoMoveGhosts, false),
+					boolean(OptionEnforce, text.DescribeEnforce, false),
 				),
-				sub(SettingsSafety, "Change what happens when capture goes quiet",
+				sub(SettingsSafety, text.DescribeSettingsSafety,
 					timeout,
-					text(OptionTimeoutAction, "What to do when capture times out", false, CaptureTimeoutActions...),
-					boolean(OptionAutoStart, "Start a session automatically when a game begins", false),
+					freeText(OptionTimeoutAction, text.DescribeTimeoutAction, false, CaptureTimeoutActions...),
+					boolean(OptionAutoStart, text.DescribeAutoStart, false),
 				),
-				sub(SettingsExport, "Export the current configuration"),
+				sub(SettingsExport, text.DescribeSettingsExport),
 			),
 
-			group(GroupCapture, "Manage the capture connection",
-				sub(CapturePair, "Create a one-time pairing code for the capture app"),
-				sub(CaptureStatus, "Show the capture connection status"),
-				sub(CaptureRevoke, "Revoke capture access for this guild",
-					boolean(OptionConfirm, "Confirm that the capture app must pair again", true),
+			group(GroupCapture, text.DescribeCapture,
+				sub(CapturePair, text.DescribeCapturePair),
+				sub(CaptureStatus, text.DescribeCaptureStatus),
+				sub(CaptureRevoke, text.DescribeCaptureRevoke,
+					boolean(OptionConfirm, text.DescribeConfirmRevoke, true),
 				),
 			),
 
-			group(GroupSession, "Control the running session",
-				sub(SessionStart, "Start managing voice for the current game"),
-				sub(SessionStop, "Stop managing voice and release everyone"),
-				sub(SessionPause, "Temporarily stop applying voice changes"),
-				sub(SessionResume, "Resume applying voice changes"),
-				sub(SessionStatus, "Show the session status"),
+			group(GroupSession, text.DescribeSession,
+				sub(SessionStart, text.DescribeSessionStart),
+				sub(SessionStop, text.DescribeSessionStop),
+				sub(SessionPause, text.DescribeSessionPause),
+				sub(SessionResume, text.DescribeSessionResume),
+				sub(SessionStatus, text.DescribeSessionStatus),
 			),
 
-			sub(Link, "Link a Discord user to an Among Us player",
-				text(OptionPlayer, "Among Us player name; leave it out to choose your crewmate from a menu", false),
-				user(OptionUser, "Discord user; defaults to you", false),
+			sub(Link, text.DescribeLink,
+				freeText(OptionPlayer, text.DescribePlayer, false),
+				user(OptionUser, text.DescribeUser, false),
 			),
-			sub(Unlink, "Remove a link",
-				user(OptionUser, "Discord user; defaults to you", false),
+			sub(Unlink, text.DescribeUnlink,
+				user(OptionUser, text.DescribeUser, false),
 			),
-			sub(Doctor, "Check configuration, permissions and connectivity"),
-			sub(Version, "Show the AUVC version"),
+			sub(Doctor, text.DescribeDoctor),
+			sub(Version, text.DescribeVersion),
 		},
 	}
 }

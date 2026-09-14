@@ -10,6 +10,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/session"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/bwmarrin/discordgo"
 )
@@ -299,7 +300,8 @@ func (bot *Bot) reconcileCaptureSession(guildID string) error {
 	desired := voice.Desired(state, config)
 	bot.claimManaged(guildID, desired)
 	if err := bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), desired); err != nil {
-		if summary := permission.Summary(permission.Audit(
+		// This becomes an error for the log, which is kept in English.
+		if summary := permission.Summary(text.English, permission.Audit(
 			bot.voiceChannelPermissions(config.MainChannelID, config.GhostChannelID)...,
 		)); summary != "" {
 			return fmt.Errorf("%w\n%s", err, summary)
