@@ -4,21 +4,21 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
-### Changed
+## v0.1.2-beta — 2026-09-14
 
-- Development: `python scripts/local_check.py` runs every check the CI runs on
-  the developer's own PC: repository guards, Gitleaks, `go test -race`, the
-  Windows build of the bot, `govulncheck`, the C# build and tests, the
-  self-contained publish and vulnerable NuGet packages. `--release` adds a
-  release dry run that publishes nothing. Environment variables that look like
-  credentials are withheld from every step
-  ([#111](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/111)).
-- CI: the checks run once per change, for the pull request and again on main
-  after a merge. Pushing a branch used to start them twice.
-- Releases: pre-releases such as `v1.2.3-beta` are built and published from the
-  maintainer's PC with `scripts/local_release.py`, after every check has passed
-  against a fresh copy of the commit. Releases such as `v1.2.3` are still built
-  and published by GitHub; pre-release tags no longer start that workflow.
+The third pre-release, after the first live tests in full public lobbies. Muting,
+releasing and moving between the voice channels worked there; this version fixes
+what those tests showed: players who vanished from a full lobby, and players left
+muted when the app crashes.
+
+**Update.** Install over the previous version, or unpack the new portable zip;
+the token and the settings stay. Nothing needs to change in Discord.
+
+**Known limitations.** Unsigned, so Windows warns about an unknown publisher.
+Players with a colour the app does not know yet, such as colours added to Among
+Us later, are not shown and not managed. This is the first pre-release built and
+published from the maintainer's PC rather than by GitHub; `SHA256SUMS` lists the
+hash of every file.
 
 ### Fixed
 
@@ -37,6 +37,25 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   list, read the same entry again for everyone after them, and reported all of
   those players as having left. Two players with the same name no longer make a
   whole reading pass fail either.
+
+### Changed
+
+- Development: `python scripts/local_check.py` runs every check the CI runs on
+  the developer's own PC: repository guards, Gitleaks, `go test -race`, the
+  Windows build of the bot, `govulncheck`, the C# build and tests, the
+  self-contained publish and vulnerable NuGet packages. `--release` adds a
+  release dry run that publishes nothing. Environment variables that look like
+  credentials are withheld from every step
+  ([#111](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/111)).
+- Tests: a recorded fifteen-player round, with a kill, a player who quits, an
+  exile, a dropped connection and the end of the round, runs through both the
+  app and the bot, so the two cannot come to disagree about a round.
+- CI: the checks run once per change, for the pull request and again on main
+  after a merge. Pushing a branch used to start them twice.
+- Releases: pre-releases such as `v1.2.3-beta` are built and published from the
+  maintainer's PC with `scripts/local_release.py`, after every check has passed
+  against a fresh copy of the commit. Releases such as `v1.2.3` are still built
+  and published by GitHub; pre-release tags no longer start that workflow.
 
 ## v0.1.1-beta — 2026-09-14
 

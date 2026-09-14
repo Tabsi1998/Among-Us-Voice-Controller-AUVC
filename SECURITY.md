@@ -65,7 +65,9 @@ Gitleaks. GitHub Actions are pinned to commit SHAs.
 
 ## Known limitations
 
-- **Not yet tried in a real round.** App and bot have only met in tests.
+- **Tried in a few live rounds only.** App and bot have been through public
+  lobbies with Among Us and Discord, but not yet through the full smoke test in
+  `docs/acceptance.md` that `v1.0.0` requires.
 - **Files are unsigned.** Windows shows "Unknown publisher". `SHA256SUMS` proves
   a download matches the release; it does not prove who built it.
 - **Plain HTTP to a bot on another computer** sends the credential in the clear.
