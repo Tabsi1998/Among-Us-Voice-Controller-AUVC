@@ -1,0 +1,13 @@
+{"protocol":1,"type":"snapshot","session":"session-a","seq":3,"phase":"lobby","players":[{"name":"Ava","color":0,"dead":false,"disconnected":false},{"name":"Ben","color":1,"dead":false,"disconnected":false},{"name":"Cleo","color":2,"dead":false,"disconnected":false},{"name":"Dario","color":3,"dead":false,"disconnected":false},{"name":"Elif","color":4,"dead":false,"disconnected":false},{"name":"Finn","color":5,"dead":false,"disconnected":false},{"name":"Greta","color":6,"dead":false,"disconnected":false},{"name":"Hugo","color":7,"dead":false,"disconnected":false},{"name":"Ines","color":8,"dead":false,"disconnected":false},{"name":"Jonas","color":9,"dead":false,"disconnected":false},{"name":"Kira","color":10,"dead":false,"disconnected":false},{"name":"Luca","color":11,"dead":false,"disconnected":false},{"name":"Mia","color":12,"dead":false,"disconnected":false},{"name":"Noah","color":13,"dead":false,"disconnected":false},{"name":"Omar","color":14,"dead":false,"disconnected":false}]}
+{"protocol":1,"type":"game_state_changed","session":"session-a","seq":4,"phase":"tasks"}
+{"protocol":1,"type":"player_died","session":"session-a","seq":5,"player":{"name":"Cleo","color":2,"dead":true,"disconnected":false}}
+{"protocol":1,"type":"player_left","session":"session-a","seq":6,"player":{"name":"Omar","color":14,"dead":false,"disconnected":false}}
+{"protocol":1,"type":"game_state_changed","session":"session-a","seq":7,"phase":"discussion"}
+{"protocol":1,"type":"player_died","session":"session-a","seq":8,"player":{"name":"Elif","color":4,"dead":true,"disconnected":false}}
+{"protocol":1,"type":"game_state_changed","session":"session-a","seq":9,"phase":"tasks"}
+{"protocol":1,"type":"player_died","session":"session-a","seq":10,"player":{"name":"Elif","color":4,"dead":true,"disconnected":false}}
+{"protocol":1,"type":"player_died","session":"session-a","seq":11,"player":{"name":"Kira","color":10,"dead":true,"disconnected":false}}
+{"protocol":1,"type":"player_changed","session":"session-a","seq":12,"player":{"name":"Luca","color":11,"dead":false,"disconnected":true}}
+{"protocol":1,"type":"game_ended","session":"session-a","seq":13}
+{"protocol":1,"type":"game_state_changed","session":"session-a","seq":14,"phase":"ended"}
+{"protocol":1,"type":"game_state_changed","session":"session-a","seq":15,"phase":"lobby"}

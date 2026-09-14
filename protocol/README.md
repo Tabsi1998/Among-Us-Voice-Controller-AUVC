@@ -17,6 +17,15 @@ Two implementations exist and neither is the reference:
 Both are tested against the fixtures in [fixtures](fixtures), so the two cannot
 drift apart without a test failing.
 
+[fixtures/rounds](fixtures/rounds) holds whole rounds, one message per line, from
+the snapshot after the handshake onwards. The C# tests feed the memory reader's
+events for such a round through capture and compare every message capture sends
+with the recording; the Go tests play the recording into the bot over a real
+WebSocket and check at each step whom the voice policy mutes, deafens and moves.
+`fifteen_players.jsonl` is a full lobby with a kill, a player who quits, an
+exile reported twice as the reader reports it, a second kill, a dropped
+connection and the end of the round.
+
 ## Envelope
 
 Every message is a flat JSON object carrying the same four fields:
