@@ -116,7 +116,7 @@ namespace AUCapture_WPF
 
         public static string MainChannel => T("Hauptkanal (Sprachkanal)", "Main channel (voice)");
         public static string GhostChannel => T("Geisterkanal (Sprachkanal)", "Ghost channel (voice)");
-        public static string ControlChannel => T("Textkanal für Hinweise (optional)", "Text channel for notices (optional)");
+        public static string ControlChannel => T("Textkanal für die Crewmate-Auswahl und Hinweise (empfohlen)", "Text channel for choosing crewmates and for notices (recommended)");
         public static string NoControlChannel => T("(keiner)", "(none)");
         public static string AutoStart => T("AUVC automatisch starten, sobald ein Spiel erkannt wird", "Start AUVC automatically when a game is detected");
         public static string Saving => T("Wird gespeichert …", "Saving …");
@@ -130,9 +130,9 @@ namespace AUCapture_WPF
 
         public static string DoneIntro => T(
             "AUVC ist eingerichtet. Der Bot startet ab jetzt mit diesem Programm und geht offline, wenn du es schließt.\n\n" +
-            "Eins ist noch zu tun: Jeder Spieler verknüpft sich einmal in Discord mit /au link und seinem Namen in Among Us.",
+            "Eins ist noch zu tun: Jeder Spieler wählt im Textkanal einmal seine Figur aus, oder tippt in Discord /au link.",
             "AUVC is set up. From now on the bot starts with this program and goes offline when you close it.\n\n" +
-            "One thing is left: every player links themselves once in Discord with /au link and their name in Among Us.");
+            "One thing is left: every player picks their crewmate once in the text channel, or types /au link in Discord.");
 
         public static string ChecksHeading => T("Prüfung", "Checks");
         public static string BotNotRunning => T("✖ Der Bot läuft gerade nicht. Gehe zurück zu Schritt 2.", "✖ The bot is not running. Go back to step 2.");

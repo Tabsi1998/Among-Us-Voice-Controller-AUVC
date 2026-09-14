@@ -49,6 +49,8 @@ public sealed class DiscordApplicationClient(HttpClient http)
 
     public const long ViewChannel = 1L << 10;
     public const long SendMessages = 1L << 11;
+    public const long EmbedLinks = 1L << 14;
+    public const long UseExternalEmojis = 1L << 18;
     public const long Connect = 1L << 20;
     public const long MuteMembers = 1L << 22;
     public const long DeafenMembers = 1L << 23;
@@ -56,11 +58,12 @@ public sealed class DiscordApplicationClient(HttpClient http)
 
     /// <summary>
     /// Every permission AUVC uses today, and nothing more: seeing and joining the
-    /// voice channels, muting, deafening and moving players, and posting warnings
-    /// in the control channel.
+    /// voice channels, muting, deafening and moving players, and posting the
+    /// crewmate menu, with its crewmate pictures, and warnings in the text channel.
     /// </summary>
     public const long RequiredPermissions =
-        ViewChannel | SendMessages | Connect | MuteMembers | DeafenMembers | MoveMembers;
+        ViewChannel | SendMessages | EmbedLinks | UseExternalEmojis |
+        Connect | MuteMembers | DeafenMembers | MoveMembers;
 
     /// <summary>
     /// Trims what was pasted and drops a leading "Bot ", which people copy from

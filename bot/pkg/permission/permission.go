@@ -60,6 +60,29 @@ var (
 // VoiceChannelNeeds is the full set required on a managed voice channel.
 var VoiceChannelNeeds = []Need{ViewChannel, Connect, MoveMembers, MuteMembers, DeafenMembers}
 
+// The permissions AUVC needs on the control text channel, where players choose
+// their crewmate and where AUVC posts its warnings.
+var (
+	SeeTextChannel = Need{
+		Bit:         discordgo.PermissionViewChannel,
+		Name:        "View Channel",
+		Consequence: "AUVC cannot see the channel, so neither the crewmate menu nor warnings appear there",
+	}
+	SendMessages = Need{
+		Bit:         discordgo.PermissionSendMessages,
+		Name:        "Send Messages",
+		Consequence: "AUVC cannot post the crewmate menu or warn you when capture stops",
+	}
+	EmbedLinks = Need{
+		Bit:         discordgo.PermissionEmbedLinks,
+		Name:        "Embed Links",
+		Consequence: "AUVC cannot post the crewmate menu",
+	}
+)
+
+// ControlChannelNeeds is the full set required on the control text channel.
+var ControlChannelNeeds = []Need{SeeTextChannel, SendMessages, EmbedLinks}
+
 // Missing returns the needs that the effective permissions do not cover, in the
 // order they were given.
 //

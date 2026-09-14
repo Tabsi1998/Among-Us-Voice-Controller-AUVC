@@ -171,6 +171,10 @@ func (l *localBackend) Configure(guildID string, setup localcontrol.Setup) error
 	if errors.Is(err, au.ErrInvalidInput) {
 		return fmt.Errorf("%w: %v", localcontrol.ErrInvalidSetup, err)
 	}
+	if err == nil {
+		// A new text channel takes the crewmate board with it.
+		l.controller.RefreshCrewmates(guildID)
+	}
 	return err
 }
 

@@ -259,7 +259,7 @@ func Command() *discordgo.ApplicationCommand {
 			),
 
 			sub(Link, "Link a Discord user to an Among Us player",
-				text(OptionPlayer, "Among Us player name", true),
+				text(OptionPlayer, "Among Us player name; leave it out to choose your crewmate from a menu", false),
 				user(OptionUser, "Discord user; defaults to you", false),
 			),
 			sub(Unlink, "Remove a link",

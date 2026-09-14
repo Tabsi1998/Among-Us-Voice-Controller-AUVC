@@ -108,6 +108,9 @@ func run() error {
 	defer controller.Close()
 
 	controller.AUVCLinks = auvcDB
+	// Players choose their crewmate on a board in the control channel. The
+	// pictures upload in the background, so starting is not held up by them.
+	controller.AttachCrewmates(auvcDB)
 	// The session commands need the bot, and the bot needed the service to
 	// answer commands at all, so they are connected once both exist.
 	auvcService.AttachSessionControl(bot.NewSessionControl(controller))
