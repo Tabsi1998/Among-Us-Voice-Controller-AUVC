@@ -57,11 +57,9 @@ Gitleaks. GitHub Actions are pinned to commit SHAs.
 
 ## Known limitations
 
-- **The capture app does not use the authenticated transport yet.** It still
-  contains the upstream socket connection, which the bot no longer serves, so it
-  cannot connect at all. The protections above apply to the bot and to the
-  capture libraries; they reach a real capture install once the app is wired to
-  them.
+- **Not yet tried against a real game.** The capture app uses the
+  authenticated transport, but the two halves have only met in tests, each
+  against a simulation of the other.
 - **Artifacts are unsigned** (#24). Windows shows "Unknown publisher".
   `SHA256SUMS` on the release page proves a download matches the release; it does
   not prove who built it.

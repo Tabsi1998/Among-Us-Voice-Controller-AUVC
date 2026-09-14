@@ -312,3 +312,45 @@ func TestEndingARoundForgetsWhatWasAnnounced(t *testing.T) {
 		t.Error("a new round inherited the previous round's announcements")
 	}
 }
+
+// Dying in a meeting means being voted out, in front of everyone. Capture
+// reports the exile before the phase leaves the meeting.
+func TestADeathReportedDuringAMeetingIsPublic(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{{Name: "Blue", Alive: true}})
+	live.SetPhase(game.DISCUSS)
+
+	live.Upsert(GamePlayer{Name: "Blue", Alive: false})
+
+	if !live.Players()[0].Revealed {
+		t.Error("an exile was treated as a secret")
+	}
+}
+
+// Capture reports the same death more than once: an exile, and again when the
+// game marks the player dead. An announced death stays announced.
+func TestAnUpdateKeepsAnAnnouncedDeathAnnounced(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{{Name: "Blue", Alive: false}})
+	live.SetPhase(game.DISCUSS)
+	live.SetPhase(game.TASKS)
+
+	live.Upsert(GamePlayer{Name: "Blue", Alive: false, Color: 4})
+
+	if !live.Players()[0].Revealed {
+		t.Error("an update turned an announced death back into a secret")
+	}
+}
+
+// Keeping an announcement is not inventing one.
+func TestAnUpdateDoesNotAnnounceASecretDeath(t *testing.T) {
+	live := NewLive()
+	live.Reset(game.TASKS, []GamePlayer{{Name: "Blue", Alive: true}})
+	live.Upsert(GamePlayer{Name: "Blue", Alive: false})
+
+	live.Upsert(GamePlayer{Name: "Blue", Alive: false, Color: 4})
+
+	if live.Players()[0].Revealed {
+		t.Error("an update announced a death nobody has been told about")
+	}
+}

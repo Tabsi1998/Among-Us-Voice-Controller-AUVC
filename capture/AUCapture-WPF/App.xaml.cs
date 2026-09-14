@@ -28,8 +28,6 @@ namespace AUCapture_WPF
     /// </summary>
     public partial class App : Application
     {
-        public static readonly ClientSocket socket = new ClientSocket();
-        public static readonly DiscordHandler handler = new DiscordHandler();
         private IAppSettings config;
         public static string LogFolder = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AmongUsCapture", "logs");
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -53,12 +51,6 @@ namespace AUCapture_WPF
             LoggingConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
             NLog.LogManager.Configuration = LoggingConfig;
         }
-        public void OnTokenHandler(object sender, StartToken token)
-        {
-            Logger.Info("Attempting to connect to host: {host} with connect code: {connectCode}", token.Host, token.ConnectCode);
-            socket.Connect(token.Host, token.ConnectCode);
-        }
-
         public void PlaySound(string URL)
         {
             try
@@ -157,8 +149,9 @@ namespace AUCapture_WPF
 
             var mainWindow = new MainWindow();
             this.MainWindow = mainWindow;
-            IPCAdapter.getInstance().OnToken += OnTokenHandler;
-            socket.Init();
+            // Before the memory reader starts, so the link records the round from its
+            // first event. Pairing links that arrive over IPC are handled by the window.
+            BotConnection.Start(config.host);
             IPCAdapter.getInstance().RegisterMinion();
             mainWindow.Loaded += (sender, args2) =>
             {

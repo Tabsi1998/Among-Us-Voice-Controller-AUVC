@@ -115,9 +115,21 @@ func (l *Live) revealDeaths() {
 // A player who is not in the session yet is added rather than ignored. Capture
 // can report a change for somebody the bot missed, and refusing to learn about
 // them would leave one player unmanaged for the rest of the round.
+//
+// Whether a death is public is something the session knows and capture does
+// not: the protocol has no such flag. So an update never makes an announced
+// death secret again, which matters because capture reports the same death
+// more than once. And a death reported during a meeting is public from the
+// start, because dying in a meeting means being voted out in front of everyone.
 func (l *Live) Upsert(player GamePlayer) {
 	if player.Name == "" {
 		return
+	}
+
+	player.Revealed = false
+	if !player.Alive {
+		known, ok := l.players[player.Name]
+		player.Revealed = l.phase == game.DISCUSS || (ok && !known.Alive && known.Revealed)
 	}
 	l.players[player.Name] = player
 }

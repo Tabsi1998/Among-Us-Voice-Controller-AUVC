@@ -385,33 +385,6 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Discord.
-        /// </summary>
-        public static string SettingsDiscordTabHeader {
-            get {
-                return ResourceManager.GetString("SettingsDiscordTabHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Submit.
-        /// </summary>
-        public static string SettingsDiscordTabSubmitButton {
-            get {
-                return ResourceManager.GetString("SettingsDiscordTabSubmitButton", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Paste token here.
-        /// </summary>
-        public static string SettingsDiscordTabTokenWatermark {
-            get {
-                return ResourceManager.GetString("SettingsDiscordTabTokenWatermark", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Always copy game code.
         /// </summary>
         public static string SettingsGeneralTabAlwaysCopyGameCode {

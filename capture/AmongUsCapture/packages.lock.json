@@ -22,30 +22,11 @@
           "Newtonsoft.Json": "12.0.3"
         }
       },
-      "Discord.Net": {
-        "type": "Direct",
-        "requested": "[2.4.0, )",
-        "resolved": "2.4.0",
-        "contentHash": "cP2GoFsvkMf7xruBiUZlIG4HWeUsMosU7qZg+3E0DeIoCEDQ/2N3fi49RX1LjS6CEdBb8s2IabD/OVP7QCEz3g==",
-        "dependencies": {
-          "Discord.Net.Commands": "2.4.0",
-          "Discord.Net.Core": "2.4.0",
-          "Discord.Net.Rest": "2.4.0",
-          "Discord.Net.WebSocket": "2.4.0",
-          "Discord.Net.Webhook": "2.4.0"
-        }
-      },
       "NLog": {
         "type": "Direct",
         "requested": "[4.7.15, )",
         "resolved": "4.7.15",
         "contentHash": "vXMmsK17hXnMsKd8BdCrJzvb8JMT0+cPgBGRfnqcXIb6y8b6RMIZexO4hMhQgifcTHgU7dbubvCR5A5wX6Ne+A=="
-      },
-      "SocketIOClient": {
-        "type": "Direct",
-        "requested": "[2.3.1, )",
-        "resolved": "2.3.1",
-        "contentHash": "CcFvfJ0qD3JWw9J+TwEXn4GLSJcKqzD89S1EJNpCCfm97+IfoIhCTJIabeTti4utFIfORajOhalOPYLCK8UlRA=="
       },
       "System.Configuration.ConfigurationManager": {
         "type": "Direct",
@@ -71,49 +52,6 @@
           "NETStandard.Library": "1.6.1"
         }
       },
-      "Discord.Net.Commands": {
-        "type": "Transitive",
-        "resolved": "2.4.0",
-        "contentHash": "KqkqhTBh30ewHVBpGSq10KY0SWk5n0UWFYcxlYziExU+/0g8Ebu3iBGA21SHSvy27fsSUkmQmeUR4e/qs8ksHg==",
-        "dependencies": {
-          "Discord.Net.Core": "2.4.0"
-        }
-      },
-      "Discord.Net.Core": {
-        "type": "Transitive",
-        "resolved": "2.4.0",
-        "contentHash": "3nRnZgXtwId/iXJqY/BmbFFOXf18TRExE3JYil6RaUEBEjFF9ufMbhTcE249W0rfTv6F2dzrNKa0yXS912a4Kw==",
-        "dependencies": {
-          "Newtonsoft.Json": "12.0.2",
-          "System.Interactive.Async": "4.0.0"
-        }
-      },
-      "Discord.Net.Rest": {
-        "type": "Transitive",
-        "resolved": "2.4.0",
-        "contentHash": "dnC7yId1fPG+WNFKceQTvDB4ZUVP6eneDGpChrT0UXdAFQX18EuN0qVXcZWCDcVTev4ZG3VpN2QENa7TNrxQxA==",
-        "dependencies": {
-          "Discord.Net.Core": "2.4.0"
-        }
-      },
-      "Discord.Net.Webhook": {
-        "type": "Transitive",
-        "resolved": "2.4.0",
-        "contentHash": "ajQuZvhQMGzkUr1RmB18okjDDigxCmHBrlgGg51LcY87lik4XfWJdVl690AU9l1xl35UVQ/YF4vEDUduczT29w==",
-        "dependencies": {
-          "Discord.Net.Core": "2.4.0",
-          "Discord.Net.Rest": "2.4.0"
-        }
-      },
-      "Discord.Net.WebSocket": {
-        "type": "Transitive",
-        "resolved": "2.4.0",
-        "contentHash": "+cHZFW2H03sGP+0vm8WG+S0dnhWamHfm1Oa4aSW9q8kWXOUhI+3oytb7VuGD2kxNWR/R8Ow8OVl7yhUiWVqqRA==",
-        "dependencies": {
-          "Discord.Net.Core": "2.4.0",
-          "Discord.Net.Rest": "2.4.0"
-        }
-      },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
         "resolved": "1.1.0",
@@ -137,19 +75,6 @@
         "resolved": "10.0.12",
         "contentHash": "sOZM+VyRj1pg/ItlHsvrSbjws6oGqZveTzTNBGZ9ziwRDyKsOF3ub6vhvOdxotCIqtlnyHAIwP5sLNvgiZC+pQ=="
       },
-      "System.Interactive.Async": {
-        "type": "Transitive",
-        "resolved": "4.0.0",
-        "contentHash": "tYEzSDQ3rn0G7sGgjcNB91C3dDRJc8m8Lavvu88dwt8FEwKPGZdp/tFs+lQTdqHDV9UItkGIwI8Aa6gGTvzLoQ==",
-        "dependencies": {
-          "System.Linq.Async": "4.0.0"
-        }
-      },
-      "System.Linq.Async": {
-        "type": "Transitive",
-        "resolved": "4.0.0",
-        "contentHash": "WbiYEedFZeM+psmMyoCt1AKbZppAZg8Eq1ZTQ+521fGNeXqlgJj0tZYV5n1LsKRO5osQuitYxGNuzPTy3213sg=="
-      },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",
         "resolved": "10.0.12",
@@ -159,6 +84,16 @@
         "type": "Project",
         "dependencies": {
           "Newtonsoft.Json": "[13.0.4, )"
+        }
+      },
+      "auvc.protocol": {
+        "type": "Project"
+      },
+      "auvc.transport": {
+        "type": "Project",
+        "dependencies": {
+          "AUVC.Protocol": "[1.0.0, )",
+          "System.Security.Cryptography.ProtectedData": "[10.0.12, )"
         }
       }
     }

@@ -11,10 +11,10 @@ side. Nobody else needs mods or extra software.
 
 ## Status
 
-**AUVC does not work end to end yet.** The bot is complete for its v1 scope and
-the capture side has every piece it needs as a tested library — but the capture
-application itself has not been connected to those pieces. Read this section
-before trying it.
+**AUVC has not been tried against a real game yet.** The bot is complete for its
+v1 scope, and the capture app now pairs with it and reports the round over the
+authenticated connection. Every piece is tested, but only against simulations of
+Discord and of the game. Read this section before trying it.
 
 ### Works and is tested
 
@@ -40,23 +40,27 @@ before trying it.
 - A release workflow that builds everything from a tag.
 - The capture app as a self-contained portable zip and an unsigned installer.
 
-**Capture libraries** (`capture/AUVC.Protocol`, `capture/AUVC.Transport`)
+**Capture**
 
-- The protocol, the authenticated WebSocket client, the pairing client and
-  Windows credential storage.
+- Pairing from the capture window, with the address of the bot and a code from
+  `/au capture pair`. The credential is stored encrypted for the Windows user.
+- A connection that opens with a complete snapshot of the round, sends events in
+  order with a heartbeat in between, reconnects by itself, and stops and says
+  why when the bot refuses it.
+- The mapping from what the memory reader sees to what the bot is told,
+  exiles included.
 
 ### Not done yet
 
-- **The capture app does not use the new transport.** `capture/AUCapture-WPF`
-  still contains the upstream socket connection, which the bot no longer serves.
-  A capture app built from this repository therefore cannot reach the bot. This
-  is the next piece of work, and until it lands AUVC cannot run a real round.
+- **A round against a real game and a real Discord server.** Nobody has run the
+  [smoke test](docs/acceptance.md#manual-smoke-test) yet, and the C# client and
+  the Go server have never spoken to each other outside a simulation.
+  [acceptance.md](docs/acceptance.md) lists what the automated suites do not
+  prove.
 - A guided first run and clear status in the capture app
   ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  Pairing is one small window today, and the connection is a single indicator.
 - A published release. No tag has been created and no image has been pushed.
-- A manual test against a real Discord server and a real game. The automated
-  suites simulate Discord; [acceptance.md](docs/acceptance.md) lists what they do
-  not prove and the smoke test that does.
 - Signed artifacts
   ([#24](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/24)).
   The installer shows an "Unknown publisher" warning.
@@ -169,18 +173,26 @@ Every reply is visible only to whoever ran the command.
 
 ## Setting up capture
 
-**Not possible with this repository yet.** The capture app does not use the new
-transport (see [Status](#status)), so there is nothing to type a pairing code
-into that the bot would accept.
+On the Windows PC that plays Among Us:
 
-Once that lands, the capture host will install the app from the release page
-(`AmongUsVoiceCapture-win-x64.zip` or the installer), enter the bot's address and
-the code from `/au capture pair`, and see the pairing confirmed. The planned
-first run, updates, repair and uninstall are described in
-[windows-installation-and-releases.md](docs/windows-installation-and-releases.md);
-the guided first run itself is
-[#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21).
-This section will be rewritten from steps that have actually been carried out.
+1. Start AUVC Capture: the installer or `AmongUsVoiceCapture-win-x64.zip` from a
+   release, or a build of `capture/AUCapture-WPF`.
+2. An administrator runs `/au capture pair` in Discord.
+3. In capture, open the window behind the button with the tooltip **Pair with
+   the AUVC bot**. Enter the address of the bot and the code, then choose
+   **Pair**. The address is `http://127.0.0.1:8123` when the bot runs on the
+   same PC, which is what the field starts with.
+4. From then on capture connects by itself, also after a restart. The **AUVC
+   bot** indicator shows whether it is connected.
+
+If the bot refuses the connection because the credential was revoked or the
+builds do not match, capture says so and stops trying until it is paired again.
+
+These steps describe what the code does. Nobody has walked through them on a
+fresh PC yet. Planned: a guided first run
+([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)),
+and updates, repair and uninstall as described in
+[windows-installation-and-releases.md](docs/windows-installation-and-releases.md).
 
 ## What players hear and see
 
@@ -199,6 +211,9 @@ they die would announce the kill. The move waits for the meeting, which is when
 the game tells everyone anyway. From then on the ghost keeps the ghost channel
 for the rest of the round and can talk to the other ghosts, including during
 tasks.
+
+An exile is different: everyone watches it happen, so a player who is voted out
+moves to the ghost channel straight away.
 
 Only linked human players are managed. Bot accounts, unlinked users and players
 who disconnected are left alone.

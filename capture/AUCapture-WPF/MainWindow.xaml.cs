@@ -34,7 +34,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AUCapture_WPF.Models;
 using AUCapture_WPF.Properties;
-using Discord;
+using AUVC.Transport;
 using Gu.Localization;
 using HandyControl.Tools;
 using HandyControl.Tools.Extension;
@@ -82,24 +82,23 @@ namespace AUCapture_WPF
 
             context = new UserDataContext(DialogCoordinator.Instance, config);
             DataContext = context;
-            App.handler.OnReady += (sender, args) => { App.socket.AddHandler(App.handler); };
-            context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = "AutoMuteUs" });
-            context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = "User bot" });
+            context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = BotConnectionName });
             Window.Topmost = context.Settings.alwaysOnTop;
             GameMemReader.getInstance().GameStateChanged += GameStateChangedHandler;
             GameMemReader.getInstance().ProcessHook += OnProcessHook;
             GameMemReader.getInstance().PlayerChanged += UserForm_PlayerChanged;
             GameMemReader.getInstance().PlayerCosmeticChanged += OnPlayerCosmeticChanged;
             GameMemReader.getInstance().CrackDetected += OnCrackDetected;
-            App.handler.OnReady += HandlerOnOnReady;
             GameMemReader.getInstance().JoinedLobby += OnJoinedLobby;
             GameMemReader.getInstance().GameOver += OnGameOver;
-            App.socket.OnConnected += SocketOnOnConnected;
-            App.socket.OnDisconnected += SocketOnOnDisconnected;
+            BotConnection.Link.StatusChanged += OnLinkStatusChanged;
             context.Players.CollectionChanged += PlayersOnCollectionChanged;
 
             IPCAdapter.getInstance().OnToken += (sender, token) =>
             {
+                // An aucapture:// link carries the address of the bot and a pairing code.
+                Dispatcher.InvokeAsync(() => PairAsync(token.Host, token.ConnectCode));
+
                 this.BeginInvoke(w =>
                 {
                     if (!w.context.Settings.FocusOnToken) return;
@@ -112,14 +111,6 @@ namespace AUCapture_WPF
                 });
             };
 
-            if (!context.Settings.discordTokenEncrypted) //Encrypt discord token if it is not encrypted.
-            {
-                context.Settings.discordToken = JsonConvert.SerializeObject(encryptToken(context.Settings.discordToken));
-                context.Settings.discordTokenEncrypted = true;
-            }
-
-            var encryptedBuff = JsonConvert.DeserializeObject<byte[]>(context.Settings.discordToken);
-            discordTokenBox.Password = decryptToken(encryptedBuff);
             if (context.Settings.language == "")
             {
                 var cultures = Translator.Cultures;
@@ -189,21 +180,42 @@ namespace AUCapture_WPF
             }
         }
 
-        private void SocketOnOnDisconnected(object? sender, EventArgs e)
+        private const string BotConnectionName = "AUVC bot";
+
+        private void OnLinkStatusChanged(LinkStatus status)
         {
-            context.ConnectionStatuses.First(x => x.ConnectionName == "AutoMuteUs").Connected = false;
+            Dispatcher.InvokeAsync(async () =>
+            {
+                context.ConnectionStatuses.First(x => x.ConnectionName == BotConnectionName).Connected =
+                    status.State == LinkState.Connected;
+
+                // Every other state resolves itself. A refusal does not, and nothing
+                // else would tell the person running capture what to do about it.
+                if (status.State != LinkState.Refused) return;
+
+                var next = status.Code == AUVC.Protocol.ProtocolContract.CodeIncompatibleProtocol
+                    ? "Install the capture version that matches the bot."
+                    : "Ask an administrator for a new code with /au capture pair, then pair again.";
+                await this.ShowMessageAsync("The AUVC bot refused this capture",
+                    status.Detail + Environment.NewLine + Environment.NewLine + next);
+            });
         }
 
-        private void SocketOnOnConnected(object? sender, ClientSocket.ConnectedEventArgs e)
+        private async Task PairAsync(string address, string code)
         {
-            context.ConnectionStatuses.First(x => x.ConnectionName == "AutoMuteUs").Connected = true;
+            try
+            {
+                var outcome = await BotConnection.PairAsync(address, code);
+                context.Settings.host = outcome.Address.ToString();
+                Code.Text = "";
+                ManualConnectionFlyout.IsOpen = false;
+                await this.ShowMessageAsync("Paired", outcome.Message);
+            }
+            catch (PairingRefusedException refused)
+            {
+                await this.ShowMessageAsync("Pairing failed", refused.Message);
+            }
         }
-
-        private void HandlerOnOnReady(object? sender, DiscordHandler.ReadyEventArgs e)
-        {
-            context.ConnectionStatuses.First(x => x.ConnectionName == "User bot").Connected = true;
-        }
-
 
         private void OnProcessHook(object? sender, ProcessHookArgs e)
         {
@@ -222,19 +234,6 @@ namespace AUCapture_WPF
             ProcessMemory.getInstance().process.Exited -= ProcessOnExited;
         }
 
-
-        private string decryptToken(byte[] EncryptedBytes)
-        {
-            var protectedBytes = ProtectedData.Unprotect(EncryptedBytes, null, DataProtectionScope.CurrentUser);
-            return Encoding.UTF8.GetString(protectedBytes, 0, protectedBytes.Length);
-        }
-
-        private byte[] encryptToken(string token)
-        {
-            var buffer = Encoding.UTF8.GetBytes(token);
-            var protectedBytes = ProtectedData.Protect(buffer, null, DataProtectionScope.CurrentUser);
-            return protectedBytes;
-        }
 
         private void OnGameOver(object? sender, GameOverEventArgs e)
         {
@@ -532,21 +531,15 @@ namespace AUCapture_WPF
             SetDefaultThemeColor();
 
             ApplyDarkMode();
-            var encryptedBuff = JsonConvert.DeserializeObject<byte[]>(context.Settings.discordToken);
-            if (decryptToken(encryptedBuff) != "")
-                App.handler.Init(decryptToken(encryptedBuff));
-            else
-                Logger.Info("No discord token set");
             if (!config.startupMemes)
             {
                 Logger.Info("Meme Module disabled :(");
             }
         }
 
-        private void SubmitConnectButton_OnClick(object sender, RoutedEventArgs e)
+        private async void SubmitConnectButton_OnClick(object sender, RoutedEventArgs e)
         {
-            IPCAdapter.getInstance().SendToken(config.host, config.connectCode);
-            ManualConnectionFlyout.IsOpen = false;
+            await PairAsync(Host.Text, Code.Text);
         }
 
         private void MemePlayer_OnMediaEnded(object sender, RoutedEventArgs e)
@@ -582,52 +575,6 @@ namespace AUCapture_WPF
         //    GC.Collect();
         // }
         //}
-        private async void SubmitDiscordButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (discordTokenBox.Password != "")
-            {
-                var progressController = await context.DialogCoordinator.ShowProgressAsync(context, "Token Validation", "Validating discord token", false,
-                    new MetroDialogSettings { AnimateShow = true, AnimateHide = false, NegativeButtonText = "OK" });
-                progressController.SetIndeterminate();
-                try
-                {
-                    TokenUtils.ValidateToken(TokenType.Bot, discordTokenBox.Password);
-                    progressController.SetMessage("Token validated.");
-                    context.Settings.discordToken = JsonConvert.SerializeObject(encryptToken(discordTokenBox.Password));
-                    App.handler.Close(); //Anytime we change the token we wanna close the connection. (Will not error if connection already closed)
-                    App.handler.Init(
-                        decryptToken(JsonConvert.DeserializeObject<byte[]>(context.Settings.discordToken)));
-                    progressController.SetProgress(1);
-                }
-                catch (ArgumentException er)
-                {
-                    progressController.SetMessage(er.Message);
-                    progressController.SetProgress(0);
-                    discordTokenBox.Password = decryptToken(JsonConvert.DeserializeObject<byte[]>(context.Settings.discordToken)); //Roll back changes
-                }
-
-                progressController.SetCancelable(true);
-                progressController.Canceled += delegate
-                {
-                    progressController.CloseAsync(); //Close the dialog. 
-                };
-            }
-            else if (discordTokenBox.Password == string.Empty)
-            {
-                if (context.Settings.discordToken == "") //If we don't have any password in the config(meaning unencrypted)
-                {
-                    context.Settings.discordTokenEncrypted = true;
-                    context.Settings.discordToken = JsonConvert.SerializeObject(encryptToken(discordTokenBox.Password));
-                }
-
-                if (decryptToken(JsonConvert.DeserializeObject<byte[]>(context.Settings.discordToken)) == discordTokenBox.Password) return;
-                //No reason to open the box if it didn't change.
-                context.Settings.discordToken = JsonConvert.SerializeObject(encryptToken(discordTokenBox.Password));
-                App.handler.Close(); //Close connection because token cleared.
-                await this.ShowMessageAsync("Success!", "Discord token cleared!");
-            }
-        }
-
         private async void ReloadOffsetsButton_OnClick(object sender, RoutedEventArgs e)
         {
             GameMemReader.getInstance().offMan.refreshLocal();
@@ -638,11 +585,6 @@ namespace AUCapture_WPF
             {
                 //WriteConsoleLineFormatted("GameMemReader", Color.Lime, $"Loaded offsets: {GameMemReader.getInstance().CurrentOffsets.Description}");
             }
-        }
-
-        private void HelpDiscordButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            OpenBrowser("https://www.youtube.com/watch?v=jKcEW5qpk8E");
         }
 
         private void APIServerToggleSwitch_Toggled(object sender, RoutedEventArgs e)

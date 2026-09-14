@@ -105,7 +105,7 @@
     <value>Open the settings window</value>
   </data>
   <data name="ManualConnectTooltip" xml:space="preserve">
-    <value>Open the manual connection window</value>
+    <value>Pair with the AUVC bot</value>
   </data>
   <data name="PremiumTooltip" xml:space="preserve">
     <value>Get AutoMuteUs premium</value>
@@ -143,15 +143,6 @@
   <data name="SettingsDebugTabResetConfigButton" xml:space="preserve">
     <value>Reset Config</value>
   </data>
-  <data name="SettingsDiscordTabHeader" xml:space="preserve">
-    <value>Discord</value>
-  </data>
-  <data name="SettingsDiscordTabTokenWatermark" xml:space="preserve">
-    <value>Paste token here</value>
-  </data>
-  <data name="SettingsDiscordTabSubmitButton" xml:space="preserve">
-    <value>Submit</value>
-  </data>
   <data name="SettingsAboutTabHeader" xml:space="preserve">
     <value>About</value>
   </data>
@@ -171,16 +162,16 @@
     <value>Show contributors</value>
   </data>
   <data name="ManualConnectionHeader" xml:space="preserve">
-    <value>Manual Connection</value>
+    <value>Pair with the AUVC bot</value>
   </data>
   <data name="ManualConnectionHost" xml:space="preserve">
-    <value>Host: </value>
+    <value>Bot address: </value>
   </data>
   <data name="ManualConnectionCode" xml:space="preserve">
-    <value>Code: </value>
+    <value>Pairing code: </value>
   </data>
   <data name="ManualConnectionSubmitButton" xml:space="preserve">
-    <value>Submit</value>
+    <value>Pair</value>
   </data>
   <data name="WaitingForAmongUs" xml:space="preserve">
     <value>Waiting for Among Us</value>
