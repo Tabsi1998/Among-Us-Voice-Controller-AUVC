@@ -6,7 +6,15 @@
 FROM golang:1.27.1-alpine AS build
 WORKDIR /src
 COPY bot/go.mod bot/go.sum ./
-RUN go mod download
+# The module proxy is reached over the internet, and one reset connection
+# fails the whole build. Three attempts turn a network blip into a slower
+# build instead of a red one; a module that really is unavailable still fails.
+RUN for attempt in 1 2 3; do \
+        go mod download && exit 0; \
+        echo "go mod download failed (attempt ${attempt} of 3)" >&2; \
+        sleep $((attempt * 5)); \
+    done; \
+    exit 1
 COPY bot/ ./
 ARG VERSION=dev
 ARG COMMIT=unknown

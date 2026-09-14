@@ -143,7 +143,8 @@ restarts itself.
 No image has been published to `ghcr.io/tabsi1998/amongus-voice-controller`. The
 compose file builds from this repository until one is.
 
-The Windows capture app has no installer and no self-update. The
+The Windows capture app has an installer, but it is unsigned, and there is no
+self-update. The
 [Windows installation and release contract](../docs/windows-installation-and-releases.md)
-defines what those need, and both wait on publisher identity and code signing
-(#24), which is an owner decision rather than a technical one.
+defines what those need. Signing and updates wait on publisher identity and code
+signing (#24), which is an owner decision rather than a technical one.
