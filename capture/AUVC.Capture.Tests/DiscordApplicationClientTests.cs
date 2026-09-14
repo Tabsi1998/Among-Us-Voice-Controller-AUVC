@@ -156,6 +156,7 @@ namespace AUVC.Capture.Tests
                          DiscordApplicationClient.ViewChannel, DiscordApplicationClient.Connect,
                          DiscordApplicationClient.MuteMembers, DiscordApplicationClient.DeafenMembers,
                          DiscordApplicationClient.MoveMembers, DiscordApplicationClient.SendMessages,
+                         DiscordApplicationClient.EmbedLinks, DiscordApplicationClient.UseExternalEmojis,
                      })
             {
                 Assert.Equal(needed, permissions & needed);

@@ -37,6 +37,7 @@ func (d *Doctor) Report(guildID string) doctor.Report {
 	config, configured := d.checkStorage(&report, guildID)
 	d.checkChannels(&report, config, configured)
 	d.checkPermissions(&report, config, configured)
+	d.checkCrewmates(&report, config, configured)
 	d.checkCapture(&report, guildID)
 	d.checkSession(&report, guildID)
 	d.checkBuild(&report)
@@ -148,7 +149,7 @@ func (d *Doctor) checkChannels(report *doctor.Report, channels voiceChannels, co
 		{"Main voice channel", channels.main, true, "Set it with `/au setup channels`."},
 		{"Ghost voice channel", channels.ghost, true, "Set it with `/au setup channels`."},
 		{"Control text channel", channels.control, false,
-			"Set one with `/au setup channels` so AUVC can warn you when capture stops."},
+			"Set one with `/au setup channels`: players choose their crewmate there, and AUVC warns you when capture stops."},
 	} {
 		switch {
 		case entry.channelID == "" && entry.required:
@@ -209,6 +210,55 @@ func (d *Doctor) checkPermissions(report *doctor.Report, channels voiceChannels,
 		Name: "Permissions", Level: doctor.Fail,
 		Detail: permission.Summary(reports),
 		Fix:    "Grant the missing permissions to the AUVC role, on the role or on the channel.",
+	})
+}
+
+// checkCrewmates reports whether players can choose their crewmate in the
+// control channel.
+func (d *Doctor) checkCrewmates(report *doctor.Report, channels voiceChannels, configured bool) {
+	if !configured || channels.control == "" || d.bot.PrimarySession == nil {
+		return
+	}
+
+	effective, err := d.bot.PrimarySession.UserChannelPermissions(
+		d.bot.PrimarySession.State.User.ID, channels.control)
+	if err != nil {
+		effective = 0
+	}
+	if missing := permission.Missing(effective, permission.ControlChannelNeeds); len(missing) > 0 {
+		report.Add(doctor.Check{
+			Name: "Crewmate menu", Level: doctor.Fail,
+			Detail: permission.Summary([]permission.Report{{
+				Channel: permission.Channel{Purpose: "text channel", ID: channels.control, Effective: effective},
+				Missing: missing,
+			}}),
+			Fix: "Grant the missing permissions to the AUVC role on the text channel, or invite the bot again from the AUVC app.",
+		})
+		return
+	}
+
+	if d.bot.Crewmates == nil {
+		report.Add(doctor.Check{
+			Name: "Crewmate menu", Level: doctor.Warn,
+			Detail: "not available in this build",
+			Fix:    "Players can still link themselves with `/au link player:<name>`.",
+		})
+		return
+	}
+
+	uploaded, total := d.bot.Crewmates.EmojiStatus()
+	if uploaded < total {
+		report.Add(doctor.Check{
+			Name: "Crewmate menu", Level: doctor.Warn,
+			Detail: fmt.Sprintf("in <#%s>, with %d of %d crewmate pictures so far", channels.control, uploaded, total),
+			Fix:    "The pictures upload when AUVC starts. If the number does not grow, the bot log says why.",
+		})
+		return
+	}
+
+	report.Add(doctor.Check{
+		Name: "Crewmate menu", Level: doctor.OK,
+		Detail: fmt.Sprintf("in <#%s>, with every crewmate picture", channels.control),
 	})
 }
 

@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/crewmate"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/bwmarrin/discordgo"
 )
@@ -37,6 +38,10 @@ type Bot struct {
 	// created per call because it serializes work per guild, which only works
 	// if every reconciliation goes through the same instance.
 	Reconciler *voice.Reconciler
+
+	// Crewmates keeps the crewmate board in each control channel up to date.
+	// It stays nil until AttachCrewmates, and everything that uses it copes.
+	Crewmates *CrewmateBoards
 }
 
 // MakeAndStartBot connects to Discord and returns the running bot, or nil if
@@ -100,22 +105,37 @@ func (bot *Bot) announce() {
 
 // Close shuts the Discord connection down.
 func (bot *Bot) Close() {
+	// The boards go first, while Discord is still connected to delete them.
+	if bot.Crewmates != nil {
+		bot.Crewmates.Close()
+	}
 	if err := bot.PrimarySession.Close(); err != nil {
 		log.Println("Could not close the Discord session cleanly:", err)
 	}
 }
 
-// handleInteractionCreate routes Discord interactions. AUVC registers one
-// command, so there is one thing to route to.
+// handleInteractionCreate routes Discord interactions: the one command AUVC
+// registers, and choices from the crewmate menu.
 func (bot *Bot) handleInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if i.Type != discordgo.InteractionApplicationCommand {
-		return
-	}
-	if i.ApplicationCommandData().Name != au.Name {
+	var response *discordgo.InteractionResponse
+
+	switch i.Type {
+	case discordgo.InteractionApplicationCommand:
+		if i.ApplicationCommandData().Name != au.Name {
+			return
+		}
+		response = bot.handleAUCommand(s, i)
+
+	case discordgo.InteractionMessageComponent:
+		if i.MessageComponentData().CustomID != crewmate.SelectID {
+			return
+		}
+		response = bot.handleCrewmateChoice(s, i)
+
+	default:
 		return
 	}
 
-	response := bot.handleAUCommand(s, i)
 	if response == nil {
 		return
 	}

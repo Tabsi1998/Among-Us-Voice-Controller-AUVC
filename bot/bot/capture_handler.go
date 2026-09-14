@@ -193,6 +193,10 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 		return err
 	}
 
+	// The board follows the lobby whether or not voice is being managed:
+	// players choose their crewmate before anybody starts a session.
+	bot.RefreshCrewmates(guildID)
+
 	// auto_start exists so a guild that always wants AUVC does not have to run
 	// a command before every match. A guild that left it off has said it wants
 	// to decide, so a snapshot must not quietly take over.

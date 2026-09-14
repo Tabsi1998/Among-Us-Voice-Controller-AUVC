@@ -24,22 +24,27 @@ func (bot *Bot) handleAUCommand(s *discordgo.Session, interaction *discordgo.Int
 		return auPrivateResponse("❌ Invalid `/au` command: " + err.Error())
 	}
 
-	guild, err := s.State.Guild(interaction.GuildID)
+	invoker, err := invokerOf(s, interaction)
 	if err != nil {
 		return auPrivateResponse("❌ Discord guild information is unavailable. Please try again.")
+	}
+
+	// /au link on its own offers the crewmate menu, rather than asking for a
+	// name whose exact spelling nobody remembers.
+	if group == "" && command == au.Link {
+		_, named := values.String(au.OptionPlayer)
+		_, forSomebodyElse := values.String(au.OptionUser)
+		if !named && !forSomebodyElse {
+			return bot.crewmatePicker(interaction.GuildID)
+		}
 	}
 
 	request := au.Request{
 		GuildID: interaction.GuildID,
 		Group:   group,
 		Command: command,
-		Invoker: au.Invoker{
-			UserID:           interaction.Member.User.ID,
-			RoleIDs:          interaction.Member.Roles,
-			IsGuildOwner:     guild.OwnerID == interaction.Member.User.ID,
-			HasAdministrator: interaction.Member.Permissions&discordgo.PermissionAdministrator != 0,
-		},
-		Values: values,
+		Invoker: invoker,
+		Values:  values,
 	}
 
 	content, err := bot.AUVC.Handle(request)
@@ -49,7 +54,30 @@ func (bot *Bot) handleAUCommand(s *discordgo.Session, interaction *discordgo.Int
 	if err != nil {
 		return auPrivateResponse(fmt.Sprintf("❌ AUVC could not complete this command: %v", err))
 	}
+
+	switch {
+	case group == "" && (command == au.Link || command == au.Unlink):
+		go bot.afterLinkChange(interaction.GuildID)
+	case group == au.GroupSetup:
+		// A new text channel takes the crewmate board with it.
+		bot.RefreshCrewmates(interaction.GuildID)
+	}
 	return auPrivateResponse(content)
+}
+
+// invokerOf describes who used an interaction, for authorization.
+func invokerOf(s *discordgo.Session, interaction *discordgo.InteractionCreate) (au.Invoker, error) {
+	guild, err := s.State.Guild(interaction.GuildID)
+	if err != nil {
+		return au.Invoker{}, err
+	}
+
+	return au.Invoker{
+		UserID:           interaction.Member.User.ID,
+		RoleIDs:          interaction.Member.Roles,
+		IsGuildOwner:     guild.OwnerID == interaction.Member.User.ID,
+		HasAdministrator: interaction.Member.Permissions&discordgo.PermissionAdministrator != 0,
+	}, nil
 }
 
 func auPrivateResponse(content string) *discordgo.InteractionResponse {

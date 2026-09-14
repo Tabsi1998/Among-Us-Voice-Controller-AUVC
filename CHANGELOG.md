@@ -4,6 +4,22 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- Choosing a crewmate in Discord
+  ([#105](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/105)).
+  Once the app sees a lobby, the bot posts a message in the text channel with
+  every crewmate in the lobby, their pictures, who has picked which, and a menu
+  to pick your own; **Unlink me** removes the link. `/au link` without a name
+  shows the same menu to you alone. The message is edited in place, deleted when
+  the bot stops, found again after a crash, and never shows a death before the
+  meeting that announces it. A link made during a round is applied at once.
+- The crewmate pictures from AutoMuteUs are built into the bot and uploaded once
+  as emojis of your own Discord application, so they take no emoji slot on the
+  server.
+- `/au doctor` and the app's checks report whether the crewmate message can be
+  posted and whether every picture is uploaded.
+
 ### Removed
 
 - Docker: the image, the compose file, the container build in CI and the image in
@@ -16,6 +32,13 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- The invite also asks for *Embed Links* and *Use External Emojis*, which the
+  crewmate message needs. A bot invited with `v0.1.0-beta` does not have them
+  yet: give them to the bot's role in Discord, or invite the bot into the same
+  server again.
+- `/au link` no longer requires a name, and the text channel in the setup is now
+  recommended rather than optional, because that is where players choose their
+  crewmate.
 - Documentation for people using AUVC: a user guide in English
   (`docs/guide.md`) and German (`docs/anleitung.md`) with download, setup,
   every setting, the Discord commands, troubleshooting, updating and

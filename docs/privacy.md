@@ -4,7 +4,8 @@ What AUVC stores, where, for how long, and how to remove it.
 
 AUVC is not a hosted service. It runs on your PC, and whoever runs it is
 responsible for the data it keeps. Nothing leaves that PC except what Discord
-needs to carry out a mute or a move.
+needs: the mutes and moves, the crewmate message in your text channel, and the
+crewmate pictures, which are uploaded to your own bot.
 
 ## What AUVC does not collect
 
@@ -36,12 +37,17 @@ The bot's database:
 | `player_link` | In-game name and Discord user id, per server | `/au unlink` |
 | `capture_pairing` | SHA-256 hash of an outstanding pairing code, and the Discord user id of whoever requested it | The code is redeemed, replaced, revoked, or found expired |
 | `capture_credential` | Random identifier and SHA-256 hash of each app credential, with creation, last-use and revocation times | Not deleted automatically. A revoked credential stays as a hash, so a later attempt to use it is recognised as revoked |
+| `crewmate_board` | Channel id and message id of the crewmate message, per server | The bot stops and deletes the message, or the text channel is removed from the setup |
 
 No secret is stored in a form that can be read back from the database: pairing
 codes and credentials are kept only as hashes.
 
 **Held only in memory:** the running round — in-game names, colours, who is alive
 and who disconnected. It is gone when AUVC closes.
+
+**Shown in Discord:** while AUVC runs, the crewmate message in your text channel
+lists the in-game names and colours of the lobby and which members picked them.
+Everyone who can read that channel sees it. It is deleted when AUVC closes.
 
 The app reads the memory of the Among Us process to find the game phase and the
 players.
