@@ -31,6 +31,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Fixed
 
+- The release workflow no longer fails before building anything. Its first job
+  checked out a shallow clone, in which `verify_repository.py` cannot find the
+  original upstream imports it verifies. A dry run found this; a tag would have
+  failed the same way.
 - An exiled player now goes to the ghost channel. Capture reports an exile
   before the phase leaves the meeting, and the bot treated that death as a
   secret, so the player stayed silenced in the main channel until the next
