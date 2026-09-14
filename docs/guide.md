@@ -187,8 +187,11 @@ From then on AUVC follows the game on its own:
 - **Being voted out is public anyway**, so that player moves to the ghost channel
   straight away.
 - **Closing AUVC** releases everyone and takes the bot offline.
-- **If AUVC crashes**, its bot stops with it and cannot release anyone. Unmute
-  people in Discord: right-click them and switch off *Server Mute* and
+- **If AUVC crashes**, its bot stops with it and cannot release anyone at that
+  moment. The next time AUVC starts, the bot releases everyone it had left
+  muted, deafened or in the ghost channel, and nobody else. People who are not
+  in voice then are released as soon as they join. To release someone straight
+  away, right-click them in Discord and switch off *Server Mute* and
   *Server Deafen*.
 
 ## 6. Settings
@@ -290,7 +293,7 @@ and data are not kept in that folder, so nothing is lost.
 | One player is not muted | They are not linked, or linked to another crewmate. Check the crewmate message in the text channel, or run `/au link` again |
 | The crewmate message does not appear | Choose a text channel behind **Bot** → **Channels**. Give the bot's role *View Channels*, *Send Messages* and *Embed Links* in it. The message appears once the app sees a lobby |
 | AUVC reports missing permissions | Give the bot's role *View Channels*, *Connect*, *Mute Members*, *Deafen Members* and *Move Members* on both voice channels |
-| Someone stays muted | While AUVC runs, `/au session stop` releases everyone. After a crash, right-click the person in Discord and switch off *Server Mute* and *Server Deafen* |
+| Someone stays muted | While AUVC runs, `/au session stop` releases everyone. After a crash, start AUVC again: it releases everyone it left muted. Or right-click the person in Discord and switch off *Server Mute* and *Server Deafen* |
 
 ### In the game
 

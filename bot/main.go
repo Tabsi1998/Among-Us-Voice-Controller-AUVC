@@ -108,6 +108,11 @@ func run() error {
 	defer controller.Close()
 
 	controller.AUVCLinks = auvcDB
+	// Every mute, deafen and move into the ghost channel is written down before
+	// it is made, so a start after a crash releases exactly what was left behind.
+	if err := controller.AttachVoiceHolds(auvcDB); err != nil {
+		return err
+	}
 	// Players choose their crewmate on a board in the control channel. The
 	// pictures upload in the background, so starting is not held up by them.
 	controller.AttachCrewmates(auvcDB)

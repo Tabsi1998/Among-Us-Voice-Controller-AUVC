@@ -42,6 +42,13 @@ type Bot struct {
 	// Crewmates keeps the crewmate board in each control channel up to date.
 	// It stays nil until AttachCrewmates, and everything that uses it copes.
 	Crewmates *CrewmateBoards
+
+	// holdStore, holds and voiceApplier record AUVC's voice changes and
+	// release what a previous run left behind. They stay nil until
+	// AttachVoiceHolds.
+	holdStore    HoldStore
+	holds        *holdRecovery
+	voiceApplier voice.Applier
 }
 
 // MakeAndStartBot connects to Discord and returns the running bot, or nil if
