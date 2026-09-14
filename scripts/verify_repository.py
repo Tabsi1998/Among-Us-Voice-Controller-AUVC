@@ -39,13 +39,12 @@ def check() -> list[str]:
     if config.get("extend", {}).get("useDefault") is not True:
         errors.append("Default Gitleaks detectors disabled")
     for path in (
-        ".github/workflows/baseline.yml", "capture/global.json",
-        "capture/AUVC.Capture.Tests/AUVC.Capture.Tests.csproj",
-        "deploy/Dockerfile", "deploy/docker-compose.yml", "deploy/.env.example",
-        "docs/baseline-build.md",
-        "docs/architecture.md", "docs/requirements.md", "docs/roadmap.md",
-        "docs/windows-installation-and-releases.md", "UPSTREAM.md", "SECURITY.md",
-        "THIRD_PARTY_NOTICES.md",
+        ".github/workflows/baseline.yml", ".github/workflows/release.yml",
+        "capture/global.json", "capture/AUVC.Capture.Tests/AUVC.Capture.Tests.csproj",
+        "installer/auvc-capture.iss",
+        "docs/guide.md", "docs/anleitung.md", "docs/architecture.md",
+        "docs/development.md", "docs/privacy.md",
+        "UPSTREAM.md", "SECURITY.md", "THIRD_PARTY_NOTICES.md",
     ):
         if not (ROOT / path).is_file():
             errors.append(f"Missing required file: {path}")

@@ -2,9 +2,8 @@
 
 ## Supported versions
 
-No AUVC release has been published yet. `main` is under active development and
-security fixes land there. From the first release on, the latest release is
-supported.
+AUVC is in pre-release. Security fixes land on `main` and in the next
+pre-release; only the newest release is supported.
 
 ## Reporting a vulnerability
 
@@ -15,57 +14,50 @@ personal data in public issues.
 
 ## What is protected, and how
 
-**Pairing.** `/au capture pair` issues an eight-character code from a 32-letter
-alphabet (40 bits) that works once and expires after ten minutes. Only its
-SHA-256 hash is stored. Requesting a new code replaces the previous one, and
-`/au capture revoke` cancels an outstanding code as well as every credential.
+**The bot token.** The app checks a pasted token with Discord and stores it with
+the Windows Data Protection API, for the current Windows account only. It never
+shows it again and never writes it to a log.
 
-**Credentials.** Redeeming a code issues a credential with 256 bits from
-`crypto/rand`. Only its SHA-256 hash is stored, and comparison is constant time.
-A plain hash is the right tool here rather than a password hash: there is nothing
-to guess in 256 random bits, and password hashes exist to slow down guessing
-cheap secrets. Revocation takes effect at once: capture connections that are
-already open are told why and closed, and new ones are refused.
+**The bot on this PC.** The app starts the bot with a new random secret and a
+free loopback port on every start, and ties it to itself with a Windows job
+object, so the bot ends when the app ends, even when the app crashes. Only when
+started this way does the bot offer the `/local/...` routes the app uses to list
+servers and channels, save the setup, stop the bot and obtain a capture
+credential. Every route requires the secret, compared in constant time, answers
+only connections from this computer, and refuses any request with an `Origin`
+header, so a web page cannot use it. A secret shorter than 32 characters stops
+the bot from starting.
+
+**Credentials between app and bot.** A credential has 256 bits from
+`crypto/rand`. The bot stores only its SHA-256 hash and compares in constant
+time; a plain hash is right here, because there is nothing to guess in 256 random
+bits. The app stores the credential with the Data Protection API, separately from
+the token and under a different purpose, so neither file reads back as the other.
+`/au capture revoke` takes effect at once: open connections are told why and
+closed, new ones are refused.
+
+**Pairing codes**, for a bot on another computer: eight characters from a
+32-letter alphabet (40 bits), working once and for ten minutes, stored only as a
+hash. A new code replaces the previous one.
 
 **Nothing secret in logs or replies.** Secrets are held in a type that prints and
-serialises as `[redacted]`; reading the value takes an explicit call that is easy
-to find in review. Tests assert that neither pairing codes nor credentials reach
-the log, `/au doctor`, `/au capture status` or the configuration export.
+serialises as `[redacted]`. Tests assert that neither pairing codes nor
+credentials reach the log, `/au doctor`, `/au capture status` or the
+configuration export.
 
-**The capture connection.** Every message is validated against a versioned
-protocol. A failed or revoked credential closes the connection. Requests carrying
-an `Origin` header are refused, so a web page cannot reach the handshake. Frames
-are size-limited and idle connections time out.
+**The connection.** Every message is validated against a versioned protocol.
+Requests with an `Origin` header are refused, frames are size-limited and idle
+connections time out. The bot listens on `127.0.0.1` by default.
+`AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make a bot on another computer
+terminate TLS itself; without them it warns on every start.
 
-**Transport security.** `AUVC_CAPTURE_TLS_CERT` and `AUVC_CAPTURE_TLS_KEY` make
-the bot terminate TLS itself. Without them it serves plain HTTP and says so in
-its log on every start. The listener binds to `127.0.0.1` by default.
+**Administration.** `/au` changes require the server owner, a Discord
+Administrator, or the role set with `/au setup permissions`. Every reply is
+visible only to whoever ran the command.
 
-**On the capture PC.** The credential is encrypted with the Windows Data
-Protection API for the current user account, with application-specific entropy.
-When the bot runs on this PC, its Discord token is stored the same way, in its
-own file and under a different purpose, so neither file can be read back as the
-other. The app checks a pasted token with Discord and never writes it to a log.
-It starts the bot with a new random local control secret and a free loopback
-port on every start, and ties the bot to itself with a Windows job object, so
-the bot ends when the app ends, even when the app crashes.
-
-**Administration.** `/au` changes require the guild owner, Discord Administrator,
-or the role set with `/au setup permissions`. Every reply is ephemeral.
-
-**Local control for the Windows app.** The AUVC Windows app starts the bot
-itself and passes it a random secret in `AUVC_LOCAL_CONTROL_SECRET`. Only then
-does the bot offer `/local/...` routes, through which the app lists servers and
-channels, saves the channel setup, stops the bot and obtains a capture
-credential without a pairing code. Every route requires the secret, compared in
-constant time, answers only connections from this computer, and refuses any
-request carrying an `Origin` header, so a web page cannot use it. A secret
-shorter than 32 characters stops the bot from starting. Without the variable,
-as in the container, the routes do not exist.
-
-**Voice.** Only linked human players are managed. When capture stops responding,
+**Voice.** Only linked human players are managed. When the app stops responding,
 the default fail-safe unmutes and undeafens everyone rather than leaving a room
-unable to speak.
+unable to speak, and a stopping bot releases everyone too.
 
 **Supply chain.** CI fails on Go code that can reach a known vulnerability
 (`govulncheck`), on any vulnerable NuGet package, and on secrets found by
@@ -73,27 +65,21 @@ Gitleaks. GitHub Actions are pinned to commit SHAs.
 
 ## Known limitations
 
-- **Not yet tried against a real game.** The capture app uses the
-  authenticated transport, but the two halves have only met in tests, each
-  against a simulation of the other.
-- **Artifacts are unsigned** (#24). Windows shows "Unknown publisher".
-  `SHA256SUMS` on the release page proves a download matches the release; it does
-  not prove who built it.
-- **Plain HTTP without TLS or a proxy** sends the credential in the clear. Use
-  TLS whenever capture and the bot are not on the same machine.
+- **Not yet tried in a real round.** App and bot have only met in tests.
+- **Files are unsigned.** Windows shows "Unknown publisher". `SHA256SUMS` proves
+  a download matches the release; it does not prove who built it.
+- **Plain HTTP to a bot on another computer** sends the credential in the clear.
+  Use TLS whenever app and bot are not on the same machine.
 - **The pairing endpoint is not rate limited.** A wrong code does not use up the
-  real one, so that a typing mistake costs nothing. Somebody who can reach the
-  endpoint can therefore guess repeatedly during a code's ten-minute life. The
-  defence is the code's entropy, its short life, and the listener defaulting to
-  localhost; put a rate-limiting proxy in front of an exposed listener.
-- **Data Protection API encryption does not protect against a compromised user
-  account** on the capture PC. That is what `/au capture revoke` is for.
+  real one. The defence is the code's entropy, its short life, and the listener
+  defaulting to localhost.
+- **The Data Protection API does not protect against a compromised Windows
+  account.** Reset the bot token in the Discord Developer Portal, and use
+  `/au capture revoke`, if the PC is compromised.
 
 ## Privacy
 
 What AUVC stores, where and for how long is in [docs/privacy.md](docs/privacy.md).
-The imported bot's [privacy document](bot/PRIVACY.md) describes the hosted
-upstream service and is not an AUVC policy.
 
 ## Contributor rules
 

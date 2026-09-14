@@ -4,6 +4,24 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Removed
+
+- Docker: the image, the compose file, the container build in CI and the image in
+  releases. AUVC runs on the Windows PC that plays Among Us, with the bot inside
+  the app.
+- The separate bot downloads for Windows and Linux. A release is the setup EXE and
+  the portable zip, both carrying the bot, with `SHA256SUMS` and release notes.
+- Outdated planning and phase documents, and the README and privacy files
+  inherited from upstream, which described the hosted AutoMuteUs service.
+
+### Changed
+
+- Documentation for people using AUVC: a user guide in English
+  (`docs/guide.md`) and German (`docs/anleitung.md`) with download, setup,
+  every setting, the Discord commands, troubleshooting, updating and
+  uninstalling. The README is a short entry point; building and releasing moved
+  to `docs/development.md`.
+
 ## v0.1.0-beta — 2026-09-14
 
 The first pre-release of AUVC, for trying it on one Windows PC and reporting
@@ -528,7 +546,7 @@ later pre-release.
   binary. Uses the pure-Go `modernc.org/sqlite` driver so the `CGO_ENABLED=0`
   Docker build keeps working. The bot now opens `/data/amongus.db`, and the
   baseline image provides the writable persistent volume; see
-  [docs/persistence.md](docs/persistence.md).
+  docs/persistence.md.
 - Phase-2 Windows test project with 11 offset/CLI regression cases, locked NuGet
   restores, root Go/Windows/Docker/provenance/secret CI and Dependabot.
 - Branding and product-design roadmap with asset/license inventory, multiple
@@ -567,7 +585,7 @@ later pre-release.
   network access; `BASE_MAP_URL` has no default, so nothing points at a foreign
   host unless an operator configures one. The decorative game-state thumbnail
   appears only when `BASE_MAP_URL` is set. See
-  [docs/upstream-independence.md](docs/upstream-independence.md).
+  docs/upstream-independence.md.
 
 ### Changed
 
@@ -577,7 +595,7 @@ later pre-release.
   always-present base layer. `IndexURL` defaults to empty, so a remote refresh is
   opt-in, and the hardcoded fallback to a second foreign repository is removed.
   Remote and cached entries merge on top of the bundled index instead of
-  replacing it. See [docs/upstream-independence.md](docs/upstream-independence.md).
+  replacing it. See docs/upstream-independence.md.
 
 ### Changed
 
@@ -589,7 +607,7 @@ later pre-release.
 - Localization (`go-i18n`, `BurntSushi/toml`, `golang.org/x/text`) and the shared
   `golang.org/x/*` libraries updated. Redis, PostgreSQL, premium, metrics and
   Swagger dependencies deliberately stay at baseline versions until the phases
-  that delete them. Rationale in [docs/go-modernization.md](docs/go-modernization.md).
+  that delete them. Rationale in docs/go-modernization.md.
 
 ### Changed
 
@@ -618,7 +636,7 @@ later pre-release.
   pool including its per-tier allowance and guild-membership enforcement.
   Behaviour is preserved for a self-hosted bot; mutes now go to the capture bot
   and otherwise to the primary session. Inventory and rationale in
-  [docs/service-removal.md](docs/service-removal.md).
+  docs/service-removal.md.
 - Dependencies dropped as a result: gin, gorilla/mux, prometheus/client_golang,
   the swaggo family and golang.org/x/exp, plus about 29 indirect modules.
 - Phase 4, second step: premium tiers and the `/premium` command, the top.gg

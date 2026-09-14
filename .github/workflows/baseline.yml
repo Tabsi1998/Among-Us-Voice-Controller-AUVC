@@ -61,19 +61,15 @@ jobs:
       - run: go vet ./...
       - run: go test -race ./...
       - run: go build ./...
-      # AUVC ships as a Windows executable as well as a container, so a change
-      # that only compiles on Linux has to fail here rather than in somebody's
-      # download. CGO stays off: the pure-Go SQLite driver is what makes
-      # cross-compiling possible at all.
-      - name: Cross-compile the bot for every supported target
+      # The bot ships inside the Windows app, so a change that only compiles on
+      # Linux has to fail here rather than in the release. CGO stays off: the
+      # pure-Go SQLite driver is what makes cross-compiling possible at all.
+      - name: Cross-compile the bot for Windows
         env:
           CGO_ENABLED: "0"
-        run: |
-          set -euo pipefail
-          for target in windows/amd64 linux/amd64 linux/arm64; do
-            GOOS="${target%/*}" GOARCH="${target#*/}" go build -trimpath -o /dev/null .
-            echo "built $target"
-          done
+          GOOS: windows
+          GOARCH: amd64
+        run: go build -trimpath -o /dev/null .
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
       - name: Check known vulnerabilities
@@ -109,8 +105,7 @@ jobs:
           if ([int]$counters.executed -lt 99 -or [int]$counters.failed -ne 0) {
             throw 'Expected at least 99 executed baseline tests with no failures.'
           }
-      # Phase 11 has to prove the app still ships without a .NET install on the
-      # player's machine. Packaging it into the release archives is phase 17.
+      # The app has to run on a PC with no .NET installed.
       - name: Prove the self-contained win-x64 payload
         run: |
           dotnet publish AUCapture-WPF/AUCapture-WPF.csproj --configuration Release --runtime win-x64 --self-contained true -o ../artifacts/publish/win-x64
@@ -139,21 +134,3 @@ jobs:
           path: artifacts/tests
           if-no-files-found: error
           retention-days: 7
-
-  docker:
-    name: Docker image build
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Build without publishing
-        run: docker build -f deploy/Dockerfile --build-arg COMMIT="$GITHUB_SHA" -t auvc:baseline .
-      - name: Check runtime image contract
-        run: |
-          test "$(docker inspect --format '{{.Config.User}}' auvc:baseline)" = auvc
-          test "$(docker inspect --format '{{json .Config.Volumes}}' auvc:baseline)" = '{"/data":{}}'
-          # A published image without a health check leaves an operator to
-          # discover a dead bot themselves.
-          test -n "$(docker inspect --format '{{json .Config.Healthcheck}}' auvc:baseline)"
-          docker run --rm --entrypoint sh auvc:baseline -c 'test -x /app/auvc && test -r /app/LICENSES/AutoMuteUs-MIT.txt && test -r /app/LICENSES/AmongUsCapture-MIT.txt && test -w /data && test "$AUVC_DATABASE_PATH" = /data/amongus.db'

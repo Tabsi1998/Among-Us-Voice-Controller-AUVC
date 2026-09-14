@@ -1,5 +1,5 @@
 name: Feature request
-description: Propose a focused improvement for the AUVC roadmap.
+description: Propose a focused improvement for AUVC.
 title: "feat: "
 body:
   - type: textarea
@@ -17,4 +17,4 @@ body:
   - type: textarea
     id: scope
     attributes:
-      label: Roadmap phase, dependencies and migration impact
+      label: Dependencies and migration impact

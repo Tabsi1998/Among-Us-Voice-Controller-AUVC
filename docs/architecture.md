@@ -8,6 +8,11 @@ keeps one SQLite file and listens for a capture connection. Galactus, Redis,
 PostgreSQL, the public API, metrics, premium and sharding are gone. Everything on
 the bot side of the flow below is implemented and tested.
 
+The Windows app starts the bot itself: `capture/AUVC.Transport` holds `BotHost`,
+which runs `botuvc.exe` hidden with a fresh secret and a free loopback port,
+and the bot's `pkg/localcontrol` answers the app's setup requests. See the
+*Windows app* boundary below.
+
 Capture targets .NET 10. `capture/AUVC.Protocol` defines the messages and
 `capture/AUVC.Transport` carries them: `CaptureLink` keeps the connection and a
 record of the round for the snapshot each connection opens with, beside pairing
@@ -21,10 +26,10 @@ See [acceptance.md](acceptance.md) for what is proved and what is not.
 
 ```mermaid
 flowchart TD
-    AU[Among Us on one Windows PC] --> Capture[AmongUsVoiceCapture.exe]
+    AU[Among Us on one Windows PC] --> Capture[AUVC app on the same PC]
     Capture -->|Authenticated WSS / versioned protocol| Ingress[Protocol validation]
     Ingress --> State[Game State and session lifecycle]
-    DB[(SQLite /data/amongus.db)] --> State
+    DB[(SQLite amongus.db)] --> State
     State --> Policy[Voice Policy]
     Policy --> Desired[DesiredVoiceState per linked player]
     Desired --> Reconciler[Discord Reconciler]
@@ -33,8 +38,9 @@ flowchart TD
 ```
 
 Only the capture host needs additional software. Other players need neither
-mods nor capture installations. The self-hosted bot requires no Galactus,
-Redis, PostgreSQL, premium infrastructure, public workers or unnecessary sharding.
+mods nor capture installations. The bot runs inside the app on that PC and
+requires no Galactus, Redis, PostgreSQL, premium infrastructure, public workers
+or sharding.
 
 ## Boundaries
 
@@ -52,10 +58,9 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   did arrive would leave the bot confidently wrong about who is alive.
 - **Game State:** authoritative session phase, player identity, alive/dead state and
   persistent Discord links. No direct Discord API calls from game event handlers.
-  `bot/pkg/session` holds this projection as plain values with no discordgo,
-  Redis or storage types in reach; `(*GameState).SessionState()` is the single
-  seam that produces it. Unlinked users and Discord bot accounts are marked as
-  unmanaged there, so nothing downstream can act on them by accident.
+  `bot/pkg/session` holds the round as plain values with no discordgo or storage
+  types in reach. Unlinked users and Discord bot accounts are left out of what it
+  projects, so nothing downstream can act on them by accident.
 - **Voice Policy:** pure mapping from game state and guild configuration to
   `DesiredVoiceState { TargetChannelID, Muted, Deafened }`. Implemented in
   `bot/pkg/voice`, which imports neither discordgo nor the storage layer, so the
@@ -101,17 +106,6 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   everything, and an unconfigured channel is a setup question rather than a
   permission report.
 
-- **Voice switch-over:** the game handlers call the policy and the reconciler
-  through `(*Bot).reconcileVoice`, which reads the guild configuration, projects
-  the session, releases the game state lock and only then talks to Discord.
-  Holding that lock across an API call would block every other handler for the
-  guild. A guild that is disabled or has not run `/au setup channels`, and a
-  configuration that cannot be read at all, fall back to the legacy voice rules
-  rather than leaving players muted with no way out; phase 14 removes that
-  fallback together with the legacy settings. Changes go out over the primary
-  session rather than the token provider, whose purpose is spreading rate limits
-  across the several bot tokens of a hosted deployment.
-
 - **Persistence:** versioned SQLite migrations for guild settings, links and
   credential metadata. Preserve configuration through process restarts.
 
@@ -124,12 +118,10 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   stale one would mean managing the voice of somebody who left.
 
   `(*Bot).HandleCapture` applies protocol messages to it, resolves in-game names
-  through the SQLite player links, and reconciles. That path reaches the same
-  policy and reconciler as the legacy one without touching Redis: the session
-  lives in this process, because a self-hosted bot is one process and a session
-  that lives in it needs no external store to be found again. Work is
-  serialized per guild, since a reconnect can overlap the tail of the previous
-  connection.
+  through the SQLite player links, and reconciles. The session lives in the bot
+  process, because the bot is one process and a session that lives in it needs no
+  external store to be found again. Work is serialized per guild, since a
+  reconnect can overlap the tail of the previous connection.
 
 - **No external services:** the bot talks to Discord, reads and writes one
   SQLite file, and listens for a capture connection. Redis, PostgreSQL, Galactus
@@ -216,6 +208,14 @@ Redis, PostgreSQL, premium infrastructure, public workers or unnecessary shardin
   other would leave a way back in the administrator was not told about.
 - **Commands/doctor:** typed Discord options, authorization and human-readable
   diagnostics, operating through application services.
+- **Windows app:** `BotHost` starts the bot with `AUVC_LOCAL_CONTROL_SECRET`, waits
+  until it is connected to Discord, and stops it by asking first, so it releases
+  everyone in voice, and by killing it only if it does not stop. A kill-on-close
+  job object ends the bot if the app crashes. Through `pkg/localcontrol` the app
+  lists servers and channels, saves the setup and obtains a capture credential
+  without a pairing code; every route requires the secret, answers only this
+  computer and refuses browsers. The setup and the later bot settings are the same
+  window, `SetupWindow`, in two modes.
 
 ## Safety and recovery
 
@@ -232,7 +232,3 @@ unmuted/undeafened (optionally returning them to main), then sends a warning.
 Reconnect requires a full validated snapshot before incremental events resume.
 Process restarts must restore persistent settings/links and reconcile after the
 snapshot, rather than trusting cached Discord state or missing events.
-
-Specific queue, retry, sequence-reset and identity semantics require protocol
-and recovery tests in their corresponding phases. Do not claim crash safety
-until fault-injection and live Discord acceptance tests demonstrate it.
