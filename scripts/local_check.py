@@ -667,12 +667,17 @@ def portable_zip(context: Context) -> str:
     return f"{target.stat().st_size / 1_000_000:.0f} MB"
 
 
-def inno_setup() -> str | None:
-    on_path = shutil.which("ISCC")
+def inno_setup(environ: dict[str, str] | None = None) -> str | None:
+    """Find Inno Setup 6, installed for all users or, as winget does, for one."""
+    environ = os.environ if environ is None else environ
+    on_path = shutil.which("ISCC", path=environ.get("PATH"))
     if on_path:
         return on_path
-    for base in (os.environ.get("ProgramFiles(x86)"), os.environ.get("ProgramFiles")):
-        if base and (Path(base) / "Inno Setup 6" / "ISCC.exe").exists():
+    bases = [environ.get("ProgramFiles(x86)"), environ.get("ProgramFiles")]
+    if environ.get("LOCALAPPDATA"):
+        bases.append(str(Path(environ["LOCALAPPDATA"]) / "Programs"))
+    for base in bases:
+        if base and (Path(base) / "Inno Setup 6" / "ISCC.exe").is_file():
             return str(Path(base) / "Inno Setup 6" / "ISCC.exe")
     return None
 

@@ -151,6 +151,23 @@ class PayloadTests(unittest.TestCase):
             self.assertEqual(lock.read_bytes(), b'{"version":1}')
             self.assertEqual(untouched.read_bytes(), b'{"version":2}')
 
+    def test_inno_setup_installed_for_one_user_is_found(self):
+        with tempfile.TemporaryDirectory() as folder:
+            iscc = Path(folder) / "Programs" / "Inno Setup 6" / "ISCC.exe"
+            environ = {"PATH": "", "LOCALAPPDATA": folder}
+
+            self.assertIsNone(check.inno_setup(environ))
+            iscc.parent.mkdir(parents=True)
+            iscc.write_bytes(b"MZ")
+            self.assertEqual(check.inno_setup(environ), str(iscc))
+
+    def test_inno_setup_installed_for_all_users_is_found(self):
+        with tempfile.TemporaryDirectory() as folder:
+            iscc = Path(folder) / "Inno Setup 6" / "ISCC.exe"
+            iscc.parent.mkdir(parents=True)
+            iscc.write_bytes(b"MZ")
+            self.assertEqual(check.inno_setup({"PATH": "", "ProgramFiles(x86)": folder}), str(iscc))
+
     def test_a_payload_that_needs_installed_dotnet_is_refused(self):
         with tempfile.TemporaryDirectory() as folder:
             payload = Path(folder)
