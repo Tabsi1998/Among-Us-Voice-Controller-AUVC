@@ -49,6 +49,36 @@ namespace AUVC.Capture.Tests
         }
 
         [Fact]
+        public async Task TheLobbyIsRead()
+        {
+            var handler = new StubHandler((_, _) => Json(HttpStatusCode.OK,
+                """{"players":[{"name":"Alice","color":"red","user_id":""}],"members":[{"id":"u1","name":"Red Leader"}]}"""));
+
+            var crewmates = await Client(handler).GetCrewmatesAsync("g1");
+
+            Assert.Equal(HttpMethod.Get, handler.Last!.Method);
+            Assert.Equal("/local/guilds/g1/crewmates", handler.Last.RequestUri!.AbsolutePath);
+            var player = Assert.Single(crewmates.Players);
+            Assert.Equal(("Alice", "red", ""), (player.Name, player.Color, player.UserId));
+            var member = Assert.Single(crewmates.Members);
+            Assert.Equal(("u1", "Red Leader"), (member.Id, member.Name));
+        }
+
+        [Fact]
+        public async Task ALinkIsSentAndTheLobbyReadBack()
+        {
+            var handler = new StubHandler((_, _) => Json(HttpStatusCode.OK,
+                """{"players":[{"name":"Alice","color":"red","user_id":"u1"}],"members":[{"id":"u1","name":"Red Leader"}]}"""));
+
+            var crewmates = await Client(handler).LinkAsync("g1", "Alice", "u1");
+
+            Assert.Equal(HttpMethod.Put, handler.Last!.Method);
+            Assert.Equal("/local/guilds/g1/links", handler.Last.RequestUri!.AbsolutePath);
+            Assert.Equal("""{"player":"Alice","user_id":"u1"}""", handler.LastBody);
+            Assert.Equal("u1", Assert.Single(crewmates.Players).UserId);
+        }
+
+        [Fact]
         public async Task TheStatusIsRead()
         {
             var handler = new StubHandler((_, _) => Json(HttpStatusCode.OK,

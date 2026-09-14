@@ -173,6 +173,42 @@
                         Click="DisableBotButton_Click"
                         Visibility="Collapsed" />
                 </StackPanel>
+
+                <StackPanel x:Name="PlayersPanel" Visibility="Collapsed">
+                    <TextBlock x:Name="PlayersIntro" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="CrewmateList" Margin="0,14,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="220" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Text="{Binding Label}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <ComboBox
+                                        Grid.Column="1"
+                                        DisplayMemberPath="Name"
+                                        ItemsSource="{Binding Choices}"
+                                        SelectedItem="{Binding Selected, Mode=OneWay}"
+                                        SelectionChanged="CrewmateMember_SelectionChanged" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button
+                        x:Name="RefreshPlayersButton"
+                        Margin="0,14,0,0"
+                        Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Click="RefreshPlayersButton_Click" />
+                    <TextBlock
+                        x:Name="PlayersResult"
+                        Margin="0,10,0,0"
+                        TextWrapping="Wrap" />
+                </StackPanel>
             </Grid>
         </ScrollViewer>
 
