@@ -6,15 +6,38 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
-- The README describes AUVC as it is: what works and is tested, and what does
-  not work yet. Most importantly, the capture app is not yet connected to the
-  new transport, so AUVC cannot run a real round end to end. The README had
-  described a much earlier baseline: legacy services still running, pairing and
-  session control staged, and the old ghost rule that announced every kill.
+- The capture app connects to the AUVC bot. It pairs from its window with the
+  address of the bot and a code from `/au capture pair`, keeps the credential
+  encrypted for the Windows user, and reports the round over the authenticated
+  connection: a snapshot on every connection, then events in order, with a
+  heartbeat every five seconds. It reconnects by itself, answers a request for
+  a snapshot on the same connection, and stops retrying, with a message saying
+  why, when the bot refuses the credential or the build.
+- Removed from capture: the upstream Socket.IO connection and its connect code,
+  and the Discord bot token setting and handler, which only existed to carry
+  out mute tasks for the hosted service. `SocketIOClient` and `Discord.Net` are
+  no longer dependencies.
+- `CaptureLink` replaces `CaptureConnection`. The connection tests carry over as
+  `CaptureLinkTests`, next to new tests for the record of the round, bot
+  addresses, and the mapping from memory-reader events to reports.
+- The README describes AUVC as it is: what works and is tested, and what has
+  not been tried yet. It had described a much earlier baseline: legacy services
+  still running, pairing and session control staged, and the old ghost rule
+  that announced every kill.
 - `SECURITY.md` lists the protections that exist and how they work, and the
   known limitations, instead of a plan for protections to come.
 - `docs/architecture.md` and `docs/service-removal.md` no longer say Redis and
   PostgreSQL are still in use.
+
+### Fixed
+
+- An exiled player now goes to the ghost channel. Capture reports an exile
+  before the phase leaves the meeting, and the bot treated that death as a
+  secret, so the player stayed silenced in the main channel until the next
+  meeting. A death reported during a meeting is now public at once.
+- An update for an announced ghost no longer makes the death secret again.
+  Capture reports the same death more than once, and each report reset it,
+  which silenced the ghost in the ghost channel.
 
 ### Added
 

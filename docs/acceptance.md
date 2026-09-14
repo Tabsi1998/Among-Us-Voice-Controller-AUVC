@@ -55,9 +55,14 @@ the memory layout are exercised against fixtures, not against Among Us. A game
 update that moves an offset breaks nothing in this repository's tests and
 everything in practice.
 
-**That the two halves connect over a real network.** `pkg/transport` and
-`bot/recovery_test.go` open real WebSockets, but on localhost, in one process,
-with no TLS, no proxy and no home router in between.
+**That the two halves connect at all.** `pkg/transport` and
+`bot/recovery_test.go` open real WebSockets, but with a Go client, on localhost,
+in one process, with no TLS, no proxy and no home router in between. The capture
+side's `CaptureLinkTests` run against a scripted channel. The C# client and the
+Go server have never spoken to each other in a test.
+
+**That the capture window works.** Pairing, the connection indicator and the
+refusal dialog have no automated tests.
 
 **That the installer installs.** It is built by the release workflow and has
 never been run by anything here.

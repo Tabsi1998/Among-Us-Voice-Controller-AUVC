@@ -171,10 +171,16 @@ the handshake at all.
 ### The capture side
 
 `capture/AUVC.Transport` is the other end. `CaptureSession` builds the messages
-and numbers them; `CaptureConnection` runs the handshake over an
-`IMessageChannel`, which `WebSocketMessageChannel` implements. The channel is an
-interface for the same reason the protocol has no socket in it: the rules can
-then be tested without one.
+and numbers them. `CaptureLink` keeps a connection open over an
+`IMessageChannel`, which `WebSocketMessageChannel` implements. Each connection
+sends hello, the credential and a snapshot of the round the link has been
+recording, then events, and a heartbeat every five seconds. The link answers
+`snapshot_required` with a snapshot on the same connection, reconnects by itself
+after a drop, and stops retrying after `unauthenticated` or
+`incompatible_protocol`, which another attempt cannot fix. Messages are built
+and queued under one lock, because building one assigns its sequence number. The
+channel is an interface for the same reason the protocol has no socket in it:
+the rules can then be tested without one.
 
 `PairingClient` redeems a code against `/capture/pair`. `DpapiCredentialStore`
 keeps the result encrypted with the Windows Data Protection API, tied to the

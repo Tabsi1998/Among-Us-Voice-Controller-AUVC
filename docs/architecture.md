@@ -8,13 +8,14 @@ keeps one SQLite file and listens for a capture connection. Galactus, Redis,
 PostgreSQL, the public API, metrics, premium and sharding are gone. Everything on
 the bot side of the flow below is implemented and tested.
 
-Capture targets .NET 10. The protocol, the authenticated WebSocket client,
-pairing and Windows credential storage exist in `capture/AUVC.Protocol` and
-`capture/AUVC.Transport` and are tested, but the capture application in
-`capture/AUCapture-WPF` does not use them yet. It still carries the upstream
-socket connection, which the bot no longer serves, so a capture app built from
-this repository cannot reach the bot until that wiring lands. See
-[acceptance.md](acceptance.md) for what is proved and what is not.
+Capture targets .NET 10. `capture/AUVC.Protocol` defines the messages and
+`capture/AUVC.Transport` carries them: `CaptureLink` keeps the connection and a
+record of the round for the snapshot each connection opens with, beside pairing
+and Windows credential storage. `CaptureBridge` in `capture/AmongUsCapture`
+turns memory-reader events into reports to the link, and the window in
+`capture/AUCapture-WPF` pairs and shows the state of the link. The upstream
+Socket.IO connection, and the Discord bot token capture used to hold, are gone.
+See [acceptance.md](acceptance.md) for what is proved and what is not.
 
 ## Data flow
 

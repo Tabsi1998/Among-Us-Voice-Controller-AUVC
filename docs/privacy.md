@@ -46,13 +46,16 @@ and the failure paths.
 
 | Location | Contents |
 | --- | --- |
-| `%AppData%\AmongUsCapture\AmongUsGUI\Settings.json` | Capture app settings |
-| `%AppData%\AmongUsCapture\logs` | Capture app logs |
+| `%AppData%\AmongUsCapture\AmongUsGUI\Settings.json` | Capture app settings, including the address of the bot |
+| `%AppData%\AmongUsCapture\logs` | Capture app logs. They can contain in-game names and the address of the bot; the credential is never written to them |
 | `%LOCALAPPDATA%\AUVC\credential.bin` | The paired credential, encrypted with the Windows Data Protection API for the current user account |
 
-The credential location belongs to the AUVC transport in
-`capture/AUVC.Transport`. The capture application does not use that transport
-yet; see [architecture.md](architecture.md).
+The pairing code is not stored: it works once, and the capture window clears it
+as soon as pairing succeeds.
+
+Settings files written by earlier builds can still contain a `discordToken` or a
+`connectCode` entry. Current builds neither read nor write either; **Reset
+config** in the capture settings deletes the file.
 
 Capture reads the memory of the Among Us process to find the game phase and the
 players.
