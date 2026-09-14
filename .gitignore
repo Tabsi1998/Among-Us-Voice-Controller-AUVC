@@ -36,3 +36,9 @@ coverage/
 TestResults/
 .DS_Store
 Thumbs.db
+
+# Local VS Code test environments and generated results
+/.local-testing/
+/*.code-workspace
+/go.work
+/go.work.sum
