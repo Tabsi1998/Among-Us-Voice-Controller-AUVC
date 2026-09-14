@@ -10,7 +10,11 @@ name: Release
 # the bot inside, plus SHA256SUMS and the notes from CHANGELOG.md.
 on:
   push:
-    tags: ['v*']
+    # Releases only, such as v1.2.3. Pre-releases, such as v1.2.3-beta, are built
+    # and published from the maintainer's PC with scripts/local_release.py after
+    # every check has passed against a fresh copy of the commit. Building them
+    # here as well would publish them twice.
+    tags: ['v*', '!v*-*']
   workflow_dispatch:
 
 permissions:

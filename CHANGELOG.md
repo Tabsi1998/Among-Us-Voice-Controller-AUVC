@@ -15,6 +15,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   ([#111](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/111)).
 - CI: the checks run once per change, for the pull request and again on main
   after a merge. Pushing a branch used to start them twice.
+- Releases: pre-releases such as `v1.2.3-beta` are built and published from the
+  maintainer's PC with `scripts/local_release.py`, after every check has passed
+  against a fresh copy of the commit. Releases such as `v1.2.3` are still built
+  and published by GitHub; pre-release tags no longer start that workflow.
 
 ## v0.1.1-beta — 2026-09-14
 
