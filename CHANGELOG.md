@@ -29,6 +29,14 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   the next start it releases exactly what a crashed run left behind, members
   who are not in voice as soon as they join, and never touches a member an
   administrator muted by hand. A running round keeps its players muted.
+- In a full lobby, players could vanish from the app, from the crewmate message
+  and from voice control
+  ([#110](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/110)).
+  When one player could not be read yet, for example while still loading into
+  the lobby, the app skipped that player without moving on in the game's player
+  list, read the same entry again for everyone after them, and reported all of
+  those players as having left. Two players with the same name no longer make a
+  whole reading pass fail either.
 
 ## v0.1.1-beta — 2026-09-14
 
