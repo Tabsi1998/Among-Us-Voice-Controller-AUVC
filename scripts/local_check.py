@@ -148,7 +148,13 @@ def local_tools() -> dict[str, str]:
 
 
 def prepare_path(env: dict[str, str], tools: dict[str, str]) -> None:
-    """Put the pinned local tools, and the tools this script installs, first."""
+    """Put the pinned local tools, and the tools this script installs, first.
+
+    Go workspace files are switched off. The CI has none, and the go.work the
+    VS Code test setup writes into the repository root would otherwise also
+    capture a fresh worktree beneath it and point Go at the wrong bot/.
+    """
+    env["GOWORK"] = "off"
     extra = [tools[key] for key in ("go", "dotnet") if tools.get(key)]
     if tools.get("clang"):
         extra.append(str(Path(tools["clang"]).parent))

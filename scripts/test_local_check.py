@@ -54,6 +54,11 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual(entries[-1], str(Path("old-go")))
         self.assertEqual(env["DOTNET_ROOT"], dotnet)
 
+    def test_go_ignores_workspace_files_as_the_ci_does(self):
+        env = {"PATH": "", "GOWORK": str(Path("somewhere", "go.work"))}
+        check.prepare_path(env, {})
+        self.assertEqual(env["GOWORK"], "off")
+
 
 class GitleaksTests(unittest.TestCase):
     def test_a_download_that_does_not_match_its_checksum_is_refused(self):
