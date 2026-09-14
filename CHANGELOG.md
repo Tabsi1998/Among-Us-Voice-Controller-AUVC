@@ -4,6 +4,24 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+## v0.1.0-beta.1 — 2026-09-14
+
+The first pre-release of AUVC, for trying it on one Windows PC and reporting
+what does not work. It has not yet been through a round against a real game
+and a real Discord server.
+
+**Try it.** Download `AmongUsVoiceCapture-Setup-win-x64.exe`, or the portable
+`AmongUsVoiceCapture-win-x64.zip`, start AUVC and follow the setup window. It
+asks for a Discord bot token, invites the bot, and lets you choose the server
+and the channels; the bot then runs with the app. Everything chosen there can
+be changed later behind the **Bot** button. Windows warns about an unknown
+publisher because the files are not signed: choose **More info**, then
+**Run anyway**. `SHA256SUMS` lists the hash of every file.
+
+**Known limitations.** Not yet tried against a real game. Unsigned. Players
+link themselves with `/au link`; choosing a crewmate in Discord follows in a
+later pre-release.
+
 ### Changed
 
 - The capture app connects to the AUVC bot. It pairs from its window with the
@@ -48,6 +66,13 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- Bot settings in the Windows app, in both the installed and the portable
+  version. Once the bot is set up, the **Bot** button opens everything the
+  setup chose as separate sections: a new token restarts the bot with it, a
+  different server can be chosen and capture follows it, the channels and
+  automatic start can be changed and saved, and the status section shows the
+  bot's checks with buttons to restart the bot or stop running it on this PC.
+  Nothing needs reinstalling or setting up again from the start.
 - The Windows app sets up and runs the bot itself. On first start a setup
   window asks for the bot token and checks it with Discord, opens an invite link
   with exactly the permissions AUVC needs, lets you choose the server and the
