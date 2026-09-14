@@ -49,19 +49,18 @@ public sealed class DiscordApplicationClient(HttpClient http)
 
     public const long ViewChannel = 1L << 10;
     public const long SendMessages = 1L << 11;
-    public const long EmbedLinks = 1L << 14;
     public const long Connect = 1L << 20;
     public const long MuteMembers = 1L << 22;
     public const long DeafenMembers = 1L << 23;
     public const long MoveMembers = 1L << 24;
 
     /// <summary>
-    /// Every permission AUVC uses, and nothing more: seeing and joining the voice
-    /// channels, muting, deafening and moving players, and posting warnings and
-    /// the lobby message in the control channel.
+    /// Every permission AUVC uses today, and nothing more: seeing and joining the
+    /// voice channels, muting, deafening and moving players, and posting warnings
+    /// in the control channel.
     /// </summary>
     public const long RequiredPermissions =
-        ViewChannel | SendMessages | EmbedLinks | Connect | MuteMembers | DeafenMembers | MoveMembers;
+        ViewChannel | SendMessages | Connect | MuteMembers | DeafenMembers | MoveMembers;
 
     /// <summary>
     /// Trims what was pasted and drops a leading "Bot ", which people copy from

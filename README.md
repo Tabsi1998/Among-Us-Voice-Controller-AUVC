@@ -127,7 +127,8 @@ binary or in a container, so it can stay online when the gaming PC is off. See
 
 The bot needs a Discord application with a bot token, invited with **View
 Channel**, **Connect**, **Move Members**, **Mute Members** and **Deafen Members**
-on the voice channels it manages.
+on the voice channels it manages, and **Send Messages** in the control channel.
+The app's invite link asks for exactly these.
 
 ### Environment
 
