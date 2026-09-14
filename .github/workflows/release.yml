@@ -5,6 +5,9 @@ name: Release
 #
 # workflow_dispatch builds every artifact and publishes none, so the pipeline can
 # be exercised without producing a release nobody asked for.
+#
+# A release is the Windows app: the setup EXE and the portable zip, both with
+# the bot inside, plus SHA256SUMS and the notes from CHANGELOG.md.
 on:
   push:
     tags: ['v*']
@@ -54,62 +57,6 @@ jobs:
           set -euo pipefail
           python scripts/verify_repository.py
           python scripts/check_upstream_references.py
-
-  bot:
-    name: Bot binaries
-    needs: verify
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: bot/go.mod
-          cache-dependency-path: bot/go.sum
-      - name: Build every target
-        working-directory: bot
-        env:
-          CGO_ENABLED: '0'
-        run: |
-          set -euo pipefail
-          version="${GITHUB_REF_NAME}"
-          case "$version" in v*) ;; *) version="0.0.0-dev" ;; esac
-
-          mkdir -p ../artifacts/release
-          build() {
-            local goos="$1" goarch="$2" name="$3" binary="$4"
-            local staging
-            staging="$(mktemp -d)"
-
-            GOOS="$goos" GOARCH="$goarch" go build -trimpath \
-              -ldflags "-s -w -X main.version=${version} -X main.commit=${GITHUB_SHA} -X main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-              -o "$staging/$binary" .
-
-            # The licences travel with the binary. A downloaded executable with
-            # no notices beside it is the thing the licence files exist to
-            # prevent.
-            cp ../LICENSE ../THIRD_PARTY_NOTICES.md "$staging/"
-            cp -r ../LICENSES "$staging/"
-            cp -r locales "$staging/"
-
-            if [ "$goos" = windows ]; then
-              (cd "$staging" && zip -qr "$GITHUB_WORKSPACE/artifacts/release/${name}.zip" .)
-            else
-              tar -czf "$GITHUB_WORKSPACE/artifacts/release/${name}.tar.gz" -C "$staging" .
-            fi
-            echo "built ${name}"
-          }
-
-          build windows amd64 "AUVC-bot-win-x64" auvc.exe
-          build linux   amd64 "AUVC-bot-linux-amd64" auvc
-          build linux   arm64 "AUVC-bot-linux-arm64" auvc
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: bot-binaries
-          path: artifacts/release
-          if-no-files-found: error
-          retention-days: 7
 
   capture:
     name: Capture payload
@@ -197,48 +144,9 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  image:
-    name: Bot image
-    needs: verify
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Build
-        run: |
-          set -euo pipefail
-          version="${GITHUB_REF_NAME}"
-          case "$version" in v*) ;; *) version="0.0.0-dev" ;; esac
-          docker build -f deploy/Dockerfile \
-            --build-arg VERSION="$version" --build-arg COMMIT="$GITHUB_SHA" \
-            -t auvc:release .
-      # A dry run builds the image and stops here. Only a tag pushes, and only
-      # to the lowercase path GHCR requires.
-      - name: Publish
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          set -euo pipefail
-          registry="ghcr.io/$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')/amongus-voice-controller"
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
-
-          docker tag auvc:release "${registry}:${GITHUB_REF_NAME}"
-          docker push "${registry}:${GITHUB_REF_NAME}"
-
-          # A pre-release must never become :latest. Somebody pulling latest is
-          # asking for the version they are meant to run.
-          case "${GITHUB_REF_NAME}" in
-            # Any suffix marks a pre-release: v0.1.0-beta as well as v0.1.0-beta.2.
-            *-alpha*|*-beta*|*-rc*) echo "pre-release; not tagging latest" ;;
-            *) docker tag auvc:release "${registry}:latest"; docker push "${registry}:latest" ;;
-          esac
-
   publish:
     name: GitHub release
-    needs: [bot, capture, image]
+    needs: [capture]
     runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:

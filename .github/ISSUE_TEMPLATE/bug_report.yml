@@ -19,7 +19,7 @@ body:
     id: versions
     attributes:
       label: Versions and environment
-      description: Bot/capture commit or release, Among Us version, Windows and hosting environment.
+      description: AUVC version (Settings > About), Among Us version and Windows version.
     validations:
       required: true
   - type: textarea

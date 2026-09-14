@@ -206,10 +206,3 @@ clear with nothing else to say so.
 Bump `protocol` and record the change here. The version exists so that a capture
 and a bot from different releases refuse each other clearly at the handshake
 instead of misreading each other mid-round.
-
-## Not in this phase
-
-Credential issuance (`/au capture pair`), the WebSocket transport and the
-heartbeat timeout behaviour are separate phases. This document defines only the
-messages and their ordering. See [docs/requirements.md](../docs/requirements.md)
-for the full contract and [docs/roadmap.md](../docs/roadmap.md) for the order.

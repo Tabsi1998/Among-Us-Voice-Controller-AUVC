@@ -77,7 +77,7 @@ Phase 2 (`codex/002-baseline-build`) retains both import commits and their exact
 original trees. It separately formats C# whitespace, isolates AUOffsetHelper's
 historical 2020 export from current model classes, adds 11 regression tests, pins
 the baseline SDK/NuGet resolution and introduces root build CI. Memory algorithms
-and bundled offset values are not changed. See [baseline-build.md](docs/baseline-build.md).
+and bundled offset values are not changed.
 
 The current-tree pristine check remains in `scripts/verify_bootstrap.py` for
 historical phase 1 checkouts. Current CI uses `scripts/verify_repository.py` to
@@ -92,4 +92,4 @@ License: MIT, Copyright (c) 2021 automuteus. No scripts/assets were imported or
 executed, so this is a design reference rather than a third subtree.
 Before any future reuse, preserve the original license and attribution and add
 the copied license/provenance to LICENSES and THIRD_PARTY_NOTICES.
-See the [installer/release plan](docs/windows-installation-and-releases.md).
+The installer AUVC ships is described in [installer-decision.md](docs/installer-decision.md).

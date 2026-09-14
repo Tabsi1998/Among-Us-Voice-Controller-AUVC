@@ -22,7 +22,7 @@ Include upstream compatibility, recovery behavior and any unresolved checks.
 
 ## Review checklist
 
-- [ ] One phase/topic on a `codex/<number>-<topic>` branch.
+- [ ] One topic on a `codex/<number>-<topic>` branch.
 - [ ] Diff reviewed; original license notices retained.
 - [ ] No secrets, runtime databases or populated environment files committed.
 - [ ] Existing tests preserved and relevant checks executed.

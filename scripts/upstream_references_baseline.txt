@@ -4,9 +4,6 @@
 # Each entry is a reference AUVC still makes to a host the AutoMuteUs
 # project controls. They are tracked by issues #33 and #44. The list may
 # only ever shrink: adding a new reference fails the build.
-bot/PRIVACY.md	automute.us
-bot/README.md	automute.us
-bot/README.md	automuteus.crowdin.com
 bot/locales/active.de.toml	automute.us
 bot/locales/active.de.toml	automuteus.crowdin.com
 bot/locales/active.en.toml	automute.us
@@ -39,4 +36,3 @@ capture/AUCapture-WPF/Converters/PantsConverter.cs	automute.us
 capture/AUCapture-WPF/Converters/PetToImageConverter.cs	automute.us
 capture/AUCapture-WPF/MainWindow.xaml.cs	automute.us
 capture/AUCapture-WPF/UserDataContext.cs	automute.us
-capture/README.md	automute.us

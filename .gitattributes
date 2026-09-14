@@ -6,9 +6,6 @@
 *.toml text eol=lf
 *.json text eol=lf
 *.txt text eol=lf
-# Read by Docker Compose on Linux, so it keeps Unix line endings even when
-# it is edited on Windows.
-deploy/.env.example text eol=lf
 # Inno Setup reads UTF-8 only with a byte order mark, so the script must not be
 # renormalised on the way through Git.
 installer/*.iss -text
@@ -16,8 +13,6 @@ installer/*.iss -text
 /.editorconfig text eol=lf
 /.gitattributes text eol=lf
 /.gitignore text eol=lf
-/.dockerignore text eol=lf
-deploy/Dockerfile* text eol=lf
 # Keep upstream blobs and copied notices byte-for-byte; do not renormalize.
 bot/** -text
 capture/** -text
