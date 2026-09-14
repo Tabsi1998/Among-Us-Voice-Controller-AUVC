@@ -168,6 +168,26 @@ class PayloadTests(unittest.TestCase):
             iscc.write_bytes(b"MZ")
             self.assertEqual(check.inno_setup({"PATH": "", "ProgramFiles(x86)": folder}), str(iscc))
 
+    def test_checksums_use_unix_line_endings_that_sha256sum_can_read(self):
+        with tempfile.TemporaryDirectory() as folder:
+            release = Path(folder)
+            (release / "AmongUsVoiceCapture-win-x64.zip").write_bytes(b"PK zip")
+            (release / "AmongUsVoiceCapture-Setup-win-x64.exe").write_bytes(b"MZ installer")
+            (release / "notes.md").write_text("not listed")
+            original = check.RELEASE_DIR
+            check.RELEASE_DIR = release
+            try:
+                check.checksums(FakeContext())
+            finally:
+                check.RELEASE_DIR = original
+
+            sums = (release / "SHA256SUMS").read_bytes()
+            self.assertNotIn(b"\r", sums)
+            self.assertEqual(sums.decode("utf-8").splitlines(), [
+                hashlib.sha256(b"MZ installer").hexdigest() + "  AmongUsVoiceCapture-Setup-win-x64.exe",
+                hashlib.sha256(b"PK zip").hexdigest() + "  AmongUsVoiceCapture-win-x64.zip",
+            ])
+
     def test_a_payload_that_needs_installed_dotnet_is_refused(self):
         with tempfile.TemporaryDirectory() as folder:
             payload = Path(folder)

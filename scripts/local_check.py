@@ -633,7 +633,7 @@ def notes(context: Context) -> str:
                                echo=False, env={"PYTHONIOENCODING": "utf-8"})
     if code != 0:
         raise StepFailed(output.strip() or "there are no release notes")
-    (RELEASE_DIR / "notes.md").write_text(output, encoding="utf-8")
+    (RELEASE_DIR / "notes.md").write_text(output, encoding="utf-8", newline="\n")
     return f"{len(output.splitlines())} lines for {context.version}"
 
 
@@ -696,7 +696,10 @@ def installer(context: Context) -> None:
 def checksums(context: Context) -> str:
     lines = [f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}"
              for path in sorted(RELEASE_DIR.iterdir()) if path.is_file() and path.suffix in (".zip", ".exe")]
-    (RELEASE_DIR / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # Written as bytes: text mode on Windows turns every newline into CRLF, and
+    # sha256sum -c then reads each file name with a trailing carriage return and
+    # cannot find the file.
+    (RELEASE_DIR / "SHA256SUMS").write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
     return f"{len(lines)} file(s)"
 
 
