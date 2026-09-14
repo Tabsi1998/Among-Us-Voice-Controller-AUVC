@@ -8,10 +8,13 @@ worker fleet, paid tiers, a public HTTP API and Kubernetes/Prometheus operations
 AUVC is a single self-hosted bot for one community. Everything that exists only
 to operate that public deployment has no counterpart here.
 
-Removal is staged. Galactus, Redis and PostgreSQL are explicitly **not** part of
-this phase: they still perform real work and are removed in phase 14, once SQLite
-and the direct authenticated WebSocket take over
-([#14](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/14)).
+This document began as the inventory for phase 4. Galactus, Redis and PostgreSQL
+were out of scope for that phase because they still did real work. Phase 14
+removed them once SQLite and the authenticated WebSocket had taken over:
+PostgreSQL in
+[#82](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/pull/82), and
+Redis, the Galactus token provider and the legacy commands in
+[#86](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/pull/86).
 
 ## Inventory
 

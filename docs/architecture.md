@@ -1,16 +1,22 @@
 # Architecture
 
-## Baseline versus target
+## Current state
 
 The bot is the Go 1.27 module
-`github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot`. Public API, metrics,
-worker, premium and sharding integrations have been removed. Legacy game/session
-paths still require Galactus, Redis and PostgreSQL. SQLite-backed `/au` setup,
-settings and links form the first independent runtime slice. Capture still uses
-.NET 5 and its upstream transports and memory detection. The target flow below is
-therefore only partially implemented.
+`github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot`. It talks to Discord,
+keeps one SQLite file and listens for a capture connection. Galactus, Redis,
+PostgreSQL, the public API, metrics, premium and sharding are gone. Everything on
+the bot side of the flow below is implemented and tested.
 
-## Target data flow
+Capture targets .NET 10. The protocol, the authenticated WebSocket client,
+pairing and Windows credential storage exist in `capture/AUVC.Protocol` and
+`capture/AUVC.Transport` and are tested, but the capture application in
+`capture/AUCapture-WPF` does not use them yet. It still carries the upstream
+socket connection, which the bot no longer serves, so a capture app built from
+this repository cannot reach the bot until that wiring lands. See
+[acceptance.md](acceptance.md) for what is proved and what is not.
+
+## Data flow
 
 ```mermaid
 flowchart TD
@@ -26,7 +32,7 @@ flowchart TD
 ```
 
 Only the capture host needs additional software. Other players need neither
-mods nor capture installations. The self-hosted bot should require no Galactus,
+mods nor capture installations. The self-hosted bot requires no Galactus,
 Redis, PostgreSQL, premium infrastructure, public workers or unnecessary sharding.
 
 ## Boundaries
