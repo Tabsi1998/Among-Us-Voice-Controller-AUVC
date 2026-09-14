@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using AmongUsCapture;
 using AUVC.Protocol;
 using AUVC.Transport;
 using Xunit;
@@ -149,6 +152,74 @@ namespace AUVC.Capture.Tests
             Assert.Equal("Red", Assert.Single(snapshot.Players).Name);
 
             await Eventually(() => link.Status.State == LinkState.Connected);
+        }
+
+        private static PlayerChangedEventArgs ReaderEvent(PlayerAction action, string name, PlayerColor color,
+            bool dead = false, bool disconnected = false) =>
+            new() { Action = action, Name = name, Color = color, IsDead = dead, Disconnected = disconnected };
+
+        /// <summary>
+        /// A whole fifteen-player round, from the memory reader's events to the
+        /// messages capture sends, against the recording in protocol/fixtures/rounds.
+        /// The Go tests play the same recording into the bot over the real
+        /// connection, so capture and bot cannot disagree about a round without
+        /// one side failing.
+        /// </summary>
+        [Fact]
+        public async Task ARecordedRoundIsSentExactlyAsRecorded()
+        {
+            var recording = File.ReadAllLines(Path.Combine(
+                    AppContext.BaseDirectory, "Fixtures", "protocol", "rounds", "fifteen_players.jsonl"))
+                .Where(line => line.Trim().Length > 0)
+                .ToList();
+            string[] lobby = ["Ava", "Ben", "Cleo", "Dario", "Elif", "Finn", "Greta", "Hugo",
+                "Ines", "Jonas", "Kira", "Luca", "Mia", "Noah", "Omar"];
+
+            var bot = new FakeBot();
+            await using var link = NewLink(bot, Paired());
+
+            // The lobby fills before capture connects, so the first snapshot carries it.
+            CaptureBridge.Forward(link, new GameStateChangedEventArgs { NewState = GameState.LOBBY });
+            for (var color = 0; color < lobby.Length; color++)
+            {
+                CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Joined, lobby[color], (PlayerColor)color));
+            }
+
+            link.Start();
+            var channel = await bot.AcceptAsync();
+            await HandshakeAsync(channel);
+
+            CaptureBridge.Forward(link, new GameStateChangedEventArgs { NewState = GameState.TASKS });
+            CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Died, "Cleo", PlayerColor.Green, dead: true));
+            CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Left, "Omar", PlayerColor.Banana));
+            CaptureBridge.Forward(link, new GameStateChangedEventArgs { NewState = GameState.DISCUSSION });
+            // The reader reports an exile before the game flags the player as dead,
+            // and reports the death again once it has.
+            CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Exiled, "Elif", PlayerColor.Orange));
+            CaptureBridge.Forward(link, new GameStateChangedEventArgs { NewState = GameState.TASKS });
+            CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Died, "Elif", PlayerColor.Orange, dead: true));
+            CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Died, "Kira", PlayerColor.Cyan, dead: true));
+            CaptureBridge.Forward(link, ReaderEvent(PlayerAction.Disconnected, "Luca", PlayerColor.Lime, disconnected: true));
+            // The reader's GameOver event, which CaptureBridge.Attach wires to this call.
+            link.ReportGameEnded();
+            CaptureBridge.Forward(link, new GameStateChangedEventArgs { NewState = GameState.ENDED });
+            CaptureBridge.Forward(link, new GameStateChangedEventArgs { NewState = GameState.LOBBY });
+
+            for (var i = 1; i < recording.Count; i++)
+            {
+                await channel.NextAsync();
+            }
+
+            // From the snapshot on; the hello and the credential are not part of the recording.
+            var produced = channel.Sent.Skip(2).ToList();
+            Assert.Equal(recording.Count, produced.Count);
+            for (var i = 0; i < recording.Count; i++)
+            {
+                var recorded = JsonNode.Parse(recording[i]);
+                var sent = JsonNode.Parse(ProtocolCodec.Encode(produced[i]));
+                Assert.True(JsonNode.DeepEquals(recorded, sent),
+                    $"message {i + 3} differs from the recording\n  recorded: {recording[i]}\n  sent:     {sent!.ToJsonString()}");
+            }
         }
 
         [Fact]

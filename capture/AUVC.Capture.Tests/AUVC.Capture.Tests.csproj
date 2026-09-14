@@ -21,5 +21,6 @@
     <!-- The protocol fixtures are shared with the Go tests. Both languages
          read the same files, so a change that breaks one breaks the other. -->
     <None Include="../../protocol/fixtures/**/*.json" LinkBase="Fixtures/protocol" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../protocol/fixtures/**/*.jsonl" LinkBase="Fixtures/protocol" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
