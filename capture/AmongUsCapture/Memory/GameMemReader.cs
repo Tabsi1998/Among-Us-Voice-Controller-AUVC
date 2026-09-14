@@ -108,17 +108,14 @@ namespace AmongUsCapture
             var allPlayersPtr = memInstance.Read<IntPtr>(GameAssemblyPtr, CurrentOffsets.AllPlayerPtrOffsets);
             var allPlayers = memInstance.Read<IntPtr>(allPlayersPtr, CurrentOffsets.AllPlayersOffsets);
             var playerCount = GetPlayerCount(memInstance);
-            var playerAddrPtr = allPlayers + CurrentOffsets.PlayerListPtr;
-            var Players = new List<PlayerInfo>(playerCount);
-            for (var i = 0; i < playerCount; i++)
-            {
-                var pi = new PlayerInfo(playerAddrPtr, memInstance, CurrentOffsets);
-                //var pi = CurrentOffsets.isEpic ? (PlayerInfo) memInstance.Read<EpicPlayerInfo>(playerAddrPtr, 0, 0) : memInstance.Read<SteamPlayerInfo>(playerAddrPtr, 0, 0);
-                if (pi.GetPlayerName() is null || pi.GetPlayerName() == "" || !Enum.IsDefined(typeof(PlayerColor), pi.GetPlayerColor())) continue;
-                playerAddrPtr += CurrentOffsets.AddPlayerPtr;
-                Players.Add(pi);
-            }
-            return Players;
+
+            // Every slot is stepped over, the skipped ones included. Stepping only past
+            // usable players read a skipped slot, such as a player still loading, again
+            // for every player after it, and those players vanished as if they had left.
+            return PlayerSlots.Read(playerCount, allPlayers + CurrentOffsets.PlayerListPtr, CurrentOffsets.AddPlayerPtr,
+                address => new PlayerInfo(address, memInstance, CurrentOffsets),
+                player => !string.IsNullOrEmpty(player.GetPlayerName()) &&
+                          Enum.IsDefined(typeof(PlayerColor), player.GetPlayerColor()));
         }
 
         private PlayerInfo? GetPlayerById(ProcessMemory memInstance, int id)
@@ -461,7 +458,8 @@ namespace AmongUsCapture
                     #region Read player information
 
                     newPlayerInfos.Clear();
-                    newPlayerInfos = GetPlayers(ProcessMemory.getInstance()).ToDictionary(x => x.GetPlayerName(), x => x);
+                    // Two players with the same name must not fail the whole pass and lose everyone else.
+                    newPlayerInfos = PlayerSlots.ByName(GetPlayers(ProcessMemory.getInstance()), player => player.GetPlayerName());
                     DetectPlayerChanges(ProcessMemory.getInstance(), newPlayerInfos, oldPlayerInfos);
 
                     #endregion
