@@ -8,11 +8,45 @@ How to build, test and release AUVC. For using it, see the [user guide](guide.md
 | --- | --- | --- |
 | Go | 1.27.1 | The bot in `bot/` |
 | .NET SDK | 10.0.401, pinned in `capture/global.json` | The app in `capture/` |
-| Python | 3.11 or newer | Repository checks and release notes in `scripts/` |
-| Gitleaks | 8.30.1 | Secret scanning |
+| Python | 3.11 or newer | The local check, repository checks and release notes in `scripts/` |
+| A C compiler | gcc, or clang from llvm-mingw on Windows | `go test -race` |
+| Gitleaks | 8.30.1, downloaded and checksum-verified by the local check | Secret scanning |
 | Inno Setup | 6 | The installer, built by the release workflow |
 
 ## Build and test
+
+One command runs every check the CI runs, on your own computer:
+
+```sh
+python scripts/local_check.py
+```
+
+| Group | Checks |
+| --- | --- |
+| `repository` | `verify_repository.py`, `check_upstream_references.py`, the tests of the scripts, Gitleaks over the history and over uncommitted and new files |
+| `bot` | `gofmt`, `go vet`, `go test -race`, `go build`, the Windows build of the bot, `govulncheck` |
+| `capture` | Locked restore, whitespace format check, Release build, the tests (at least 99 must run), the self-contained publish, vulnerable NuGet packages. Windows only |
+| `release` | Only with `--release`: release notes, the app with the bot inside, the portable zip, `SHA256SUMS`, and the installer when Inno Setup 6 is installed. Nothing is published |
+
+`--only bot,capture` runs some groups and `--list` shows every step. Results go
+to `.local-testing/`, which Git ignores: `local-check.json`, `local-check.log`,
+`go-events.jsonl` and `dotnet/local.trx`.
+
+- Tools come from `PATH`. With the VS Code test setup on the PC, its pinned Go,
+  .NET SDK and clang are used first.
+- Gitleaks 8.30.1 is downloaded on first use and checked against its published
+  SHA-256; govulncheck v1.8.0 is installed with `go install`. Both go to
+  `.local-testing/tools/`.
+- Environment variables whose names look like credentials, such as tokens,
+  passwords, keys, and database or mail settings, are withheld from every step.
+  Only their names are printed.
+- A publish for `win-x64` adds that runtime to `packages.lock.json`; the check
+  puts the lock files back afterwards.
+
+Run it before every push. The CI then confirms the same checks on clean
+machines.
+
+### The same checks by hand
 
 The bot, from `bot/`:
 
@@ -72,8 +106,7 @@ in the user guide.
 - Small Conventional Commits. Keep formatting and refactoring apart from
   behaviour changes.
 - Never delete or weaken a test to make a build pass. Diagnose the failure.
-- Before pushing: format, test, `verify_repository.py`, review the diff, and run
-  Gitleaks with `--redact`.
+- Before pushing: run `python scripts/local_check.py` and review the diff.
 - Merge only when every check is green. Never rewrite or force-push main.
 
 ## Releases

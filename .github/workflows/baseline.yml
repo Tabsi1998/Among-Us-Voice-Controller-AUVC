@@ -27,6 +27,8 @@ jobs:
           python-version: '3.13'
       - run: python scripts/verify_repository.py
       - run: python scripts/check_upstream_references.py
+      - name: Tests of the repository scripts
+        run: python -m unittest discover -s scripts -p "test_*.py"
       - name: Download verified Gitleaks
         shell: bash
         run: |
