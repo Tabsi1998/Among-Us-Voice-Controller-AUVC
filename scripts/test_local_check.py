@@ -54,6 +54,11 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual(entries[-1], str(Path("old-go")))
         self.assertEqual(env["DOTNET_ROOT"], dotnet)
 
+    def test_go_ignores_workspace_files_as_the_ci_does(self):
+        env = {"PATH": "", "GOWORK": str(Path("somewhere", "go.work"))}
+        check.prepare_path(env, {})
+        self.assertEqual(env["GOWORK"], "off")
+
 
 class GitleaksTests(unittest.TestCase):
     def test_a_download_that_does_not_match_its_checksum_is_refused(self):
@@ -145,6 +150,23 @@ class PayloadTests(unittest.TestCase):
 
             self.assertEqual(lock.read_bytes(), b'{"version":1}')
             self.assertEqual(untouched.read_bytes(), b'{"version":2}')
+
+    def test_inno_setup_installed_for_one_user_is_found(self):
+        with tempfile.TemporaryDirectory() as folder:
+            iscc = Path(folder) / "Programs" / "Inno Setup 6" / "ISCC.exe"
+            environ = {"PATH": "", "LOCALAPPDATA": folder}
+
+            self.assertIsNone(check.inno_setup(environ))
+            iscc.parent.mkdir(parents=True)
+            iscc.write_bytes(b"MZ")
+            self.assertEqual(check.inno_setup(environ), str(iscc))
+
+    def test_inno_setup_installed_for_all_users_is_found(self):
+        with tempfile.TemporaryDirectory() as folder:
+            iscc = Path(folder) / "Inno Setup 6" / "ISCC.exe"
+            iscc.parent.mkdir(parents=True)
+            iscc.write_bytes(b"MZ")
+            self.assertEqual(check.inno_setup({"PATH": "", "ProgramFiles(x86)": folder}), str(iscc))
 
     def test_a_payload_that_needs_installed_dotnet_is_refused(self):
         with tempfile.TemporaryDirectory() as folder:

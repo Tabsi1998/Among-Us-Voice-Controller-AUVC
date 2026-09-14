@@ -23,15 +23,16 @@ cause.
 
 ## release.yml
 
-Runs on a `v*` tag, or on demand as a dry run that builds everything and publishes
-nothing.
+Runs on a release tag such as `v1.2.3`, or on demand as a dry run that builds
+everything and publishes nothing. Pre-release tags such as `v1.2.3-beta` do not
+start it: `scripts/local_release.py` builds and publishes those on the
+maintainer's PC.
 
 1. Checks the exact commit again: Go checks and the repository checks.
 2. Builds the app as a self-contained Windows payload, builds the bot into it,
    and packages the portable zip and the installer.
 3. On a tag, publishes a GitHub release with `SHA256SUMS` and the notes for that
-   version from `CHANGELOG.md`. Tags with `-alpha`, `-beta` or `-rc` become
-   pre-releases.
+   version from `CHANGELOG.md`.
 
 `scripts/release_notes.py` fails when the changelog has no section for the
 version: writing the notes is part of preparing a release. See

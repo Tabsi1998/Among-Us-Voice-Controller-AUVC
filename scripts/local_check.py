@@ -148,7 +148,13 @@ def local_tools() -> dict[str, str]:
 
 
 def prepare_path(env: dict[str, str], tools: dict[str, str]) -> None:
-    """Put the pinned local tools, and the tools this script installs, first."""
+    """Put the pinned local tools, and the tools this script installs, first.
+
+    Go workspace files are switched off. The CI has none, and the go.work the
+    VS Code test setup writes into the repository root would otherwise also
+    capture a fresh worktree beneath it and point Go at the wrong bot/.
+    """
+    env["GOWORK"] = "off"
     extra = [tools[key] for key in ("go", "dotnet") if tools.get(key)]
     if tools.get("clang"):
         extra.append(str(Path(tools["clang"]).parent))
@@ -661,12 +667,17 @@ def portable_zip(context: Context) -> str:
     return f"{target.stat().st_size / 1_000_000:.0f} MB"
 
 
-def inno_setup() -> str | None:
-    on_path = shutil.which("ISCC")
+def inno_setup(environ: dict[str, str] | None = None) -> str | None:
+    """Find Inno Setup 6, installed for all users or, as winget does, for one."""
+    environ = os.environ if environ is None else environ
+    on_path = shutil.which("ISCC", path=environ.get("PATH"))
     if on_path:
         return on_path
-    for base in (os.environ.get("ProgramFiles(x86)"), os.environ.get("ProgramFiles")):
-        if base and (Path(base) / "Inno Setup 6" / "ISCC.exe").exists():
+    bases = [environ.get("ProgramFiles(x86)"), environ.get("ProgramFiles")]
+    if environ.get("LOCALAPPDATA"):
+        bases.append(str(Path(environ["LOCALAPPDATA"]) / "Programs"))
+    for base in bases:
+        if base and (Path(base) / "Inno Setup 6" / "ISCC.exe").is_file():
             return str(Path(base) / "Inno Setup 6" / "ISCC.exe")
     return None
 
