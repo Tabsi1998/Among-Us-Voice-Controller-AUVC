@@ -101,7 +101,9 @@ good. It takes one round.
 
 **Leave no trace**
 
-13. `/au capture revoke`, then confirm the capture app can no longer connect.
+13. With capture connected, `/au capture revoke`. Capture should be disconnected
+    at once and say its access was revoked, and it should not be able to
+    connect again until it is paired anew.
 
 Record the result in the release notes. A release that has not been through this
 has been tested against a simulation of Discord, which is not the same as

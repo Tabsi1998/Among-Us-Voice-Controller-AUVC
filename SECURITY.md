@@ -24,7 +24,8 @@ SHA-256 hash is stored. Requesting a new code replaces the previous one, and
 `crypto/rand`. Only its SHA-256 hash is stored, and comparison is constant time.
 A plain hash is the right tool here rather than a password hash: there is nothing
 to guess in 256 random bits, and password hashes exist to slow down guessing
-cheap secrets. Revocation takes effect on the next connection attempt.
+cheap secrets. Revocation takes effect at once: capture connections that are
+already open are told why and closed, and new ones are refused.
 
 **Nothing secret in logs or replies.** Secrets are held in a type that prints and
 serialises as `[redacted]`; reading the value takes an explicit call that is easy
@@ -61,12 +62,6 @@ Gitleaks. GitHub Actions are pinned to commit SHAs.
   cannot connect at all. The protections above apply to the bot and to the
   capture libraries; they reach a real capture install once the app is wired to
   them.
-- **Revoking does not end a connection that is already open.** The credential is
-  checked at the handshake, so a capture that is connected when
-  `/au capture revoke` runs keeps working until its connection drops, and
-  heartbeats keep an active connection alive indefinitely. Restart the bot after
-  revoking a credential you believe is compromised. Closing open connections on
-  revoke is the next fix.
 - **Artifacts are unsigned** (#24). Windows shows "Unknown publisher".
   `SHA256SUMS` on the release page proves a download matches the release; it does
   not prove who built it.

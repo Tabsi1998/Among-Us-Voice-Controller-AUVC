@@ -60,6 +60,10 @@ const (
 	// writeTimeout bounds a single write, so one unresponsive peer cannot hold
 	// a goroutine forever.
 	writeTimeout = 10 * time.Second
+
+	// revokedMessage is what a capture whose credential was revoked is told,
+	// whether it is turned away at the handshake or cut off mid-session.
+	revokedMessage = "this capture credential was revoked; ask an administrator to run /au capture pair again"
 )
 
 // Server accepts capture connections.
@@ -69,8 +73,26 @@ type Server struct {
 	logger   *log.Logger
 	upgrader websocket.Upgrader
 
-	mu       sync.Mutex
-	sessions map[string]int
+	mu sync.Mutex
+	// sessions holds the authenticated connections of each guild, so a revoke
+	// can find and end them.
+	sessions map[string]map[*link]struct{}
+	// revocations counts Disconnect calls across every guild, and revokedAt
+	// records the count at each guild's most recent one. Together they let a
+	// connection tell whether a revoke landed while its credential was being
+	// checked; see join.
+	revocations uint64
+	revokedAt   map[string]uint64
+}
+
+// link is one capture connection.
+//
+// Writes go through it because two goroutines can need to write: the session's
+// own, answering what capture sent, and whichever one runs a revoke. A
+// WebSocket accepts one writer at a time.
+type link struct {
+	conn *websocket.Conn
+	mu   sync.Mutex
 }
 
 // NewServer builds a server. A nil logger writes to the standard logger.
@@ -96,7 +118,8 @@ func NewServer(auth Authenticator, handler Handler, logger *log.Logger) *Server 
 				return r.Header.Get("Origin") == ""
 			},
 		},
-		sessions: map[string]int{},
+		sessions:  map[string]map[*link]struct{}{},
+		revokedAt: map[string]uint64{},
 	}
 }
 
@@ -113,7 +136,38 @@ func (s *Server) Routes() http.Handler {
 func (s *Server) Connections(guildID string) int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.sessions[guildID]
+	return len(s.sessions[guildID])
+}
+
+// Disconnect ends every open capture connection for a guild and reports how
+// many it found. Call it after revoking the guild's credentials.
+//
+// The credential is checked once, at the handshake. Without this, a capture
+// that was already connected when an administrator revoked its access would
+// keep working, and its heartbeats would keep it connected indefinitely.
+//
+// It returns without waiting for the connections to close. It runs inside a
+// Discord command, which has seconds to answer, and one unresponsive peer can
+// take up to writeTimeout to give up on.
+func (s *Server) Disconnect(guildID string) int {
+	s.mu.Lock()
+	s.revocations++
+	s.revokedAt[guildID] = s.revocations
+
+	links := make([]*link, 0, len(s.sessions[guildID]))
+	for connected := range s.sessions[guildID] {
+		links = append(links, connected)
+	}
+	s.mu.Unlock()
+
+	for _, connected := range links {
+		go connected.end(protocol.NewError("", 0, protocol.CodeUnauthenticated, revokedMessage))
+	}
+
+	if len(links) > 0 {
+		s.logger.Printf("revoke ended %d capture connection(s) for guild %s", len(links), guildID)
+	}
+	return len(links)
 }
 
 // handlePair exchanges a typed pairing code for a credential.
@@ -176,11 +230,12 @@ func (s *Server) handleLink(w http.ResponseWriter, r *http.Request) {
 	// The HTTP server already gave the request one, and keeping the connection
 	// tied to it means a shutting-down server waits for the session instead of
 	// leaving it orphaned.
-	s.serve(conn)
+	s.serve(&link{conn: conn})
 }
 
 // serve runs one capture session until it ends or breaks a rule.
-func (s *Server) serve(conn *websocket.Conn) {
+func (s *Server) serve(connected *link) {
+	conn := connected.conn
 	defer conn.Close()
 
 	conn.SetReadLimit(maxMessageBytes)
@@ -190,7 +245,7 @@ func (s *Server) serve(conn *websocket.Conn) {
 
 	defer func() {
 		if guildID != "" {
-			s.leave(guildID)
+			s.leave(guildID, connected)
 		}
 	}()
 
@@ -206,13 +261,13 @@ func (s *Server) serve(conn *websocket.Conn) {
 
 		message, err := protocol.Decode(data)
 		if err != nil {
-			s.refuse(conn, protocol.NewError("", 0, protocol.CodeMalformed, err.Error()))
+			connected.refuse(protocol.NewError("", 0, protocol.CodeMalformed, err.Error()))
 			return
 		}
 
 		action, refusal := receiver.Accept(message)
 		if refusal != nil {
-			s.refuse(conn, refusal)
+			connected.refuse(refusal)
 			// A refusal that leaves the session unusable ends the connection;
 			// one the session can recover from does not.
 			if fatal(refusal.Code) {
@@ -232,17 +287,21 @@ func (s *Server) serve(conn *websocket.Conn) {
 			continue
 
 		case *protocol.Authentication:
+			checked := s.revocationCount()
 			resolved, authErr := s.auth.Authenticate(typed.Credential)
 			if authErr != nil {
 				// The connection has to close here. The protocol receiver has
 				// already recorded that an authentication message arrived in
 				// the right order, so letting the loop continue would leave a
 				// session that believes it is authenticated and is not.
-				s.refuse(conn, authenticationRefusal(typed, authErr))
+				connected.refuse(authenticationRefusal(typed, authErr))
+				return
+			}
+			if !s.join(resolved, connected, checked) {
+				connected.refuse(authenticationRefusal(typed, credential.ErrRevoked))
 				return
 			}
 			guildID = resolved
-			s.join(guildID)
 			continue
 
 		case *protocol.Error:
@@ -256,7 +315,7 @@ func (s *Server) serve(conn *websocket.Conn) {
 			// Unreachable while the protocol requires authentication first, and
 			// cheap insurance against that ever changing without this being
 			// reconsidered.
-			s.refuse(conn, protocol.NewError(protocol.Envelope(message).Session,
+			connected.refuse(protocol.NewError(protocol.Envelope(message).Session,
 				protocol.Envelope(message).Seq, protocol.CodeUnauthenticated,
 				"capture must authenticate before sending game data"))
 			return
@@ -278,8 +337,7 @@ func authenticationRefusal(message *protocol.Authentication, err error) *protoco
 
 	switch {
 	case errors.Is(err, credential.ErrRevoked):
-		return protocol.NewError(envelope.Session, envelope.Seq, protocol.CodeUnauthenticated,
-			"this capture credential was revoked; ask an administrator to run /au capture pair again")
+		return protocol.NewError(envelope.Session, envelope.Seq, protocol.CodeUnauthenticated, revokedMessage)
 	default:
 		return protocol.NewError(envelope.Session, envelope.Seq, protocol.CodeUnauthenticated,
 			"this capture credential is not valid for any guild; pair again with /au capture pair")
@@ -303,32 +361,65 @@ func fatal(code string) bool {
 
 // refuse sends one protocol error, best effort. A peer that has already gone
 // away cannot be told anything, and failing to tell it is not worth a log line.
-func (s *Server) refuse(conn *websocket.Conn, refusal *protocol.Error) {
+func (l *link) refuse(refusal *protocol.Error) {
 	encoded, err := protocol.Encode(refusal)
 	if err != nil {
 		return
 	}
-	if err := conn.SetWriteDeadline(time.Now().Add(writeTimeout)); err != nil {
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if err := l.conn.SetWriteDeadline(time.Now().Add(writeTimeout)); err != nil {
 		return
 	}
-	_ = conn.WriteMessage(websocket.TextMessage, encoded)
+	_ = l.conn.WriteMessage(websocket.TextMessage, encoded)
 }
 
-func (s *Server) join(guildID string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.sessions[guildID]++
+// end tells capture why and closes the connection. Closing makes the session's
+// own read fail, and the session then removes itself as it would after any
+// other ending.
+func (l *link) end(refusal *protocol.Error) {
+	l.refuse(refusal)
+	_ = l.conn.Close()
 }
 
-func (s *Server) leave(guildID string) {
+func (s *Server) revocationCount() uint64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.revocations
+}
+
+// join registers an authenticated connection. checked is the revocation count
+// read before its credential was checked, and join refuses the connection if
+// its guild has been revoked since.
+//
+// Without that refusal, one connection could outlive a revoke. Its credential
+// check reads the database just before the revoke writes to it, and so passes;
+// the revoke then looks for open connections just before this one registers,
+// and so does not find it.
+func (s *Server) join(guildID string, connected *link, checked uint64) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.sessions[guildID] <= 1 {
+	if s.revokedAt[guildID] > checked {
+		return false
+	}
+	if s.sessions[guildID] == nil {
+		s.sessions[guildID] = map[*link]struct{}{}
+	}
+	s.sessions[guildID][connected] = struct{}{}
+	return true
+}
+
+func (s *Server) leave(guildID string, connected *link) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	delete(s.sessions[guildID], connected)
+	if len(s.sessions[guildID]) == 0 {
 		delete(s.sessions, guildID)
-		return
 	}
-	s.sessions[guildID]--
 }
 
 func writeJSONError(w http.ResponseWriter, status int, code, message string) {

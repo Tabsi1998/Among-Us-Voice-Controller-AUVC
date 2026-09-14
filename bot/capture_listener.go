@@ -56,7 +56,7 @@ func startCaptureListener(pairingService *pairing.Service, controller *bot.Bot) 
 			address)
 	}
 
-	server := transport.NewServer(pairingService, controller, nil)
+	server := newCaptureServer(pairingService, controller)
 
 	httpServer := &http.Server{
 		Addr:    address,
@@ -88,6 +88,17 @@ func startCaptureListener(pairingService *pairing.Service, controller *bot.Bot) 
 			log.Println("Capture listener did not shut down cleanly:", err)
 		}
 	}
+}
+
+// newCaptureServer builds the capture transport and connects it to revocation.
+//
+// That connection is what makes /au capture revoke take effect at once. The
+// credential is checked when capture connects, so without it a capture that
+// was already connected would carry on after its access was withdrawn.
+func newCaptureServer(pairingService *pairing.Service, controller *bot.Bot) *transport.Server {
+	server := transport.NewServer(pairingService, controller, nil)
+	pairingService.OnRevoke(func(guildID string) { server.Disconnect(guildID) })
+	return server
 }
 
 // routes puts the health endpoint beside the capture endpoints.

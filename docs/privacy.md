@@ -62,19 +62,13 @@ players.
 | To remove | Do |
 | --- | --- |
 | One player link | `/au unlink` |
-| A capture install's access | `/au capture revoke` — refuses every new connection at once; see the note below |
+| A capture install's access | `/au capture revoke` — takes effect at once: open connections are closed and new ones refused |
 | One server's settings | `/au setup reset` — restores defaults, keeps links |
 | Everything | Stop the bot and delete the database file or the Docker volume |
 
 Deleting the credential on the capture PC — the uninstaller offers to — does
 **not** revoke it. The bot keeps accepting it until `/au capture revoke` runs.
 The two are easy to confuse, and only the second one closes the door.
-
-Revoking refuses new connections; it does not yet end a connection that is
-already open. A capture that is connected when you revoke keeps working until
-that connection drops. Until that is fixed, restart the bot after revoking a
-credential you believe is compromised: the restart drops every connection, and
-the revoked credential is refused when it tries to reconnect.
 
 Two gaps are known and stated rather than hidden. There is no single command
 that removes every trace of one server while keeping the others. And removing
