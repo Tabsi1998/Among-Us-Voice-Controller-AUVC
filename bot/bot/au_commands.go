@@ -57,7 +57,7 @@ func (bot *Bot) handleAUCommand(s *discordgo.Session, interaction *discordgo.Int
 
 	switch {
 	case group == "" && (command == au.Link || command == au.Unlink):
-		go bot.afterLinkChange(interaction.GuildID)
+		go bot.LinksChanged(interaction.GuildID)
 	case group == au.GroupSetup:
 		// A new text channel takes the crewmate board with it.
 		bot.RefreshCrewmates(interaction.GuildID)

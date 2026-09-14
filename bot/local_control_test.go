@@ -14,6 +14,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/localcontrol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/bwmarrin/discordgo"
 )
@@ -28,6 +29,7 @@ type localFixture struct {
 	backend    *localBackend
 	controller *bot.Bot
 	pairing    *pairing.Service
+	db         *sqlite.DB
 	stopped    bool
 }
 
@@ -52,6 +54,11 @@ func newLocalFixture(t *testing.T) *localFixture {
 		channel("voice-ghosts", "Ghosts", discordgo.ChannelTypeGuildVoice, 2),
 		channel("voice-main", "Among Us", discordgo.ChannelTypeGuildVoice, 1),
 		channel("stage", "Stage", discordgo.ChannelTypeGuildStageVoice, 3),
+	}, VoiceStates: []*discordgo.VoiceState{
+		{GuildID: localGuild, UserID: "member-red", ChannelID: "voice-main",
+			Member: &discordgo.Member{Nick: "Red Leader", User: &discordgo.User{ID: "member-red", Username: "red"}}},
+		{GuildID: localGuild, UserID: "music-bot", ChannelID: "voice-main",
+			Member: &discordgo.Member{User: &discordgo.User{ID: "music-bot", Username: "tunes", Bot: true}}},
 	}}); err != nil {
 		t.Fatalf("add guild: %v", err)
 	}
@@ -66,9 +73,10 @@ func newLocalFixture(t *testing.T) *localFixture {
 		PrimarySession:  &discordgo.Session{State: state},
 		AUVC:            au.NewServiceWithPairing(db, pairingService, "test", "test"),
 		CaptureSessions: bot.NewCaptureSessions(),
+		AUVCLinks:       db,
 	}
 
-	fixture := &localFixture{controller: controller, pairing: pairingService}
+	fixture := &localFixture{controller: controller, pairing: pairingService, db: db}
 	fixture.backend = &localBackend{
 		controller: controller,
 		pairing:    pairingService,
@@ -186,9 +194,100 @@ func TestNothingIsDoneForAServerTheBotIsNotIn(t *testing.T) {
 	if _, err := backend.IssueCredential("stranger"); !errors.Is(err, localcontrol.ErrUnknownGuild) {
 		t.Errorf("a credential was issued for a server the bot is not in: %v", err)
 	}
+	if _, err := backend.Crewmates("stranger"); !errors.Is(err, localcontrol.ErrUnknownGuild) {
+		t.Errorf("crewmates gave %v", err)
+	}
+	if err := backend.Link("stranger", localcontrol.Link{Player: "Alice"}); !errors.Is(err, localcontrol.ErrUnknownGuild) {
+		t.Errorf("link gave %v", err)
+	}
 	setup := localcontrol.Setup{MainVoiceChannelID: "voice-main", GhostVoiceChannelID: "voice-ghosts"}
 	if err := backend.Configure("stranger", setup); !errors.Is(err, localcontrol.ErrUnknownGuild) {
 		t.Errorf("configure gave %v", err)
+	}
+}
+
+// lobby has capture report a lobby with these players.
+func (f *localFixture) lobby(t *testing.T, players ...protocol.Player) {
+	t.Helper()
+
+	err := f.controller.HandleCapture(localGuild, &protocol.Snapshot{
+		Header:  protocol.Header{Protocol: protocol.Version, Type: protocol.TypeSnapshot, Session: "session-a", Seq: 1},
+		Phase:   protocol.PhaseLobby,
+		Players: players,
+	})
+	if err != nil {
+		t.Fatalf("capture a lobby: %v", err)
+	}
+}
+
+func TestTheAppSeesTheLobbyAndWhomItCanLink(t *testing.T) {
+	fixture := newLocalFixture(t)
+	fixture.lobby(t,
+		protocol.Player{Name: "Bob", Color: 1},
+		protocol.Player{Name: "Alice", Color: 0},
+		protocol.Player{Name: "Gone", Color: 2, Disconnected: true},
+	)
+
+	crewmates, err := fixture.backend.Crewmates(localGuild)
+	if err != nil {
+		t.Fatalf("crewmates: %v", err)
+	}
+
+	got := []string{}
+	for _, player := range crewmates.Players {
+		got = append(got, player.Name+":"+player.Color)
+	}
+	if want := []string{"Alice:red", "Bob:blue"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("players %v, want %v", got, want)
+	}
+
+	// The music bot in voice is never offered.
+	if want := []localcontrol.Member{{ID: "member-red", Name: "Red Leader"}}; !reflect.DeepEqual(crewmates.Members, want) {
+		t.Errorf("members %+v, want %+v", crewmates.Members, want)
+	}
+}
+
+func TestTheAppLinksAndUnlinksACrewmate(t *testing.T) {
+	fixture := newLocalFixture(t)
+	fixture.lobby(t, protocol.Player{Name: "Alice", Color: 0})
+
+	if err := fixture.backend.Link(localGuild, localcontrol.Link{Player: "Alice", UserID: "member-red"}); err != nil {
+		t.Fatalf("link: %v", err)
+	}
+	links, err := fixture.db.Links(localGuild)
+	if err != nil || len(links) != 1 || links[0].DiscordUserID != "member-red" {
+		t.Fatalf("links %+v (%v)", links, err)
+	}
+	crewmates, err := fixture.backend.Crewmates(localGuild)
+	if err != nil || len(crewmates.Players) != 1 || crewmates.Players[0].UserID != "member-red" {
+		t.Errorf("the lobby does not show the link: %+v (%v)", crewmates, err)
+	}
+
+	if err := fixture.backend.Link(localGuild, localcontrol.Link{Player: "Alice"}); err != nil {
+		t.Fatalf("unlink: %v", err)
+	}
+	if links, _ := fixture.db.Links(localGuild); len(links) != 0 {
+		t.Errorf("still linked: %+v", links)
+	}
+}
+
+// A link the app stores has to be one somebody could have chosen: a crewmate in
+// the lobby and a person in voice.
+func TestTheAppCannotLinkOutsideTheLobbyOrVoice(t *testing.T) {
+	fixture := newLocalFixture(t)
+	fixture.lobby(t, protocol.Player{Name: "Alice", Color: 0})
+
+	for name, link := range map[string]localcontrol.Link{
+		"a crewmate not in the lobby": {Player: "Nobody", UserID: "member-red"},
+		"a member not in voice":       {Player: "Alice", UserID: "stranger"},
+		"a bot":                       {Player: "Alice", UserID: "music-bot"},
+	} {
+		if err := fixture.backend.Link(localGuild, link); !errors.Is(err, localcontrol.ErrInvalidLink) {
+			t.Errorf("%s: got %v, want %v", name, err, localcontrol.ErrInvalidLink)
+		}
+	}
+	if links, _ := fixture.db.Links(localGuild); len(links) != 0 {
+		t.Errorf("a refused link was stored: %+v", links)
 	}
 }
 

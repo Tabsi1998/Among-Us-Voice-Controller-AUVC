@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"slices"
 	"sort"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/localcontrol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/transport"
@@ -176,6 +178,129 @@ func (l *localBackend) Configure(guildID string, setup localcontrol.Setup) error
 		l.controller.RefreshCrewmates(guildID)
 	}
 	return err
+}
+
+// Crewmates reports the lobby and whom the app can link each crewmate to.
+func (l *localBackend) Crewmates(guildID string) (localcontrol.Crewmates, error) {
+	guild, err := l.discordGuild(guildID)
+	if err != nil {
+		return localcontrol.Crewmates{}, err
+	}
+
+	owners := map[string]string{}
+	if l.controller.AUVCLinks != nil {
+		links, err := l.controller.AUVCLinks.Links(guildID)
+		if err != nil {
+			return localcontrol.Crewmates{}, err
+		}
+		for _, link := range links {
+			owners[link.InGameName] = link.DiscordUserID
+		}
+	}
+
+	_, _, players := l.controller.CaptureSessions.Snapshot(guildID)
+	// In the order the game lists colours, like the crewmate board.
+	sort.SliceStable(players, func(i, j int) bool { return players[i].Color < players[j].Color })
+
+	result := localcontrol.Crewmates{Players: []localcontrol.Crewmate{}, Members: l.members(guild, owners)}
+	for _, player := range players {
+		if player.Disconnected {
+			continue
+		}
+		result.Players = append(result.Players, localcontrol.Crewmate{
+			Name:   player.Name,
+			Color:  game.GetColorStringForInt(player.Color),
+			UserID: owners[player.Name],
+		})
+	}
+	return result, nil
+}
+
+// Link links a crewmate to a member for the app, or unlinks it.
+//
+// Only a crewmate in the lobby and a member the app was offered can be linked,
+// so the app cannot store a link nobody could have chosen.
+func (l *localBackend) Link(guildID string, link localcontrol.Link) error {
+	crewmates, err := l.Crewmates(guildID)
+	if err != nil {
+		return err
+	}
+	if !slices.ContainsFunc(crewmates.Players, func(player localcontrol.Crewmate) bool { return player.Name == link.Player }) {
+		return fmt.Errorf("%w: %s is not in the lobby any more", localcontrol.ErrInvalidLink, link.Player)
+	}
+	if link.UserID != "" &&
+		!slices.ContainsFunc(crewmates.Members, func(member localcontrol.Member) bool { return member.ID == link.UserID }) {
+		return fmt.Errorf("%w: that member is not in a voice channel of this server", localcontrol.ErrInvalidLink)
+	}
+
+	if err := l.controller.AUVC.LinkFromApp(guildID, link.Player, link.UserID); err != nil {
+		if errors.Is(err, au.ErrInvalidInput) {
+			return fmt.Errorf("%w: %v", localcontrol.ErrInvalidLink, err)
+		}
+		return err
+	}
+
+	// The board, and voice during a round, follow the new link.
+	go l.controller.LinksChanged(guildID)
+	return nil
+}
+
+// members are whom the app can link a crewmate to: everyone in a voice channel
+// of the server, and everyone already linked, so an existing link still shows
+// who it is. Bots are left out, as they are everywhere else.
+func (l *localBackend) members(guild *discordgo.Guild, owners map[string]string) []localcontrol.Member {
+	state := l.controller.PrimarySession.State
+
+	known := map[string]*discordgo.Member{}
+	state.RLock()
+	for _, voiceState := range guild.VoiceStates {
+		if voiceState == nil || voiceState.UserID == "" || voiceState.ChannelID == "" {
+			continue
+		}
+		known[voiceState.UserID] = voiceState.Member
+	}
+	state.RUnlock()
+	for _, userID := range owners {
+		if _, ok := known[userID]; !ok {
+			known[userID] = nil
+		}
+	}
+
+	members := make([]localcontrol.Member, 0, len(known))
+	for userID, member := range known {
+		if member == nil {
+			member, _ = state.Member(guild.ID, userID)
+		}
+		if member != nil && member.User != nil && member.User.Bot {
+			continue
+		}
+		members = append(members, localcontrol.Member{ID: userID, Name: displayName(member, userID)})
+	}
+	sort.Slice(members, func(i, j int) bool {
+		if members[i].Name != members[j].Name {
+			return members[i].Name < members[j].Name
+		}
+		return members[i].ID < members[j].ID
+	})
+	return members
+}
+
+// displayName is how Discord shows a member in the server.
+func displayName(member *discordgo.Member, fallback string) string {
+	switch {
+	case member == nil:
+		return fallback
+	case member.Nick != "":
+		return member.Nick
+	case member.User == nil:
+		return fallback
+	case member.User.GlobalName != "":
+		return member.User.GlobalName
+	case member.User.Username != "":
+		return member.User.Username
+	default:
+		return fallback
+	}
 }
 
 func (l *localBackend) IssueCredential(guildID string) (string, error) {

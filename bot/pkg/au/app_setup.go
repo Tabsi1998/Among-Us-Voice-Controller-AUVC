@@ -2,9 +2,38 @@ package au
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 )
+
+// LinkFromApp links a crewmate to a Discord member for the Windows app, or
+// unlinks the crewmate when userID is empty.
+//
+// Whoever holds the local control secret started this bot with its token, so
+// the app may link anybody, as an administrator may with /au link user:. It
+// still goes through the same lock, and the same one link per member, as the
+// command.
+func (s *Service) LinkFromApp(guildID, player, userID string) error {
+	player = strings.TrimSpace(player)
+	if guildID == "" || player == "" {
+		return fmt.Errorf("%w: a guild and a player are required", ErrInvalidInput)
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if userID == "" {
+		if err := s.store.DeleteLink(guildID, player); err != nil {
+			return fmt.Errorf("remove player link: %w", err)
+		}
+		return nil
+	}
+	if err := s.store.ReplaceLink(guildID, player, userID); err != nil {
+		return fmt.Errorf("save player link: %w", err)
+	}
+	return nil
+}
 
 // AppSetup is what the AUVC Windows app configures for a guild: the same
 // channels /au setup channels takes, and whether a connecting capture starts a

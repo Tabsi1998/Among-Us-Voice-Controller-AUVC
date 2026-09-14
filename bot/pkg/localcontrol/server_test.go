@@ -25,6 +25,9 @@ type fakeBackend struct {
 	configureErr error
 	issued       int
 	stopped      chan struct{}
+	crewmates    map[string]Crewmates
+	links        []Link
+	linkErr      error
 }
 
 func newFake() *fakeBackend {
@@ -33,7 +36,11 @@ func newFake() *fakeBackend {
 			Guilds: []GuildSummary{{ID: "g1", Name: "Crew"}}},
 		guilds:   map[string]Guild{"g1": {ID: "g1", Name: "Crew"}},
 		channels: map[string][]Channel{"g1": {{ID: "v1", Name: "Among Us", Kind: KindVoice}}},
-		stopped:  make(chan struct{}),
+		crewmates: map[string]Crewmates{"g1": {
+			Players: []Crewmate{{Name: "Alice", Color: "red"}},
+			Members: []Member{{ID: "u1", Name: "Red Leader"}},
+		}},
+		stopped: make(chan struct{}),
 	}
 }
 
@@ -102,6 +109,36 @@ func (f *fakeBackend) IssueCredential(guildID string) (string, error) {
 	return fmt.Sprintf("credential-%d", f.issued), nil
 }
 
+func (f *fakeBackend) Crewmates(guildID string) (Crewmates, error) {
+	f.called()
+	if _, ok := f.guilds[guildID]; !ok {
+		return Crewmates{}, ErrUnknownGuild
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.crewmates[guildID], nil
+}
+
+func (f *fakeBackend) Link(guildID string, link Link) error {
+	f.called()
+	if _, ok := f.guilds[guildID]; !ok {
+		return ErrUnknownGuild
+	}
+	if f.linkErr != nil {
+		return f.linkErr
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.links = append(f.links, link)
+	crewmates := f.crewmates[guildID]
+	for index := range crewmates.Players {
+		if crewmates.Players[index].Name == link.Player {
+			crewmates.Players[index].UserID = link.UserID
+		}
+	}
+	return nil
+}
+
 func (f *fakeBackend) Shutdown() {
 	f.called()
 	close(f.stopped)
@@ -151,6 +188,8 @@ var everyRoute = []request{
 	{method: http.MethodGet, path: "/local/guilds/g1/channels"},
 	{method: http.MethodPut, path: "/local/guilds/g1/setup", body: `{"main_voice_channel_id":"v1","ghost_voice_channel_id":"v2"}`},
 	{method: http.MethodPost, path: "/local/guilds/g1/credential"},
+	{method: http.MethodGet, path: "/local/guilds/g1/crewmates"},
+	{method: http.MethodPut, path: "/local/guilds/g1/links", body: `{"player":"Alice","user_id":"u1"}`},
 	{method: http.MethodPost, path: "/local/shutdown"},
 }
 
@@ -242,6 +281,8 @@ func TestAServerTheBotIsNotInIsNotFound(t *testing.T) {
 		{method: http.MethodGet, path: "/local/guilds/elsewhere/channels"},
 		{method: http.MethodPost, path: "/local/guilds/elsewhere/credential"},
 		{method: http.MethodPut, path: "/local/guilds/elsewhere/setup", body: `{}`},
+		{method: http.MethodGet, path: "/local/guilds/elsewhere/crewmates"},
+		{method: http.MethodPut, path: "/local/guilds/elsewhere/links", body: `{"player":"Alice"}`},
 	} {
 		if got := serve(t, newFake(), route).Code; got != http.StatusNotFound {
 			t.Errorf("%s %s: status %d, want %d", route.method, route.path, got, http.StatusNotFound)
@@ -333,6 +374,85 @@ func TestACredentialIsIssuedToTheApp(t *testing.T) {
 	}
 }
 
+func TestTheLobbyIsListedWithWhomItCanBeLinkedTo(t *testing.T) {
+	response := serve(t, newFake(), request{method: http.MethodGet, path: "/local/guilds/g1/crewmates"})
+
+	var crewmates Crewmates
+	if err := json.NewDecoder(response.Body).Decode(&crewmates); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(crewmates.Players) != 1 || crewmates.Players[0].Color != "red" ||
+		len(crewmates.Members) != 1 || crewmates.Members[0].Name != "Red Leader" {
+		t.Errorf("unexpected crewmates %+v", crewmates)
+	}
+}
+
+// An empty lobby is two empty lists, never null.
+func TestAnEmptyLobbyIsTwoEmptyLists(t *testing.T) {
+	backend := newFake()
+	backend.crewmates["g1"] = Crewmates{}
+
+	response := serve(t, backend, request{method: http.MethodGet, path: "/local/guilds/g1/crewmates"})
+
+	if body := strings.TrimSpace(response.Body.String()); body != `{"players":[],"members":[]}` {
+		t.Errorf("got %s", body)
+	}
+}
+
+func TestALinkIsPassedOnAndAnsweredWithTheLobby(t *testing.T) {
+	backend := newFake()
+	response := serve(t, backend, request{method: http.MethodPut, path: "/local/guilds/g1/links",
+		body: `{"player":"Alice","user_id":"u1"}`})
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", response.Code, response.Body)
+	}
+	if len(backend.links) != 1 || backend.links[0] != (Link{Player: "Alice", UserID: "u1"}) {
+		t.Errorf("the backend received %+v", backend.links)
+	}
+
+	var crewmates Crewmates
+	if err := json.NewDecoder(response.Body).Decode(&crewmates); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(crewmates.Players) != 1 || crewmates.Players[0].UserID != "u1" {
+		t.Errorf("the answer does not show the new link: %+v", crewmates)
+	}
+}
+
+func TestAMalformedLinkIsRefusedBeforeReachingTheBackend(t *testing.T) {
+	for name, body := range map[string]string{
+		"not json":      "{",
+		"unknown field": `{"player":"Alice","guild_id":"elsewhere"}`,
+		"no player":     `{"user_id":"u1"}`,
+		"two documents": `{"player":"Alice"}{}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			backend := newFake()
+			response := serve(t, backend, request{method: http.MethodPut, path: "/local/guilds/g1/links", body: body})
+
+			if response.Code != http.StatusBadRequest {
+				t.Errorf("status %d, want %d", response.Code, http.StatusBadRequest)
+			}
+			if len(backend.links) != 0 {
+				t.Error("a malformed link reached the backend")
+			}
+		})
+	}
+}
+
+func TestAnUnusableLinkSaysWhy(t *testing.T) {
+	backend := newFake()
+	backend.linkErr = fmt.Errorf("%w: Bob is not in the lobby", ErrInvalidLink)
+
+	response := serve(t, backend, request{method: http.MethodPut, path: "/local/guilds/g1/links",
+		body: `{"player":"Bob","user_id":"u1"}`})
+
+	if response.Code != http.StatusBadRequest || !strings.Contains(response.Body.String(), "not in the lobby") {
+		t.Errorf("status %d, body %s", response.Code, response.Body)
+	}
+}
+
 // Stopping closes the listener the request arrived on, so the answer has to be
 // on its way before the stop begins.
 func TestShutdownAnswersAndThenStops(t *testing.T) {
@@ -355,12 +475,14 @@ func TestReadingRoutesCannotChangeAnything(t *testing.T) {
 		{method: http.MethodGet, path: "/local/shutdown"},
 		{method: http.MethodGet, path: "/local/guilds/g1/credential"},
 		{method: http.MethodPost, path: "/local/guilds/g1/setup", body: `{}`},
+		{method: http.MethodGet, path: "/local/guilds/g1/links"},
+		{method: http.MethodPost, path: "/local/guilds/g1/crewmates", body: `{"player":"Alice","user_id":"u1"}`},
 	} {
 		if got := serve(t, backend, route).Code; got == http.StatusOK || got == http.StatusAccepted {
 			t.Errorf("%s %s succeeded with the wrong method", route.method, route.path)
 		}
 	}
-	if backend.issued != 0 || len(backend.setups) != 0 {
+	if backend.issued != 0 || len(backend.setups) != 0 || len(backend.links) != 0 {
 		t.Error("a request with the wrong method changed something")
 	}
 }

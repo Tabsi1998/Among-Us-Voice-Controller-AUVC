@@ -27,6 +27,7 @@ type Store interface {
 	EnsureGuildConfig(guildID string) (sqlite.GuildConfig, error)
 	SaveGuildConfig(config sqlite.GuildConfig) error
 	ReplaceLink(guildID, inGameName, discordUserID string) error
+	DeleteLink(guildID, inGameName string) error
 	DeleteLinksForUser(guildID, discordUserID string) error
 	SchemaVersion() (int, error)
 }
