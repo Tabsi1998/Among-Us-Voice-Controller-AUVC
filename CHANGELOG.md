@@ -4,6 +4,16 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Development: `python scripts/local_check.py` runs every check the CI runs on
+  the developer's own PC: repository guards, Gitleaks, `go test -race`, the
+  Windows build of the bot, `govulncheck`, the C# build and tests, the
+  self-contained publish and vulnerable NuGet packages. `--release` adds a
+  release dry run that publishes nothing. Environment variables that look like
+  credentials are withheld from every step
+  ([#111](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/111)).
+
 ## v0.1.1-beta — 2026-09-14
 
 The second pre-release: players choose their crewmate instead of typing their
