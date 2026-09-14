@@ -4,6 +4,22 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+## v0.1.1-beta — 2026-09-14
+
+The second pre-release: players choose their crewmate instead of typing their
+in-game name. Like `v0.1.0-beta`, it has not yet been through a round against a
+real game and a real Discord server.
+
+**Update.** Install over the previous version, or unpack the new portable zip;
+the token and the settings stay. The crewmate message needs two permissions a
+bot invited with `v0.1.0-beta` does not have yet, *Embed Links* and *Use
+External Emojis*: give them to the bot's role in Discord, or invite the bot into
+the same server again. Then choose a text channel behind **Bot** → **Channels**.
+
+**Known limitations.** Not yet tried against a real game. Unsigned, so Windows
+warns about an unknown publisher. The first start uploads the crewmate pictures,
+which can take a minute.
+
 ### Added
 
 - Choosing a crewmate in Discord
@@ -24,16 +40,6 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - `/au doctor` and the app's checks report whether the crewmate message can be
   posted and whether every picture is uploaded.
 
-### Removed
-
-- Docker: the image, the compose file, the container build in CI and the image in
-  releases. AUVC runs on the Windows PC that plays Among Us, with the bot inside
-  the app.
-- The separate bot downloads for Windows and Linux. A release is the setup EXE and
-  the portable zip, both carrying the bot, with `SHA256SUMS` and release notes.
-- Outdated planning and phase documents, and the README and privacy files
-  inherited from upstream, which described the hosted AutoMuteUs service.
-
 ### Changed
 
 - The invite also asks for *Embed Links* and *Use External Emojis*, which the
@@ -43,11 +49,6 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - `/au link` no longer requires a name, and the text channel in the setup is now
   recommended rather than optional, because that is where players choose their
   crewmate.
-- Documentation for people using AUVC: a user guide in English
-  (`docs/guide.md`) and German (`docs/anleitung.md`) with download, setup,
-  every setting, the Discord commands, troubleshooting, updating and
-  uninstalling. The README is a short entry point; building and releasing moved
-  to `docs/development.md`.
 
 ## v0.1.0-beta — 2026-09-14
 
@@ -67,8 +68,23 @@ publisher because the files are not signed: choose **More info**, then
 link themselves with `/au link`; choosing a crewmate in Discord follows in a
 later pre-release.
 
+### Removed
+
+- Docker: the image, the compose file, the container build in CI and the image in
+  releases. AUVC runs on the Windows PC that plays Among Us, with the bot inside
+  the app.
+- The separate bot downloads for Windows and Linux. A release is the setup EXE and
+  the portable zip, both carrying the bot, with `SHA256SUMS` and release notes.
+- Outdated planning and phase documents, and the README and privacy files
+  inherited from upstream, which described the hosted AutoMuteUs service.
+
 ### Changed
 
+- Documentation for people using AUVC: a user guide in English
+  (`docs/guide.md`) and German (`docs/anleitung.md`) with download, setup,
+  every setting, the Discord commands, troubleshooting, updating and
+  uninstalling. The README is a short entry point; building and releasing moved
+  to `docs/development.md`.
 - The capture app connects to the AUVC bot. It pairs from its window with the
   address of the bot and a code from `/au capture pair`, keeps the credential
   encrypted for the Windows user, and reports the round over the authenticated

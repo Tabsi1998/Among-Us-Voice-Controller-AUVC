@@ -40,12 +40,9 @@ straight away, because everyone saw it happen.
 
 ## Status
 
-The current version is the pre-release `v0.1.0-beta`. It has not yet been tried in
+The current version is the pre-release `v0.1.1-beta`. It has not yet been tried in
 a real round with Among Us and Discord, and the files are not signed, so Windows
-warns about an unknown publisher. Choosing a crewmate from a menu in Discord needs
-`v0.1.1-beta` or newer
-([#105](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/105));
-with `v0.1.0-beta`, players type `/au link player:<name>`.
+warns about an unknown publisher.
 `v1.0.0` will be the first finished release
 ([#18](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/18)).
 
