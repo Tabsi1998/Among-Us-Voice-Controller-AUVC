@@ -3,10 +3,12 @@ package doctor
 import (
 	"strings"
 	"testing"
+
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 func TestAnEmptyReportSaysSoRatherThanLookingHealthy(t *testing.T) {
-	rendered := Report{}.Render()
+	rendered := Report{}.Render(text.English)
 
 	if strings.Contains(rendered, "✅") {
 		t.Errorf("a report with no checks must not look like a pass: %q", rendered)
@@ -35,12 +37,12 @@ func TestTheWorstLevelWins(t *testing.T) {
 
 // The reader has to know before scrolling whether anything needs them.
 func TestTheHeadlineSaysWhetherAnythingIsWrong(t *testing.T) {
-	healthy := Report{{Name: "A", Level: OK, Detail: "fine"}}.Render()
+	healthy := Report{{Name: "A", Level: OK, Detail: "fine"}}.Render(text.English)
 	if !strings.HasPrefix(healthy, "✅") {
 		t.Errorf("a healthy report should open with a pass: %q", healthy)
 	}
 
-	warned := Report{{Name: "A", Level: Warn, Detail: "incomplete"}}.Render()
+	warned := Report{{Name: "A", Level: Warn, Detail: "incomplete"}}.Render(text.English)
 	if !strings.HasPrefix(warned, "⚠️") {
 		t.Errorf("a warning report should open with a warning: %q", warned)
 	}
@@ -48,7 +50,7 @@ func TestTheHeadlineSaysWhetherAnythingIsWrong(t *testing.T) {
 		t.Errorf("a warning should say AUVC still works: %q", warned)
 	}
 
-	broken := Report{{Name: "A", Level: Fail, Detail: "broken"}}.Render()
+	broken := Report{{Name: "A", Level: Fail, Detail: "broken"}}.Render(text.English)
 	if !strings.HasPrefix(broken, "❌") {
 		t.Errorf("a failing report should open with a failure: %q", broken)
 	}
@@ -59,7 +61,7 @@ func TestTheHeadlineCountsBothKinds(t *testing.T) {
 		{Name: "A", Level: Fail, Detail: "broken"},
 		{Name: "B", Level: Warn, Detail: "incomplete"},
 		{Name: "C", Level: OK, Detail: "fine"},
-	}.Render()
+	}.Render(text.English)
 
 	first := strings.SplitN(rendered, "\n", 2)[0]
 	if !strings.Contains(first, "1 problem") || !strings.Contains(first, "1 warning") {
@@ -73,7 +75,7 @@ func TestPassingChecksAreListedToo(t *testing.T) {
 	rendered := Report{
 		{Name: "Discord", Level: OK, Detail: "connected"},
 		{Name: "Capture", Level: Fail, Detail: "gone"},
-	}.Render()
+	}.Render(text.English)
 
 	if !strings.Contains(rendered, "Discord") {
 		t.Errorf("a passing check was left out: %q", rendered)
@@ -87,7 +89,7 @@ func TestPassingChecksAreListedToo(t *testing.T) {
 func TestAFixIsShownWhenThereIsOne(t *testing.T) {
 	rendered := Report{
 		{Name: "Capture", Level: Warn, Detail: "not paired", Fix: "Run `/au capture pair`."},
-	}.Render()
+	}.Render(text.English)
 
 	if !strings.Contains(rendered, "/au capture pair") {
 		t.Errorf("the fix was not shown: %q", rendered)
@@ -95,7 +97,7 @@ func TestAFixIsShownWhenThereIsOne(t *testing.T) {
 }
 
 func TestNoArrowWhenThereIsNothingToDo(t *testing.T) {
-	rendered := Report{{Name: "Discord", Level: OK, Detail: "connected"}}.Render()
+	rendered := Report{{Name: "Discord", Level: OK, Detail: "connected"}}.Render(text.English)
 
 	if strings.Contains(rendered, "→") {
 		t.Errorf("a passing check should not suggest a fix: %q", rendered)
@@ -121,6 +123,20 @@ func TestFailingChecksComeWorstFirstAndOtherwiseInOrder(t *testing.T) {
 	want := []string{"first-failure", "second-failure", "first-warning", "second-warning"}
 	if strings.Join(names, ",") != strings.Join(want, ",") {
 		t.Errorf("got %v, want %v", names, want)
+	}
+}
+
+// The headline is the one line the report writes itself, so it has to follow
+// the language of the checks around it.
+func TestTheHeadlineIsInTheLanguageOfTheReport(t *testing.T) {
+	report := Report{{Name: "A", Level: Warn, Detail: "unvollständig"}}
+
+	if got, want := strings.SplitN(report.Render(text.German), "\n", 2)[0], text.German.Say(text.DoctorWarnings, 1); got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	empty := Report{}
+	if got := empty.Render(text.German); got != text.German.Say(text.DoctorNothingChecked) {
+		t.Errorf("an empty German report reads %q", got)
 	}
 }
 

@@ -1,21 +1,27 @@
 package au
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // Problem is one reason a configuration cannot be saved. Field names the option
 // the administrator would change, so a handler can point at it directly.
 type Problem struct {
-	Field   string
-	Message string
+	Field string
+	Key   text.Key
+	Args  []any
+}
+
+// Describe says what is wrong, in a language, after the option it concerns.
+func (p Problem) Describe(language text.Language) string {
+	return p.Field + ": " + language.Say(p.Key, p.Args...)
 }
 
 func (p Problem) Error() string {
-	return p.Field + ": " + p.Message
+	return p.Describe(text.English)
 }
 
 // Validate checks a guild configuration before it is stored.
@@ -26,36 +32,35 @@ func (p Problem) Error() string {
 func Validate(config sqlite.GuildConfig) []Problem {
 	var problems []Problem
 
-	add := func(field, message string) {
-		problems = append(problems, Problem{Field: field, Message: message})
+	add := func(field string, key text.Key, args ...any) {
+		problems = append(problems, Problem{Field: field, Key: key, Args: args})
 	}
 
 	if config.GuildID == "" {
-		add("guild_id", "missing")
+		add("guild_id", text.ProblemMissing)
 	}
 
 	// A voice policy the bot does not implement would silently do nothing.
 	if !slices.Contains(VoicePolicies, config.VoicePolicy) {
-		add(OptionPolicy, fmt.Sprintf("must be one of %v, got %q", VoicePolicies, config.VoicePolicy))
+		add(OptionPolicy, text.ProblemOneOf, VoicePolicies, config.VoicePolicy)
 	}
 
 	if !slices.Contains(CaptureTimeoutActions, config.CaptureTimeoutAction) {
-		add(OptionTimeoutAction, fmt.Sprintf("must be one of %v, got %q",
-			CaptureTimeoutActions, config.CaptureTimeoutAction))
+		add(OptionTimeoutAction, text.ProblemOneOf, CaptureTimeoutActions, config.CaptureTimeoutAction)
 	}
 
 	// Discord enforces these bounds on the option, but a configuration can also
 	// arrive from an import or an older row.
 	if config.CaptureTimeoutSeconds < MinCaptureTimeoutSeconds ||
 		config.CaptureTimeoutSeconds > MaxCaptureTimeoutSeconds {
-		add(OptionTimeout, fmt.Sprintf("must be between %d and %d seconds, got %d",
-			MinCaptureTimeoutSeconds, MaxCaptureTimeoutSeconds, config.CaptureTimeoutSeconds))
+		add(OptionTimeout, text.ProblemTimeoutBounds,
+			MinCaptureTimeoutSeconds, MaxCaptureTimeoutSeconds, config.CaptureTimeoutSeconds)
 	}
 
 	// One channel for both would make every move a no-op and every ghost audible
 	// to the living, which is the one thing the bot exists to prevent.
 	if config.MainVoiceChannelID != "" && config.MainVoiceChannelID == config.GhostVoiceChannelID {
-		add(OptionGhostChannel, "must differ from the main voice channel")
+		add(OptionGhostChannel, text.ProblemSameChannel)
 	}
 
 	return problems
@@ -76,18 +81,18 @@ func Valid(config sqlite.GuildConfig) bool {
 func NotReady(config sqlite.GuildConfig) []Problem {
 	var problems []Problem
 
-	add := func(field, message string) {
-		problems = append(problems, Problem{Field: field, Message: message})
+	add := func(field string, key text.Key) {
+		problems = append(problems, Problem{Field: field, Key: key})
 	}
 
 	if !config.Enabled {
-		add(OptionEnabled, "the bot is disabled for this guild")
+		add(OptionEnabled, text.ProblemDisabled)
 	}
 	if config.MainVoiceChannelID == "" {
-		add(OptionMainChannel, "not set; run /au setup channels")
+		add(OptionMainChannel, text.ProblemNotSet)
 	}
 	if config.GhostVoiceChannelID == "" {
-		add(OptionGhostChannel, "not set; run /au setup channels")
+		add(OptionGhostChannel, text.ProblemNotSet)
 	}
 
 	return problems

@@ -16,6 +16,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/session"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/bwmarrin/discordgo"
 )
@@ -430,6 +431,21 @@ func TestAPlayerWhoLeftCannotBeChosen(t *testing.T) {
 	}
 	if links, _ := db.Links(crewGuild); len(links) != 0 {
 		t.Errorf("a player who left was linked: %+v", links)
+	}
+}
+
+// The answer to a choice is private even on the public board, so it follows the
+// Discord language of whoever chose.
+func TestTheAnswerToAChoiceIsInTheLanguageOfWhoeverChose(t *testing.T) {
+	bot, _, _, s := newCrewBot(t)
+	lobbyOf(bot, game.LOBBY, "Alice")
+
+	choice := chooseCrewmate("member", "player:Bob", false)
+	choice.Locale = discordgo.German
+	response := bot.handleCrewmateChoice(s, choice)
+
+	if want := text.German.Say(text.PlayerLeftLobby, "Bob"); response.Data.Content != want {
+		t.Errorf("got %q, want %q", response.Data.Content, want)
 	}
 }
 

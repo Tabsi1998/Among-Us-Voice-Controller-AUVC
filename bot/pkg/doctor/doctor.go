@@ -15,6 +15,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // Level is how a check turned out.
@@ -104,18 +106,19 @@ func (r Report) Failing() []Check {
 	return failing
 }
 
-// Render writes the report for Discord.
+// Render writes the report for Discord, in the language the checks were
+// written in.
 //
 // Every check is listed, passing ones included. A diagnosis that only shows
 // problems leaves the reader unsure whether the rest was checked or skipped,
 // which is the question they ran the command to answer.
-func (r Report) Render() string {
+func (r Report) Render(language text.Language) string {
 	if len(r) == 0 {
-		return "⚠️ Nothing was checked."
+		return language.Say(text.DoctorNothingChecked)
 	}
 
 	var builder strings.Builder
-	builder.WriteString(r.headline())
+	builder.WriteString(r.headline(language))
 	builder.WriteString("\n")
 
 	for _, check := range r {
@@ -129,7 +132,7 @@ func (r Report) Render() string {
 
 // headline says in one line whether anything needs attention, so a reader knows
 // before scrolling.
-func (r Report) headline() string {
+func (r Report) headline(language text.Language) string {
 	var failed, warned int
 	for _, check := range r {
 		switch check.Level {
@@ -142,12 +145,12 @@ func (r Report) headline() string {
 
 	switch {
 	case failed > 0 && warned > 0:
-		return fmt.Sprintf("❌ %d problem(s) and %d warning(s).", failed, warned)
+		return language.Say(text.DoctorProblemsAndWarnings, failed, warned)
 	case failed > 0:
-		return fmt.Sprintf("❌ %d problem(s).", failed)
+		return language.Say(text.DoctorProblems, failed)
 	case warned > 0:
-		return fmt.Sprintf("⚠️ %d warning(s); AUVC can still run.", warned)
+		return language.Say(text.DoctorWarnings, warned)
 	default:
-		return "✅ Everything checks out."
+		return language.Say(text.DoctorAllGood)
 	}
 }

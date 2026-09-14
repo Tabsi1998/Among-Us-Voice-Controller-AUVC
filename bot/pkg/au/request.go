@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -39,6 +40,9 @@ type Request struct {
 	Command string
 	Invoker Invoker
 	Values  Values
+	// Language is what the reply is written in. Every /au reply is private, so
+	// it is the Discord language of whoever sent the command.
+	Language text.Language
 }
 
 // ParsePathAndValues validates Discord's command nesting and extracts the

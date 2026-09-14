@@ -261,7 +261,9 @@ Server-Eigentümer, Discord-Administratoren und die Rolle aus
 
 ## 7. Discord-Befehle
 
-Jede Antwort sieht nur, wer den Befehl eingegeben hat.
+Jede Antwort sieht nur, wer den Befehl eingegeben hat. Sie kommt in deiner
+Discord-Sprache: auf Deutsch, wenn dein Discord auf Deutsch eingestellt ist, sonst
+auf Englisch. Die Beschreibungen der Befehle zeigt Discord ebenso an.
 
 | Befehl | Was er tut |
 | --- | --- |

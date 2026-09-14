@@ -11,6 +11,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/credential"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 )
 
@@ -36,7 +37,7 @@ type Store interface {
 // finished reply: what to say about a broken setup is Discord knowledge, and it
 // lives with the code that can actually look at Discord.
 type Diagnostician interface {
-	Diagnose(guildID string) (string, error)
+	Diagnose(guildID string, language text.Language) (string, error)
 }
 
 // SessionController answers the /au session commands.
@@ -45,11 +46,11 @@ type Diagnostician interface {
 // say about a running session is Discord knowledge, and it lives with the code
 // that owns the session. This service stays a router.
 type SessionController interface {
-	Start(guildID string) (string, error)
-	Stop(guildID string) (string, error)
-	Pause(guildID string) (string, error)
-	Resume(guildID string) (string, error)
-	Status(guildID string) (string, error)
+	Start(guildID string, language text.Language) (string, error)
+	Stop(guildID string, language text.Language) (string, error)
+	Pause(guildID string, language text.Language) (string, error)
+	Resume(guildID string, language text.Language) (string, error)
+	Status(guildID string, language text.Language) (string, error)
 }
 
 // Service executes /au commands without depending on a Discord connection.
@@ -197,6 +198,8 @@ func (s *Service) Handle(request Request) (string, error) {
 }
 
 func (s *Service) handleSetup(request Request, config sqlite.GuildConfig) (string, error) {
+	language := request.Language
+
 	switch request.Command {
 	case SetupChannels:
 		mainChannel, mainOK := request.Values.String(OptionMainChannel)
@@ -207,10 +210,10 @@ func (s *Service) handleSetup(request Request, config sqlite.GuildConfig) (strin
 		config.MainVoiceChannelID = mainChannel
 		config.GhostVoiceChannelID = ghostChannel
 		config.ControlTextChannelID, _ = request.Values.String(OptionControlChannel)
-		if err := s.save(config); err != nil {
+		if err := s.save(config, language); err != nil {
 			return "", err
 		}
-		return "✅ AUVC channels saved.\n" + formatChannels(config), nil
+		return language.Say(text.ChannelsSaved, formatChannels(config, language)), nil
 
 	case SetupPermissions:
 		roleID, ok := request.Values.String(OptionAdminRole)
@@ -218,20 +221,20 @@ func (s *Service) handleSetup(request Request, config sqlite.GuildConfig) (strin
 			return "", fmt.Errorf("%w: an admin role is required", ErrInvalidInput)
 		}
 		config.AdminRoleID = roleID
-		if err := s.save(config); err != nil {
+		if err := s.save(config, language); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("✅ AUVC administrators set to <@&%s>.", roleID), nil
+		return language.Say(text.AdminsSet, roleID), nil
 
 	case SetupReset:
 		confirmed, ok := request.Values.Bool(OptionConfirm)
 		if !ok || !confirmed {
 			return "", fmt.Errorf("%w: reset requires confirm=true", ErrInvalidInput)
 		}
-		if err := s.save(sqlite.DefaultGuildConfig(request.GuildID)); err != nil {
+		if err := s.save(sqlite.DefaultGuildConfig(request.GuildID), language); err != nil {
 			return "", err
 		}
-		return "✅ Guild configuration reset to AUVC defaults. Persistent player links were kept.", nil
+		return language.Say(text.ConfigReset), nil
 
 	default:
 		return "", fmt.Errorf("%w: setup %q", ErrUnknownPath, request.Command)
@@ -239,9 +242,11 @@ func (s *Service) handleSetup(request Request, config sqlite.GuildConfig) (strin
 }
 
 func (s *Service) handleSettings(request Request, config sqlite.GuildConfig) (string, error) {
+	language := request.Language
+
 	switch request.Command {
 	case SettingsShow:
-		return formatSettings(config), nil
+		return formatSettings(config, language), nil
 
 	case SettingsExport:
 		data, err := json.MarshalIndent(config, "", "  ")
@@ -292,13 +297,15 @@ func (s *Service) handleSettings(request Request, config sqlite.GuildConfig) (st
 		return "", fmt.Errorf("%w: settings %q", ErrUnknownPath, request.Command)
 	}
 
-	if err := s.save(config); err != nil {
+	if err := s.save(config, language); err != nil {
 		return "", err
 	}
-	return "✅ AUVC settings saved.\n" + formatSettings(config), nil
+	return language.Say(text.SettingsSaved, formatSettings(config, language)), nil
 }
 
 func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (string, error) {
+	language := request.Language
+
 	switch request.Command {
 	case Link:
 		player, ok := request.Values.String(OptionPlayer)
@@ -313,7 +320,7 @@ func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (stri
 		if err := s.store.ReplaceLink(request.GuildID, player, userID); err != nil {
 			return "", fmt.Errorf("save player link: %w", err)
 		}
-		return fmt.Sprintf("✅ Linked <@%s> to Among Us player `%s`.", userID, player), nil
+		return language.Say(text.Linked, userID, player), nil
 
 	case Unlink:
 		userID, ok := request.Values.String(OptionUser)
@@ -323,27 +330,27 @@ func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (stri
 		if err := s.store.DeleteLinksForUser(request.GuildID, userID); err != nil {
 			return "", fmt.Errorf("remove player link: %w", err)
 		}
-		return fmt.Sprintf("✅ Removed persistent Among Us links for <@%s>.", userID), nil
+		return language.Say(text.Unlinked, userID), nil
 
 	case Doctor:
 		if s.doctor != nil {
-			return s.doctor.Diagnose(request.GuildID)
+			return s.doctor.Diagnose(request.GuildID, language)
 		}
 		version, err := s.store.SchemaVersion()
 		if err != nil {
 			return "", fmt.Errorf("read database schema: %w", err)
 		}
-		lines := []string{fmt.Sprintf("✅ SQLite reachable; schema migration %d applied.", version)}
+		lines := []string{language.Say(text.FallbackDatabase, version)}
 		for _, problem := range Validate(config) {
-			lines = append(lines, "❌ "+problem.Error())
+			lines = append(lines, "❌ "+problem.Describe(language))
 		}
 		for _, problem := range NotReady(config) {
-			lines = append(lines, "⚠️ "+problem.Error())
+			lines = append(lines, "⚠️ "+problem.Describe(language))
 		}
 		if Valid(config) && Ready(config) {
-			lines = append(lines, "✅ Guild configuration is valid and has both voice channels.")
+			lines = append(lines, language.Say(text.FallbackReady))
 		}
-		lines = append(lines, "⚠️ Discord, permission and capture checks need a running bot and are unavailable here.")
+		lines = append(lines, language.Say(text.FallbackNeedsBot))
 		return strings.Join(lines, "\n"), nil
 
 	case Version:
@@ -354,9 +361,9 @@ func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (stri
 	}
 }
 
-func (s *Service) save(config sqlite.GuildConfig) error {
+func (s *Service) save(config sqlite.GuildConfig, language text.Language) error {
 	if problems := Validate(config); len(problems) > 0 {
-		return fmt.Errorf("%w: %s", ErrInvalidInput, joinProblems(problems))
+		return fmt.Errorf("%w: %s", ErrInvalidInput, joinProblems(problems, language))
 	}
 	if err := s.store.SaveGuildConfig(config); err != nil {
 		return fmt.Errorf("save guild configuration: %w", err)
@@ -364,30 +371,37 @@ func (s *Service) save(config sqlite.GuildConfig) error {
 	return nil
 }
 
-func formatChannels(config sqlite.GuildConfig) string {
-	control := "not configured"
+func formatChannels(config sqlite.GuildConfig, language text.Language) string {
+	control := language.Say(text.NotConfigured)
 	if config.ControlTextChannelID != "" {
 		control = "<#" + config.ControlTextChannelID + ">"
 	}
-	return fmt.Sprintf("Main: <#%s>\nGhost: <#%s>\nControl: %s",
-		config.MainVoiceChannelID, config.GhostVoiceChannelID, control)
+	return language.Say(text.ChannelList, config.MainVoiceChannelID, config.GhostVoiceChannelID, control)
 }
 
-func formatSettings(config sqlite.GuildConfig) string {
-	adminRole := "not configured"
+func formatSettings(config sqlite.GuildConfig, language text.Language) string {
+	adminRole := language.Say(text.NotConfigured)
 	if config.AdminRoleID != "" {
 		adminRole = "<@&" + config.AdminRoleID + ">"
 	}
-	return fmt.Sprintf("**AUVC settings**\nEnabled: %t\n%s\nAdmin role: %s\nVoice policy: `%s`\nAuto-move ghosts: %t\nEnforce channels: %t\nCapture timeout: %ds (`%s`)\nAuto-start: %t\nConfig version: %d",
-		config.Enabled, formatChannels(config), adminRole, config.VoicePolicy,
-		config.AutoMoveGhosts, config.EnforceChannels, config.CaptureTimeoutSeconds,
-		config.CaptureTimeoutAction, config.AutoStart, config.ConfigVersion)
+	return language.Say(text.SettingsList,
+		yesNo(config.Enabled, language), formatChannels(config, language), adminRole, config.VoicePolicy,
+		yesNo(config.AutoMoveGhosts, language), yesNo(config.EnforceChannels, language),
+		config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
+		yesNo(config.AutoStart, language), config.ConfigVersion)
 }
 
-func joinProblems(problems []Problem) string {
+func yesNo(value bool, language text.Language) string {
+	if value {
+		return language.Say(text.Yes)
+	}
+	return language.Say(text.No)
+}
+
+func joinProblems(problems []Problem, language text.Language) string {
 	parts := make([]string, len(problems))
 	for index, problem := range problems {
-		parts[index] = problem.Error()
+		parts[index] = problem.Describe(language)
 	}
 	return strings.Join(parts, "; ")
 }
@@ -398,8 +412,10 @@ func joinProblems(problems []Problem) string {
 // pairing code in one at all: it reaches the administrator who asked and
 // nobody else in the channel.
 func (s *Service) handleCapture(request Request) (string, error) {
+	language := request.Language
+
 	if s.capture == nil {
-		return captureStaged(request.Command), nil
+		return language.Say(text.CaptureUnavailable, request.Command), nil
 	}
 
 	switch request.Command {
@@ -408,11 +424,7 @@ func (s *Service) handleCapture(request Request) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return fmt.Sprintf(
-			"🔗 Pairing code: `%s`\n\n"+
-				"Type it into the AUVC capture app on the PC that runs Among Us. "+
-				"It works once and expires %s (in %s). "+
-				"Running this command again replaces it.",
+		return language.Say(text.PairingCode,
 			code.Display(), expires.UTC().Format(time.RFC3339), credential.PairingCodeLifetime), nil
 
 	case CaptureStatus:
@@ -420,7 +432,7 @@ func (s *Service) handleCapture(request Request) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return status.Describe(), nil
+		return status.Describe(language), nil
 
 	case CaptureRevoke:
 		confirmed, ok := request.Values.Bool(OptionConfirm)
@@ -432,41 +444,34 @@ func (s *Service) handleCapture(request Request) (string, error) {
 			return "", err
 		}
 		if revoked == 0 {
-			return "✅ Nothing to revoke: no capture was paired. Any outstanding pairing code was cancelled.", nil
+			return language.Say(text.NothingToRevoke), nil
 		}
-		return fmt.Sprintf(
-			"✅ Revoked %d capture credential(s), cancelled any outstanding pairing code "+
-				"and disconnected any capture app that was still connected. "+
-				"Run `/au capture pair` to connect a capture app again.", revoked), nil
+		return language.Say(text.Revoked, revoked), nil
 
 	default:
 		return "", fmt.Errorf("%w: capture %q", ErrUnknownPath, request.Command)
 	}
 }
 
-func captureStaged(command string) string {
-	return fmt.Sprintf("⚠️ `/au capture %s` is registered, but capture pairing is unavailable in this build.", command)
-}
-
 // handleSession routes the session commands to the controller.
 func (s *Service) handleSession(request Request) (string, error) {
+	language := request.Language
+
 	if s.session == nil {
-		return fmt.Sprintf(
-			"⚠️ `/au session %s` is registered, but session control is unavailable in this build.",
-			request.Command), nil
+		return language.Say(text.SessionUnavailable, request.Command), nil
 	}
 
 	switch request.Command {
 	case SessionStart:
-		return s.session.Start(request.GuildID)
+		return s.session.Start(request.GuildID, language)
 	case SessionStop:
-		return s.session.Stop(request.GuildID)
+		return s.session.Stop(request.GuildID, language)
 	case SessionPause:
-		return s.session.Pause(request.GuildID)
+		return s.session.Pause(request.GuildID, language)
 	case SessionResume:
-		return s.session.Resume(request.GuildID)
+		return s.session.Resume(request.GuildID, language)
 	case SessionStatus:
-		return s.session.Status(request.GuildID)
+		return s.session.Status(request.GuildID, language)
 	default:
 		return "", fmt.Errorf("%w: session %q", ErrUnknownPath, request.Command)
 	}

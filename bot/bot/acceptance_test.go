@@ -9,6 +9,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 )
 
@@ -358,7 +359,7 @@ func TestScenarioADeletedChannelIsReportedByTheDoctor(t *testing.T) {
 	// No Discord session at all stands in for a channel the bot cannot see; the
 	// doctor takes the same route either way, and this is the one a test can
 	// reach without a Discord connection.
-	report, err := NewDoctor(lobby.bot).Diagnose(guild)
+	report, err := NewDoctor(lobby.bot).Diagnose(guild, text.English)
 	if err != nil {
 		t.Fatalf("diagnose: %v", err)
 	}
@@ -378,7 +379,7 @@ func TestScenarioADeletedChannelIsReportedByTheDoctor(t *testing.T) {
 func TestScenarioMissingPermissionsWouldBeReported(t *testing.T) {
 	lobby := newLobby(t, "Red")
 
-	report, err := NewDoctor(lobby.bot).Diagnose(guild)
+	report, err := NewDoctor(lobby.bot).Diagnose(guild, text.English)
 	if err != nil {
 		t.Fatalf("diagnose: %v", err)
 	}

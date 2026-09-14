@@ -16,6 +16,7 @@ import (
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/credential"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // Store is the persistence this service needs. It is an interface so the rules
@@ -379,28 +380,26 @@ func (s *Service) Status(guildID string) (Status, error) {
 }
 
 // Describe renders a status for Discord.
-func (s Status) Describe() string {
+func (s Status) Describe(language text.Language) string {
 	var lines []string
 
 	switch {
 	case s.Paired && s.LastSeen.IsZero():
-		lines = append(lines, "✅ Capture is paired but has never connected yet.")
+		lines = append(lines, language.Say(text.CaptureNeverConnected))
 	case s.Paired:
-		lines = append(lines, fmt.Sprintf("✅ Capture is paired. Last seen %s.",
-			s.LastSeen.Format(time.RFC3339)))
+		lines = append(lines, language.Say(text.CapturePaired, s.LastSeen.Format(time.RFC3339)))
 	default:
-		lines = append(lines, "❌ No capture is paired. Run `/au capture pair` to connect one.")
+		lines = append(lines, language.Say(text.CaptureNotPaired))
 	}
 
 	if s.PairingOutstanding {
-		lines = append(lines, fmt.Sprintf("⚠️ A pairing code is waiting to be used; it expires %s.",
-			s.PairingExpires.Format(time.RFC3339)))
+		lines = append(lines, language.Say(text.CaptureCodeWaiting, s.PairingExpires.Format(time.RFC3339)))
 	}
 	if s.RevokedCredentials > 0 {
-		lines = append(lines, fmt.Sprintf("%d revoked credential(s) on record.", s.RevokedCredentials))
+		lines = append(lines, language.Say(text.CaptureRevokedCredentials, s.RevokedCredentials))
 	}
 	if s.ActiveCredentials > 1 {
-		lines = append(lines, fmt.Sprintf("%d capture installs are paired.", s.ActiveCredentials))
+		lines = append(lines, language.Say(text.CaptureInstalls, s.ActiveCredentials))
 	}
 
 	return strings.Join(lines, "\n")

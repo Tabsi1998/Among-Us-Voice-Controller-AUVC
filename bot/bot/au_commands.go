@@ -2,9 +2,9 @@ package bot
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -12,21 +12,25 @@ import (
 // application service. It only translates Discord values and response flags;
 // authorization, validation and persistence stay testable in pkg/au.
 func (bot *Bot) handleAUCommand(s *discordgo.Session, interaction *discordgo.InteractionCreate) *discordgo.InteractionResponse {
+	// Every /au reply is private, so it is written in the Discord language of
+	// the one member who reads it.
+	language := text.FromDiscord(string(interaction.Locale))
+
 	if interaction.GuildID == "" || interaction.Member == nil || interaction.Member.User == nil {
-		return auPrivateResponse("❌ `/au` commands can only be used inside a Discord server.")
+		return auPrivateResponse(language.Say(text.NotInServer))
 	}
 	if bot.AUVC == nil {
-		return auPrivateResponse("❌ AUVC configuration storage is unavailable.")
+		return auPrivateResponse(language.Say(text.StorageUnavailable))
 	}
 
 	group, command, values, err := au.ParsePathAndValues(interaction.ApplicationCommandData().Options)
 	if err != nil {
-		return auPrivateResponse("❌ Invalid `/au` command: " + err.Error())
+		return auPrivateResponse(language.Say(text.InvalidCommand, err))
 	}
 
 	invoker, err := invokerOf(s, interaction)
 	if err != nil {
-		return auPrivateResponse("❌ Discord guild information is unavailable. Please try again.")
+		return auPrivateResponse(language.Say(text.ServerUnavailable))
 	}
 
 	// /au link on its own offers the crewmate menu, rather than asking for a
@@ -35,24 +39,25 @@ func (bot *Bot) handleAUCommand(s *discordgo.Session, interaction *discordgo.Int
 		_, named := values.String(au.OptionPlayer)
 		_, forSomebodyElse := values.String(au.OptionUser)
 		if !named && !forSomebodyElse {
-			return bot.crewmatePicker(interaction.GuildID)
+			return bot.crewmatePicker(interaction.GuildID, language)
 		}
 	}
 
 	request := au.Request{
-		GuildID: interaction.GuildID,
-		Group:   group,
-		Command: command,
-		Invoker: invoker,
-		Values:  values,
+		GuildID:  interaction.GuildID,
+		Group:    group,
+		Command:  command,
+		Invoker:  invoker,
+		Values:   values,
+		Language: language,
 	}
 
 	content, err := bot.AUVC.Handle(request)
 	if errors.Is(err, au.ErrUnauthorized) {
-		return auPrivateResponse("❌ You need the configured AUVC admin role or Discord Administrator permission for this command.")
+		return auPrivateResponse(language.Say(text.NotAuthorized))
 	}
 	if err != nil {
-		return auPrivateResponse(fmt.Sprintf("❌ AUVC could not complete this command: %v", err))
+		return auPrivateResponse(language.Say(text.CommandFailed, err))
 	}
 
 	switch {

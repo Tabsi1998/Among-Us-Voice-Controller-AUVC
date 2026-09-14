@@ -11,6 +11,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/crewmate"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -475,15 +476,13 @@ func (bot *Bot) crewmateMenu(guildID string) (crewmate.Board, error) {
 
 // crewmatePicker answers /au link without a name: the menu, visible only to
 // whoever asked.
-func (bot *Bot) crewmatePicker(guildID string) *discordgo.InteractionResponse {
+func (bot *Bot) crewmatePicker(guildID string, language text.Language) *discordgo.InteractionResponse {
 	view, err := bot.crewmateMenu(guildID)
 	if err != nil {
-		return auPrivateResponse(fmt.Sprintf("❌ AUVC could not build the crewmate menu: %v", err))
+		return auPrivateResponse(language.Say(text.CrewmateMenuFailed, err))
 	}
 	if len(view.Components) == 0 {
-		return auPrivateResponse("There is no Among Us lobby to choose from yet. " +
-			"Join a lobby while the AUVC app is running and run `/au link` again, " +
-			"or type your name with `/au link player:<name>`.")
+		return auPrivateResponse(language.Say(text.NoLobbyYet))
 	}
 
 	return &discordgo.InteractionResponse{
@@ -501,36 +500,40 @@ func (bot *Bot) crewmatePicker(guildID string) *discordgo.InteractionResponse {
 // It goes through the same /au link and /au unlink as typing the command, so
 // who may link whom and what is stored stay decided in one place.
 func (bot *Bot) handleCrewmateChoice(s *discordgo.Session, interaction *discordgo.InteractionCreate) *discordgo.InteractionResponse {
+	// The answer to a choice is private, even on the public board, so it is in
+	// the Discord language of whoever chose.
+	language := text.FromDiscord(string(interaction.Locale))
+
 	if interaction.GuildID == "" || interaction.Member == nil || interaction.Member.User == nil {
-		return crewmateReply(interaction, "❌ Crewmates can only be chosen inside a Discord server.")
+		return crewmateReply(interaction, language.Say(text.CrewmateOnlyInServer))
 	}
 	if bot.AUVC == nil {
-		return crewmateReply(interaction, "❌ AUVC configuration storage is unavailable.")
+		return crewmateReply(interaction, language.Say(text.StorageUnavailable))
 	}
 
 	choice, ok := crewmate.ParseChoice(interaction.MessageComponentData().Values)
 	if !ok {
-		return crewmateReply(interaction, "❌ That choice was not understood. Please choose again.")
+		return crewmateReply(interaction, language.Say(text.ChoiceNotUnderstood))
 	}
 
 	invoker, err := invokerOf(s, interaction)
 	if err != nil {
-		return crewmateReply(interaction, "❌ Discord guild information is unavailable. Please try again.")
+		return crewmateReply(interaction, language.Say(text.ServerUnavailable))
 	}
 
 	request := au.Request{
-		GuildID: interaction.GuildID,
-		Command: au.Unlink,
-		Invoker: invoker,
-		Values:  au.Values{Strings: map[string]string{}, Booleans: map[string]bool{}, Integers: map[string]int64{}},
+		GuildID:  interaction.GuildID,
+		Command:  au.Unlink,
+		Invoker:  invoker,
+		Values:   au.Values{Strings: map[string]string{}, Booleans: map[string]bool{}, Integers: map[string]int64{}},
+		Language: language,
 	}
 	if !choice.Unlink {
 		// The menu may be older than the lobby. Linking somebody to a player
 		// who has left would only look like it worked.
 		if !bot.inLobby(interaction.GuildID, choice.Player) {
 			bot.RefreshCrewmates(interaction.GuildID)
-			return crewmateReply(interaction, fmt.Sprintf(
-				"❌ `%s` is not in the lobby any more. Please choose again from the updated menu.", choice.Player))
+			return crewmateReply(interaction, language.Say(text.PlayerLeftLobby, choice.Player))
 		}
 		request.Command = au.Link
 		request.Values.Strings[au.OptionPlayer] = choice.Player
@@ -538,10 +541,10 @@ func (bot *Bot) handleCrewmateChoice(s *discordgo.Session, interaction *discordg
 
 	content, err := bot.AUVC.Handle(request)
 	if errors.Is(err, au.ErrUnauthorized) {
-		return crewmateReply(interaction, "❌ You are not allowed to choose a crewmate here.")
+		return crewmateReply(interaction, language.Say(text.ChoiceNotAllowed))
 	}
 	if err != nil {
-		return crewmateReply(interaction, fmt.Sprintf("❌ AUVC could not save your choice: %v", err))
+		return crewmateReply(interaction, language.Say(text.ChoiceNotSaved, err))
 	}
 
 	go bot.LinksChanged(interaction.GuildID)

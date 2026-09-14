@@ -2,6 +2,7 @@ package bot
 
 import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/permission"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 	"github.com/bwmarrin/discordgo"
 )
@@ -68,11 +69,11 @@ func (a discordApplier) Apply(guildID string, change voice.Change) error {
 // unreachable channel is a real problem, and silence would hide it.
 func (bot *Bot) voiceChannelPermissions(mainChannelID, ghostChannelID string) []permission.Channel {
 	describe := []struct {
-		purpose   string
+		purpose   text.Key
 		channelID string
 	}{
-		{"main voice channel", mainChannelID},
-		{"ghost voice channel", ghostChannelID},
+		{text.PurposeMainChannel, mainChannelID},
+		{text.PurposeGhostChannel, ghostChannelID},
 	}
 
 	channels := make([]permission.Channel, 0, len(describe))

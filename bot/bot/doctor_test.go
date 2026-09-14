@@ -9,6 +9,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // doctorBot builds a bot with real storage and no Discord connection, which is
@@ -31,7 +32,7 @@ func doctorBot(t *testing.T) (*Doctor, *sqlite.DB) {
 func diagnose(t *testing.T, doctor *Doctor) string {
 	t.Helper()
 
-	report, err := doctor.Diagnose(guild)
+	report, err := doctor.Diagnose(guild, text.English)
 	if err != nil {
 		t.Fatalf("diagnose: %v", err)
 	}
