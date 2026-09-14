@@ -233,3 +233,56 @@ const (
 	DescribeDoctor           Key = "describe-doctor"
 	DescribeVersion          Key = "describe-version"
 )
+
+// /au settings language.
+const (
+	LanguageSameAsDiscord    Key = "language-same-as-discord"
+	DescribeSettingsLanguage Key = "describe-settings-language"
+	DescribeLanguage         Key = "describe-language"
+)
+
+// The crewmate message, which everybody in the text channel reads.
+const (
+	BoardTitle       Key = "board-title"
+	BoardWaiting     Key = "board-waiting"
+	BoardIntro       Key = "board-intro"
+	BoardFree        Key = "board-free"
+	BoardTaken       Key = "board-taken"
+	BoardFooter      Key = "board-footer"
+	BoardUnlink      Key = "board-unlink"
+	BoardUnlinkHint  Key = "board-unlink-hint"
+	BoardPlaceholder Key = "board-placeholder"
+)
+
+// Crewmate colours, in the order the game numbers them.
+const (
+	ColorRed     Key = "color-red"
+	ColorBlue    Key = "color-blue"
+	ColorGreen   Key = "color-green"
+	ColorPink    Key = "color-pink"
+	ColorOrange  Key = "color-orange"
+	ColorYellow  Key = "color-yellow"
+	ColorBlack   Key = "color-black"
+	ColorWhite   Key = "color-white"
+	ColorPurple  Key = "color-purple"
+	ColorBrown   Key = "color-brown"
+	ColorCyan    Key = "color-cyan"
+	ColorLime    Key = "color-lime"
+	ColorMaroon  Key = "color-maroon"
+	ColorRose    Key = "color-rose"
+	ColorBanana  Key = "color-banana"
+	ColorGray    Key = "color-gray"
+	ColorTan     Key = "color-tan"
+	ColorCoral   Key = "color-coral"
+	ColorUnknown Key = "color-unknown"
+)
+
+// Notices in the text channel.
+const (
+	NoticeCaptureStopped  Key = "notice-capture-stopped"
+	NoticePausedByChoice  Key = "notice-paused-by-choice"
+	NoticeReleaseFailed   Key = "notice-release-failed"
+	NoticeReleased        Key = "notice-released"
+	NoticeResumesOnItsOwn Key = "notice-resumes-on-its-own"
+	NoticeCaptureBack     Key = "notice-capture-back"
+)

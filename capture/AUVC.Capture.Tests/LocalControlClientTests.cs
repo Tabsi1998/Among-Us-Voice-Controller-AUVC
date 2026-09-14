@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -46,6 +48,28 @@ namespace AUVC.Capture.Tests
             Assert.Equal("Bearer", handler.Last!.Headers.Authorization!.Scheme);
             Assert.Equal(Secret, handler.Last.Headers.Authorization.Parameter);
             Assert.Equal("http://127.0.0.1:50123/local/status", handler.Last.RequestUri!.ToString());
+        }
+
+        // The bot writes the checks the app shows in this language, so they match
+        // the rest of the window.
+        [Theory]
+        [InlineData("de-DE", "de")]
+        [InlineData("en-GB", "en")]
+        public async Task EveryRequestAsksForTheLanguageOfTheApp(string culture, string language)
+        {
+            var handler = new StubHandler((_, _) => Json(HttpStatusCode.OK, """{"connected":true,"guilds":[]}"""));
+            var before = CultureInfo.CurrentUICulture;
+            try
+            {
+                CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
+                await Client(handler).GetStatusAsync();
+            }
+            finally
+            {
+                CultureInfo.CurrentUICulture = before;
+            }
+
+            Assert.Equal(language, handler.Last!.Headers.AcceptLanguage.Single().Value);
         }
 
         [Fact]

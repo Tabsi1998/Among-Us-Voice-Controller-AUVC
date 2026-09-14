@@ -256,6 +256,7 @@ Server-Eigentümer, Discord-Administratoren und die Rolle aus
 | `capture_timeout_seconds` | 60 | Wie lange der Bot wartet, wenn die App ihm nichts mehr meldet, bevor er handelt (10–600) |
 | `capture_timeout_action` | `fail-open` | `fail-open` schaltet alle laut und holt sie zurück, `pause` lässt alle, wie sie sind |
 | `auto_start` | nach der Einrichtung an | Loslegen, sobald ein Spiel erkannt wird |
+| `language` | Wie Discord | Sprache der Crewmate-Nachricht und der Hinweise im Textkanal. *Wie Discord* folgt der Serversprache, die in Discord eingestellt ist; ein Server ohne Community-Funktion hat dort Englisch |
 
 `/au settings show` zeigt die aktuellen Einstellungen.
 
@@ -263,7 +264,9 @@ Server-Eigentümer, Discord-Administratoren und die Rolle aus
 
 Jede Antwort sieht nur, wer den Befehl eingegeben hat. Sie kommt in deiner
 Discord-Sprache: auf Deutsch, wenn dein Discord auf Deutsch eingestellt ist, sonst
-auf Englisch. Die Beschreibungen der Befehle zeigt Discord ebenso an.
+auf Englisch. Die Beschreibungen der Befehle zeigt Discord ebenso an. Die
+Crewmate-Nachricht und die Hinweise im Textkanal lesen alle; sie kommen in der
+Sprache des Servers (`/au settings language`).
 
 | Befehl | Was er tut |
 | --- | --- |
@@ -273,7 +276,7 @@ auf Englisch. Die Beschreibungen der Befehle zeigt Discord ebenso an.
 | `/au session status` | Ob AUVC gerade die Sprachkanäle steuert |
 | `/au session start`, `stop`, `pause`, `resume` | Das Steuern von Hand starten oder beenden. `stop` gibt alle frei, `pause` lässt alle, wie sie sind |
 | `/au doctor` | Alles prüfen und sagen, was fehlt |
-| `/au settings show`, `voice`, `ghosts`, `safety`, `preset`, `export` | Spiel-Einstellungen ansehen und ändern |
+| `/au settings show`, `voice`, `ghosts`, `safety`, `language`, `preset`, `export` | Spiel-Einstellungen ansehen und ändern |
 | `/au setup channels` | Die Kanäle in Discord statt in der App wählen |
 | `/au setup permissions` | Eine Rolle, die AUVC zusätzlich zu den Administratoren ändern darf |
 | `/au setup reset` | Standard-Einstellungen wiederherstellen, Verknüpfungen bleiben |

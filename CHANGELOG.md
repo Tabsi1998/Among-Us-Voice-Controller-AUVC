@@ -17,6 +17,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   when choosing a crewmate come in the Discord language of whoever asked:
   German for German, English for everyone else. Discord shows the descriptions
   of the `/au` commands and their options in German too.
+- The crewmate message and the notices in the text channel, which everyone in
+  the server reads, come in the server's language
+  ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)):
+  the one set in Discord, until an administrator picks another with
+  `/au settings language`. The checks the app shows behind **Bot** come in the
+  app's own language.
 
 ### Removed
 

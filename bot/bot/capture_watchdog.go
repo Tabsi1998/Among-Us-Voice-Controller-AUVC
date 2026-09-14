@@ -3,10 +3,12 @@ package bot
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice"
 )
 
@@ -162,26 +164,35 @@ func (bot *Bot) failSafe(guildID string) {
 
 	log.Printf("capture for guild %s has gone quiet; applying %s", guildID, action)
 
-	warning := "⚠️ The capture app stopped responding."
-	switch action {
-	case au.CaptureTimeoutPause:
-		warning += " The session is paused and players have been left exactly as they are, " +
-			"because this server is configured with `capture_timeout_action: pause`. " +
-			"Run `/au session stop` to release everyone."
-	default:
+	var released error
+	if action != au.CaptureTimeoutPause {
 		// Fail open. Leaving a round muted because the bot lost its eyes is
 		// the worst outcome available: nothing in Discord expires a server
 		// mute, so the players would stay stuck until somebody noticed.
-		if err := bot.releaseEveryone(guildID); err != nil {
-			log.Printf("could not release players for guild %s: %v", guildID, err)
-			warning += " AUVC could not unmute everyone automatically: " + err.Error()
-		} else {
-			warning += " Everyone has been unmuted and returned to the main channel."
+		if released = bot.releaseEveryone(guildID); released != nil {
+			log.Printf("could not release players for guild %s: %v", guildID, released)
 		}
-		warning += " The session is paused and resumes on its own when capture comes back."
 	}
 
-	bot.warnGuild(guildID, warning)
+	// Everybody in the text channel reads the warning, so it is in the server's
+	// language.
+	bot.warnGuild(guildID, captureStoppedNotice(bot.guildLanguage(guildID), action, released))
+}
+
+// captureStoppedNotice is the warning for a capture that went quiet: what AUVC
+// did about it, and whether releasing everyone worked.
+func captureStoppedNotice(language text.Language, action string, released error) string {
+	notice := []string{language.Say(text.NoticeCaptureStopped)}
+	if action == au.CaptureTimeoutPause {
+		return strings.Join(append(notice, language.Say(text.NoticePausedByChoice)), " ")
+	}
+
+	if released != nil {
+		notice = append(notice, language.Say(text.NoticeReleaseFailed, released.Error()))
+	} else {
+		notice = append(notice, language.Say(text.NoticeReleased))
+	}
+	return strings.Join(append(notice, language.Say(text.NoticeResumesOnItsOwn)), " ")
 }
 
 // captureReturned restores a session the timeout had interrupted.
@@ -192,7 +203,7 @@ func (bot *Bot) captureReturned(guildID string) {
 	}
 
 	log.Printf("capture for guild %s is back; restoring %s", guildID, restored)
-	bot.warnGuild(guildID, "✅ The capture app is back. AUVC is following the game again.")
+	bot.warnGuild(guildID, bot.guildLanguage(guildID).Say(text.NoticeCaptureBack))
 }
 
 // warnGuild sends a message to the configured control channel.

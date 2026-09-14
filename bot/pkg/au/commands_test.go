@@ -21,6 +21,7 @@ var contract = []string{
 	"/au settings ghosts",
 	"/au settings safety",
 	"/au settings export",
+	"/au settings language",
 	"/au capture pair",
 	"/au capture status",
 	"/au capture revoke",
@@ -235,7 +236,7 @@ func TestExportedNamesAppearInTheTree(t *testing.T) {
 	for _, name := range []string{
 		GroupSetup, GroupSettings, GroupCapture, GroupSession,
 		SetupChannels, SetupPermissions, SetupReset,
-		SettingsShow, SettingsPreset, SettingsVoice, SettingsGhosts, SettingsSafety, SettingsExport,
+		SettingsShow, SettingsPreset, SettingsVoice, SettingsGhosts, SettingsSafety, SettingsExport, SettingsLanguage,
 		CapturePair, CaptureStatus, CaptureRevoke,
 		SessionStart, SessionStop, SessionPause, SessionResume, SessionStatus,
 		Link, Unlink, Doctor, Version,

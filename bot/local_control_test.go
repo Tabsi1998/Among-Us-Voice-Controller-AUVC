@@ -16,6 +16,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -131,7 +132,7 @@ func TestASetupFromTheAppIsSaved(t *testing.T) {
 		t.Fatalf("configure: %v", err)
 	}
 
-	guild, err := fixture.backend.Guild(localGuild)
+	guild, err := fixture.backend.Guild(localGuild, text.English)
 	if err != nil {
 		t.Fatalf("guild: %v", err)
 	}
@@ -188,7 +189,7 @@ func TestNothingIsDoneForAServerTheBotIsNotIn(t *testing.T) {
 	if _, err := backend.Channels("stranger"); !errors.Is(err, localcontrol.ErrUnknownGuild) {
 		t.Errorf("channels gave %v", err)
 	}
-	if _, err := backend.Guild("stranger"); !errors.Is(err, localcontrol.ErrUnknownGuild) {
+	if _, err := backend.Guild("stranger", text.English); !errors.Is(err, localcontrol.ErrUnknownGuild) {
 		t.Errorf("guild gave %v", err)
 	}
 	if _, err := backend.IssueCredential("stranger"); !errors.Is(err, localcontrol.ErrUnknownGuild) {

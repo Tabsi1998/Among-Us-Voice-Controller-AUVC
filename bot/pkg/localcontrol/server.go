@@ -20,6 +20,9 @@ import (
 	"net"
 	"net/http"
 	"strings"
+
+	// Named lang in this package: its tests declare a text helper.
+	lang "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // MinSecretLength is the shortest secret accepted. The app generates far more
@@ -45,7 +48,8 @@ var (
 type Backend interface {
 	Status() Status
 	Channels(guildID string) ([]Channel, error)
-	Guild(guildID string) (Guild, error)
+	// Guild describes a guild, with its checks written in the app's language.
+	Guild(guildID string, language lang.Language) (Guild, error)
 	Configure(guildID string, setup Setup) error
 	// Crewmates reports who plays in the lobby and whom they can be linked to.
 	Crewmates(guildID string) (Crewmates, error)
@@ -215,11 +219,20 @@ func (s *Server) status(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) guild(w http.ResponseWriter, r *http.Request) {
-	guild, err := s.backend.Guild(r.PathValue("guild"))
+	guild, err := s.backend.Guild(r.PathValue("guild"), languageOf(r))
 	if s.failed(w, err) {
 		return
 	}
 	writeJSON(w, http.StatusOK, guild)
+}
+
+// languageOf is the language the app asks for in Accept-Language, which it sets
+// to its own. Only the first, preferred tag counts; anything AUVC does not speak
+// is English.
+func languageOf(r *http.Request) lang.Language {
+	preferred, _, _ := strings.Cut(r.Header.Get("Accept-Language"), ",")
+	preferred, _, _ = strings.Cut(preferred, ";")
+	return lang.FromDiscord(strings.TrimSpace(preferred))
 }
 
 func (s *Server) channels(w http.ResponseWriter, r *http.Request) {
@@ -249,7 +262,7 @@ func (s *Server) setup(w http.ResponseWriter, r *http.Request) {
 
 	// The answer is the guild as it now stands, so the app shows what was
 	// saved rather than what it believes it sent.
-	guild, err := s.backend.Guild(guildID)
+	guild, err := s.backend.Guild(guildID, languageOf(r))
 	if s.failed(w, err) {
 		return
 	}

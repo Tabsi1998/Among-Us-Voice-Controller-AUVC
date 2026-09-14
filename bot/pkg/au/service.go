@@ -293,6 +293,16 @@ func (s *Service) handleSettings(request Request, config sqlite.GuildConfig) (st
 			config.AutoStart = autoStart
 		}
 
+	case SettingsLanguage:
+		chosen, ok := request.Values.String(OptionLanguage)
+		if !ok || chosen == "" {
+			return "", fmt.Errorf("%w: a language is required", ErrInvalidInput)
+		}
+		if chosen == LanguageFromDiscord {
+			chosen = ""
+		}
+		config.Language = chosen
+
 	default:
 		return "", fmt.Errorf("%w: settings %q", ErrUnknownPath, request.Command)
 	}
@@ -388,7 +398,15 @@ func formatSettings(config sqlite.GuildConfig, language text.Language) string {
 		yesNo(config.Enabled, language), formatChannels(config, language), adminRole, config.VoicePolicy,
 		yesNo(config.AutoMoveGhosts, language), yesNo(config.EnforceChannels, language),
 		config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
-		yesNo(config.AutoStart, language), config.ConfigVersion)
+		yesNo(config.AutoStart, language), serverLanguage(config, language), config.ConfigVersion)
+}
+
+// serverLanguage names the language a server picked, or says it follows Discord.
+func serverLanguage(config sqlite.GuildConfig, language text.Language) string {
+	if picked, ok := text.Parse(config.Language); ok {
+		return picked.Name()
+	}
+	return language.Say(text.LanguageSameAsDiscord)
 }
 
 func yesNo(value bool, language text.Language) string {

@@ -98,7 +98,7 @@ func (l *localBackend) Channels(guildID string) ([]localcontrol.Channel, error) 
 	return channels, nil
 }
 
-func (l *localBackend) Guild(guildID string) (localcontrol.Guild, error) {
+func (l *localBackend) Guild(guildID string, language text.Language) (localcontrol.Guild, error) {
 	guild, err := l.discordGuild(guildID)
 	if err != nil {
 		return localcontrol.Guild{}, err
@@ -127,9 +127,8 @@ func (l *localBackend) Guild(guildID string) (localcontrol.Guild, error) {
 		result.CaptureConnections = l.capture.Connections(guildID)
 	}
 	if l.doctor != nil {
-		// The app does not tell the bot its language yet (#112), so it gets the
-		// checks as it always has.
-		for _, check := range l.doctor.Report(guildID, text.English) {
+		// In the app's own language, so the checks match the window around them.
+		for _, check := range l.doctor.Report(guildID, language) {
 			result.Checks = append(result.Checks, localcontrol.Check{
 				Name: check.Name, Level: check.Level.String(), Detail: check.Detail, Fix: check.Fix,
 			})

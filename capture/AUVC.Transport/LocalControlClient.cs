@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
@@ -182,6 +183,8 @@ public sealed class LocalControlClient
     {
         using var request = new HttpRequestMessage(method, new Uri(Address, path));
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _secret);
+        // The bot writes its checks in this language, so they match the app around them.
+        request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName));
         if (body is not null)
         {
             request.Content = JsonContent.Create(body, body.GetType());
