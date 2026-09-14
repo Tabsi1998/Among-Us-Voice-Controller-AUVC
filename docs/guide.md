@@ -96,7 +96,9 @@ Click **Next**. AUVC now starts the bot in the background.
 4. Select the server and click **Next**.
 
 The invite asks for exactly what AUVC uses: *View Channels*, *Send Messages*,
-*Connect*, *Mute Members*, *Deafen Members* and *Move Members*.
+*Embed Links*, *Use External Emojis*, *Connect*, *Mute Members*, *Deafen Members*
+and *Move Members*. The first four let AUVC post the crewmate menu in the text
+channel.
 
 ### Step 3 of 4: the channels
 
@@ -104,7 +106,7 @@ The invite asks for exactly what AUVC uses: *View Channels*, *Send Messages*,
 | --- | --- |
 | **Main channel (voice)** | The voice channel everyone plays in |
 | **Ghost channel (voice)** | The voice channel the dead move to |
-| **Text channel for notices (optional)** | Where AUVC posts warnings, for example when the game is no longer detected |
+| **Text channel for choosing crewmates and for notices (recommended)** | Where players choose their crewmate, and where AUVC posts warnings, for example when the game is no longer detected |
 
 **Start AUVC automatically when a game is detected** is on. Leave it on, and AUVC
 starts working as soon as you play. Click **Next** to save.
@@ -125,19 +127,36 @@ Click **Finish**.
 
 ## 4. Link the players
 
-AUVC recognises players by their name in Among Us, so every player tells it once
-who they are. In any text channel of the server, type:
+AUVC has to know which Discord member plays which crewmate, so every player tells
+it once. Choosing a crewmate from a menu is new in `v0.1.1-beta`; with
+`v0.1.0-beta`, type your name as described under **With a command**.
+
+**In the text channel.** As soon as the app sees a lobby, AUVC posts a message in
+the text channel chosen during setup. It shows every crewmate in the lobby, who
+has already picked which one, and a menu **Choose your crewmate**. Pick your own
+figure there. Picking another one moves your link, and **Unlink me** removes it.
+Only you see AUVC's answer.
+
+**With a command.** In any text channel of the server, type `/au link` on its own
+to get the same menu, visible only to you. Or type your name exactly as it
+appears in Among Us, including capital letters:
 
 ```text
 /au link player:Name
 ```
 
-Use the name exactly as it appears in Among Us, including capital letters. A
-link is remembered, so it only has to be done again when someone changes their
-name in the game.
+A link is remembered, so it only has to be done again when someone changes their
+name in the game. A link made during a round takes effect at once.
 
 Server administrators can link someone else with `/au link player:Name user:@Person`.
 `/au unlink` removes your own link.
+
+The message never gives anything away: a killed crewmate turns into a ghost on it
+only when a meeting announces the death. When AUVC closes, the message is deleted,
+and it comes back with the next lobby. The first time, AUVC uploads the crewmate
+pictures to your bot, which can take a minute; until then the menu shows names
+and colours. Without a text channel there is no message, and players use
+`/au link`.
 
 Players without a link are left alone: AUVC never mutes or moves them. Neither
 does it touch bots such as music bots.
@@ -224,6 +243,7 @@ Every answer is visible only to whoever typed the command.
 
 | Command | What it does |
 | --- | --- |
+| `/au link` | Choose your crewmate from a menu only you see |
 | `/au link player:<name>` | Link yourself to your name in Among Us |
 | `/au unlink` | Remove your link |
 | `/au session status` | Whether AUVC is currently managing voice |
@@ -262,7 +282,8 @@ and data are not kept in that folder, so nothing is lost.
 | --- | --- |
 | `/au` does not appear | Press **Ctrl+R** in Discord to reload it. If it still does not appear, invite the bot again with **Invite the bot** |
 | Nobody is muted | Is AUVC running and does it show the game? Check `/au session status`, and the **Status** section behind **Bot** |
-| One player is not muted | They are not linked, or their link does not match their name in Among Us exactly. Run `/au link` again |
+| One player is not muted | They are not linked, or linked to another crewmate. Check the crewmate message in the text channel, or run `/au link` again |
+| The crewmate message does not appear | Choose a text channel behind **Bot** → **Channels**. Give the bot's role *View Channels*, *Send Messages* and *Embed Links* in it. The message appears once the app sees a lobby |
 | AUVC reports missing permissions | Give the bot's role *View Channels*, *Connect*, *Mute Members*, *Deafen Members* and *Move Members* on both voice channels |
 | Someone stays muted | While AUVC runs, `/au session stop` releases everyone. After a crash, right-click the person in Discord and switch off *Server Mute* and *Server Deafen* |
 

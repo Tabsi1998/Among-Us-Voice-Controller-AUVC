@@ -78,14 +78,16 @@ good. It takes one round.
    should be green; fix anything that is not before going on.
 2. `/au capture pair`, type the code into the capture app, `/au doctor` again.
    Capture and heartbeat should now be green.
-3. `/au link` each player to their in-game name.
+3. Open a lobby. The crewmate message should appear in the text channel, and
+   `/au doctor` should show the crewmate menu green. Every player picks their
+   crewmate there; one player uses `/au link` without a name instead.
 
 **One round**
 
 4. Everyone in the main channel. Start a game. The living should go muted and
    deafened as tasks begin.
-5. Have somebody killed. **Watch the channel list**: nothing should move, and
-   the victim should be muted. This is the check that a screenshot cannot fake
+5. Have somebody killed. **Watch the channel list and the crewmate message**:
+   nothing should move or change, and the victim should be muted. This is the check that a screenshot cannot fake
    and the one worth doing carefully.
 6. Call a meeting. The victim should move to the ghost channel and be able to
    talk; the living should be able to hear each other and not the ghost.

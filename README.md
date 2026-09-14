@@ -17,7 +17,8 @@ It is not an official AutoMuteUs project or an official new AutoMuteUs version.
 2. Install it and start **AUVC Capture**.
 3. Follow the setup window: paste a Discord bot token, invite the bot, choose
    the server and the channels.
-4. Every player links themselves once in Discord with `/au link`.
+4. Every player links themselves once: they pick their crewmate in the text
+   channel, or type `/au link` in Discord.
 5. Play.
 
 The [user guide](docs/guide.md) walks through every step and every setting, and
@@ -41,9 +42,10 @@ straight away, because everyone saw it happen.
 
 The current version is the pre-release `v0.1.0-beta`. It has not yet been tried in
 a real round with Among Us and Discord, and the files are not signed, so Windows
-warns about an unknown publisher. Choosing a crewmate in Discord instead of typing
-`/au link` comes with `v0.1.1-beta`
-([#105](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/105)).
+warns about an unknown publisher. Choosing a crewmate from a menu in Discord needs
+`v0.1.1-beta` or newer
+([#105](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/105));
+with `v0.1.0-beta`, players type `/au link player:<name>`.
 `v1.0.0` will be the first finished release
 ([#18](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/18)).
 

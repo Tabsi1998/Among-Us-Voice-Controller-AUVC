@@ -22,6 +22,12 @@ is embedded into the shipped `AUOffsetManager` assembly so capture can read the
 game without contacting a third-party host. It carries the AmongUsCapture MIT
 license and copyright listed above.
 
+`bot/assets/emojis/` holds the crewmate pictures from AutoMuteUs, under the
+AutoMuteUs MIT license and copyright listed above. They are embedded into the
+shipped bot and uploaded as emojis of the Discord application of whoever runs
+it. They depict the Among Us crewmates, whose design belongs to Innersloth; AUVC
+is not affiliated with or endorsed by Innersloth.
+
 Dependency manifests and upstream assets remain unchanged in the baseline.
 Their presence does not imply that every dependency or asset is MIT-licensed.
 Dependency and distributable-asset license review is required before packaging

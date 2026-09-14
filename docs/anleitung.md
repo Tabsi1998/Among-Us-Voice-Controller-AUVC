@@ -102,8 +102,9 @@ Klicke auf **Weiter**. AUVC startet jetzt den Bot im Hintergrund.
 4. Wähle den Server aus und klicke auf **Weiter**.
 
 Die Einladung fordert genau das an, was AUVC benutzt: *Kanäle ansehen*,
-*Nachrichten senden*, *Verbinden*, *Mitglieder stummschalten*, *Mitglieder
-taubschalten* und *Mitglieder verschieben*.
+*Nachrichten senden*, *Links einbetten*, *Externe Emojis verwenden*, *Verbinden*,
+*Mitglieder stummschalten*, *Mitglieder taubschalten* und *Mitglieder
+verschieben*. Mit den ersten vier zeigt AUVC die Crewmate-Auswahl im Textkanal.
 
 ### Schritt 3 von 4: die Kanäle
 
@@ -111,7 +112,7 @@ taubschalten* und *Mitglieder verschieben*.
 | --- | --- |
 | **Hauptkanal (Sprachkanal)** | Den Sprachkanal, in dem alle spielen |
 | **Geisterkanal (Sprachkanal)** | Den Sprachkanal, in den die Toten kommen |
-| **Textkanal für Hinweise (optional)** | Wo AUVC Warnungen schreibt, zum Beispiel wenn das Spiel nicht mehr erkannt wird |
+| **Textkanal für die Crewmate-Auswahl und Hinweise (empfohlen)** | Wo die Spieler ihre Figur auswählen und AUVC Warnungen schreibt, zum Beispiel wenn das Spiel nicht mehr erkannt wird |
 
 **AUVC automatisch starten, sobald ein Spiel erkannt wird** ist eingeschaltet.
 Lass es an, dann legt AUVC los, sobald ihr spielt. Klicke auf **Weiter**, um zu
@@ -133,20 +134,38 @@ Klicke auf **Fertig**.
 
 ## 4. Spieler verknüpfen
 
-AUVC erkennt Spieler an ihrem Namen in Among Us. Deshalb sagt jeder Spieler
-einmal, wer er ist. In einem beliebigen Textkanal des Servers:
+AUVC muss wissen, welches Discord-Mitglied welche Figur spielt. Deshalb sagt es
+jeder Spieler einmal. Die Auswahl der Figur aus einem Menü gibt es ab
+`v0.1.1-beta`; mit `v0.1.0-beta` tippst du deinen Namen wie unter **Mit einem
+Befehl** beschrieben.
+
+**Im Textkanal.** Sobald die App eine Lobby sieht, schreibt AUVC eine Nachricht in
+den Textkanal aus der Einrichtung. Sie zeigt jede Figur in der Lobby, wer schon
+welche gewählt hat, und ein Menü **Choose your crewmate**. Wähle dort deine
+Figur. Wählst du eine andere, wandert deine Verknüpfung mit; **Unlink me**
+entfernt sie. Die Antwort von AUVC siehst nur du.
+
+**Mit einem Befehl.** Tippe in einem beliebigen Textkanal des Servers nur
+`/au link`, dann bekommst du dasselbe Menü, sichtbar nur für dich. Oder tippe
+deinen Namen genau so, wie er in Among Us steht, mit Groß- und Kleinschreibung:
 
 ```text
 /au link player:Name
 ```
 
-Nimm den Namen genau so, wie er in Among Us steht, mit Groß- und Kleinschreibung.
 Die Verknüpfung bleibt gespeichert und muss nur erneuert werden, wenn jemand
-seinen Namen im Spiel ändert.
+seinen Namen im Spiel ändert. Eine Verknüpfung während einer Runde wirkt sofort.
 
 Server-Administratoren können jemand anderen verknüpfen:
 `/au link player:Name user:@Person`. `/au unlink` entfernt deine eigene
 Verknüpfung.
+
+Die Nachricht verrät nichts: Eine getötete Figur wird dort erst zum Geist, wenn
+ein Meeting den Tod bekannt gibt. Schließt du AUVC, wird die Nachricht gelöscht;
+mit der nächsten Lobby kommt sie wieder. Beim ersten Mal lädt AUVC die
+Figurenbilder zu deinem Bot hoch, das kann eine Minute dauern. Bis dahin zeigt
+das Menü Namen und Farben. Ohne Textkanal gibt es keine Nachricht, dann nehmen
+die Spieler `/au link`.
 
 Spieler ohne Verknüpfung lässt AUVC in Ruhe: Es schaltet sie nie stumm und
 verschiebt sie nie. Bots wie Musik-Bots fasst es ebenfalls nicht an.
@@ -236,6 +255,7 @@ Jede Antwort sieht nur, wer den Befehl eingegeben hat.
 
 | Befehl | Was er tut |
 | --- | --- |
+| `/au link` | Deine Figur aus einem Menü wählen, das nur du siehst |
 | `/au link player:<Name>` | Dich mit deinem Namen in Among Us verknüpfen |
 | `/au unlink` | Deine Verknüpfung entfernen |
 | `/au session status` | Ob AUVC gerade die Sprachkanäle steuert |
@@ -276,7 +296,8 @@ nichts verloren.
 | --- | --- |
 | `/au` erscheint nicht | Drücke in Discord **Strg+R**. Erscheint es dann noch nicht, lade den Bot mit **Bot einladen** erneut ein |
 | Niemand wird stummgeschaltet | Läuft AUVC und zeigt es das Spiel? Prüfe `/au session status` und den Bereich **Status** hinter **Bot** |
-| Ein Spieler wird nicht stummgeschaltet | Er ist nicht verknüpft, oder die Verknüpfung passt nicht genau zu seinem Namen in Among Us. `/au link` erneut ausführen |
+| Ein Spieler wird nicht stummgeschaltet | Er ist nicht verknüpft oder mit einer anderen Figur verknüpft. Die Crewmate-Nachricht im Textkanal prüfen oder `/au link` erneut ausführen |
+| Die Crewmate-Nachricht erscheint nicht | Hinter **Bot** → **Kanäle** einen Textkanal wählen. Der Rolle des Bots dort *Kanäle ansehen*, *Nachrichten senden* und *Links einbetten* geben. Die Nachricht erscheint, sobald die App eine Lobby sieht |
 | AUVC meldet fehlende Rechte | Gib der Rolle des Bots auf beiden Sprachkanälen *Kanäle ansehen*, *Verbinden*, *Mitglieder stummschalten*, *Mitglieder taubschalten* und *Mitglieder verschieben* |
 | Jemand bleibt stumm | Solange AUVC läuft, gibt `/au session stop` alle frei. Nach einem Absturz in Discord mit Rechtsklick auf die Person *Server-Stummschaltung* und *Server-Taubschaltung* ausschalten |
 
