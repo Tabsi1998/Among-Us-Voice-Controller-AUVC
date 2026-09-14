@@ -1,7 +1,8 @@
 # Windows installation, updates and release delivery
 
-Status: planned work, added to the v1.0.0 roadmap on 2026-09-10.
-No installer, updater, signing integration or release workflow is implemented yet.
+Status: partly implemented. The release workflow builds an unsigned Inno Setup
+installer and a portable zip, both carrying the bot, and the app sets the bot up
+on first start. The updater, signing and the MSI are not implemented.
 
 ## User journey
 

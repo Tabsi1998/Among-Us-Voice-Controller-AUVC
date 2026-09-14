@@ -117,6 +117,12 @@
   <data name="ConnectionStatus.USER BOT" xml:space="preserve">
     <value>User Bot</value>
   </data>
+  <data name="ConnectionStatus.AUVC BOT" xml:space="preserve">
+    <value>AUVC</value>
+  </data>
+  <data name="ConnectionStatus.DISCORD BOT" xml:space="preserve">
+    <value>Discord</value>
+  </data>
   <data name="MapTooltip" xml:space="preserve">
     <value>Current map</value>
   </data>

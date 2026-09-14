@@ -135,6 +135,25 @@ jobs:
             --runtime win-x64 --self-contained true -o ../artifacts/capture/win-x64
           Copy-Item ../LICENSE, ../THIRD_PARTY_NOTICES.md ../artifacts/capture/win-x64
           Copy-Item ../LICENSES ../artifacts/capture/win-x64/LICENSES -Recurse
+      # The app starts the bot itself, so the bot ships inside the app: the
+      # installer and the portable zip both carry bot\auvc.exe.
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: bot/go.mod
+          cache-dependency-path: bot/go.sum
+      - name: Put the bot beside the app
+        working-directory: bot
+        env:
+          CGO_ENABLED: '0'
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          $version = if ($env:GITHUB_REF_NAME -like 'v*') { $env:GITHUB_REF_NAME } else { '0.0.0-dev' }
+          $target = '../artifacts/capture/win-x64/bot'
+          New-Item -ItemType Directory -Force $target | Out-Null
+          go build -trimpath -ldflags "-s -w -X main.version=$version -X main.commit=$env:GITHUB_SHA" -o "$target/auvc.exe" .
+          if ($LASTEXITCODE -ne 0) { throw 'the bot did not build' }
+          Copy-Item locales "$target/locales" -Recurse
       - name: Check the payload needs no installed .NET
         run: |
           $config = Get-Content ../artifacts/capture/win-x64/AUCapture-WPF.runtimeconfig.json -Raw | ConvertFrom-Json

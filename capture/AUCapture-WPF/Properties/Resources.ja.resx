@@ -18,6 +18,12 @@
   <data name="ConnectionStatus.USER BOT" xml:space="preserve">
     <value>ユーザーボット</value>
   </data>
+  <data name="ConnectionStatus.AUVC BOT" xml:space="preserve">
+    <value>AUVC</value>
+  </data>
+  <data name="ConnectionStatus.DISCORD BOT" xml:space="preserve">
+    <value>Discord</value>
+  </data>
   <data name="GameCodeTooltip" xml:space="preserve">
     <value>ゲームコード</value>
   </data>

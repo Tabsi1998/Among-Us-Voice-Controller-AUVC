@@ -22,6 +22,11 @@ you; the setup inside Discord is identical.
 
 ## On the same PC
 
+The AUVC app does this for you: it ships the bot, asks for the token in a setup
+window, and starts and stops the bot with itself. See the main
+[README](../README.md#running-the-bot). The rest of this section is for running
+the bot on its own.
+
 Download `AUVC-bot-win-x64.zip`, unpack it, and start the bot with your token:
 
 ```powershell
