@@ -82,6 +82,13 @@ namespace AUCapture_WPF
 
             context = new UserDataContext(DialogCoordinator.Instance, config);
             DataContext = context;
+            // Before anything shows text, and again whenever the settings change it.
+            context.Settings.language = AppLanguage.Normalize(context.Settings.language);
+            ApplyLanguage();
+            context.Settings.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(IAppSettings.language)) ApplyLanguage();
+            };
             context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = BotConnectionName });
             if (context.Settings.runBotOnThisPc)
             {
@@ -116,20 +123,6 @@ namespace AUCapture_WPF
                 });
             };
 
-            if (context.Settings.language == "")
-            {
-                var cultures = Translator.Cultures;
-                var ci = CultureInfo.CurrentUICulture;
-                if (cultures.Any(x => x.TwoLetterISOLanguageName == ci.TwoLetterISOLanguageName))
-                {
-                    Translator.Culture = CultureInfo.GetCultureInfo(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
-                }
-            }
-            else
-            {
-                Translator.Culture = CultureInfo.GetCultureInfo(context.Settings.language);
-            }
-            Translator.CurrentCultureChanged += TranslatorOnCurrentCultureChanged;
             context.Players.CollectionChanged += PlayersOnCollectionChanged;
 
             //ApplyDarkMode();
@@ -137,11 +130,11 @@ namespace AUCapture_WPF
 
         private void OnCrackDetected(object? sender, EventArgs e)
         {
-            var x = context.DialogCoordinator.ShowMessageAsync(context, "Crack detected", "We have detected that you are running an unsupported version of the game. This may or may not work.", MessageDialogStyle.AffirmativeAndNegative,
+            var x = context.DialogCoordinator.ShowMessageAsync(context, Properties.Resources.CrackDetectedTitle, Properties.Resources.CrackDetectedMessage, MessageDialogStyle.AffirmativeAndNegative,
                 new MetroDialogSettings
                 {
-                    AffirmativeButtonText = "Continue",
-                    NegativeButtonText = "Exit",
+                    AffirmativeButtonText = Properties.Resources.ContinueText,
+                    NegativeButtonText = Properties.Resources.ExitText,
                     ColorScheme = MetroDialogColorScheme.Theme,
                     DefaultButtonFocus = MessageDialogResult.Negative
                 }).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -156,9 +149,18 @@ namespace AUCapture_WPF
 
         }
 
-        private void TranslatorOnCurrentCultureChanged(object? sender, CultureChangedEventArgs e)
+        // The display language of Windows, read before the app replaces it with its own.
+        private readonly CultureInfo windowsLanguage = CultureInfo.CurrentUICulture;
+
+        // One language for everything: the resource texts, through the translator
+        // and the thread culture, and SetupText, which reads the translator.
+        private void ApplyLanguage()
         {
-            context.Settings.language = e.Culture.Name;
+            var language = AppLanguage.Resolve(context.Settings.language, windowsLanguage);
+            CultureInfo.DefaultThreadCurrentUICulture = language;
+            CultureInfo.CurrentUICulture = language;
+            Translator.Culture = language;
+            UpdateSetupButton();
         }
 
 
@@ -221,9 +223,9 @@ namespace AUCapture_WPF
                 }
 
                 var next = status.Code == AUVC.Protocol.ProtocolContract.CodeIncompatibleProtocol
-                    ? "Install the capture version that matches the bot."
-                    : "Ask an administrator for a new code with /au capture pair, then pair again.";
-                await this.ShowMessageAsync("The AUVC bot refused this capture",
+                    ? Properties.Resources.CaptureRefusedIncompatible
+                    : Properties.Resources.CaptureRefusedNewCode;
+                await this.ShowMessageAsync(Properties.Resources.CaptureRefusedTitle,
                     status.Detail + Environment.NewLine + Environment.NewLine + next);
             });
         }
@@ -314,11 +316,11 @@ namespace AUCapture_WPF
                 context.Settings.host = outcome.Address.ToString();
                 Code.Text = "";
                 ManualConnectionFlyout.IsOpen = false;
-                await this.ShowMessageAsync("Paired", outcome.Message);
+                await this.ShowMessageAsync(Properties.Resources.PairedTitle, outcome.Message);
             }
             catch (PairingRefusedException refused)
             {
-                await this.ShowMessageAsync("Pairing failed", refused.Message);
+                await this.ShowMessageAsync(Properties.Resources.PairingFailedTitle, refused.Message);
             }
         }
 
@@ -712,13 +714,13 @@ namespace AUCapture_WPF
 
         private async void ResetConfigButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var result = await this.ShowMessageAsync("Are you sure?",
-                "This action will reset your config.\nThis cannot be undone.",
+            var result = await this.ShowMessageAsync(Properties.Resources.ResetConfigQuestionTitle,
+                Properties.Resources.ResetConfigQuestion,
                 MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { AnimateShow = true, AnimateHide = false });
             if (result == MessageDialogResult.Affirmative)
             {
-                var progressBar = await context.DialogCoordinator.ShowProgressAsync(context, "Resetting config",
-                    "Please wait....", false, new MetroDialogSettings { AnimateHide = false, AnimateShow = false });
+                var progressBar = await context.DialogCoordinator.ShowProgressAsync(context, Properties.Resources.ResettingConfigTitle,
+                    Properties.Resources.PleaseWait, false, new MetroDialogSettings { AnimateHide = false, AnimateShow = false });
                 progressBar.Minimum = 0;
                 progressBar.Maximum = 1;
                 if (File.Exists(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -737,9 +739,9 @@ namespace AUCapture_WPF
                 }
 
                 await progressBar.CloseAsync();
-                var selection = await this.ShowMessageAsync("Config reset",
-                    "Your config was reset successfully.",
-                    MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { AnimateHide = true, AffirmativeButtonText = "Restart", NegativeButtonText = "Exit" });
+                var selection = await this.ShowMessageAsync(Properties.Resources.ConfigResetTitle,
+                    Properties.Resources.ConfigResetMessage,
+                    MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings { AnimateHide = true, AffirmativeButtonText = Properties.Resources.RestartText, NegativeButtonText = Properties.Resources.ExitText });
                 if (selection == MessageDialogResult.Affirmative)
                 {
                     IPCAdapter.getInstance().mutex.ReleaseMutex(); //Release the mutex so the other app does not see us. 

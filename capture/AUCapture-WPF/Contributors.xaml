@@ -15,8 +15,10 @@
                  Style="{DynamicResource MahApps.Styles.MetroWindow.Clean}"
                  xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                  xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+                 xmlns:l="http://gu.se/Localization"
+                 xmlns:properties="clr-namespace:AUCapture_WPF.Properties"
                  mc:Ignorable="d"
-                 Title="Contributors" Height="800" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" TitleCharacterCasing="Normal" TryToBeFlickerFree="True">
+                 Title="{l:Static properties:Resources.ContributorsTitle}" Height="800" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" TitleCharacterCasing="Normal" TryToBeFlickerFree="True">
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -29,7 +31,7 @@
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
     <Grid>
-        <GroupBox Header="The special people that make capture possible">
+        <GroupBox Header="{l:Static properties:Resources.ContributorsHeader}">
             <Border Background="{DynamicResource RegionBrush}" CornerRadius="4,4,4,4" Width="{Binding Width, RelativeSource={RelativeSource AncestorType=GroupBox}}" Height="{Binding Height, RelativeSource={RelativeSource AncestorType=GroupBox}}">
                 <Viewbox Stretch="Uniform">
                     <ListBox BorderThickness="0" Style="{StaticResource ListBoxCustom}">

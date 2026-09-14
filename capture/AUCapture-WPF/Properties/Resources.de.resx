@@ -102,97 +102,97 @@
     <value>AUCapture</value>
   </data>
   <data name="SettingsTooltip" xml:space="preserve">
-    <value>Open the settings window</value>
+    <value>Einstellungen öffnen</value>
   </data>
   <data name="ManualConnectTooltip" xml:space="preserve">
-    <value>Pair with the AUVC bot</value>
+    <value>Mit dem AUVC-Bot koppeln</value>
   </data>
   <data name="PremiumTooltip" xml:space="preserve">
-    <value>Get AutoMuteUs premium</value>
+    <value>AutoMuteUs Premium holen</value>
   </data>
   <data name="SettingsHeader" xml:space="preserve">
-    <value>Settings</value>
+    <value>Einstellungen</value>
   </data>
   <data name="SettingsGeneralTabHeader" xml:space="preserve">
-    <value>General</value>
+    <value>Allgemein</value>
   </data>
   <data name="SettingsGeneralTabLanguageHeader" xml:space="preserve">
-    <value>Language</value>
+    <value>Sprache</value>
   </data>
   <data name="SettingsGeneralTabLanguageSameAsWindows" xml:space="preserve">
-    <value>Same as Windows</value>
+    <value>Wie Windows</value>
   </data>
   <data name="SettingsGeneralTabAlwaysCopyGameCode" xml:space="preserve">
-    <value>Always copy game code</value>
+    <value>Lobby-Code immer kopieren</value>
   </data>
   <data name="SettingsGeneralTabFocusOnConnect" xml:space="preserve">
-    <value>Focus window on connect</value>
+    <value>Fenster beim Koppeln nach vorn holen</value>
   </data>
   <data name="SettingsGeneralTabAPIServer" xml:space="preserve">
-    <value>API Server</value>
+    <value>API-Server</value>
   </data>
   <data name="SettingsGeneralTabAlwaysOnTop" xml:space="preserve">
-    <value>Always on top</value>
+    <value>Immer im Vordergrund</value>
   </data>
   <data name="SettingsGeneralTabStartupMemes" xml:space="preserve">
-    <value>Startup memes</value>
+    <value>Spaß-Startbildschirme</value>
   </data>
   <data name="SettingsDebugTabHeader" xml:space="preserve">
-    <value>Debug</value>
+    <value>Fehlersuche</value>
   </data>
   <data name="SettingsDebugTabDebugModeSwitch" xml:space="preserve">
-    <value>Debug mode</value>
+    <value>Debug-Modus</value>
   </data>
   <data name="SettingsDebugOpenLogsFolderButton" xml:space="preserve">
-    <value>Open log folder</value>
+    <value>Log-Ordner öffnen</value>
   </data>
   <data name="SettingsDebugTabReloadOffsetsButton" xml:space="preserve">
-    <value>Reload offsets</value>
+    <value>Offsets neu laden</value>
   </data>
   <data name="SettingsDebugTabResetConfigButton" xml:space="preserve">
-    <value>Reset Config</value>
+    <value>Einstellungen zurücksetzen</value>
   </data>
   <data name="SettingsAboutTabHeader" xml:space="preserve">
-    <value>About</value>
+    <value>Info</value>
   </data>
   <data name="SettingsAboutTabAppVersion" xml:space="preserve">
-    <value>App version:</value>
+    <value>App-Version:</value>
   </data>
   <data name="SettingsAboutTabLatestVersion" xml:space="preserve">
-    <value>Latest version:</value>
+    <value>Neueste Version:</value>
   </data>
   <data name="SettingsAboutTabContributorsButton" xml:space="preserve">
-    <value>Contributors: </value>
+    <value>Mitwirkende: </value>
   </data>
   <data name="SettingsAboutTabContributorsButtonToolTip" xml:space="preserve">
-    <value>Show contributors</value>
+    <value>Mitwirkende anzeigen</value>
   </data>
   <data name="ManualConnectionHeader" xml:space="preserve">
-    <value>Pair with the AUVC bot</value>
+    <value>Mit dem AUVC-Bot koppeln</value>
   </data>
   <data name="ManualConnectionHost" xml:space="preserve">
-    <value>Bot address: </value>
+    <value>Adresse des Bots: </value>
   </data>
   <data name="ManualConnectionCode" xml:space="preserve">
-    <value>Pairing code: </value>
+    <value>Kopplungscode: </value>
   </data>
   <data name="ManualConnectionSubmitButton" xml:space="preserve">
-    <value>Pair</value>
+    <value>Koppeln</value>
   </data>
   <data name="WaitingForAmongUs" xml:space="preserve">
-    <value>Waiting for Among Us</value>
+    <value>Warte auf Among Us</value>
   </data>
   <data name="WaitingForLobby" xml:space="preserve">
-    <value>Waiting for Lobby</value>
+    <value>Warte auf eine Lobby</value>
   </data>
   <data name="GameStateTooltip" xml:space="preserve">
-    <value>Current status</value>
+    <value>Aktueller Stand</value>
   </data>
   <data name="GameStateWatermark" xml:space="preserve">
-    <value>State</value>
+    <value>Stand</value>
   </data>
   <data name="GameState.MENU" xml:space="preserve">
-    <value>MENU</value>
+    <value>MENÜ</value>
   </data>
   <data name="GameState.LOBBY" xml:space="preserve">
     <value>LOBBY</value>
@@ -201,13 +201,13 @@
     <value>TASKS</value>
   </data>
   <data name="GameState.DISCUSSION" xml:space="preserve">
-    <value>DISCUSSION</value>
+    <value>MEETING</value>
   </data>
   <data name="GameState.ENDED" xml:space="preserve">
-    <value>ENDED</value>
+    <value>BEENDET</value>
   </data>
   <data name="GameState.UNKNOWN" xml:space="preserve">
-    <value>UNKNOWN</value>
+    <value>UNBEKANNT</value>
   </data>
   <data name="ConnectionStatus.AUTOMUTEUS" xml:space="preserve">
     <value>AutoMuteUs</value>
@@ -222,88 +222,88 @@
     <value>Discord</value>
   </data>
   <data name="MapTooltip" xml:space="preserve">
-    <value>Current map</value>
+    <value>Aktuelle Karte</value>
   </data>
   <data name="MapWatermark" xml:space="preserve">
-    <value>Map</value>
+    <value>Karte</value>
   </data>
   <data name="GameCodeTooltip" xml:space="preserve">
-    <value>Game code</value>
+    <value>Lobby-Code</value>
   </data>
   <data name="GameCodeWatermark" xml:space="preserve">
-    <value>Game code</value>
+    <value>Lobby-Code</value>
   </data>
   <data name="OnText" xml:space="preserve">
-    <value>On</value>
+    <value>An</value>
   </data>
   <data name="OffText" xml:space="preserve">
-    <value>Off</value>
+    <value>Aus</value>
   </data>
   <data name="ContinueText" xml:space="preserve">
-    <value>Continue</value>
+    <value>Weiter</value>
   </data>
   <data name="ExitText" xml:space="preserve">
-    <value>Exit</value>
+    <value>Beenden</value>
   </data>
   <data name="RestartText" xml:space="preserve">
-    <value>Restart</value>
+    <value>Neu starten</value>
   </data>
   <data name="LaterText" xml:space="preserve">
-    <value>Later</value>
+    <value>Später</value>
   </data>
   <data name="CrackDetectedTitle" xml:space="preserve">
-    <value>Crack detected</value>
+    <value>Veränderte Spielversion erkannt</value>
   </data>
   <data name="CrackDetectedMessage" xml:space="preserve">
-    <value>We have detected that you are running an unsupported version of the game. This may or may not work.</value>
+    <value>Diese Version des Spiels wird nicht unterstützt. Vielleicht funktioniert AUVC damit, vielleicht auch nicht.</value>
   </data>
   <data name="CaptureRefusedTitle" xml:space="preserve">
-    <value>The AUVC bot refused this capture</value>
+    <value>Der AUVC-Bot hat diese App abgelehnt</value>
   </data>
   <data name="CaptureRefusedIncompatible" xml:space="preserve">
-    <value>Install the capture version that matches the bot.</value>
+    <value>Installiere die AUVC-Version, die zum Bot passt.</value>
   </data>
   <data name="CaptureRefusedNewCode" xml:space="preserve">
-    <value>Ask an administrator for a new code with /au capture pair, then pair again.</value>
+    <value>Lass dir von einem Admin mit /au capture pair einen neuen Code geben und kopple dann erneut.</value>
   </data>
   <data name="PairedTitle" xml:space="preserve">
-    <value>Paired</value>
+    <value>Gekoppelt</value>
   </data>
   <data name="PairingFailedTitle" xml:space="preserve">
-    <value>Pairing failed</value>
+    <value>Kopplung fehlgeschlagen</value>
   </data>
   <data name="ResetConfigQuestionTitle" xml:space="preserve">
-    <value>Are you sure?</value>
+    <value>Bist du sicher?</value>
   </data>
   <data name="ResetConfigQuestion" xml:space="preserve">
-    <value>This action will reset your config.
-This cannot be undone.</value>
+    <value>Damit werden die Einstellungen der App zurückgesetzt.
+Das lässt sich nicht rückgängig machen.</value>
   </data>
   <data name="ResettingConfigTitle" xml:space="preserve">
-    <value>Resetting config</value>
+    <value>Einstellungen werden zurückgesetzt</value>
   </data>
   <data name="PleaseWait" xml:space="preserve">
-    <value>Please wait....</value>
+    <value>Bitte warten …</value>
   </data>
   <data name="ConfigResetTitle" xml:space="preserve">
-    <value>Config reset</value>
+    <value>Einstellungen zurückgesetzt</value>
   </data>
   <data name="ConfigResetMessage" xml:space="preserve">
-    <value>Your config was reset successfully.</value>
+    <value>Die Einstellungen wurden zurückgesetzt.</value>
   </data>
   <data name="RestartRequiredTitle" xml:space="preserve">
-    <value>Restart required</value>
+    <value>Neustart nötig</value>
   </data>
   <data name="DebugModeOnRestart" xml:space="preserve">
-    <value>To enable debug mode, we need to restart.</value>
+    <value>Um den Debug-Modus einzuschalten, muss AUVC neu starten.</value>
   </data>
   <data name="DebugModeOffRestart" xml:space="preserve">
-    <value>To disable debug mode, we need to restart.</value>
+    <value>Um den Debug-Modus auszuschalten, muss AUVC neu starten.</value>
   </data>
   <data name="ContributorsTitle" xml:space="preserve">
-    <value>Contributors</value>
+    <value>Mitwirkende</value>
   </data>
   <data name="ContributorsHeader" xml:space="preserve">
-    <value>The special people that make capture possible</value>
+    <value>Die Menschen, die Capture möglich machen</value>
   </data>
 </root>
