@@ -4,6 +4,33 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- The README describes AUVC as it is: what works and is tested, and what does
+  not work yet. Most importantly, the capture app is not yet connected to the
+  new transport, so AUVC cannot run a real round end to end. The README had
+  described a much earlier baseline: legacy services still running, pairing and
+  session control staged, and the old ghost rule that announced every kill.
+- `SECURITY.md` lists the protections that exist and how they work, and the
+  known limitations, instead of a plan for protections to come.
+- `docs/architecture.md` and `docs/service-removal.md` no longer say Redis and
+  PostgreSQL are still in use.
+
+### Added
+
+- `docs/privacy.md`: every table and file AUVC keeps, what is in it, how long it
+  stays and how to remove it, what AUVC does not collect, and the two gaps that
+  are known rather than hidden.
+
+### Security
+
+- Documented: `/au capture revoke` refuses new connections but does not yet end
+  a connection that is already open, and heartbeats keep an active one alive.
+  `SECURITY.md` and `docs/privacy.md` give the workaround, restarting the bot;
+  the fix follows separately. Writing the privacy page found this, because the
+  first draft claimed revoking took effect immediately and checking that claim
+  showed the credential is only verified at the handshake.
+
 ### Added
 
 - The required scenarios from `docs/requirements.md` run as tests, one per
