@@ -153,6 +153,10 @@ deinen Namen genau so, wie er in Among Us steht, mit Groß- und Kleinschreibung:
 /au link player:Name
 ```
 
+**In der App.** Am PC, auf dem AUVC läuft, verknüpft **Bot** → **Spieler** jede
+Figur mit jemandem aus einem Sprachkanal des Servers, zum Beispiel für jemanden,
+der nicht selbst wählen kann.
+
 Die Verknüpfung bleibt gespeichert und muss nur erneuert werden, wenn jemand
 seinen Namen im Spiel ändert. Eine Verknüpfung während einer Runde wirkt sofort.
 
@@ -201,7 +205,7 @@ Ab dann folgt AUVC dem Spiel von selbst:
 ### Bot-Einstellungen: der Knopf „Bot“
 
 Ist AUVC eingerichtet, heißt der Knopf oben im Hauptfenster **Bot**. Er öffnet
-alles, was die Einrichtung festgelegt hat, in vier Bereichen, die du einzeln
+alles, was die Einrichtung festgelegt hat, in fünf Bereichen, die du einzeln
 ändern kannst:
 
 | Bereich | Was du tun kannst |
@@ -210,6 +214,7 @@ alles, was die Einrichtung festgelegt hat, in vier Bereichen, die du einzeln
 | **Server** | Anderen Server wählen und **Diesen Server verwenden** klicken, danach unter **Kanäle** dessen Kanäle wählen. **Bot einladen** fügt den Bot vorher einem anderen Server hinzu. |
 | **Kanäle** | Haupt-, Geister- und Textkanal sowie den automatischen Start ändern und **Speichern** klicken. |
 | **Status** | Die Prüfungen des Bots. **Bot neu starten** startet ihn neu. **Bot auf diesem PC ausschalten** sorgt dafür, dass AUVC ihn nicht mehr startet. Token und Einstellungen bleiben gespeichert, und **Einrichten** schaltet ihn wieder ein. |
+| **Spieler** | Jede Figur der aktuellen Lobby, jeweils mit einem Menü der Mitglieder in den Sprachkanälen des Servers. Ein Mitglied wählen verknüpft es, *(niemand)* entfernt die Verknüpfung. Das wirkt sofort. |
 
 ### App-Einstellungen: das Zahnrad
 

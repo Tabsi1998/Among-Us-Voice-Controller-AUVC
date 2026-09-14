@@ -22,7 +22,7 @@ shows it again and never writes it to a log.
 free loopback port on every start, and ties it to itself with a Windows job
 object, so the bot ends when the app ends, even when the app crashes. Only when
 started this way does the bot offer the `/local/...` routes the app uses to list
-servers and channels, save the setup, stop the bot and obtain a capture
+servers and channels, save the setup, link players, stop the bot and obtain a capture
 credential. Every route requires the secret, compared in constant time, answers
 only connections from this computer, and refuses any request with an `Origin`
 header, so a web page cannot use it. A secret shorter than 32 characters stops
