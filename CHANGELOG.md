@@ -6,12 +6,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
+- The app speaks German
+  ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)).
+  The main window, its settings and its dialogs are translated, and the app
+  follows the display language of Windows until somebody picks another under
+  Settings → General → Language. *Same as Windows* goes back to following it.
 - The bot answers in German
   ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)).
   Every `/au` reply, `/au doctor`, the session commands and the private answers
   when choosing a crewmate come in the Discord language of whoever asked:
   German for German, English for everyone else. Discord shows the descriptions
   of the `/au` commands and their options in German too.
+
+### Removed
+
+- The Japanese, Russian, Portuguese and Chinese translations of the app. They
+  covered only part of it, so the app showed two languages at once; a language
+  comes back once every text of the app is translated.
 
 ## v0.1.2-beta — 2026-09-14
 

@@ -211,9 +211,13 @@ opens everything the setup chose, as five sections you can change one at a time:
 
 ### App settings: the gear button
 
+AUVC uses the display language of Windows when that is German or English, and
+English otherwise. Choose another under **General → Language**; **Same as
+Windows** goes back.
+
 | Tab | Setting | What it does |
 | --- | --- | --- |
-| General | Language | The language of the app |
+| General | Language | **Same as Windows**, **Deutsch** or **English** |
 | General | Always copy game code | Copies the lobby code to the clipboard whenever you join a lobby |
 | General | Startup memes | Now and then shows a joke splash screen with a sound on start. The sound is downloaded from the original AutoMuteUs server; switch this off if you do not want that |
 | General | Focus window on connect | Brings the window to the front when a pairing link opens AUVC |

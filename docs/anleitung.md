@@ -176,7 +176,7 @@ verschiebt sie nie. Bots wie Musik-Bots fasst es ebenfalls nicht an.
 
 ## 5. Spielen
 
-1. Starte AUVC. Im Hauptfenster steht *Waiting for Among Us*.
+1. Starte AUVC. Im Hauptfenster steht *Warte auf Among Us*.
 2. Starte Among Us. Sobald du in einer Lobby bist, zeigt AUVC die Spieler.
 3. Alle gehen in den Hauptkanal.
 
@@ -221,22 +221,24 @@ alles, was die Einrichtung festgelegt hat, in fünf Bereichen, die du einzeln
 
 ### App-Einstellungen: das Zahnrad
 
-Die App-Einstellungen sind bisher nur auf Englisch beschriftet.
+AUVC zeigt sich in der Anzeigesprache von Windows, wenn das Deutsch oder
+Englisch ist, sonst auf Englisch. Unter **Allgemein → Sprache** wählst du selbst
+eine andere; **Wie Windows** stellt das wieder zurück.
 
 | Reiter | Einstellung | Was sie tut |
 | --- | --- | --- |
-| General | Language | Die Sprache der App |
-| General | Always copy game code | Kopiert den Lobby-Code in die Zwischenablage, sobald du einer Lobby beitrittst |
-| General | Startup memes | Zeigt ab und zu beim Start einen Spaß-Startbildschirm mit Ton. Der Ton wird vom Server des ursprünglichen AutoMuteUs geladen. Schalte das aus, wenn du das nicht willst |
-| General | Focus window on connect | Holt das Fenster nach vorn, wenn ein Kopplungslink AUVC öffnet |
-| General | API Server | Startet eine lokale Schnittstelle für Overlay-Programme. Lass sie aus, solange kein Programm sie braucht |
-| General | Always on top | Hält das AUVC-Fenster über anderen Fenstern |
-| Debug | Debug mode | Öffnet beim nächsten Start ein zusätzliches Konsolenfenster mit technischen Ausgaben |
-| Debug | Open log folder | Öffnet den Ordner mit den Log-Dateien |
-| Debug | Reload offsets | Lädt die Speicher-Offsets neu, mit denen AUVC das Spiel liest. Hilft nach einem Among-Us-Update |
-| Debug | Reset Config | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
-| About | App version | Die installierte AUVC-Version |
-| About | Latest version | Zeigt noch die neueste Version des ursprünglichen AmongUsCapture, nicht von AUVC ([#44](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/44)) |
+| Allgemein | Sprache | **Wie Windows**, **Deutsch** oder **English** |
+| Allgemein | Lobby-Code immer kopieren | Kopiert den Lobby-Code in die Zwischenablage, sobald du einer Lobby beitrittst |
+| Allgemein | Spaß-Startbildschirme | Zeigt ab und zu beim Start einen Spaß-Startbildschirm mit Ton. Der Ton wird vom Server des ursprünglichen AutoMuteUs geladen. Schalte das aus, wenn du das nicht willst |
+| Allgemein | Fenster beim Koppeln nach vorn holen | Holt das Fenster nach vorn, wenn ein Kopplungslink AUVC öffnet |
+| Allgemein | API-Server | Startet eine lokale Schnittstelle für Overlay-Programme. Lass sie aus, solange kein Programm sie braucht |
+| Allgemein | Immer im Vordergrund | Hält das AUVC-Fenster über anderen Fenstern |
+| Fehlersuche | Debug-Modus | Öffnet beim nächsten Start ein zusätzliches Konsolenfenster mit technischen Ausgaben |
+| Fehlersuche | Log-Ordner öffnen | Öffnet den Ordner mit den Log-Dateien |
+| Fehlersuche | Offsets neu laden | Lädt die Speicher-Offsets neu, mit denen AUVC das Spiel liest. Hilft nach einem Among-Us-Update |
+| Fehlersuche | Einstellungen zurücksetzen | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
+| Info | App-Version | Die installierte AUVC-Version |
+| Info | Neueste Version | Zeigt noch die neueste Version des ursprünglichen AmongUsCapture, nicht von AUVC ([#44](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/44)) |
 
 Tastenkürzel im Hauptfenster: **Strg+L** öffnet den Log-Ordner, **F2** kopiert das
 neueste Log in die Zwischenablage, **Strg+R** startet die App neu.
@@ -315,8 +317,8 @@ nichts verloren.
 
 | Problem | Was zu tun ist |
 | --- | --- |
-| *Waiting for Among Us* verschwindet nicht | Läuft Among Us auf diesem PC und unter demselben Windows-Konto? |
-| Das Spiel wird erkannt, aber keine Spieler angezeigt | Among Us wurde vielleicht aktualisiert. **Zahnrad → Debug → Reload offsets**, dann AUVC neu starten |
+| *Warte auf Among Us* verschwindet nicht | Läuft Among Us auf diesem PC und unter demselben Windows-Konto? |
+| Das Spiel wird erkannt, aber keine Spieler angezeigt | Among Us wurde vielleicht aktualisiert. **Zahnrad → Fehlersuche → Offsets neu laden**, dann AUVC neu starten |
 
 ### Log-Dateien
 
@@ -356,7 +358,7 @@ auf einem Server, der immer an ist, kann sich AUVC stattdessen damit verbinden:
 1. Schließe das Einrichtungsfenster.
 2. In Discord führt ein Administrator `/au capture pair` aus und bekommt einen
    Code.
-3. Klicke in AUVC auf den Knopf mit dem Hinweis **Pair with the AUVC bot**, gib
+3. Klicke in AUVC auf den Knopf mit dem Hinweis **Mit dem AUVC-Bot koppeln**, gib
    die Adresse des Bots und den Code ein und klicke auf **Pair**.
 
 Releases enthalten nur die App. Wie der Bot allein läuft, steht in

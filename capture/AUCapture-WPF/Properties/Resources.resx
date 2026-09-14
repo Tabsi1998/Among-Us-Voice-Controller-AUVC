@@ -119,6 +119,9 @@
   <data name="SettingsGeneralTabLanguageHeader" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="SettingsGeneralTabLanguageSameAsWindows" xml:space="preserve">
+    <value>Same as Windows</value>
+  </data>
   <data name="SettingsGeneralTabAlwaysCopyGameCode" xml:space="preserve">
     <value>Always copy game code</value>
   </data>
@@ -131,11 +134,17 @@
   <data name="SettingsGeneralTabAlwaysOnTop" xml:space="preserve">
     <value>Always on top</value>
   </data>
+  <data name="SettingsGeneralTabStartupMemes" xml:space="preserve">
+    <value>Startup memes</value>
+  </data>
   <data name="SettingsDebugTabHeader" xml:space="preserve">
     <value>Debug</value>
   </data>
   <data name="SettingsDebugTabDebugModeSwitch" xml:space="preserve">
     <value>Debug mode</value>
+  </data>
+  <data name="SettingsDebugOpenLogsFolderButton" xml:space="preserve">
+    <value>Open log folder</value>
   </data>
   <data name="SettingsDebugTabReloadOffsetsButton" xml:space="preserve">
     <value>Reload offsets</value>
@@ -145,9 +154,6 @@
   </data>
   <data name="SettingsAboutTabHeader" xml:space="preserve">
     <value>About</value>
-  </data>
-  <data name="SettingsAboutTabAutoUpdaterHeader" xml:space="preserve">
-    <value>Auto updater</value>
   </data>
   <data name="SettingsAboutTabAppVersion" xml:space="preserve">
     <value>App version:</value>
@@ -182,6 +188,12 @@
   <data name="GameStateTooltip" xml:space="preserve">
     <value>Current status</value>
   </data>
+  <data name="GameStateWatermark" xml:space="preserve">
+    <value>State</value>
+  </data>
+  <data name="GameState.MENU" xml:space="preserve">
+    <value>MENU</value>
+  </data>
   <data name="GameState.LOBBY" xml:space="preserve">
     <value>LOBBY</value>
   </data>
@@ -212,14 +224,14 @@
   <data name="MapTooltip" xml:space="preserve">
     <value>Current map</value>
   </data>
+  <data name="MapWatermark" xml:space="preserve">
+    <value>Map</value>
+  </data>
   <data name="GameCodeTooltip" xml:space="preserve">
     <value>Game code</value>
   </data>
   <data name="GameCodeWatermark" xml:space="preserve">
     <value>Game code</value>
-  </data>
-  <data name="MapWatermark" xml:space="preserve">
-    <value>Map</value>
   </data>
   <data name="OnText" xml:space="preserve">
     <value>On</value>
@@ -227,39 +239,71 @@
   <data name="OffText" xml:space="preserve">
     <value>Off</value>
   </data>
-  <data name="PrivateKeyErrorMessage" xml:space="preserve">
-    <value>We detected an update to {0}, But there is no public key in this capture so we will not be able to verify integrity. Please download the latest release off the github page.</value>
+  <data name="ContinueText" xml:space="preserve">
+    <value>Continue</value>
   </data>
-  <data name="PrivateKeyErrorTitle" xml:space="preserve">
-    <value>AutoUpdater failed</value>
+  <data name="ExitText" xml:space="preserve">
+    <value>Exit</value>
   </data>
-  <data name="RetryText" xml:space="preserve">
-    <value>retry</value>
+  <data name="RestartText" xml:space="preserve">
+    <value>Restart</value>
   </data>
-  <data name="CancelText" xml:space="preserve">
-    <value>cancel</value>
+  <data name="LaterText" xml:space="preserve">
+    <value>Later</value>
   </data>
-  <data name="UpdateNotificationMessage" xml:space="preserve">
-    <value>We've detected you're using an older version of AmongUsCapture!
-Your version: {0}
-Latest version: {1}</value>
+  <data name="CrackDetectedTitle" xml:space="preserve">
+    <value>Crack detected</value>
   </data>
-  <data name="UpdateNotificationHeader" xml:space="preserve">
-    <value>Caution</value>
+  <data name="CrackDetectedMessage" xml:space="preserve">
+    <value>We have detected that you are running an unsupported version of the game. This may or may not work.</value>
   </data>
-  <data name="UpdateNotificationUpdate" xml:space="preserve">
-    <value>Update</value>
+  <data name="CaptureRefusedTitle" xml:space="preserve">
+    <value>The AUVC bot refused this capture</value>
   </data>
-  <data name="UpdateNotificationDecline" xml:space="preserve">
-    <value>No thanks</value>
+  <data name="CaptureRefusedIncompatible" xml:space="preserve">
+    <value>Install the capture version that matches the bot.</value>
   </data>
-  <data name="SettingsDebugOpenLogsFolderButton" xml:space="preserve">
-    <value>Open log folder</value>
+  <data name="CaptureRefusedNewCode" xml:space="preserve">
+    <value>Ask an administrator for a new code with /au capture pair, then pair again.</value>
   </data>
-  <data name="GameState.MENU" xml:space="preserve">
-    <value>MENU</value>
+  <data name="PairedTitle" xml:space="preserve">
+    <value>Paired</value>
   </data>
-  <data name="SettingsGeneralTabStartupMemes" xml:space="preserve">
-    <value>Startup memes</value>
+  <data name="PairingFailedTitle" xml:space="preserve">
+    <value>Pairing failed</value>
+  </data>
+  <data name="ResetConfigQuestionTitle" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="ResetConfigQuestion" xml:space="preserve">
+    <value>This action will reset your config.
+This cannot be undone.</value>
+  </data>
+  <data name="ResettingConfigTitle" xml:space="preserve">
+    <value>Resetting config</value>
+  </data>
+  <data name="PleaseWait" xml:space="preserve">
+    <value>Please wait....</value>
+  </data>
+  <data name="ConfigResetTitle" xml:space="preserve">
+    <value>Config reset</value>
+  </data>
+  <data name="ConfigResetMessage" xml:space="preserve">
+    <value>Your config was reset successfully.</value>
+  </data>
+  <data name="RestartRequiredTitle" xml:space="preserve">
+    <value>Restart required</value>
+  </data>
+  <data name="DebugModeOnRestart" xml:space="preserve">
+    <value>To enable debug mode, we need to restart.</value>
+  </data>
+  <data name="DebugModeOffRestart" xml:space="preserve">
+    <value>To disable debug mode, we need to restart.</value>
+  </data>
+  <data name="ContributorsTitle" xml:space="preserve">
+    <value>Contributors</value>
+  </data>
+  <data name="ContributorsHeader" xml:space="preserve">
+    <value>The special people that make capture possible</value>
   </data>
 </root>

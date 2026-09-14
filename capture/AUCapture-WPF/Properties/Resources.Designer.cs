@@ -61,11 +61,47 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to cancel.
+        ///   Looks up a localized string similar to Install the capture version that matches the bot..
         /// </summary>
-        public static string CancelText {
+        public static string CaptureRefusedIncompatible {
             get {
-                return ResourceManager.GetString("CancelText", resourceCulture);
+                return ResourceManager.GetString("CaptureRefusedIncompatible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ask an administrator for a new code with /au capture pair, then pair again..
+        /// </summary>
+        public static string CaptureRefusedNewCode {
+            get {
+                return ResourceManager.GetString("CaptureRefusedNewCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The AUVC bot refused this capture.
+        /// </summary>
+        public static string CaptureRefusedTitle {
+            get {
+                return ResourceManager.GetString("CaptureRefusedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your config was reset successfully..
+        /// </summary>
+        public static string ConfigResetMessage {
+            get {
+                return ResourceManager.GetString("ConfigResetMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Config reset.
+        /// </summary>
+        public static string ConfigResetTitle {
+            get {
+                return ResourceManager.GetString("ConfigResetTitle", resourceCulture);
             }
         }
         
@@ -79,11 +115,101 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AUVC.
+        /// </summary>
+        public static string ConnectionStatus_AUVC_BOT {
+            get {
+                return ResourceManager.GetString("ConnectionStatus.AUVC BOT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Discord.
+        /// </summary>
+        public static string ConnectionStatus_DISCORD_BOT {
+            get {
+                return ResourceManager.GetString("ConnectionStatus.DISCORD BOT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User Bot.
         /// </summary>
         public static string ConnectionStatus_USER_BOT {
             get {
                 return ResourceManager.GetString("ConnectionStatus.USER BOT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Continue.
+        /// </summary>
+        public static string ContinueText {
+            get {
+                return ResourceManager.GetString("ContinueText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The special people that make capture possible.
+        /// </summary>
+        public static string ContributorsHeader {
+            get {
+                return ResourceManager.GetString("ContributorsHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Contributors.
+        /// </summary>
+        public static string ContributorsTitle {
+            get {
+                return ResourceManager.GetString("ContributorsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We have detected that you are running an unsupported version of the game. This may or may not work..
+        /// </summary>
+        public static string CrackDetectedMessage {
+            get {
+                return ResourceManager.GetString("CrackDetectedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Crack detected.
+        /// </summary>
+        public static string CrackDetectedTitle {
+            get {
+                return ResourceManager.GetString("CrackDetectedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To disable debug mode, we need to restart..
+        /// </summary>
+        public static string DebugModeOffRestart {
+            get {
+                return ResourceManager.GetString("DebugModeOffRestart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To enable debug mode, we need to restart..
+        /// </summary>
+        public static string DebugModeOnRestart {
+            get {
+                return ResourceManager.GetString("DebugModeOnRestart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        public static string ExitText {
+            get {
+                return ResourceManager.GetString("ExitText", resourceCulture);
             }
         }
         
@@ -169,7 +295,25 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Code: .
+        ///   Looks up a localized string similar to State.
+        /// </summary>
+        public static string GameStateWatermark {
+            get {
+                return ResourceManager.GetString("GameStateWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Later.
+        /// </summary>
+        public static string LaterText {
+            get {
+                return ResourceManager.GetString("LaterText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing code: .
         /// </summary>
         public static string ManualConnectionCode {
             get {
@@ -178,7 +322,7 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Manual Connection.
+        ///   Looks up a localized string similar to Pair with the AUVC bot.
         /// </summary>
         public static string ManualConnectionHeader {
             get {
@@ -187,7 +331,7 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Host: .
+        ///   Looks up a localized string similar to Bot address: .
         /// </summary>
         public static string ManualConnectionHost {
             get {
@@ -196,7 +340,7 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Submit.
+        ///   Looks up a localized string similar to Pair.
         /// </summary>
         public static string ManualConnectionSubmitButton {
             get {
@@ -205,7 +349,7 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open the manual connection window.
+        ///   Looks up a localized string similar to Pair with the AUVC bot.
         /// </summary>
         public static string ManualConnectTooltip {
             get {
@@ -250,6 +394,33 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Paired.
+        /// </summary>
+        public static string PairedTitle {
+            get {
+                return ResourceManager.GetString("PairedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pairing failed.
+        /// </summary>
+        public static string PairingFailedTitle {
+            get {
+                return ResourceManager.GetString("PairingFailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please wait.....
+        /// </summary>
+        public static string PleaseWait {
+            get {
+                return ResourceManager.GetString("PleaseWait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Get AutoMuteUs premium.
         /// </summary>
         public static string PremiumTooltip {
@@ -259,29 +430,48 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to We detected an update to {0}, But there is no public key in this capture so we will not be able to verify integrity. Please download the latest release off the github page..
+        ///   Looks up a localized string similar to This action will reset your config.
+        ///This cannot be undone..
         /// </summary>
-        public static string PrivateKeyErrorMessage {
+        public static string ResetConfigQuestion {
             get {
-                return ResourceManager.GetString("PrivateKeyErrorMessage", resourceCulture);
+                return ResourceManager.GetString("ResetConfigQuestion", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to AutoUpdater failed.
+        ///   Looks up a localized string similar to Are you sure?.
         /// </summary>
-        public static string PrivateKeyErrorTitle {
+        public static string ResetConfigQuestionTitle {
             get {
-                return ResourceManager.GetString("PrivateKeyErrorTitle", resourceCulture);
+                return ResourceManager.GetString("ResetConfigQuestionTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to retry.
+        ///   Looks up a localized string similar to Resetting config.
         /// </summary>
-        public static string RetryText {
+        public static string ResettingConfigTitle {
             get {
-                return ResourceManager.GetString("RetryText", resourceCulture);
+                return ResourceManager.GetString("ResettingConfigTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart required.
+        /// </summary>
+        public static string RestartRequiredTitle {
+            get {
+                return ResourceManager.GetString("RestartRequiredTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart.
+        /// </summary>
+        public static string RestartText {
+            get {
+                return ResourceManager.GetString("RestartText", resourceCulture);
             }
         }
         
@@ -291,15 +481,6 @@ namespace AUCapture_WPF.Properties {
         public static string SettingsAboutTabAppVersion {
             get {
                 return ResourceManager.GetString("SettingsAboutTabAppVersion", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Auto updater.
-        /// </summary>
-        public static string SettingsAboutTabAutoUpdaterHeader {
-            get {
-                return ResourceManager.GetString("SettingsAboutTabAutoUpdaterHeader", resourceCulture);
             }
         }
         
@@ -439,7 +620,16 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Same as Windows.
+        /// </summary>
+        public static string SettingsGeneralTabLanguageSameAsWindows {
+            get {
+                return ResourceManager.GetString("SettingsGeneralTabLanguageSameAsWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Startup memes.
         /// </summary>
         public static string SettingsGeneralTabStartupMemes {
             get {
@@ -471,44 +661,6 @@ namespace AUCapture_WPF.Properties {
         public static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No thanks.
-        /// </summary>
-        public static string UpdateNotificationDecline {
-            get {
-                return ResourceManager.GetString("UpdateNotificationDecline", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Caution.
-        /// </summary>
-        public static string UpdateNotificationHeader {
-            get {
-                return ResourceManager.GetString("UpdateNotificationHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to We&apos;ve detected you&apos;re using an older version of AmongUsCapture!
-        ///Your version: {0}
-        ///Latest version: {1}.
-        /// </summary>
-        public static string UpdateNotificationMessage {
-            get {
-                return ResourceManager.GetString("UpdateNotificationMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update.
-        /// </summary>
-        public static string UpdateNotificationUpdate {
-            get {
-                return ResourceManager.GetString("UpdateNotificationUpdate", resourceCulture);
             }
         }
         
