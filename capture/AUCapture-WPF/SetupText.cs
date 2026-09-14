@@ -137,6 +137,55 @@ namespace AUCapture_WPF
         public static string ChecksHeading => T("Prüfung", "Checks");
         public static string BotNotRunning => T("✖ Der Bot läuft gerade nicht. Gehe zurück zu Schritt 2.", "✖ The bot is not running. Go back to step 2.");
 
+        // Settings, once the bot is set up.
+        public static string SettingsWindowTitle => T("AUVC · Bot-Einstellungen", "AUVC · Bot settings");
+        public static string SettingsButton => T("Bot", "Bot");
+        public static string SettingsButtonTooltip => T("Token, Server, Kanäle und Status des Bots ändern", "Change the bot's token, server, channels and status");
+        public static string SectionToken => T("Token", "Token");
+        public static string SectionServer => T("Server", "Server");
+        public static string SectionChannels => T("Kanäle", "Channels");
+        public static string SectionStatus => T("Status", "Status");
+
+        public static string SettingsTitle(int section) => section switch
+        {
+            0 => T("Bot-Token ändern", "Change the bot token"),
+            1 => T("Server wechseln", "Change the server"),
+            2 => T("Kanäle ändern", "Change the channels"),
+            _ => T("Status des Bots", "Bot status"),
+        };
+
+        public static string UseServer => T("Diesen Server verwenden", "Use this server");
+
+        public static string ServerSaved(string name) =>
+            T($"✔ AUVC verwendet jetzt den Server „{name}“. Wähle als Nächstes unter „Kanäle“ die Kanäle.",
+                $"✔ AUVC now uses the server “{name}”. Choose its channels next, under “Channels”.");
+
+        public static string Save => T("Speichern", "Save");
+        public static string Saved => T("✔ Gespeichert.", "✔ Saved.");
+        public static string ChooseServerFirst => T("Wähle zuerst unter „Server“ einen Server.", "Choose a server under “Server” first.");
+        public static string RestartBot => T("Bot neu starten", "Restart the bot");
+        public static string Restarting => T("Der Bot wird neu gestartet …", "Restarting the bot …");
+        public static string DisableBot => T("Bot auf diesem PC ausschalten", "Stop running the bot on this PC");
+
+        public static string DisableBotQuestion => T(
+            "Der Bot startet dann nicht mehr mit AUVC. Token und Einstellungen bleiben gespeichert – über „Einrichten“ kannst du ihn jederzeit wieder einschalten.",
+            "The bot will no longer start with AUVC. The token and the settings stay stored — you can switch it back on at any time with “Set up”.");
+
+        public static string BotDisabled => T(
+            "Der Bot läuft nicht mehr auf diesem PC. Über „Einrichten“ im Hauptfenster schaltest du ihn wieder ein.",
+            "The bot no longer runs on this PC. Use “Set up” in the main window to switch it back on.");
+
+        public static string StatusIntro => T(
+            "Hier siehst du, ob der Bot läuft und was er über deinen Server meldet. Die anderen Bereiche oben ändern Token, Server und Kanäle.",
+            "This shows whether the bot is running and what it reports about your server. The other sections above change the token, the server and the channels.");
+
+        public static string BotRunning => T("✔ Der Bot läuft auf diesem PC.", "✔ The bot is running on this PC.");
+        public static string BotStopped => T("Der Bot läuft gerade nicht. „Bot neu starten“ startet ihn.", "The bot is not running. “Restart the bot” starts it.");
+
+        public static string TokenChangedRestart => T(
+            "Der Bot wird mit dem neuen Token neu gestartet. Ist es ein anderer Bot, lade ihn unter „Server“ ein und wähle den Server dort neu.",
+            "The bot restarts with the new token. If it is a different bot, invite it under “Server” and choose the server there again.");
+
         // Main window.
         public static string BotFailedTitle => T("Der Bot auf diesem PC konnte nicht starten", "The bot on this PC could not start");
         public static string OpenSetup => T("Einrichtung öffnen", "Open setup");

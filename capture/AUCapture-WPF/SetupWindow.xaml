@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     Width="580"
-    Height="680"
+    Height="700"
     MinWidth="480"
     MinHeight="560"
     ResizeMode="CanResize"
@@ -13,19 +13,41 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <ListBox
+            x:Name="SectionList"
+            Grid.Row="0"
+            Margin="0,0,0,12"
+            SelectionChanged="SectionList_SelectionChanged"
+            Visibility="Collapsed">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock
+                        Margin="10,4"
+                        FontSize="14"
+                        Text="{Binding}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
         <TextBlock
             x:Name="StepTitle"
-            Grid.Row="0"
+            Grid.Row="1"
             Margin="0,0,0,14"
             FontSize="20"
             FontWeight="SemiBold"
             TextWrapping="Wrap" />
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <Grid>
                 <StackPanel x:Name="TokenPanel">
                     <TextBlock x:Name="TokenIntro" TextWrapping="Wrap" />
@@ -72,6 +94,13 @@
                         Margin="0,8,0,0"
                         DisplayMemberPath="Name"
                         SelectionChanged="ServerList_SelectionChanged" />
+                    <Button
+                        x:Name="UseServerButton"
+                        Margin="0,12,0,0"
+                        Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Click="UseServerButton_Click"
+                        Visibility="Collapsed" />
                 </StackPanel>
 
                 <StackPanel x:Name="ChannelPanel" Visibility="Collapsed">
@@ -86,12 +115,18 @@
                         x:Name="AutoStartBox"
                         Margin="0,16,0,0"
                         IsChecked="True" />
-                    <Button
-                        x:Name="RefreshChannelsButton"
-                        Margin="0,14,0,0"
-                        Padding="12,6"
-                        HorizontalAlignment="Left"
-                        Click="RefreshChannelsButton_Click" />
+                    <StackPanel Margin="0,14,0,0" Orientation="Horizontal">
+                        <Button
+                            x:Name="SaveChannelsButton"
+                            Margin="0,0,8,0"
+                            Padding="12,6"
+                            Click="SaveChannelsButton_Click"
+                            Visibility="Collapsed" />
+                        <Button
+                            x:Name="RefreshChannelsButton"
+                            Padding="12,6"
+                            Click="RefreshChannelsButton_Click" />
+                    </StackPanel>
                     <TextBlock
                         x:Name="ChannelResult"
                         Margin="0,10,0,0"
@@ -100,6 +135,10 @@
 
                 <StackPanel x:Name="DonePanel" Visibility="Collapsed">
                     <TextBlock x:Name="DoneIntro" TextWrapping="Wrap" />
+                    <TextBlock
+                        x:Name="StatusText"
+                        Margin="0,12,0,0"
+                        TextWrapping="Wrap" />
                     <TextBlock
                         x:Name="ChecksHeading"
                         Margin="0,18,0,6"
@@ -114,18 +153,31 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                        <Button
+                            x:Name="RefreshChecksButton"
+                            Padding="12,6"
+                            Click="RefreshChecksButton_Click" />
+                        <Button
+                            x:Name="RestartBotButton"
+                            Margin="8,0,0,0"
+                            Padding="12,6"
+                            Click="RestartBotButton_Click"
+                            Visibility="Collapsed" />
+                    </StackPanel>
                     <Button
-                        x:Name="RefreshChecksButton"
-                        Margin="0,10,0,0"
+                        x:Name="DisableBotButton"
+                        Margin="0,24,0,0"
                         Padding="12,6"
                         HorizontalAlignment="Left"
-                        Click="RefreshChecksButton_Click" />
+                        Click="DisableBotButton_Click"
+                        Visibility="Collapsed" />
                 </StackPanel>
             </Grid>
         </ScrollViewer>
 
         <StackPanel
-            Grid.Row="2"
+            Grid.Row="3"
             Margin="0,16,0,0"
             HorizontalAlignment="Right"
             Orientation="Horizontal">

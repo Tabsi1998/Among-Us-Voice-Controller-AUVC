@@ -87,8 +87,7 @@ namespace AUCapture_WPF
             {
                 SetLocalBotStatus(false);
             }
-            SetupButton.Content = SetupText.SetupButton;
-            SetupButton.ToolTip = SetupText.SetupButtonTooltip;
+            UpdateSetupButton();
             Window.Topmost = context.Settings.alwaysOnTop;
             GameMemReader.getInstance().GameStateChanged += GameStateChangedHandler;
             GameMemReader.getInstance().ProcessHook += OnProcessHook;
@@ -240,15 +239,33 @@ namespace AUCapture_WPF
             status.Connected = connected;
         }
 
-        private void SetupButton_Click(object sender, RoutedEventArgs e) => OpenSetup();
+        // Once the bot is set up, the same button opens its settings instead of the
+        // first-run steps, so anything chosen during setup can be changed later.
+        private void SetupButton_Click(object sender, RoutedEventArgs e) => OpenSetup(editing: context.Settings.runBotOnThisPc);
 
-        private void OpenSetup()
+        private void UpdateSetupButton()
         {
-            var setup = new SetupWindow(context.Settings) { Owner = this };
+            SetupButton.Content = context.Settings.runBotOnThisPc ? SetupText.SettingsButton : SetupText.SetupButton;
+            SetupButton.ToolTip = context.Settings.runBotOnThisPc ? SetupText.SettingsButtonTooltip : SetupText.SetupButtonTooltip;
+        }
+
+        private void OpenSetup(bool editing = false)
+        {
+            var setup = new SetupWindow(context.Settings, editing) { Owner = this };
             setup.ShowDialog();
+            UpdateSetupButton();
+
             if (context.Settings.runBotOnThisPc)
             {
                 SetLocalBotStatus(LocalBot.IsRunning);
+            }
+            else
+            {
+                var local = context.ConnectionStatuses.FirstOrDefault(x => x.ConnectionName == LocalBotConnectionName);
+                if (local is not null)
+                {
+                    context.ConnectionStatuses.Remove(local);
+                }
             }
         }
 
@@ -284,7 +301,7 @@ namespace AUCapture_WPF
                     new MetroDialogSettings { AffirmativeButtonText = SetupText.OpenSetup, NegativeButtonText = SetupText.Close });
                 if (answer == MessageDialogResult.Affirmative)
                 {
-                    OpenSetup();
+                    OpenSetup(editing: true);
                 }
             }
         }
