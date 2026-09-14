@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using AUVC.Transport;
 using Config.Net;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -8,9 +9,6 @@ namespace AUCapture_WPF
 {
     public interface IAppSettings : INotifyPropertyChanged
     {
-        [Option(DefaultValue = false)]
-        bool discordTokenEncrypted { get; set; }
-
         [Option(DefaultValue = "")]
         string language { get; set; }
 
@@ -19,9 +17,6 @@ namespace AUCapture_WPF
 
         [Option(DefaultValue = false)]
         bool alwaysOnTop { get; set; }
-
-        [Option(DefaultValue = "")]
-        string discordToken { get; set; }
 
         [Option(DefaultValue = false)]
         bool ApiServer { get; set; }
@@ -50,10 +45,9 @@ namespace AUCapture_WPF
         [Option(DefaultValue = true)]
         bool checkForUpdate { get; set; }
 
-        [Option(DefaultValue = "")]
+        // The address of the AUVC bot. The pairing code is deliberately not a
+        // setting: it works once, and a used code has no business on disk.
+        [Option(DefaultValue = BotAddress.Default)]
         string host { get; set; }
-
-        [Option(DefaultValue = "")]
-        string connectCode { get; set; }
     }
 }

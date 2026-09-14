@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using AmongUsCapture.Memory.Structs;
 using AUOffsetManager;
-using Discord;
 using Newtonsoft.Json;
 using NLog.Fluent;
 using Color = System.Drawing.Color;

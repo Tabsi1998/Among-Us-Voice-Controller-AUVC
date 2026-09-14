@@ -30,62 +30,6 @@ public sealed class CaptureRefusedException(string code, string message) : Excep
 }
 
 /// <summary>
-/// A live capture connection: the handshake, then whatever the round produces.
-/// </summary>
-/// <remarks>
-/// The bot does not acknowledge a successful authentication. It answers only
-/// when it refuses, and then closes. So a connection that is still open after
-/// the handshake is an authenticated one, and anything the bot does say is a
-/// problem worth surfacing.
-/// </remarks>
-public sealed class CaptureConnection(IMessageChannel channel, CaptureSession session) : IAsyncDisposable
-{
-    /// <summary>The session this connection speaks in.</summary>
-    public CaptureSession Session => session;
-
-    /// <summary>
-    /// Opens the session: hello, then the stored credential.
-    /// </summary>
-    /// <remarks>
-    /// A complete snapshot has to follow before any event. The bot refuses
-    /// events until it arrives, because incremental events cannot rebuild a
-    /// round that was already running.
-    /// </remarks>
-    public async Task HandshakeAsync(string credential, CancellationToken cancellationToken = default)
-    {
-        await channel.SendAsync(session.Open(), cancellationToken);
-        await channel.SendAsync(session.Authenticate(credential), cancellationToken);
-    }
-
-    /// <summary>Sends one message capture produced.</summary>
-    public Task SendAsync(Message message, CancellationToken cancellationToken = default) =>
-        channel.SendAsync(message, cancellationToken);
-
-    /// <summary>
-    /// Reads until the bot says something or the connection ends.
-    /// </summary>
-    /// <exception cref="CaptureRefusedException">The bot refused the session.</exception>
-    public async Task ListenAsync(CancellationToken cancellationToken = default)
-    {
-        while (true)
-        {
-            var message = await channel.ReceiveAsync(cancellationToken);
-            if (message is null)
-            {
-                return; // the connection closed, which is how a session ends
-            }
-
-            if (message is ProtocolError refusal)
-            {
-                throw new CaptureRefusedException(refusal.Code, refusal.Message);
-            }
-        }
-    }
-
-    public ValueTask DisposeAsync() => channel.DisposeAsync();
-}
-
-/// <summary>
 /// Carries protocol messages over a WebSocket.
 /// </summary>
 public sealed class WebSocketMessageChannel(WebSocket socket) : IMessageChannel

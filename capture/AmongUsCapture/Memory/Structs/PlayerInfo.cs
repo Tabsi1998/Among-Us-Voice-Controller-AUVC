@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
 using AUOffsetManager;
-using Discord;
 
 namespace AmongUsCapture
 {

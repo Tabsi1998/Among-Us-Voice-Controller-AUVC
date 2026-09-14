@@ -96,15 +96,6 @@
   <data name="SettingsDebugTabResetConfigButton" xml:space="preserve">
     <value>Сброс Настроек</value>
   </data>
-  <data name="SettingsDiscordTabHeader" xml:space="preserve">
-    <value>Discord</value>
-  </data>
-  <data name="SettingsDiscordTabSubmitButton" xml:space="preserve">
-    <value>ОК</value>
-  </data>
-  <data name="SettingsDiscordTabTokenWatermark" xml:space="preserve">
-    <value>Вставь токен сюда</value>
-  </data>
   <data name="SettingsGeneralTabAlwaysCopyGameCode" xml:space="preserve">
     <value>Копировать код игры</value>
   </data>

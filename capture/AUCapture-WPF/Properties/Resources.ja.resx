@@ -102,15 +102,6 @@
   <data name="SettingsDebugTabResetConfigButton" xml:space="preserve">
     <value>設定をリセット</value>
   </data>
-  <data name="SettingsDiscordTabHeader" xml:space="preserve">
-    <value>Discord</value>
-  </data>
-  <data name="SettingsDiscordTabSubmitButton" xml:space="preserve">
-    <value>登録</value>
-  </data>
-  <data name="SettingsDiscordTabTokenWatermark" xml:space="preserve">
-    <value>ここにトークンを入力</value>
-  </data>
   <data name="SettingsGeneralTabAlwaysCopyGameCode" xml:space="preserve">
     <value>常にゲームコードをコピー</value>
   </data>

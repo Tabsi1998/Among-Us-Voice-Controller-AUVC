@@ -36,7 +36,6 @@ namespace AUCapture_WPF
         public string LatestReleaseAssetSignedHashURL { get; set; }
         public string LatestVersion { get; set; }
         private ICommand textBoxButtonCopyCmd;
-        private ICommand textBoxButtonHelpCmd;
         private ICommand openAmongUsCMD;
         private ICommand openLogFolderCMD;
         private ICommand copyLatestLogCMD;
@@ -150,29 +149,6 @@ namespace AUCapture_WPF
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     Process.Start("open", GetAmongUsLauncherLink());
-                }
-                else
-                {
-                    // throw 
-                }
-            }
-        };
-        public ICommand TextBoxButtonHelpCmd => textBoxButtonHelpCmd ??= new SimpleCommand
-        {
-            CanExecuteDelegate = x => true,
-            ExecuteDelegate = async x =>
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Process.Start(new ProcessStartInfo("https://www.youtube.com/watch?v=jKcEW5qpk8E") { UseShellExecute = true });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", "https://www.youtube.com/watch?v=jKcEW5qpk8E");
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", "https://www.youtube.com/watch?v=jKcEW5qpk8E");
                 }
                 else
                 {
