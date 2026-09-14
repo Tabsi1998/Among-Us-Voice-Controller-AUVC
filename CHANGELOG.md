@@ -24,12 +24,14 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Security
 
-- Documented: `/au capture revoke` refuses new connections but does not yet end
-  a connection that is already open, and heartbeats keep an active one alive.
-  `SECURITY.md` and `docs/privacy.md` give the workaround, restarting the bot;
-  the fix follows separately. Writing the privacy page found this, because the
-  first draft claimed revoking took effect immediately and checking that claim
-  showed the credential is only verified at the handshake.
+- `/au capture revoke` now ends capture connections that are already open.
+  The credential was checked only at the handshake, so a capture connected at
+  the time of a revoke kept working, and its heartbeats kept it connected
+  indefinitely. It is now told its credential was revoked and disconnected.
+  A connection whose credential check was still running when the revoke
+  landed is refused as well. Writing the privacy page found the gap: the
+  first draft said revoking took effect at once, and checking that claim
+  showed it did not.
 
 ### Added
 
