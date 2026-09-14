@@ -35,6 +35,9 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   checked out a shallow clone, in which `verify_repository.py` cannot find the
   original upstream imports it verifies. A dry run found this; a tag would have
   failed the same way.
+- The container build retries `go mod download` up to three times. A single
+  reset connection to the Go module proxy failed a pull request build that
+  changed no Go code at all.
 - An exiled player now goes to the ghost channel. Capture reports an exile
   before the phase leaves the meeting, and the bot treated that death as a
   secret, so the player stayed silenced in the main channel until the next
