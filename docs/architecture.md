@@ -211,7 +211,10 @@ or sharding.
 - **Windows app:** `BotHost` starts the bot with `AUVC_LOCAL_CONTROL_SECRET`, waits
   until it is connected to Discord, and stops it by asking first, so it releases
   everyone in voice, and by killing it only if it does not stop. A kill-on-close
-  job object ends the bot if the app crashes. Through `pkg/localcontrol` the app
+  job object ends the bot if the app crashes. The bot writes down every mute,
+  deafen and move into the ghost channel before making it (`voice_hold`), and on
+  its next start releases what a crashed run left behind, each member as soon as
+  Discord shows them in voice. Through `pkg/localcontrol` the app
   lists servers and channels, saves the setup and obtains a capture credential
   without a pairing code; every route requires the secret, answers only this
   computer and refuses browsers. The setup and the later bot settings are the same

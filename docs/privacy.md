@@ -38,6 +38,7 @@ The bot's database:
 | `capture_pairing` | SHA-256 hash of an outstanding pairing code, and the Discord user id of whoever requested it | The code is redeemed, replaced, revoked, or found expired |
 | `capture_credential` | Random identifier and SHA-256 hash of each app credential, with creation, last-use and revocation times | Not deleted automatically. A revoked credential stays as a hash, so a later attempt to use it is recognised as revoked |
 | `crewmate_board` | Channel id and message id of the crewmate message, per server | The bot stops and deletes the message, or the text channel is removed from the setup |
+| `voice_hold` | Server id, member id, and which of server mute, server deafen and the move into the ghost channel AUVC set on that member | AUVC lifts it again: during the round, when it stops, or on its next start after a crash |
 
 No secret is stored in a form that can be read back from the database: pairing
 codes and credentials are kept only as hashes.

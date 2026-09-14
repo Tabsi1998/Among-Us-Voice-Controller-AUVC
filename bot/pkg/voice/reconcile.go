@@ -144,6 +144,19 @@ func (r *Reconciler) lockFor(guildID string) *sync.Mutex {
 	return lock
 }
 
+// Exclusive runs work for one guild while no reconciliation of that guild runs.
+//
+// Work that edits members itself, such as releasing what a previous run left
+// behind, would otherwise race a reconciliation deciding the opposite for the
+// same member.
+func (r *Reconciler) Exclusive(guildID string, work func()) {
+	lock := r.lockFor(guildID)
+	lock.Lock()
+	defer lock.Unlock()
+
+	work()
+}
+
 // Reconcile applies every difference between the observed and desired states.
 //
 // A failure on one player does not abandon the rest: the others are still

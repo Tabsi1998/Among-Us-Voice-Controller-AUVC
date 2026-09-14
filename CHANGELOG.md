@@ -20,6 +20,16 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   against a fresh copy of the commit. Releases such as `v1.2.3` are still built
   and published by GitHub; pre-release tags no longer start that workflow.
 
+### Fixed
+
+- A crash no longer leaves players muted
+  ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  The bot writes down every server mute, server deafen and move into the ghost
+  channel before making it, and removes the record once it has lifted it. On
+  the next start it releases exactly what a crashed run left behind, members
+  who are not in voice as soon as they join, and never touches a member an
+  administrator muted by hand. A running round keeps its players muted.
+
 ## v0.1.1-beta — 2026-09-14
 
 The second pre-release: players choose their crewmate instead of typing their

@@ -296,7 +296,9 @@ func (bot *Bot) reconcileCaptureSession(guildID string) error {
 		return fmt.Errorf("discord guild %s is unavailable: %w", guildID, err)
 	}
 
-	if err := bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), voice.Desired(state, config)); err != nil {
+	desired := voice.Desired(state, config)
+	bot.claimManaged(guildID, desired)
+	if err := bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), desired); err != nil {
 		if summary := permission.Summary(permission.Audit(
 			bot.voiceChannelPermissions(config.MainChannelID, config.GhostChannelID)...,
 		)); summary != "" {

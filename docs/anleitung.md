@@ -196,9 +196,12 @@ Ab dann folgt AUVC dem Spiel von selbst:
 - **Wer rausgewählt wird**, kommt sofort in den Geisterkanal. Das haben ohnehin
   alle gesehen.
 - **Wenn du AUVC schließt**, gibt es alle frei und der Bot geht offline.
-- **Stürzt AUVC ab**, stoppt sein Bot mit und kann niemanden mehr freigeben.
-  Schalte die Leute dann in Discord frei: Rechtsklick auf die Person und
-  *Server-Stummschaltung* und *Server-Taubschaltung* ausschalten.
+- **Stürzt AUVC ab**, stoppt sein Bot mit und kann in dem Moment niemanden
+  freigeben. Beim nächsten Start von AUVC gibt der Bot alle frei, die er stumm,
+  taub oder in den Geisterkanal geschickt hatte, und sonst niemanden. Wer dann
+  nicht im Sprachkanal ist, wird freigegeben, sobald er wieder beitritt. Sofort
+  geht es in Discord: Rechtsklick auf die Person und *Server-Stummschaltung* und
+  *Server-Taubschaltung* ausschalten.
 
 ## 6. Einstellungen
 
@@ -304,7 +307,7 @@ nichts verloren.
 | Ein Spieler wird nicht stummgeschaltet | Er ist nicht verknüpft oder mit einer anderen Figur verknüpft. Die Crewmate-Nachricht im Textkanal prüfen oder `/au link` erneut ausführen |
 | Die Crewmate-Nachricht erscheint nicht | Hinter **Bot** → **Kanäle** einen Textkanal wählen. Der Rolle des Bots dort *Kanäle ansehen*, *Nachrichten senden* und *Links einbetten* geben. Die Nachricht erscheint, sobald die App eine Lobby sieht |
 | AUVC meldet fehlende Rechte | Gib der Rolle des Bots auf beiden Sprachkanälen *Kanäle ansehen*, *Verbinden*, *Mitglieder stummschalten*, *Mitglieder taubschalten* und *Mitglieder verschieben* |
-| Jemand bleibt stumm | Solange AUVC läuft, gibt `/au session stop` alle frei. Nach einem Absturz in Discord mit Rechtsklick auf die Person *Server-Stummschaltung* und *Server-Taubschaltung* ausschalten |
+| Jemand bleibt stumm | Solange AUVC läuft, gibt `/au session stop` alle frei. Nach einem Absturz AUVC neu starten: Es gibt alle frei, die es stumm gelassen hat. Oder in Discord mit Rechtsklick auf die Person *Server-Stummschaltung* und *Server-Taubschaltung* ausschalten |
 
 ### Im Spiel
 

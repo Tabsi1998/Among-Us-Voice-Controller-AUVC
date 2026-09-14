@@ -241,5 +241,7 @@ func (bot *Bot) releaseEveryone(guildID string) error {
 		return fmt.Errorf("discord guild %s is unavailable: %w", guildID, err)
 	}
 
-	return bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), voice.Desired(state, config))
+	desired := voice.Desired(state, config)
+	bot.claimManaged(guildID, desired)
+	return bot.Reconciler.Reconcile(guildID, observeVoiceStates(discordGuild), desired)
 }
