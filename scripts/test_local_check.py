@@ -42,14 +42,17 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual(withheld, sorted(withheld))
 
     def test_the_pinned_tools_come_first_on_path(self):
-        env = {"PATH": "C:\\old-go"}
-        check.prepare_path(env, {"go": "C:\\tools\\go\\bin", "dotnet": "C:\\tools\\dotnet",
-                                 "clang": "C:\\tools\\llvm\\bin\\clang.exe"})
+        # No drive letters: on Linux the PATH separator is the colon a drive
+        # letter carries, and the test has to hold on both systems.
+        go, dotnet, llvm = (str(Path("tools", "go", "bin")), str(Path("tools", "dotnet")),
+                            str(Path("tools", "llvm", "bin")))
+        env = {"PATH": str(Path("old-go"))}
+        check.prepare_path(env, {"go": go, "dotnet": dotnet, "clang": str(Path(llvm, "clang.exe"))})
 
         entries = env["PATH"].split(check.os.pathsep)
-        self.assertEqual(entries[:3], ["C:\\tools\\go\\bin", "C:\\tools\\dotnet", "C:\\tools\\llvm\\bin"])
-        self.assertEqual(entries[-1], "C:\\old-go")
-        self.assertEqual(env["DOTNET_ROOT"], "C:\\tools\\dotnet")
+        self.assertEqual(entries[:3], [go, dotnet, llvm])
+        self.assertEqual(entries[-1], str(Path("old-go")))
+        self.assertEqual(env["DOTNET_ROOT"], dotnet)
 
 
 class GitleaksTests(unittest.TestCase):
