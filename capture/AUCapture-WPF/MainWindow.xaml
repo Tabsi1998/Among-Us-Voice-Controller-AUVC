@@ -171,36 +171,16 @@
                                         <StackPanel Orientation="Vertical">
                                             <mah:MetroHeader Header="{l:Static properties:Resources.SettingsGeneralTabLanguageHeader}">
 
+                                                <!--  The codes are AppLanguage.Supported. Each language is named in itself, so it can be found from any.  -->
                                                 <ComboBox
                                                     MinWidth="100"
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Top"
-                                                    ItemsSource="{Binding Path=(localization:Translator.Cultures)}"
-                                                    SelectedItem="{Binding Path=(localization:Translator.Culture)}">
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate DataType="{x:Type globalization:CultureInfo}">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                </Grid.ColumnDefinitions>
-
-                                                                <Image
-                                                                    Grid.Column="0"
-                                                                    Height="12"
-                                                                    VerticalAlignment="Center"
-                                                                    Source="{Binding Converter={x:Static l:CultureToFlagPathConverter.Default}}"
-                                                                    Stretch="Fill" />
-
-                                                                <TextBlock
-                                                                    Grid.Column="1"
-                                                                    Margin="10,0,0,0"
-                                                                    HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding NativeName}" />
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
+                                                    SelectedValue="{Binding Settings.language, Mode=TwoWay}"
+                                                    SelectedValuePath="Tag">
+                                                    <ComboBoxItem Content="{l:Static properties:Resources.SettingsGeneralTabLanguageSameAsWindows}" Tag="" />
+                                                    <ComboBoxItem Content="Deutsch" Tag="de" />
+                                                    <ComboBoxItem Content="English" Tag="en" />
                                                 </ComboBox>
                                             </mah:MetroHeader>
 
@@ -612,7 +592,7 @@
                     VerticalAlignment="Center"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"
-                    mah:TextBoxHelper.Watermark="State"
+                    mah:TextBoxHelper.Watermark="{l:Static properties:Resources.GameStateWatermark}"
                     AllowDrop="False"
                     Background="{DynamicResource MahApps.Brushes.Transparent}"
                     BorderBrush="{DynamicResource MahApps.Brushes.Accent}"

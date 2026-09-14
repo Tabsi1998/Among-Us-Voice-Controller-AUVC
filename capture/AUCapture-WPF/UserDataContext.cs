@@ -387,14 +387,14 @@ namespace AUCapture_WPF
                 AmongUsCapture.Settings.PersistentSettings.debugConsole = Settings.debug;
                 Task.Factory.StartNew((() =>
                 {
-                    var selection = this.DialogCoordinator.ShowMessageAsync(this, "Restart required",
-                        $"To {(Settings.debug ? "enable" : "disable")} debug mode, we need to restart.",
+                    var selection = this.DialogCoordinator.ShowMessageAsync(this, Properties.Resources.RestartRequiredTitle,
+                        Settings.debug ? Properties.Resources.DebugModeOnRestart : Properties.Resources.DebugModeOffRestart,
                         MessageDialogStyle.AffirmativeAndNegative,
                         new MetroDialogSettings
                         {
                             AnimateHide = true,
-                            AffirmativeButtonText = "Restart",
-                            NegativeButtonText = "Later",
+                            AffirmativeButtonText = Properties.Resources.RestartText,
+                            NegativeButtonText = Properties.Resources.LaterText,
                             DefaultButtonFocus = MessageDialogResult.Affirmative,
                         }).Result;
                     if (selection == MessageDialogResult.Affirmative)

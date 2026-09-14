@@ -4,6 +4,20 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The app speaks German
+  ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)).
+  The main window, its settings and its dialogs are translated, and the app
+  follows the display language of Windows until somebody picks another under
+  Settings → General → Language. *Same as Windows* goes back to following it.
+
+### Removed
+
+- The Japanese, Russian, Portuguese and Chinese translations of the app. They
+  covered only part of it, so the app showed two languages at once; a language
+  comes back once every text of the app is translated.
+
 ## v0.1.2-beta — 2026-09-14
 
 The third pre-release, after the first live tests in full public lobbies. Muting,

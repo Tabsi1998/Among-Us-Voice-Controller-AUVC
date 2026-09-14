@@ -23,4 +23,9 @@
     <None Include="../../protocol/fixtures/**/*.json" LinkBase="Fixtures/protocol" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../protocol/fixtures/**/*.jsonl" LinkBase="Fixtures/protocol" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The app is a WPF project, which this test project cannot reference. Its
+         language rules need nothing from WPF, so their file is compiled in here. -->
+    <Compile Include="../AUCapture-WPF/AppLanguage.cs" Link="App/AppLanguage.cs" />
+  </ItemGroup>
 </Project>
