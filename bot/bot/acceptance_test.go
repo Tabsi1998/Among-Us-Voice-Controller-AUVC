@@ -103,6 +103,9 @@ func (l *lobby) send(message protocol.Message) {
 	case *protocol.PlayerJoined:
 		typed.Header = protocol.Header{Protocol: protocol.Version, Type: protocol.TypePlayerJoined,
 			Session: "session-a", Seq: l.seq}
+	case *protocol.PlayerChanged:
+		typed.Header = protocol.Header{Protocol: protocol.Version, Type: protocol.TypePlayerChanged,
+			Session: "session-a", Seq: l.seq}
 	case *protocol.GameEnded:
 		typed.Header = protocol.Header{Protocol: protocol.Version, Type: protocol.TypeGameEnded,
 			Session: "session-a", Seq: l.seq}
