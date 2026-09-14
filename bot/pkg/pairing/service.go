@@ -217,6 +217,30 @@ func (s *Service) RedeemCode(typed string) (string, credential.Credential, error
 	return stored.GuildID, issued, nil
 }
 
+// Issue creates a credential for a guild without anybody typing a code.
+//
+// It exists for the AUVC Windows app, which starts this bot itself and so has
+// already proved what a pairing code proves: that it may speak for the bot. It
+// runs the ordinary pairing path rather than a second one, so the credential is
+// stored, checked and revoked exactly like any other. Any code an administrator
+// requested and nobody redeemed yet is replaced, the same as a new
+// /au capture pair would.
+func (s *Service) Issue(guildID, issuedBy string) (credential.Credential, error) {
+	code, _, err := s.Pair(guildID, issuedBy)
+	if err != nil {
+		return credential.Credential{}, err
+	}
+
+	redeemedFor, issued, err := s.RedeemCode(code.Display())
+	if err != nil {
+		return credential.Credential{}, err
+	}
+	if redeemedFor != guildID {
+		return credential.Credential{}, fmt.Errorf("issue: the code was redeemed for guild %s, not %s", redeemedFor, guildID)
+	}
+	return issued, nil
+}
+
 // Authenticate checks a token capture presented and returns the guild it speaks
 // for.
 //

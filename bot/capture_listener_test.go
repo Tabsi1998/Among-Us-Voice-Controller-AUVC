@@ -76,7 +76,7 @@ func TestHealthAndCaptureEndpointsShareTheListener(t *testing.T) {
 	defer db.Close()
 
 	controller := &bot.Bot{AUVC: au.NewService(db, "test", "test")}
-	handler := routes(transport.NewServer(pairing.NewService(db), controller, nil), controller)
+	handler := routes(transport.NewServer(pairing.NewService(db), controller, nil), controller, nil)
 
 	for path, unwanted := range map[string]int{
 		"/healthz":      http.StatusNotFound,

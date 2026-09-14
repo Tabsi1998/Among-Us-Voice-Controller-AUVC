@@ -30,7 +30,7 @@ func TestRevokingEndsACaptureThatIsAlreadyConnected(t *testing.T) {
 	controller := &bot.Bot{}
 	capture := newCaptureServer(pairingService, controller)
 
-	server := httptest.NewServer(routes(capture, controller))
+	server := httptest.NewServer(routes(capture, controller, nil))
 	defer server.Close()
 
 	code, _, err := pairingService.Pair(guild, "admin")

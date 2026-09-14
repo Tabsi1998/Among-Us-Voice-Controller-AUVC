@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/localcontrol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/transport"
 )
@@ -29,13 +30,19 @@ const defaultCaptureAddr = "127.0.0.1:8123"
 // one everywhere else: reaching a capture on another machine is a decision an
 // operator makes deliberately. AUVC_CAPTURE_ADDR=off turns the listener off,
 // which leaves a bot no capture can reach and is only useful for testing.
-func startCaptureListener(pairingService *pairing.Service, controller *bot.Bot) func() {
+//
+// local, when not nil, is the Windows app's control interface. It shares the
+// listener because it has to be reachable exactly where capture is.
+func startCaptureListener(server *transport.Server, controller *bot.Bot, local *localcontrol.Server) func() {
 	address := os.Getenv("AUVC_CAPTURE_ADDR")
 	if address == "" {
 		address = defaultCaptureAddr
 	}
 	if strings.EqualFold(address, "off") {
 		log.Println("AUVC_CAPTURE_ADDR is off; no capture app can connect")
+		if local != nil {
+			log.Println("AUVC_LOCAL_CONTROL_SECRET is set, but with the listener off the AUVC app cannot reach this bot")
+		}
 		return func() {}
 	}
 
@@ -56,11 +63,9 @@ func startCaptureListener(pairingService *pairing.Service, controller *bot.Bot) 
 			address)
 	}
 
-	server := newCaptureServer(pairingService, controller)
-
 	httpServer := &http.Server{
 		Addr:    address,
-		Handler: routes(server, controller),
+		Handler: routes(server, controller, local),
 		// A handshake that stalls must not hold a connection open forever. The
 		// WebSocket itself manages its own deadlines once it is upgraded.
 		ReadHeaderTimeout: 10 * time.Second,
@@ -101,14 +106,18 @@ func newCaptureServer(pairingService *pairing.Service, controller *bot.Bot) *tra
 	return server
 }
 
-// routes puts the health endpoint beside the capture endpoints.
+// routes puts the health endpoint, and the Windows app's control interface when
+// there is one, beside the capture endpoints.
 //
 // It lives here rather than in pkg/transport because it is about this process
 // being able to do its job, not about the capture protocol.
-func routes(server *transport.Server, controller *bot.Bot) http.Handler {
+func routes(server *transport.Server, controller *bot.Bot, local *localcontrol.Server) http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/", server.Routes())
 	mux.HandleFunc("/healthz", health(controller))
+	if local != nil {
+		local.Register(mux)
+	}
 	return mux
 }
 

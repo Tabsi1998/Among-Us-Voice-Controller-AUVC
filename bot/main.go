@@ -9,7 +9,9 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
@@ -109,11 +111,31 @@ func run() error {
 	// The session commands need the bot, and the bot needed the service to
 	// answer commands at all, so they are connected once both exist.
 	auvcService.AttachSessionControl(bot.NewSessionControl(controller))
-	auvcService.AttachDoctor(bot.NewDoctor(controller))
+	diagnostician := bot.NewDoctor(controller)
+	auvcService.AttachDoctor(diagnostician)
+
+	captureServer := newCaptureServer(pairingService, controller)
+
+	// The Windows app stops the bot it started by asking, rather than by
+	// killing it, so the players in voice are released on the way out.
+	stopRequested := make(chan struct{})
+	requestStop := sync.OnceFunc(func() { close(stopRequested) })
+
+	local, err := localControl(os.Getenv("AUVC_LOCAL_CONTROL_SECRET"), &localBackend{
+		controller: controller,
+		pairing:    pairingService,
+		capture:    captureServer,
+		doctor:     diagnostician,
+		version:    version,
+		stop:       requestStop,
+	})
+	if err != nil {
+		return err
+	}
 
 	// The capture listener starts after the bot, because the bot is what
 	// applies the messages it receives.
-	stopCaptureListener := startCaptureListener(pairingService, controller)
+	stopCaptureListener := startCaptureListener(captureServer, controller, local)
 	defer stopCaptureListener()
 
 	// The fail-safe: a capture that dies mid-round would otherwise leave every
@@ -121,7 +143,7 @@ func run() error {
 	stopWatchdog := controller.WatchCapture()
 	defer stopWatchdog()
 
-	registered, err := registerCommands(controller)
+	unpublish, err := publishCommands(controller, os.Getenv("SLASH_COMMAND_GUILD_IDS"))
 	if err != nil {
 		return err
 	}
@@ -129,10 +151,15 @@ func run() error {
 	log.Println("AUVC is running. Press CTRL-C to exit.")
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-	<-signals
+	select {
+	case <-signals:
+	case <-stopRequested:
+		log.Println("The AUVC app asked the bot to stop")
+	}
 
 	log.Println("Shutting down")
-	unregisterCommands(controller, registered)
+	controller.ReleaseAll()
+	unpublish()
 	return nil
 }
 
@@ -155,17 +182,45 @@ func startLogging() error {
 	return nil
 }
 
-// registerCommands publishes the command tree to Discord.
-//
-// SLASH_COMMAND_GUILD_IDS registers to named guilds instead of globally, which
-// is what makes a change visible immediately: a global registration can take
-// up to an hour to appear.
-func registerCommands(controller *bot.Bot) ([]registeredCommand, error) {
-	guilds := []string{""} // empty means global
-	if configured := strings.ReplaceAll(os.Getenv("SLASH_COMMAND_GUILD_IDS"), " ", ""); configured != "" {
-		guilds = strings.Split(configured, ",")
+// commandTargets reads SLASH_COMMAND_GUILD_IDS. Empty registers the commands
+// globally, "*" in every guild the bot is in, and a comma-separated list in
+// those guilds.
+func commandTargets(configured string) (everyGuild bool, guilds []string) {
+	configured = strings.ReplaceAll(configured, " ", "")
+	if configured == "*" {
+		return true, nil
 	}
 
+	for _, guild := range strings.Split(configured, ",") {
+		if guild != "" {
+			guilds = append(guilds, guild)
+		}
+	}
+	if len(guilds) == 0 {
+		return false, []string{""} // empty means global
+	}
+	return false, guilds
+}
+
+// publishCommands registers the command tree and returns what removes it again.
+func publishCommands(controller *bot.Bot, configured string) (func(), error) {
+	everyGuild, guilds := commandTargets(configured)
+	if everyGuild {
+		return publishInEveryGuild(controller), nil
+	}
+
+	registered, err := registerCommands(controller, guilds)
+	if err != nil {
+		return nil, err
+	}
+	return func() { unregisterCommands(controller, registered) }, nil
+}
+
+// registerCommands publishes the command tree to Discord.
+//
+// Registering to named guilds instead of globally is what makes a change
+// visible immediately: a global registration can take up to an hour to appear.
+func registerCommands(controller *bot.Bot, guilds []string) ([]registeredCommand, error) {
 	var registered []registeredCommand
 	for _, guild := range guilds {
 		for _, definition := range command.All {
@@ -200,6 +255,73 @@ func unregisterCommands(controller *bot.Bot, registered []registeredCommand) {
 			entry.ApplicationCommand.ApplicationID, entry.GuildID, entry.ApplicationCommand.ID)
 		if err != nil {
 			log.Printf("Could not remove /%s: %v", entry.ApplicationCommand.Name, err)
+		}
+	}
+}
+
+// publishInEveryGuild registers the commands in each guild the bot is in, now
+// and in any guild it joins while running.
+//
+// This is what the Windows app uses: /au appears the moment the bot is invited,
+// with no server id to look up and no hour to wait. Overwriting a guild's
+// commands in bulk is idempotent, so a guild seen twice, on a reconnect for
+// instance, costs one request and changes nothing.
+func publishInEveryGuild(controller *bot.Bot) func() {
+	session := controller.PrimarySession
+	applicationID := session.State.User.ID
+
+	var mu sync.Mutex
+	published := map[string]bool{}
+
+	publish := func(guildID string) {
+		mu.Lock()
+		if published[guildID] {
+			mu.Unlock()
+			return
+		}
+		published[guildID] = true
+		mu.Unlock()
+
+		if _, err := session.ApplicationCommandBulkOverwrite(applicationID, guildID, command.All); err != nil {
+			log.Printf("Could not register /au in guild %s: %v", guildID, err)
+			mu.Lock()
+			delete(published, guildID)
+			mu.Unlock()
+			return
+		}
+		log.Printf("Registered /au in guild %s", guildID)
+	}
+
+	removeHandler := session.AddHandler(func(_ *discordgo.Session, created *discordgo.GuildCreate) {
+		publish(created.ID)
+	})
+
+	session.State.RLock()
+	current := make([]string, 0, len(session.State.Guilds))
+	for _, guild := range session.State.Guilds {
+		current = append(current, guild.ID)
+	}
+	session.State.RUnlock()
+
+	for _, guildID := range current {
+		publish(guildID)
+	}
+
+	return func() {
+		removeHandler()
+
+		mu.Lock()
+		guilds := make([]string, 0, len(published))
+		for guildID := range published {
+			guilds = append(guilds, guildID)
+		}
+		mu.Unlock()
+		slices.Sort(guilds)
+
+		for _, guildID := range guilds {
+			if _, err := session.ApplicationCommandBulkOverwrite(applicationID, guildID, []*discordgo.ApplicationCommand{}); err != nil {
+				log.Printf("Could not remove /au from guild %s: %v", guildID, err)
+			}
 		}
 	}
 }
