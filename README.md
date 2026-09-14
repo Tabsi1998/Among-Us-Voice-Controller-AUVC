@@ -93,6 +93,17 @@ should hear and say, and the reconciler sends only the difference from what
 Discord reports. The [architecture](docs/architecture.md) explains each layer
 and the [protocol](protocol/README.md) defines the connection.
 
+## Prerequisites
+
+- **For the bot:** a Discord application with a bot token, and one of: Windows
+  x64, Linux amd64 or arm64, or Docker with Compose.
+- **For capture:** the Windows PC that plays Among Us, 64-bit Windows 10 or 11.
+  The portable zip and the installer are self-contained, so no .NET install is
+  needed.
+- **For the Discord server:** permission to invite a bot, and the voice channels
+  it should manage.
+- **Everyone else:** nothing. Other players need neither mods nor capture.
+
 ## Running the bot
 
 Two ways, both described step by step in [deploy/README.md](deploy/README.md):
@@ -155,6 +166,21 @@ Every reply is visible only to whoever ran the command.
 | `capture_timeout_seconds` | 60 | Silence from capture before the fail-safe runs (10–600) |
 | `capture_timeout_action` | `fail-open` | `fail-open` releases everyone; `pause` leaves players as they are |
 | `auto_start` | off | Start managing voice when capture sends a game, without `/au session start` |
+
+## Setting up capture
+
+**Not possible with this repository yet.** The capture app does not use the new
+transport (see [Status](#status)), so there is nothing to type a pairing code
+into that the bot would accept.
+
+Once that lands, the capture host will install the app from the release page
+(`AmongUsVoiceCapture-win-x64.zip` or the installer), enter the bot's address and
+the code from `/au capture pair`, and see the pairing confirmed. The planned
+first run, updates, repair and uninstall are described in
+[windows-installation-and-releases.md](docs/windows-installation-and-releases.md);
+the guided first run itself is
+[#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21).
+This section will be rewritten from steps that have actually been carried out.
 
 ## What players hear and see
 
