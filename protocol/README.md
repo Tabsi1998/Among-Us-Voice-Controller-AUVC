@@ -116,7 +116,7 @@ and does not reset it.
 | --- | --- |
 | `incompatible_protocol` | The builds do not speak the same version. Only a matching capture build fixes it. |
 | `expected_hello` | The session was used before it was opened. |
-| `unauthenticated` | Game data arrived before authentication. |
+| `unauthenticated` | Game data arrived before authentication, the credential was refused, or it was revoked while the session was open. The server closes the connection after sending it; only pairing again fixes a revoked credential. |
 | `snapshot_required` | The receiver cannot trust its picture of the round and needs a complete snapshot. |
 | `malformed` | The message could not be understood. |
 

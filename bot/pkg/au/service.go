@@ -434,7 +434,8 @@ func (s *Service) handleCapture(request Request) (string, error) {
 			return "✅ Nothing to revoke: no capture was paired. Any outstanding pairing code was cancelled.", nil
 		}
 		return fmt.Sprintf(
-			"✅ Revoked %d capture credential(s) and cancelled any outstanding pairing code. "+
+			"✅ Revoked %d capture credential(s), cancelled any outstanding pairing code "+
+				"and disconnected any capture app that was still connected. "+
 				"Run `/au capture pair` to connect a capture app again.", revoked), nil
 
 	default:

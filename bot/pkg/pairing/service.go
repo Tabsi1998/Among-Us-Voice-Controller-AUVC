@@ -42,6 +42,12 @@ type Service struct {
 	store Store
 	now   func() time.Time
 	mu    sync.Mutex
+
+	// onRevoke is told about every successful revoke. The database refuses a
+	// revoked credential from then on, but a capture that authenticated before
+	// the revoke is still connected, and only whoever holds the connections can
+	// end it.
+	onRevoke func(guildID string)
 }
 
 // NewService builds a service on the system clock.
@@ -255,9 +261,33 @@ func (s *Service) Revoke(guildID string) (int, error) {
 	}
 
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	revoked, err := s.store.RevokeCaptureAccess(guildID, s.now().Unix())
+	notify := s.onRevoke
+	s.mu.Unlock()
 
-	return s.store.RevokeCaptureAccess(guildID, s.now().Unix())
+	if err != nil {
+		return 0, err
+	}
+
+	// Called even when nothing was revoked. A credential revoked earlier can
+	// still have an open connection from before that revoke, and ending it is
+	// what an administrator running the command again expects.
+	//
+	// It runs outside the lock: whatever it does, it has no business holding up
+	// pairing for every other guild.
+	if notify != nil {
+		notify(guildID)
+	}
+	return revoked, nil
+}
+
+// OnRevoke registers the function told about every successful revoke, replacing
+// any registered before. The capture listener uses it to end connections that
+// authenticated before the credential was withdrawn.
+func (s *Service) OnRevoke(notify func(guildID string)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.onRevoke = notify
 }
 
 // Status is what /au capture status reports.
