@@ -654,7 +654,6 @@ def release_payload(context: Context) -> None:
          "-o", bot_dir / "auvc.exe", "."],
         cwd=BOT, env={"CGO_ENABLED": "0", "GOOS": "windows", "GOARCH": "amd64"},
         what="the bot did not build for the app")
-    shutil.copytree(BOT / "locales", bot_dir / "locales", dirs_exist_ok=True)
 
 
 def portable_zip(context: Context) -> str:

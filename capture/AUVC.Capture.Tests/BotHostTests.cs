@@ -187,11 +187,10 @@ namespace AUVC.Capture.Tests
         [Fact]
         public void TheEnvironmentLeavesNothingToChance()
         {
-            var environment = BotLaunch.EnvironmentFor(Token, "secret", 50123, @"C:\data", @"C:\app\bot");
+            var environment = BotLaunch.EnvironmentFor(Token, "secret", 50123, @"C:\data");
 
             Assert.Equal(@"C:\data\amongus.db", environment["AUVC_DATABASE_PATH"]);
             Assert.Equal(@"C:\data\logs", environment["LOG_PATH"]);
-            Assert.Equal(@"C:\app\bot\locales", environment["LOCALE_PATH"]);
             Assert.Null(environment["AUVC_CAPTURE_TLS_CERT"]);
             Assert.Null(environment["AUVC_CAPTURE_TLS_KEY"]);
             Assert.Null(environment["DISABLE_LOG_FILE"]);

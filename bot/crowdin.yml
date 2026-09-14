@@ -1,3 +1,0 @@
-files:
-  - source: /locales/active.en.toml
-    translation: /locales/active.%two_letters_code%.toml
