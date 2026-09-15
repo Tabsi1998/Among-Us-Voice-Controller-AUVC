@@ -25,8 +25,8 @@
   #define NumericVersion AppVersion
 #endif
 
-#define AppName "AUVC Capture"
-#define AppExe "AUCapture-WPF.exe"
+#define AppName "AUVC"
+#define AppExe "AUVC.exe"
 
 [Setup]
 AppId={{9C3F2A41-6E5B-4E77-9C2E-7A1D5B8F0C36}
@@ -41,8 +41,11 @@ AppPublisherURL=https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC
 ; release contract prefers this, and it is also what lets somebody try AUVC on a
 ; machine they do not administer.
 PrivilegesRequired=lowest
-DefaultDirName={localappdata}\Programs\AUVC Capture
+; An update keeps the folder an earlier version was installed in. The Start menu
+; entry moves to the new name, and [InstallDelete] removes the old one.
+DefaultDirName={localappdata}\Programs\AUVC
 DefaultGroupName={#AppName}
+UsePreviousGroup=no
 DisableProgramGroupPage=yes
 DisableDirPage=no
 
@@ -70,6 +73,17 @@ Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
+
+[InstallDelete]
+; Earlier versions called the program AUCapture-WPF.exe and the shortcuts
+; AUVC Capture. An update removes both, so no shortcut is left pointing at a
+; file that is gone and no second program sits beside the new one.
+Type: files; Name: "{app}\AUCapture-WPF.exe"
+Type: files; Name: "{app}\AUCapture-WPF.dll"
+Type: files; Name: "{app}\AUCapture-WPF.deps.json"
+Type: files; Name: "{app}\AUCapture-WPF.runtimeconfig.json"
+Type: filesandordirs; Name: "{autoprograms}\AUVC Capture"
+Type: files; Name: "{autodesktop}\AUVC Capture.lnk"
 
 [Files]
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

@@ -16,7 +16,7 @@ It is not an official AutoMuteUs project or an official new AutoMuteUs version.
    [releases page](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases),
    or [install it with PowerShell](docs/guide.md#install-with-powershell-without-the-warnings),
    which avoids the download warnings.
-2. Install it and start **AUVC Capture**.
+2. Install it and start **AUVC**.
 3. Follow the setup window: paste a Discord bot token, invite the bot, choose
    the server and the channels.
 4. Every player links themselves once: they pick their crewmate in the text

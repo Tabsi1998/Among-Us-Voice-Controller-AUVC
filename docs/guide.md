@@ -82,11 +82,11 @@ because the files are not signed.
 ## 2. Install or unpack
 
 **Installer.** Run it and follow it. It installs for your Windows account only,
-without administrator rights, and adds **AUVC Capture** to the Start menu. The
+without administrator rights, and adds **AUVC** to the Start menu. The
 last page can start AUVC straight away.
 
 **Portable.** Unpack the zip into a folder of its own, for example
-`Documents\AUVC`, and start `AUCapture-WPF.exe`. Keep the folder complete: the
+`Documents\AUVC`, and start `AUVC.exe`. Keep the folder complete: the
 bot lives in its `bot` subfolder.
 
 Both versions keep their settings in the same place, so you can switch between
@@ -374,7 +374,7 @@ Paste the path into the Windows Explorer address bar to open it.
 
 ## 10. Uninstalling and removing data
 
-**Installer.** Windows **Settings → Apps → Installed apps → AUVC Capture →
+**Installer.** Windows **Settings → Apps → Installed apps → AUVC →
 Uninstall**. It asks whether to delete AUVC's data as well: settings, bot token,
 the bot's database with channels and links, and the logs. Choose **No** to keep
 them for a later reinstall.

@@ -75,7 +75,7 @@ gitleaks detect --redact --no-git --config .gitleaks.toml
 ```
 
 To run the app with its bot from a local build, put the built `auvc.exe` into a
-`bot` folder beside `AUCapture-WPF.exe`. The app looks for `bot\auvc.exe` next to
+`bot` folder beside `AUVC.exe`. The app looks for `bot\auvc.exe` next to
 itself. The bot's texts are compiled into it (`bot/pkg/text`), so nothing else
 goes with it.
 
