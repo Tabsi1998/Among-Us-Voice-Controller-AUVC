@@ -90,6 +90,13 @@ public sealed record LocalCrewmate
     [JsonPropertyName("name")] public string Name { get; init; } = "";
     [JsonPropertyName("color")] public string Color { get; init; } = "";
     [JsonPropertyName("user_id")] public string UserId { get; init; } = "";
+
+    /// <summary>What AUVC holds on the linked member right now; all false while nobody is linked.</summary>
+    [JsonPropertyName("muted")] public bool Muted { get; init; }
+
+    [JsonPropertyName("deafened")] public bool Deafened { get; init; }
+
+    [JsonPropertyName("in_ghost_channel")] public bool InGhostChannel { get; init; }
 }
 
 /// <summary>A Discord member a crewmate can be linked to.</summary>

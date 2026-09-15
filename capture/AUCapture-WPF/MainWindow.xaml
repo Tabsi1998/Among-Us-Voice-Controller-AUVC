@@ -524,21 +524,43 @@
                             <Viewbox.Resources>
                                 <controls:BindingProxy x:Key="Proxy" Data="{DynamicResource MahApps.Brushes.Text}" />
                             </Viewbox.Resources>
-                            <hc:OutlineText
-                                Grid.RowSpan="2"
-                                Margin="20"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Fill="White"
-                                FontSize="40"
-                                FontStretch="Normal"
-                                FontStyle="Normal"
-                                FontWeight="Bold"
-                                Opacity="1"
-                                Stroke="Black"
-                                StrokePosition="Outside"
-                                StrokeThickness="3"
-                                Text="{Binding Name}" />
+                            <StackPanel Orientation="Vertical">
+                                <hc:OutlineText
+                                    Margin="20"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Stretch"
+                                    Fill="White"
+                                    FontSize="40"
+                                    FontStretch="Normal"
+                                    FontStyle="Normal"
+                                    FontWeight="Bold"
+                                    Opacity="1"
+                                    Stroke="Black"
+                                    StrokePosition="Outside"
+                                    StrokeThickness="3"
+                                    Text="{Binding Name}" />
+                                <!--  Who plays this crewmate and what AUVC does to them (PlayerBadges).  -->
+                                <hc:OutlineText
+                                    Margin="20,-12,20,20"
+                                    HorizontalAlignment="Center"
+                                    Fill="White"
+                                    FontSize="26"
+                                    FontWeight="Bold"
+                                    Stroke="Black"
+                                    StrokePosition="Outside"
+                                    StrokeThickness="2"
+                                    Text="{Binding Badges}">
+                                    <hc:OutlineText.Style>
+                                        <Style TargetType="hc:OutlineText">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Badges}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </hc:OutlineText.Style>
+                                </hc:OutlineText>
+                            </StackPanel>
                         </Viewbox>
                         <Viewbox Grid.RowSpan="2" VerticalAlignment="Bottom">
                             <controls:PlayerControl

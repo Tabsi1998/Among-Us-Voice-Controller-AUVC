@@ -76,7 +76,7 @@ namespace AUVC.Capture.Tests
         public async Task TheLobbyIsRead()
         {
             var handler = new StubHandler((_, _) => Json(HttpStatusCode.OK,
-                """{"players":[{"name":"Alice","color":"red","user_id":""}],"members":[{"id":"u1","name":"Red Leader"}]}"""));
+                """{"players":[{"name":"Alice","color":"red","user_id":"","muted":true,"deafened":false,"in_ghost_channel":true}],"members":[{"id":"u1","name":"Red Leader"}]}"""));
 
             var crewmates = await Client(handler).GetCrewmatesAsync("g1");
 
@@ -84,6 +84,7 @@ namespace AUVC.Capture.Tests
             Assert.Equal("/local/guilds/g1/crewmates", handler.Last.RequestUri!.AbsolutePath);
             var player = Assert.Single(crewmates.Players);
             Assert.Equal(("Alice", "red", ""), (player.Name, player.Color, player.UserId));
+            Assert.Equal((true, false, true), (player.Muted, player.Deafened, player.InGhostChannel));
             var member = Assert.Single(crewmates.Members);
             Assert.Equal(("u1", "Red Leader"), (member.Id, member.Name));
         }

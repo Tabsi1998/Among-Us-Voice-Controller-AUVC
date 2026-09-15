@@ -384,4 +384,19 @@ Das lässt sich nicht rückgängig machen.</value>
   <data name="StatusReadyCounted" xml:space="preserve">
     <value>{0} von {1} Spielern verknüpft. AUVC steuert nur verknüpfte Spieler.</value>
   </data>
+  <data name="BadgeNotLinked" xml:space="preserve">
+    <value>nicht verknüpft</value>
+  </data>
+  <data name="BadgeLinked" xml:space="preserve">
+    <value>verknüpft</value>
+  </data>
+  <data name="BadgeInGhostChannel" xml:space="preserve">
+    <value>Geisterkanal</value>
+  </data>
+  <data name="BadgeMuted" xml:space="preserve">
+    <value>stumm</value>
+  </data>
+  <data name="BadgeDeafened" xml:space="preserve">
+    <value>taub</value>
+  </data>
 </root>

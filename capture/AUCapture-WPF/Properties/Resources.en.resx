@@ -384,4 +384,19 @@ This cannot be undone.</value>
   <data name="StatusReadyCounted" xml:space="preserve">
     <value>{0} of {1} players linked. AUVC manages only linked players.</value>
   </data>
+  <data name="BadgeNotLinked" xml:space="preserve">
+    <value>not linked</value>
+  </data>
+  <data name="BadgeLinked" xml:space="preserve">
+    <value>linked</value>
+  </data>
+  <data name="BadgeInGhostChannel" xml:space="preserve">
+    <value>ghost channel</value>
+  </data>
+  <data name="BadgeMuted" xml:space="preserve">
+    <value>muted</value>
+  </data>
+  <data name="BadgeDeafened" xml:space="preserve">
+    <value>deafened</value>
+  </data>
 </root>

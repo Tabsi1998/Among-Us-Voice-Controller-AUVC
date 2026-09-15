@@ -213,10 +213,17 @@ func (l *localBackend) Crewmates(guildID string) (localcontrol.Crewmates, error)
 		if player.Disconnected {
 			continue
 		}
+		owner := owners[player.Name]
+		// What AUVC set on the member, not what the policy would like: a mute that
+		// failed is not shown as done.
+		hold := l.controller.VoiceHoldOf(guildID, owner)
 		result.Players = append(result.Players, localcontrol.Crewmate{
-			Name:   player.Name,
-			Color:  game.GetColorStringForInt(player.Color),
-			UserID: owners[player.Name],
+			Name:           player.Name,
+			Color:          game.GetColorStringForInt(player.Color),
+			UserID:         owner,
+			Muted:          hold.Muted,
+			Deafened:       hold.Deafened,
+			InGhostChannel: hold.GhostChannelID != "",
 		})
 	}
 	return result, nil

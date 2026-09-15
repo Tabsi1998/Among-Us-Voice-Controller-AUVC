@@ -65,6 +65,19 @@ namespace AUCapture_WPF.Models
             }
         }
 
+        private string _badges = "";
+
+        /// <summary>Who plays this crewmate and what AUVC does to them, or empty when unknown.</summary>
+        public string Badges
+        {
+            get => _badges;
+            set
+            {
+                _badges = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _name;
 
         public string Name
