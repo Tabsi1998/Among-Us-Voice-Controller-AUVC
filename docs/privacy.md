@@ -13,6 +13,11 @@ of AUVC releases on every start, unless **Check for new versions** is switched
 off in its settings. The request carries nothing about you, your server or your
 game. GitHub sees the PC's IP address, as with any visit to a web page.
 
+Opening **Contributors** under **Settings → About** asks GitHub for the
+contributors of the two upstream projects, `automuteus/automuteus` and
+`automuteus/amonguscapture`, and shows their profile pictures from GitHub. That
+request carries nothing about you either.
+
 ## What AUVC does not collect
 
 - **Audio.** The bot never joins a voice channel to listen. It changes mute,

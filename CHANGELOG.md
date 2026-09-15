@@ -4,6 +4,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Fixed
+
+- The guides match the app again
+  ([#143](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/143)).
+  - **German guide:** the crewmate menu, its unlink button and the bot's checks
+    are named the way the bot writes them in German, and pairing ends with
+    **Koppeln**.
+  - **Both guides:** the status line puts what to do next on a line of its own.
+    Asking for help starts with **Export diagnostics**, and updating from
+    v0.1.3-beta mentions the new program file.
+  - **Privacy:** opening **Contributors** asks GitHub for the upstream
+    contributors.
+  - **Smoke test:** `docs/acceptance.md` walks through one PC with the bot inside
+    the app, and says what differs with a bot on another computer.
+  - **Test:** `GuideTextTests` holds the settings table and the pairing steps of
+    both guides to the app's own words.
+
 ## v0.1.4-beta — 2026-09-15
 
 The fifth pre-release. The app is called AUVC everywhere, saves a redacted

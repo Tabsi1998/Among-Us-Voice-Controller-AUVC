@@ -42,9 +42,10 @@ straight away, because everyone saw it happen.
 
 ## Status
 
-The current version is the pre-release `v0.1.2-beta`. It has been tried in live
-rounds in full public lobbies with Among Us and Discord. The files are not
-signed, so Windows warns about an unknown publisher.
+AUVC is in pre-release: every version so far ends in `-beta`, and the newest is
+on the [releases page](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases).
+It has been tried in live rounds in full public lobbies with Among Us and
+Discord. The files are not signed, so Windows warns about an unknown publisher.
 `v1.0.0` will be the first finished release
 ([#18](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/18)).
 

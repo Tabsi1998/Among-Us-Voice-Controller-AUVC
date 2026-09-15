@@ -43,7 +43,10 @@ hash. A new code replaces the previous one.
 **Nothing secret in logs or replies.** Secrets are held in a type that prints and
 serialises as `[redacted]`. Tests assert that neither pairing codes nor
 credentials reach the log, `/au doctor`, `/au capture status` or the
-configuration export.
+configuration export. The app's diagnostics export blacks out bot tokens,
+credentials, pairing codes and authorization values before it writes the zip,
+and never adds the token file, the credential file or the database;
+`DiagnosticsTests` checks both.
 
 **The connection.** Every message is validated against a versioned protocol.
 Requests with an `Origin` header are refused, frames are size-limited and idle
