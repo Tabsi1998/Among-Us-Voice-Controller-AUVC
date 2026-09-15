@@ -423,4 +423,34 @@ This cannot be undone.</value>
   <data name="UpdateOpenReleasePage" xml:space="preserve">
     <value>Open the release page</value>
   </data>
+  <data name="StatusBotProblem" xml:space="preserve">
+    <value>The bot reports a problem: {0}</value>
+  </data>
+  <data name="StatusGameNotSupported" xml:space="preserve">
+    <value>AUVC cannot read this Among Us version</value>
+  </data>
+  <data name="StatusGameNotSupportedNext" xml:space="preserve">
+    <value>Among Us was probably updated. Install the newest AUVC version; a line at the top links to it as soon as one is out.</value>
+  </data>
+  <data name="PairedMessage" xml:space="preserve">
+    <value>The app is paired with the AUVC bot and connects by itself from now on.</value>
+  </data>
+  <data name="PairedInClearWarning" xml:space="preserve">
+    <value>Warning: this address uses plain HTTP to another computer, so the credential crosses the network unencrypted. Ask the bot's administrator for an https:// address.</value>
+  </data>
+  <data name="PairingEmptyCode" xml:space="preserve">
+    <value>Enter the pairing code from /au capture pair.</value>
+  </data>
+  <data name="PairingInvalidAddress" xml:space="preserve">
+    <value>That is not the address of a bot. Enter it in the form {0}.</value>
+  </data>
+  <data name="PairingUnreachable" xml:space="preserve">
+    <value>Could not reach the AUVC bot at {0}. Check the address and that the bot is running.</value>
+  </data>
+  <data name="PairingExpired" xml:space="preserve">
+    <value>That pairing code has expired. Ask an administrator for a new one with /au capture pair.</value>
+  </data>
+  <data name="PairingRejected" xml:space="preserve">
+    <value>That pairing code is not valid. Ask an administrator for a new one with /au capture pair.</value>
+  </data>
 </root>

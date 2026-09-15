@@ -82,6 +82,7 @@ namespace AUVC.Capture.Tests
             var error = await Assert.ThrowsAsync<PairingRefusedException>(
                 () => client.PairAsync(Bot, "AUVC-ABCD-1234"));
 
+            Assert.Equal(PairingProblem.Expired, error.Problem);
             Assert.Contains("expired", error.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("/au capture pair", error.Message, StringComparison.Ordinal);
         }
@@ -96,6 +97,7 @@ namespace AUVC.Capture.Tests
             var error = await Assert.ThrowsAsync<PairingRefusedException>(
                 () => client.PairAsync(Bot, "AUVC-0000-0000"));
 
+            Assert.Equal(PairingProblem.Rejected, error.Problem);
             Assert.Contains("/au capture pair", error.Message, StringComparison.Ordinal);
         }
 
@@ -113,6 +115,7 @@ namespace AUVC.Capture.Tests
             var error = await Assert.ThrowsAsync<PairingRefusedException>(
                 () => client.PairAsync(Bot, "AUVC-ABCD-1234"));
 
+            Assert.Equal(PairingProblem.Unreachable, error.Problem);
             Assert.Contains("reach", error.Message, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("not valid", error.Message, StringComparison.OrdinalIgnoreCase);
         }
@@ -123,7 +126,9 @@ namespace AUVC.Capture.Tests
             var handler = new StubHandler(_ => throw new InvalidOperationException("must not be called"));
             var client = new PairingClient(new HttpClient(handler));
 
-            await Assert.ThrowsAsync<PairingRefusedException>(() => client.PairAsync(Bot, "   "));
+            var error = await Assert.ThrowsAsync<PairingRefusedException>(() => client.PairAsync(Bot, "   "));
+
+            Assert.Equal(PairingProblem.EmptyCode, error.Problem);
             Assert.Null(handler.LastUri);
         }
 
@@ -144,6 +149,7 @@ namespace AUVC.Capture.Tests
             var error = await Assert.ThrowsAsync<PairingRefusedException>(
                 () => client.PairAsync(Bot, "AUVC-ABCD-1234"));
 
+            Assert.Equal(PairingProblem.Other, error.Problem);
             Assert.Contains("502", error.Message, StringComparison.Ordinal);
         }
     }

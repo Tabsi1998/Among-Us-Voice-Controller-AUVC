@@ -439,6 +439,24 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Warning: this address uses plain HTTP to another computer, so the credential crosses the network unencrypted. Ask the bot&apos;s administrator for an https:// address..
+        /// </summary>
+        public static string PairedInClearWarning {
+            get {
+                return ResourceManager.GetString("PairedInClearWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The app is paired with the AUVC bot and connects by itself from now on..
+        /// </summary>
+        public static string PairedMessage {
+            get {
+                return ResourceManager.GetString("PairedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Paired.
         /// </summary>
         public static string PairedTitle {
@@ -448,11 +466,56 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter the pairing code from /au capture pair..
+        /// </summary>
+        public static string PairingEmptyCode {
+            get {
+                return ResourceManager.GetString("PairingEmptyCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to That pairing code has expired. Ask an administrator for a new one with /au capture pair..
+        /// </summary>
+        public static string PairingExpired {
+            get {
+                return ResourceManager.GetString("PairingExpired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pairing failed.
         /// </summary>
         public static string PairingFailedTitle {
             get {
                 return ResourceManager.GetString("PairingFailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to That is not the address of a bot. Enter it in the form {0}..
+        /// </summary>
+        public static string PairingInvalidAddress {
+            get {
+                return ResourceManager.GetString("PairingInvalidAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to That pairing code is not valid. Ask an administrator for a new one with /au capture pair..
+        /// </summary>
+        public static string PairingRejected {
+            get {
+                return ResourceManager.GetString("PairingRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not reach the AUVC bot at {0}. Check the address and that the bot is running..
+        /// </summary>
+        public static string PairingUnreachable {
+            get {
+                return ResourceManager.GetString("PairingUnreachable", resourceCulture);
             }
         }
         
@@ -728,6 +791,15 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The bot reports a problem: {0}.
+        /// </summary>
+        public static string StatusBotProblem {
+            get {
+                return ResourceManager.GetString("StatusBotProblem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connecting to the bot ….
         /// </summary>
         public static string StatusConnecting {
@@ -742,6 +814,24 @@ namespace AUCapture_WPF.Properties {
         public static string StatusConnectingRemoteNext {
             get {
                 return ResourceManager.GetString("StatusConnectingRemoteNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUVC cannot read this Among Us version.
+        /// </summary>
+        public static string StatusGameNotSupported {
+            get {
+                return ResourceManager.GetString("StatusGameNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Among Us was probably updated. Install the newest AUVC version; a line at the top links to it as soon as one is out..
+        /// </summary>
+        public static string StatusGameNotSupportedNext {
+            get {
+                return ResourceManager.GetString("StatusGameNotSupportedNext", resourceCulture);
             }
         }
         
