@@ -43,6 +43,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   - **Pinned shortcuts:** a shortcut pinned to the taskbar by hand still points
     at the old file and has to be pinned again.
   - **Portable version:** start `AUVC.exe`.
+- Screen readers can name every button of the app
+  ([#135](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/135)).
+  The settings, pairing and contributors buttons and the button that starts
+  Among Us show only a symbol and now carry a name; the last one also has a
+  tooltip, which it lacked. The connection line at the bottom says in words whether AUVC is
+  connected, not only with its coloured picture.
 
 ### Fixed
 

@@ -80,7 +80,10 @@
         <mah:WindowCommands>
 
             <Button x:Name="SetupButton" Click="SetupButton_Click" Padding="8,0" />
-            <Button Click="Settings" ToolTip="{l:Static properties:Resources.SettingsTooltip}">
+            <Button
+                AutomationProperties.Name="{l:Static properties:Resources.SettingsTooltip}"
+                Click="Settings"
+                ToolTip="{l:Static properties:Resources.SettingsTooltip}">
                 <Button.ContentTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -101,6 +104,7 @@
             </Button>
             <Button
                 x:Name="ManualConnectButton"
+                AutomationProperties.Name="{l:Static properties:Resources.ManualConnectTooltip}"
                 Click="ManualConnect_Click"
                 ToolTip="{l:Static properties:Resources.ManualConnectTooltip}">
                 <Button.ContentTemplate>
@@ -249,7 +253,10 @@
                                                     Text="{Binding LatestVersion, Mode=OneWay}" />
                                             </mah:MetroHeader>
                                             <mah:MetroHeader Header="{l:Static properties:Resources.SettingsAboutTabContributorsButton}">
-                                                <Button Click="ContributorsButton_OnClick" ToolTip="{l:Static properties:Resources.SettingsAboutTabContributorsButtonToolTip}">
+                                                <Button
+                                                    AutomationProperties.Name="{l:Static properties:Resources.SettingsAboutTabContributorsButtonToolTip}"
+                                                    Click="ContributorsButton_OnClick"
+                                                    ToolTip="{l:Static properties:Resources.SettingsAboutTabContributorsButtonToolTip}">
                                                     <Button.ContentTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal">
@@ -445,6 +452,8 @@
                 Padding="14"
                 HorizontalAlignment="Center"
                 VerticalContentAlignment="Center"
+                AutomationProperties.Name="{l:Static properties:Resources.StartAmongUsTooltip}"
+                ToolTip="{l:Static properties:Resources.StartAmongUsTooltip}"
                 Command="{Binding OpenAmongUsCMD, Mode=OneWay}"
                 Style="{DynamicResource MahApps.Styles.Button.Circle}"
                 Visibility="{Binding Connected, Converter={StaticResource BoolToVisibilityConverterInverted}}">
@@ -637,6 +646,7 @@
                                         <MultiBinding Converter="{StaticResource ConnectionStateTranslator}">
                                             <Binding Path="ConnectionName" />
                                             <l:CurrentCulture />
+                                            <Binding Path="Connected" />
                                         </MultiBinding>
                                     </Label.Content>
                                 </Label>

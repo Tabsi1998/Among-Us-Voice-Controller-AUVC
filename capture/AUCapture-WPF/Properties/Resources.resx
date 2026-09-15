@@ -235,6 +235,15 @@ It holds AUVC's logs, settings and checks, with in-game names and Discord IDs. T
   <data name="ConnectionStatus.DISCORD BOT" xml:space="preserve">
     <value>Discord</value>
   </data>
+  <data name="StartAmongUsTooltip" xml:space="preserve">
+    <value>Start Among Us</value>
+  </data>
+  <data name="ConnectionStatus.Connected" xml:space="preserve">
+    <value>connected</value>
+  </data>
+  <data name="ConnectionStatus.Disconnected" xml:space="preserve">
+    <value>not connected</value>
+  </data>
   <data name="MapTooltip" xml:space="preserve">
     <value>Current map</value>
   </data>

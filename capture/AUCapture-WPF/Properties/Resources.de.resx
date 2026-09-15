@@ -235,6 +235,15 @@ Die Datei enthält Logs, Einstellungen und Prüfungen von AUVC, mit Spielernamen
   <data name="ConnectionStatus.DISCORD BOT" xml:space="preserve">
     <value>Discord</value>
   </data>
+  <data name="StartAmongUsTooltip" xml:space="preserve">
+    <value>Among Us starten</value>
+  </data>
+  <data name="ConnectionStatus.Connected" xml:space="preserve">
+    <value>verbunden</value>
+  </data>
+  <data name="ConnectionStatus.Disconnected" xml:space="preserve">
+    <value>nicht verbunden</value>
+  </data>
   <data name="MapTooltip" xml:space="preserve">
     <value>Aktuelle Karte</value>
   </data>

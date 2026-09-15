@@ -169,6 +169,24 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to connected.
+        /// </summary>
+        public static string ConnectionStatus_Connected {
+            get {
+                return ResourceManager.GetString("ConnectionStatus.Connected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not connected.
+        /// </summary>
+        public static string ConnectionStatus_Disconnected {
+            get {
+                return ResourceManager.GetString("ConnectionStatus.Disconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Discord.
         /// </summary>
         public static string ConnectionStatus_DISCORD_BOT {
@@ -798,6 +816,15 @@ namespace AUCapture_WPF.Properties {
         public static string SettingsTooltip {
             get {
                 return ResourceManager.GetString("SettingsTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start Among Us.
+        /// </summary>
+        public static string StartAmongUsTooltip {
+            get {
+                return ResourceManager.GetString("StartAmongUsTooltip", resourceCulture);
             }
         }
         
