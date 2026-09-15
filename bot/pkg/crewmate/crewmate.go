@@ -17,6 +17,7 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/assets"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/session"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -37,6 +38,28 @@ const (
 
 	embedColor = 0xC51111
 )
+
+// colorNames names every colour the game defines, by its number.
+var colorNames = map[int]text.Key{
+	game.Red:    text.ColorRed,
+	game.Blue:   text.ColorBlue,
+	game.Green:  text.ColorGreen,
+	game.Pink:   text.ColorPink,
+	game.Orange: text.ColorOrange,
+	game.Yellow: text.ColorYellow,
+	game.Black:  text.ColorBlack,
+	game.White:  text.ColorWhite,
+	game.Purple: text.ColorPurple,
+	game.Brown:  text.ColorBrown,
+	game.Cyan:   text.ColorCyan,
+	game.Lime:   text.ColorLime,
+	game.Maroon: text.ColorMaroon,
+	game.Rose:   text.ColorRose,
+	game.Banana: text.ColorBanana,
+	game.Gray:   text.ColorGray,
+	game.Tan:    text.ColorTan,
+	game.Coral:  text.ColorCoral,
+}
 
 // Image is one crewmate picture, ready to upload as an application emoji.
 type Image struct {
@@ -114,7 +137,7 @@ func (b Board) Key() string {
 	return string(data)
 }
 
-// Render builds the board for the players in a session.
+// Render builds the board for the players in a session, in a language.
 //
 // owners maps an in-game name to the Discord user linked to it. emojis may be
 // empty, for instance while the pictures are still being uploaded; the board
@@ -123,41 +146,38 @@ func (b Board) Key() string {
 // A death nobody has been told about yet looks exactly like a living player.
 // The board is public, and a figure that turned into a ghost during tasks
 // would announce the kill to everyone reading the channel.
-func Render(players []session.GamePlayer, owners map[string]string, emojis Emojis) Board {
+func Render(language text.Language, players []session.GamePlayer, owners map[string]string, emojis Emojis) Board {
 	shown := visible(players)
 
 	embed := &discordgo.MessageEmbed{
-		Title: "Choose your crewmate",
+		Title: language.Say(text.BoardTitle),
 		Color: embedColor,
 	}
 	if len(shown) == 0 {
-		embed.Description = "Waiting for players. Join a lobby in Among Us while the AUVC app is running."
+		embed.Description = language.Say(text.BoardWaiting)
 		return Board{Embed: embed}
 	}
 
-	lines := []string{
-		"Pick the crewmate you are playing in the menu below. AUVC then mutes and moves the right person.",
-		"",
-	}
+	lines := []string{language.Say(text.BoardIntro), ""}
 	options := make([]discordgo.SelectMenuOption, 0, len(shown)+1)
 
 	for _, player := range shown {
 		dead := !player.Alive && player.Revealed
 		emojiName := EmojiName(player.Color, dead)
 		emojiID := emojis[emojiName]
+		color := colorLabel(player.Color, language)
 
 		owner, taken := owners[player.Name]
-		ownerText, state := "*free*", "free"
+		ownerText, state := "*"+language.Say(text.BoardFree)+"*", language.Say(text.BoardFree)
 		if taken {
-			ownerText, state = "<@"+owner+">", "taken"
+			ownerText, state = "<@"+owner+">", language.Say(text.BoardTaken)
 		}
 
 		prefix := ""
 		if emojiID != "" {
 			prefix = "<:" + emojiName + ":" + emojiID + "> "
 		}
-		lines = append(lines, fmt.Sprintf("%s**%s** · %s · %s",
-			prefix, escape(player.Name), colorLabel(player.Color), ownerText))
+		lines = append(lines, fmt.Sprintf("%s**%s** · %s · %s", prefix, escape(player.Name), color, ownerText))
 
 		value := playerPrefix + player.Name
 		if len(value) > maxValueLength || len(options) == maxOptions-1 {
@@ -166,7 +186,7 @@ func Render(players []session.GamePlayer, owners map[string]string, emojis Emoji
 		option := discordgo.SelectMenuOption{
 			Label:       truncate(player.Name, maxValueLength),
 			Value:       value,
-			Description: colorLabel(player.Color) + " · " + state,
+			Description: color + " · " + state,
 		}
 		if emojiID != "" {
 			option.Emoji = &discordgo.ComponentEmoji{Name: emojiName, ID: emojiID}
@@ -174,15 +194,14 @@ func Render(players []session.GamePlayer, owners map[string]string, emojis Emoji
 		options = append(options, option)
 	}
 
+	unlink := language.Say(text.BoardUnlink)
 	embed.Description = strings.Join(lines, "\n")
-	embed.Footer = &discordgo.MessageEmbedFooter{
-		Text: "Picked the wrong one? Choose again, or choose \"Unlink me\".",
-	}
+	embed.Footer = &discordgo.MessageEmbedFooter{Text: language.Say(text.BoardFooter, unlink)}
 
 	options = append(options, discordgo.SelectMenuOption{
-		Label:       "Unlink me",
+		Label:       unlink,
 		Value:       unlinkValue,
-		Description: "Remove your link",
+		Description: language.Say(text.BoardUnlinkHint),
 		Emoji:       &discordgo.ComponentEmoji{Name: "✖️"},
 	})
 
@@ -193,7 +212,7 @@ func Render(players []session.GamePlayer, owners map[string]string, emojis Emoji
 				discordgo.SelectMenu{
 					MenuType:    discordgo.StringSelectMenu,
 					CustomID:    SelectID,
-					Placeholder: "Choose your crewmate",
+					Placeholder: language.Say(text.BoardPlaceholder),
 					MaxValues:   1,
 					Options:     options,
 				},
@@ -242,12 +261,11 @@ func visible(players []session.GamePlayer) []session.GamePlayer {
 	return shown
 }
 
-func colorLabel(color int) string {
-	name := game.GetColorStringForInt(color)
-	if name == "" {
-		return "Unknown colour"
+func colorLabel(color int, language text.Language) string {
+	if key, ok := colorNames[color]; ok {
+		return language.Say(key)
 	}
-	return strings.ToUpper(name[:1]) + name[1:]
+	return language.Say(text.ColorUnknown)
 }
 
 // escape keeps an in-game name from being read as Discord formatting.

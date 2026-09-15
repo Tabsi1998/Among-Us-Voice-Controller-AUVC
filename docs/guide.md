@@ -246,6 +246,7 @@ options as you type.
 | `capture_timeout_seconds` | 60 | How long the bot waits when the app stops reporting to it before it acts (10–600) |
 | `capture_timeout_action` | `fail-open` | `fail-open` unmutes everyone and brings them back; `pause` leaves everyone as they are |
 | `auto_start` | on after setup | Start as soon as a game is detected |
+| `language` | Same as Discord | The language of the crewmate message and the notices in the text channel. *Same as Discord* follows the server language set in Discord, which is English on a server without the Community feature |
 
 `/au settings show` lists the current settings.
 
@@ -253,7 +254,9 @@ options as you type.
 
 Every answer is visible only to whoever typed the command. It comes in your
 Discord language: German when your Discord is set to German, English otherwise.
-Discord shows the command descriptions the same way.
+Discord shows the command descriptions the same way. The crewmate message and
+the notices in the text channel are read by everyone, so they come in the
+server's language (`/au settings language`).
 
 | Command | What it does |
 | --- | --- |
@@ -263,7 +266,7 @@ Discord shows the command descriptions the same way.
 | `/au session status` | Whether AUVC is currently managing voice |
 | `/au session start`, `stop`, `pause`, `resume` | Start or stop managing voice by hand. `stop` releases everyone, `pause` leaves everyone as they are |
 | `/au doctor` | Check everything and say what is missing |
-| `/au settings show`, `voice`, `ghosts`, `safety`, `preset`, `export` | See and change the game settings |
+| `/au settings show`, `voice`, `ghosts`, `safety`, `language`, `preset`, `export` | See and change the game settings |
 | `/au setup channels` | Choose the channels in Discord instead of in the app |
 | `/au setup permissions` | A role, besides administrators, that may change AUVC |
 | `/au setup reset` | Restore the default settings; links are kept |

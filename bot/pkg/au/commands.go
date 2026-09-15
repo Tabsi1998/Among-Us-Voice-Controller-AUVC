@@ -34,6 +34,8 @@ const (
 	SettingsSafety = "safety"
 	SettingsExport = "export"
 
+	SettingsLanguage = "language"
+
 	CapturePair   = "pair"
 	CaptureStatus = "status"
 	CaptureRevoke = "revoke"
@@ -66,7 +68,12 @@ const (
 	OptionPlayer         = "player"
 	OptionUser           = "user"
 	OptionConfirm        = "confirm"
+	OptionLanguage       = "language"
 )
+
+// LanguageFromDiscord is the choice for following the server language set in
+// Discord. It is stored as an empty language.
+const LanguageFromDiscord = "discord"
 
 // Capture timeout bounds. Below the minimum a brief network hiccup would trip
 // the fail-safe; above the maximum a dead capture would leave players muted for
@@ -188,6 +195,24 @@ func freeText(name string, key text.Key, required bool, allowed ...string) *disc
 	return value
 }
 
+// languageOption offers following Discord and every language AUVC speaks. Each
+// language is named in itself, so it can be found from any other.
+func languageOption() *discordgo.ApplicationCommandOption {
+	choice := option(discordgo.ApplicationCommandOptionString, OptionLanguage, text.DescribeLanguage)
+	choice.Required = true
+
+	sameAsDiscord, translations := describe(text.LanguageSameAsDiscord)
+	choice.Choices = []*discordgo.ApplicationCommandOptionChoice{
+		{Name: sameAsDiscord, NameLocalizations: translations, Value: LanguageFromDiscord},
+	}
+	for _, language := range text.Languages {
+		choice.Choices = append(choice.Choices, &discordgo.ApplicationCommandOptionChoice{
+			Name: language.Name(), Value: string(language),
+		})
+	}
+	return choice
+}
+
 // Command returns the complete /au tree.
 //
 // Options use the real Discord types: channel options are restricted to the
@@ -242,6 +267,9 @@ func Command() *discordgo.ApplicationCommand {
 					timeout,
 					freeText(OptionTimeoutAction, text.DescribeTimeoutAction, false, CaptureTimeoutActions...),
 					boolean(OptionAutoStart, text.DescribeAutoStart, false),
+				),
+				sub(SettingsLanguage, text.DescribeSettingsLanguage,
+					languageOption(),
 				),
 				sub(SettingsExport, text.DescribeSettingsExport),
 			),

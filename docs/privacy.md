@@ -33,7 +33,7 @@ The bot's database:
 
 | Table | Contents | Kept until |
 | --- | --- | --- |
-| `guild_config` | Channel ids, the admin role id, and the voice, ghost and safety settings of each server | `/au setup reset` restores the defaults; the row itself remains |
+| `guild_config` | Channel ids, the admin role id, and the voice, ghost, safety and language settings of each server | `/au setup reset` restores the defaults; the row itself remains |
 | `player_link` | In-game name and Discord user id, per server | `/au unlink` |
 | `capture_pairing` | SHA-256 hash of an outstanding pairing code, and the Discord user id of whoever requested it | The code is redeemed, replaced, revoked, or found expired |
 | `capture_credential` | Random identifier and SHA-256 hash of each app credential, with creation, last-use and revocation times | Not deleted automatically. A revoked credential stays as a hash, so a later attempt to use it is recognised as revoked |

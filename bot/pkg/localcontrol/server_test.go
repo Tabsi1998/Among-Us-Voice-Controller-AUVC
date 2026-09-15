@@ -9,6 +9,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	// Named lang here: text is this file's helper for optional strings.
+	lang "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
 // The secret is assembled rather than written out, so a secret scanner reading
@@ -28,6 +31,7 @@ type fakeBackend struct {
 	crewmates    map[string]Crewmates
 	links        []Link
 	linkErr      error
+	languages    []lang.Language
 }
 
 func newFake() *fakeBackend {
@@ -69,8 +73,11 @@ func (f *fakeBackend) Channels(guildID string) ([]Channel, error) {
 	return f.channels[guildID], nil
 }
 
-func (f *fakeBackend) Guild(guildID string) (Guild, error) {
+func (f *fakeBackend) Guild(guildID string, language lang.Language) (Guild, error) {
 	f.called()
+	f.mu.Lock()
+	f.languages = append(f.languages, language)
+	f.mu.Unlock()
 	guild, ok := f.guilds[guildID]
 	if !ok {
 		return Guild{}, ErrUnknownGuild
@@ -149,6 +156,7 @@ type request struct {
 	remote             string
 	authorization      *string
 	origin             string
+	language           string
 }
 
 func serve(t *testing.T, backend Backend, req request) *httptest.ResponseRecorder {
@@ -163,6 +171,9 @@ func serve(t *testing.T, backend Backend, req request) *httptest.ResponseRecorde
 
 	r := httptest.NewRequest(req.method, req.path, strings.NewReader(req.body))
 	r.RemoteAddr = "127.0.0.1:50123"
+	if req.language != "" {
+		r.Header.Set("Accept-Language", req.language)
+	}
 	if req.remote != "" {
 		r.RemoteAddr = req.remote
 	}
@@ -323,6 +334,40 @@ func TestASetupIsPassedOnAndAnsweredWithTheSavedGuild(t *testing.T) {
 	}
 	if guild.GhostVoiceChannelID != "v2" || !guild.AutoStart {
 		t.Errorf("the answer does not show the saved setup: %+v", guild)
+	}
+}
+
+// The app sends its own language, so the checks it shows are in that language.
+// Only the preferred tag counts, and a language AUVC does not speak is English.
+func TestTheAppLanguageIsReadFromAcceptLanguage(t *testing.T) {
+	for header, want := range map[string]lang.Language{
+		"de":                      lang.German,
+		"de-DE,de;q=0.9,en;q=0.8": lang.German,
+		"en-US":                   lang.English,
+		"fr-FR,de;q=0.5":          lang.English,
+		"":                        lang.English,
+	} {
+		r := httptest.NewRequest(http.MethodGet, "/local/guilds/g1", nil)
+		if header != "" {
+			r.Header.Set("Accept-Language", header)
+		}
+		if got := languageOf(r); got != want {
+			t.Errorf("Accept-Language %q: got %s, want %s", header, got, want)
+		}
+	}
+}
+
+// The guild route hands the app's language on, so the checks come back in it.
+func TestTheGuildIsDescribedInTheLanguageOfTheApp(t *testing.T) {
+	backend := newFake()
+
+	serve(t, backend, request{method: http.MethodGet, path: "/local/guilds/g1", language: "de-DE"})
+	serve(t, backend, request{method: http.MethodGet, path: "/local/guilds/g1"})
+
+	backend.mu.Lock()
+	defer backend.mu.Unlock()
+	if len(backend.languages) != 2 || backend.languages[0] != lang.German || backend.languages[1] != lang.English {
+		t.Errorf("the backend was asked in %v, want [de en]", backend.languages)
 	}
 }
 

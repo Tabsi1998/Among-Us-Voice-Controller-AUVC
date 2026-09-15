@@ -90,6 +90,7 @@ func TestSaveGuildConfigRoundTrip(t *testing.T) {
 	want.CaptureTimeoutSeconds = 120
 	want.CaptureTimeoutAction = "pause"
 	want.AutoStart = true
+	want.Language = "de"
 
 	if err := db.SaveGuildConfig(want); err != nil {
 		t.Fatalf("save: %v", err)

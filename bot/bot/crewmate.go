@@ -401,6 +401,14 @@ func (bot *Bot) AttachCrewmates(store BoardStore) {
 	bot.Crewmates = NewCrewmateBoards(
 		discordCrewmateAPI{session: bot.PrimarySession}, store, bot.PrimarySession.State.User.ID)
 
+	// A server that changes its language in Discord sees the board rewritten in
+	// it straight away, rather than at the next change in the lobby.
+	bot.PrimarySession.AddHandler(func(_ *discordgo.Session, update *discordgo.GuildUpdate) {
+		if update.Guild != nil {
+			bot.RefreshCrewmates(update.Guild.ID)
+		}
+	})
+
 	go func() {
 		uploaded, err := bot.Crewmates.UploadEmojis()
 		if err != nil {
@@ -431,7 +439,9 @@ func (bot *Bot) refreshCrewmateBoard(guildID string) {
 		log.Printf("Could not read the configuration for the crewmate board of guild %s: %v", guildID, err)
 		return
 	}
-	view, err := bot.crewmateMenu(guildID)
+	// Everybody in the text channel reads the board, so it is in the server's
+	// language rather than anybody's own.
+	view, err := bot.crewmateMenu(guildID, bot.guildLanguage(guildID))
 	if err != nil {
 		log.Printf("Could not build the crewmate board of guild %s: %v", guildID, err)
 		return
@@ -449,10 +459,10 @@ func (bot *Bot) refreshCrewmateBoard(guildID string) {
 	}
 }
 
-// crewmateMenu renders the board for a guild's current session.
-func (bot *Bot) crewmateMenu(guildID string) (crewmate.Board, error) {
+// crewmateMenu renders the board for a guild's current session, in a language.
+func (bot *Bot) crewmateMenu(guildID string, language text.Language) (crewmate.Board, error) {
 	if bot.CaptureSessions == nil {
-		return crewmate.Render(nil, nil, nil), nil
+		return crewmate.Render(language, nil, nil, nil), nil
 	}
 	_, _, players := bot.CaptureSessions.Snapshot(guildID)
 
@@ -471,13 +481,13 @@ func (bot *Bot) crewmateMenu(guildID string) (crewmate.Board, error) {
 	if bot.Crewmates != nil {
 		emojis = bot.Crewmates.Emojis()
 	}
-	return crewmate.Render(players, owners, emojis), nil
+	return crewmate.Render(language, players, owners, emojis), nil
 }
 
 // crewmatePicker answers /au link without a name: the menu, visible only to
 // whoever asked.
 func (bot *Bot) crewmatePicker(guildID string, language text.Language) *discordgo.InteractionResponse {
-	view, err := bot.crewmateMenu(guildID)
+	view, err := bot.crewmateMenu(guildID, language)
 	if err != nil {
 		return auPrivateResponse(language.Say(text.CrewmateMenuFailed, err))
 	}

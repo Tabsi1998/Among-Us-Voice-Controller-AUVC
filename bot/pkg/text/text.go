@@ -42,6 +42,25 @@ func FromDiscord(locale string) Language {
 	return English
 }
 
+// Parse returns the language a setting names, such as "de", or false for a
+// language AUVC does not speak.
+func Parse(value string) (Language, bool) {
+	for _, language := range Languages {
+		if string(language) == value {
+			return language, true
+		}
+	}
+	return "", false
+}
+
+// Name is how a language calls itself, so it can be found from any other.
+func (l Language) Name() string {
+	if l == German {
+		return "Deutsch"
+	}
+	return "English"
+}
+
 // Say writes a sentence in this language, filling its placeholders from args
 // the way fmt.Sprintf does. A language AUVC does not speak says it in English.
 func (l Language) Say(key Key, args ...any) string {

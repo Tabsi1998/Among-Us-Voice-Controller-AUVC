@@ -63,6 +63,11 @@ func Validate(config sqlite.GuildConfig) []Problem {
 		add(OptionGhostChannel, text.ProblemSameChannel)
 	}
 
+	// A language AUVC does not speak would quietly come out in English.
+	if _, ok := text.Parse(config.Language); config.Language != "" && !ok {
+		add(OptionLanguage, text.ProblemOneOf, text.Languages, config.Language)
+	}
+
 	return problems
 }
 
