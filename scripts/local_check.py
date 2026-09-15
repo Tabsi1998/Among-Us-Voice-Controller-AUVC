@@ -552,6 +552,17 @@ def payload_problems(folder: Path) -> list[str]:
     return problems
 
 
+def publish_command(binary: str, version: str) -> list:
+    """The publish of the app, stamped with the version it is built as.
+
+    The app shows its version and compares it with the published releases.
+    Without -p:Version it would carry the project's 0.0.0-dev.
+    """
+    return [binary, "publish", "AUCapture-WPF/AUCapture-WPF.csproj", "--configuration", "Release",
+            "--runtime", "win-x64", "--self-contained", "true", "-o", PUBLISH_DIR,
+            f"-p:Version={version.removeprefix('v')}"]
+
+
 def publish_app(context: Context) -> None:
     binary = dotnet(context)
     if PUBLISH_DIR.exists():
@@ -559,10 +570,7 @@ def publish_app(context: Context) -> None:
     # A publish for a runtime adds that runtime to the lock files, which would
     # fail the next locked restore. The files go back exactly as they were.
     with restored_afterwards(lock_files()):
-        context.require(
-            [binary, "publish", "AUCapture-WPF/AUCapture-WPF.csproj", "--configuration", "Release",
-             "--runtime", "win-x64", "--self-contained", "true", "-o", PUBLISH_DIR],
-            cwd=CAPTURE, what="the app did not publish")
+        context.require(publish_command(binary, context.version), cwd=CAPTURE, what="the app did not publish")
     problems = payload_problems(PUBLISH_DIR)
     if problems:
         raise StepFailed("; ".join(problems))

@@ -137,6 +137,9 @@
   <data name="SettingsGeneralTabStartupMemes" xml:space="preserve">
     <value>Spaß-Startbildschirme</value>
   </data>
+  <data name="SettingsGeneralTabCheckForUpdate" xml:space="preserve">
+    <value>Nach neuen Versionen suchen</value>
+  </data>
   <data name="SettingsDebugTabHeader" xml:space="preserve">
     <value>Fehlersuche</value>
   </data>
@@ -398,5 +401,26 @@ Das lässt sich nicht rückgängig machen.</value>
   </data>
   <data name="BadgeDeafened" xml:space="preserve">
     <value>taub</value>
+  </data>
+  <data name="UpdateChecking" xml:space="preserve">
+    <value>Wird geprüft …</value>
+  </data>
+  <data name="UpdateUpToDate" xml:space="preserve">
+    <value>Aktuell</value>
+  </data>
+  <data name="UpdateCheckOff" xml:space="preserve">
+    <value>Ausgeschaltet</value>
+  </data>
+  <data name="UpdateDevelopmentBuild" xml:space="preserve">
+    <value>Entwicklerversion</value>
+  </data>
+  <data name="UpdateCheckFailed" xml:space="preserve">
+    <value>Konnte nicht prüfen</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>AUVC {0} ist verfügbar.</value>
+  </data>
+  <data name="UpdateOpenReleasePage" xml:space="preserve">
+    <value>Release-Seite öffnen</value>
   </data>
 </root>

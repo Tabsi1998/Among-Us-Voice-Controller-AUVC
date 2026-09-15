@@ -31,8 +31,7 @@ closed.
 ## 1. Download
 
 Open the [releases page](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases)
-and pick the newest version. While the repository is private, you have to be
-signed in to GitHub with an account that has access.
+and pick the newest version.
 
 | File | What it is |
 | --- | --- |
@@ -231,12 +230,13 @@ Windows** goes back.
 | General | Focus window on connect | Brings the window to the front when a pairing link opens AUVC |
 | General | API Server | Starts a local interface for overlay tools. Leave it off unless a tool asks for it |
 | General | Always on top | Keeps the AUVC window above other windows |
+| General | Check for new versions | On start, asks GitHub for the list of AUVC releases. When a newer version exists, a line at the top links to the release page. Nothing is downloaded or installed. On by default |
 | Debug | Debug mode | Opens an extra console window with technical output on the next start |
 | Debug | Open log folder | Opens the folder with AUVC's log files |
 | Debug | Reload offsets | Reloads the memory offsets AUVC reads the game with, after an Among Us update |
 | Debug | Reset Config | Deletes the app's settings and offers to restart. The bot token stays stored; run **Set up** again afterwards |
-| About | App version | The installed AUVC version |
-| About | Latest version | Still shows the newest version of the original AmongUsCapture, not of AUVC ([#44](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/44)) |
+| About | App version | The installed AUVC version, for example `0.1.2-beta` |
+| About | Latest version | A newer AUVC version, *Up to date*, or why it was not checked. On a pre-release you hear of newer pre-releases and releases; on a release, only of releases |
 
 Keyboard shortcuts in the main window: **Ctrl+L** opens the log folder, **F2**
 copies the newest log to the clipboard, **Ctrl+R** restarts the app.
@@ -282,6 +282,10 @@ server's language (`/au settings language`).
 | `/au version` | The bot's version |
 
 ## 8. Updating
+
+When a newer version exists, AUVC says so in a line at the top of the main
+window, with a link to the release page. It downloads and installs nothing
+itself.
 
 **Installer.** Download the new setup file and run it. It updates AUVC in place;
 settings, token and links stay. Close AUVC first.

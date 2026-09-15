@@ -82,8 +82,13 @@ jobs:
       - run: dotnet test AUVC.Capture.Tests/AUVC.Capture.Tests.csproj --configuration Release --no-build --no-restore
       - name: Publish the self-contained payload
         run: |
+          # The app shows its version and compares it with the published
+          # releases, so it is stamped with the tag it is built from.
+          $version = if ($env:GITHUB_REF_NAME -like 'v*') { $env:GITHUB_REF_NAME -replace '^v', '' } else { '0.0.0-dev' }
           dotnet publish AUCapture-WPF/AUCapture-WPF.csproj --configuration Release `
-            --runtime win-x64 --self-contained true -o ../artifacts/capture/win-x64
+            --runtime win-x64 --self-contained true -o ../artifacts/capture/win-x64 `
+            "-p:Version=$version"
+          if ($LASTEXITCODE -ne 0) { throw 'the app did not publish' }
           Copy-Item ../LICENSE, ../THIRD_PARTY_NOTICES.md ../artifacts/capture/win-x64
           Copy-Item ../LICENSES ../artifacts/capture/win-x64/LICENSES -Recurse
       # The app starts the bot itself, so the bot ships inside the app: the

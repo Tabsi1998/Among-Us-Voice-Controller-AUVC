@@ -638,6 +638,15 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Check for new versions.
+        /// </summary>
+        public static string SettingsGeneralTabCheckForUpdate {
+            get {
+                return ResourceManager.GetString("SettingsGeneralTabCheckForUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Focus window on connect.
         /// </summary>
         public static string SettingsGeneralTabFocusOnConnect {
@@ -940,6 +949,69 @@ namespace AUCapture_WPF.Properties {
         public static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUVC {0} is available..
+        /// </summary>
+        public static string UpdateAvailable {
+            get {
+                return ResourceManager.GetString("UpdateAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not check.
+        /// </summary>
+        public static string UpdateCheckFailed {
+            get {
+                return ResourceManager.GetString("UpdateCheckFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking ….
+        /// </summary>
+        public static string UpdateChecking {
+            get {
+                return ResourceManager.GetString("UpdateChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switched off.
+        /// </summary>
+        public static string UpdateCheckOff {
+            get {
+                return ResourceManager.GetString("UpdateCheckOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Development build.
+        /// </summary>
+        public static string UpdateDevelopmentBuild {
+            get {
+                return ResourceManager.GetString("UpdateDevelopmentBuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open the release page.
+        /// </summary>
+        public static string UpdateOpenReleasePage {
+            get {
+                return ResourceManager.GetString("UpdateOpenReleasePage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Up to date.
+        /// </summary>
+        public static string UpdateUpToDate {
+            get {
+                return ResourceManager.GetString("UpdateUpToDate", resourceCulture);
             }
         }
         

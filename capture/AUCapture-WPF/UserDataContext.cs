@@ -1,6 +1,5 @@
 ﻿using ControlzEx.Theming;
 using MahApps.Metro.Controls.Dialogs;
-using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,6 +18,7 @@ using System.Windows.Media.Imaging;
 using AmongUsCapture;
 using AUCapture_WPF.IPC;
 using AUCapture_WPF.Models;
+using AUVC.Transport;
 using Humanizer;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
@@ -32,9 +32,33 @@ namespace AUCapture_WPF
         public IAppSettings Settings { get; set; }
 
         public string Version { get; set; }
-        public string LatestReleaseAssetURL { get; set; }
-        public string LatestReleaseAssetSignedHashURL { get; set; }
-        public string LatestVersion { get; set; }
+
+        private string _latestVersion = "";
+        /// <summary>What the About tab says about the newest version.</summary>
+        public string LatestVersion
+        {
+            get => _latestVersion;
+            set
+            {
+                _latestVersion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _updateNotice = "";
+        /// <summary>The line about a newer AUVC version, or empty when there is none to tell about.</summary>
+        public string UpdateNotice
+        {
+            get => _updateNotice;
+            set
+            {
+                _updateNotice = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>The page the line links to, always one of AUVC's release pages.</summary>
+        public string UpdatePage { get; set; } = ReleaseFeed.ReleasesPage;
         private ICommand textBoxButtonCopyCmd;
         private ICommand openAmongUsCMD;
         private ICommand openLogFolderCMD;
@@ -378,34 +402,9 @@ namespace AUCapture_WPF
                 .OrderBy(a => a.Key)
                 .Select(a => new AccentColorMenuData { Name = a.Key, ColorBrush = a.First().ShowcaseBrush })
                 .ToList();
-            FileVersionInfo v = FileVersionInfo.GetVersionInfo(App.GetExecutablePath());
-            Version = $"{v.FileMajorPart}.{v.FileMinorPart}.{v.FileBuildPart}";
-            try
-            {
-                GitHubClient client = new GitHubClient(new ProductHeaderValue("AmongUsCapture", Version));
-                Release latest = new Release();
-                try
-                {
-                    latest = client.Repository.Release.GetLatest("automuteus", "amonguscapture").Result;
-
-                }
-                catch (Exception e)
-                {
-                    latest = client.Repository.Release.GetLatest("denverquane", "amonguscapture").Result;
-                }
-
-                LatestReleaseAssetURL = latest.Assets.First(x => x.Name == "AmongUsCapture.zip").BrowserDownloadUrl;
-                if (latest.Assets.Any(x => x.Name == "AmongUsCapture.zip.sha256.pgp"))
-                    LatestReleaseAssetSignedHashURL = latest.Assets.First(x => x.Name == "AmongUsCapture.zip.sha256.pgp").BrowserDownloadUrl;
-
-                LatestVersion = $"{latest.TagName}";
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                LatestVersion = "ERROR";
-            }
-            OnPropertyChanged(nameof(LatestVersion));
+            // The newest version is looked up by the main window, after it is shown:
+            // a network request must not hold up the start.
+            Version = ReleaseCheck.Current?.ToString() ?? "";
             OnPropertyChanged(nameof(Version));
             OnPropertyChanged(nameof(AccentColors));
 

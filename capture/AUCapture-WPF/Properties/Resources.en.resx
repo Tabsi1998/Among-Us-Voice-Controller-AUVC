@@ -137,6 +137,9 @@
   <data name="SettingsGeneralTabStartupMemes" xml:space="preserve">
     <value>Startup memes</value>
   </data>
+  <data name="SettingsGeneralTabCheckForUpdate" xml:space="preserve">
+    <value>Check for new versions</value>
+  </data>
   <data name="SettingsDebugTabHeader" xml:space="preserve">
     <value>Debug</value>
   </data>
@@ -398,5 +401,26 @@ This cannot be undone.</value>
   </data>
   <data name="BadgeDeafened" xml:space="preserve">
     <value>deafened</value>
+  </data>
+  <data name="UpdateChecking" xml:space="preserve">
+    <value>Checking …</value>
+  </data>
+  <data name="UpdateUpToDate" xml:space="preserve">
+    <value>Up to date</value>
+  </data>
+  <data name="UpdateCheckOff" xml:space="preserve">
+    <value>Switched off</value>
+  </data>
+  <data name="UpdateDevelopmentBuild" xml:space="preserve">
+    <value>Development build</value>
+  </data>
+  <data name="UpdateCheckFailed" xml:space="preserve">
+    <value>Could not check</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>AUVC {0} is available.</value>
+  </data>
+  <data name="UpdateOpenReleasePage" xml:space="preserve">
+    <value>Open the release page</value>
   </data>
 </root>

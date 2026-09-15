@@ -27,6 +27,11 @@
     <Nullable>disable</Nullable>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <NeutralLanguage />
+    <!-- The version of a build that is no release. Releases and the local check
+         stamp the real one with -p:Version; without either the SDK would stamp
+         1.0.0, and the app could neither say which release it is nor tell
+         whether a newer one exists. -->
+    <Version>0.0.0-dev</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

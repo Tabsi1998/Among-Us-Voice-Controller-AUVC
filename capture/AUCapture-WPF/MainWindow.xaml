@@ -212,6 +212,11 @@
                                                 OffContent="{l:Static properties:Resources.OffText}"
                                                 OnContent="{l:Static properties:Resources.OnText}"
                                                 Toggled="AlwaysOnTopSwitch_OnToggled" />
+                                            <mah:ToggleSwitch
+                                                Header="{l:Static properties:Resources.SettingsGeneralTabCheckForUpdate}"
+                                                IsOn="{Binding Settings.checkForUpdate, Mode=TwoWay}"
+                                                OffContent="{l:Static properties:Resources.OffText}"
+                                                OnContent="{l:Static properties:Resources.OnText}" />
                                         </StackPanel>
                                     </Viewbox>
                                 </mah:MetroTabItem>
@@ -392,6 +397,27 @@
                     </TextBlock>
                 </StackPanel>
             </Grid>
+        </Border>
+        <!--  A newer AUVC version: a line with a link to the release page, never a dialog in the middle of a round.  -->
+        <Border
+            Padding="10,4"
+            Background="{DynamicResource MahApps.Brushes.Accent4}"
+            DockPanel.Dock="Top">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding UpdateNotice}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Foreground="{DynamicResource MahApps.Brushes.Text}" TextWrapping="Wrap">
+                <Run Text="{Binding UpdateNotice, Mode=OneWay}" />
+                <Hyperlink Click="UpdatePageLink_OnClick">
+                    <TextBlock Text="{l:Static properties:Resources.UpdateOpenReleasePage}" />
+                </Hyperlink>
+            </TextBlock>
         </Border>
     <Grid>
         <Grid.ColumnDefinitions>

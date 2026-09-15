@@ -32,8 +32,7 @@ du es schließt.
 ## 1. Herunterladen
 
 Öffne die [Release-Seite](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases)
-und wähle die neueste Version. Solange das Repository privat ist, musst du bei
-GitHub mit einem Konto angemeldet sein, das Zugriff hat.
+und wähle die neueste Version.
 
 | Datei | Was sie ist |
 | --- | --- |
@@ -241,12 +240,13 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | Allgemein | Fenster beim Koppeln nach vorn holen | Holt das Fenster nach vorn, wenn ein Kopplungslink AUVC öffnet |
 | Allgemein | API-Server | Startet eine lokale Schnittstelle für Overlay-Programme. Lass sie aus, solange kein Programm sie braucht |
 | Allgemein | Immer im Vordergrund | Hält das AUVC-Fenster über anderen Fenstern |
+| Allgemein | Nach neuen Versionen suchen | Fragt beim Start bei GitHub die Liste der AUVC-Releases ab. Gibt es eine neuere Version, zeigt eine Zeile oben einen Link zur Release-Seite. Es wird nichts heruntergeladen oder installiert. Standardmäßig an |
 | Fehlersuche | Debug-Modus | Öffnet beim nächsten Start ein zusätzliches Konsolenfenster mit technischen Ausgaben |
 | Fehlersuche | Log-Ordner öffnen | Öffnet den Ordner mit den Log-Dateien |
 | Fehlersuche | Offsets neu laden | Lädt die Speicher-Offsets neu, mit denen AUVC das Spiel liest. Hilft nach einem Among-Us-Update |
 | Fehlersuche | Einstellungen zurücksetzen | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
-| Info | App-Version | Die installierte AUVC-Version |
-| Info | Neueste Version | Zeigt noch die neueste Version des ursprünglichen AmongUsCapture, nicht von AUVC ([#44](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/44)) |
+| Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.2-beta` |
+| Info | Neueste Version | Eine neuere AUVC-Version, *Aktuell* oder warum nicht geprüft wurde. Mit einer Vorabversion erfährst du von neueren Vorabversionen und Releases, mit einem Release nur von Releases |
 
 Tastenkürzel im Hauptfenster: **Strg+L** öffnet den Log-Ordner, **F2** kopiert das
 neueste Log in die Zwischenablage, **Strg+R** startet die App neu.
@@ -292,6 +292,9 @@ Sprache des Servers (`/au settings language`).
 | `/au version` | Die Version des Bots |
 
 ## 8. Aktualisieren
+
+Gibt es eine neuere Version, sagt AUVC das in einer Zeile oben im Hauptfenster,
+mit einem Link zur Release-Seite. Selbst lädt und installiert AUVC nichts.
 
 **Installer.** Lade die neue Setup-Datei herunter und starte sie. Sie aktualisiert
 AUVC. Einstellungen, Token und Verknüpfungen bleiben erhalten. Schließe AUVC

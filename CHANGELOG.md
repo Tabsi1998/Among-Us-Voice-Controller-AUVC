@@ -44,6 +44,26 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   ([#110](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/110)).
   The picture ships with the bot and is uploaded with the message only when the
   map changes, not on every update.
+- The app tells when a newer AUVC version exists
+  ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  On start it reads the public list of AUVC releases on GitHub and shows a line
+  at the top of the main window with a link to the release page. It downloads
+  and installs nothing. On a pre-release it tells of newer pre-releases and
+  releases, on a release only of releases. **Settings → General → Check for new
+  versions** switches it off.
+
+### Fixed
+
+- The app knows its own version
+  ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  Every published app so far called itself 1.0.0, because the build did not
+  stamp the release version into it. **Settings → About** now shows the version
+  the app was released as.
+- **Settings → About → Latest version** no longer names the newest release of
+  the original AmongUsCapture
+  ([#44](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/44)).
+  It asked AutoMuteUs's GitHub while the window was being created, which held up
+  the start until GitHub answered.
 
 ### Removed
 
