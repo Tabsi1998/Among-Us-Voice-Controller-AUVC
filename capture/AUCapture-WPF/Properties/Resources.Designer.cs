@@ -529,15 +529,6 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Get AutoMuteUs premium.
-        /// </summary>
-        public static string PremiumTooltip {
-            get {
-                return ResourceManager.GetString("PremiumTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This action will reset your config.
         ///This cannot be undone..
         /// </summary>

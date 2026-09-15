@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -63,7 +64,7 @@ namespace AUCapture_WPF
         private ICommand openAmongUsCMD;
         private ICommand openLogFolderCMD;
         private ICommand copyLatestLogCMD;
-        private ICommand commandsCMD;
+        private ICommand openGuideCMD;
         private ICommand restartCMD;
         public List<AccentColorMenuData> AccentColors { get; set; }
         private bool? _connected = false;
@@ -209,12 +210,13 @@ namespace AUCapture_WPF
                 });
             }
         };
-        public ICommand CommandsCMD => commandsCMD ??= new SimpleCommand
+        /// <summary>F1: the AUVC guide, in the language the app shows.</summary>
+        public ICommand OpenGuideCmd => openGuideCMD ??= new SimpleCommand
         {
             CanExecuteDelegate = x => true,
             ExecuteDelegate = x =>
             {
-                OpenBrowser("https://automute.us/commands");
+                OpenBrowser(AppLanguage.GuideFor(CultureInfo.CurrentUICulture));
             }
         };
         public ICommand CopyLatestLogCMD => copyLatestLogCMD ??= new SimpleCommand

@@ -107,9 +107,6 @@
   <data name="ManualConnectTooltip" xml:space="preserve">
     <value>Pair with the AUVC bot</value>
   </data>
-  <data name="PremiumTooltip" xml:space="preserve">
-    <value>Get AutoMuteUs premium</value>
-  </data>
   <data name="SettingsHeader" xml:space="preserve">
     <value>Settings</value>
   </data>

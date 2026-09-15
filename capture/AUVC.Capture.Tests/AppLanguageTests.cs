@@ -54,5 +54,26 @@ namespace AUVC.Capture.Tests
         [InlineData(null, "")]
         public void TheSavedChoiceIsAlwaysOneTheSettingsOffer(string? saved, string offered) =>
             Assert.Equal(offered, AppLanguage.Normalize(saved));
+
+        // F1 opens the guide, in the language the app shows.
+        [Theory]
+        [InlineData("de", AppLanguage.GermanGuide)]
+        [InlineData("de-AT", AppLanguage.GermanGuide)]
+        [InlineData("en", AppLanguage.EnglishGuide)]
+        [InlineData("fr-FR", AppLanguage.EnglishGuide)]
+        public void F1OpensTheGuideInTheLanguageShown(string language, string guide) =>
+            Assert.Equal(guide, AppLanguage.GuideFor(CultureInfo.GetCultureInfo(language)));
+
+        // F1 used to open AutoMuteUs's command page.
+        [Fact]
+        public void TheGuideIsAuvcsOwn()
+        {
+            Assert.EndsWith("/docs/guide.md", AppLanguage.EnglishGuide);
+            Assert.EndsWith("/docs/anleitung.md", AppLanguage.GermanGuide);
+            foreach (var guide in new[] { AppLanguage.EnglishGuide, AppLanguage.GermanGuide })
+            {
+                Assert.StartsWith("https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/blob/main/", guide);
+            }
+        }
     }
 }

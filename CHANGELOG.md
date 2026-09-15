@@ -38,6 +38,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   AutoMuteUs's server. The app now starts with its own splash screen only, and
   makes no request to AutoMuteUs when it starts. A saved setting from an earlier
   version is ignored.
+- The AutoMuteUs premium button in the title bar of the main window
+  ([#139](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/139)).
+  AUVC has no premium. **F1** now opens the AUVC guide, the German one when the
+  app is in German, instead of AutoMuteUs's command page.
 
 ## v0.1.3-beta — 2026-09-15
 
