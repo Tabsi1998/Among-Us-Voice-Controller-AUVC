@@ -75,12 +75,6 @@
         "resolved": "2.3.2",
         "contentHash": "hH34Y9xzvdJpgf/vwyWE/zYlY4BdQS3Zolfdg+8hV9A+UQRsBWyBS62kcLO55mF4etmMoL0PswEbT3lVXJSlFw=="
       },
-      "SharpVectors": {
-        "type": "Direct",
-        "requested": "[1.8.6, )",
-        "resolved": "1.8.6",
-        "contentHash": "XXeffdyM6CRwW7n7RhNOwhmwnpJHZY1TjVmEQIzrd9xoJHZyDOXQA8gAw7tbI4iXnpezFD7XNuAuC0MhrOBrhA=="
-      },
       "WpfScreenHelper": {
         "type": "Direct",
         "requested": "[2.1.1, )",

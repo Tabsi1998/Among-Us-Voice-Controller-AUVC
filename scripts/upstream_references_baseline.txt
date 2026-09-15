@@ -5,6 +5,3 @@
 # project controls. They are tracked by issues #33 and #44. The list may
 # only ever shrink: adding a new reference fails the build.
 capture/.all-contributorsrc	automute.us
-capture/AUCapture-WPF/Converters/HatToImage.cs	automute.us
-capture/AUCapture-WPF/Converters/PantsConverter.cs	automute.us
-capture/AUCapture-WPF/Converters/PetToImageConverter.cs	automute.us

@@ -580,10 +580,7 @@
                         <Viewbox Grid.RowSpan="2" VerticalAlignment="Bottom">
                             <controls:PlayerControl
                                 AliveStatus="{Binding Alive}"
-                                PlayerHatID="{Binding HatID}"
                                 PlayerName="{Binding Name}"
-                                PlayerPantsID="{Binding PantsID}"
-                                PlayerPetID="{Binding PetID}"
                                 Color="{Binding Color}" />
 
                         </Viewbox>

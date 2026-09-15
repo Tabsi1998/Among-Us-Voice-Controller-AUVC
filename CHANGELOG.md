@@ -4,6 +4,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Removed
+
+- The pictures of hats, pants and pets on the crewmates in the main window
+  ([#137](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/137)).
+  Since Among Us names cosmetics differently, AUVC no longer reads what a
+  crewmate wears, so none of them ever showed.
+  - **What is gone:** the code that would have downloaded them from
+    AutoMuteUs's server, 94 old hat pictures that nothing used, and the SVG
+    library that drew them.
+  - **What stays:** colour, name, and whether a crewmate is alive or dead look as
+    before.
+
 ## v0.1.4-beta — 2026-09-15
 
 The fifth pre-release. The app is called AUVC everywhere, saves a redacted

@@ -18,18 +18,6 @@ namespace AUCapture_WPF.Controls
             DependencyProperty.Register("PlayerName",
                 typeof(string), typeof(PlayerControl));
 
-        public static readonly DependencyProperty PlayerHatDependencyProperty =
-            DependencyProperty.Register("PlayerHatID",
-                typeof(uint), typeof(PlayerControl));
-
-        public static readonly DependencyProperty PlayerPetDependencyProperty =
-            DependencyProperty.Register("PlayerPetID",
-                typeof(uint), typeof(PlayerControl));
-
-        public static readonly DependencyProperty PlayerPantsDependencyProperty =
-            DependencyProperty.Register("PlayerPantsID",
-                typeof(uint), typeof(PlayerControl));
-
         public static readonly DependencyProperty ColorProperty =
             DependencyProperty.Register("Color",
                 typeof(PlayerColor), typeof(PlayerControl));
@@ -43,22 +31,6 @@ namespace AUCapture_WPF.Controls
         {
             get => (bool)GetValue(AliveProperty);
             set => SetValue(AliveProperty, value);
-        }
-        public uint PlayerHatID
-        {
-            get => (uint)GetValue(PlayerHatDependencyProperty);
-            set => SetValue(PlayerHatDependencyProperty, value);
-        }
-
-        public uint PlayerPetID
-        {
-            get => (uint)GetValue(PlayerHatDependencyProperty);
-            set => SetValue(PlayerHatDependencyProperty, value);
-        }
-        public uint PlayerPantsID
-        {
-            get => (uint)GetValue(PlayerPantsDependencyProperty);
-            set => SetValue(PlayerPantsDependencyProperty, value);
         }
         public string PlayerName
         {

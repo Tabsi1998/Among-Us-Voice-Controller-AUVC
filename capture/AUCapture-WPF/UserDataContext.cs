@@ -389,7 +389,7 @@ namespace AUCapture_WPF
             //var colors  = nums.Cast<PlayerColor>().Where(x=>!Players.Select(y=>y.Color).Contains(x)).Take(numOfPlayers).ToList();
             //foreach (var color in colors)
             //{
-            //    var newPlayer = new Player(color.Humanize(), color, true, 0 ,0, 0);
+            //    var newPlayer = new Player(color.Humanize(), color, true);
             //    Players.Add(newPlayer);
             //}
         }
