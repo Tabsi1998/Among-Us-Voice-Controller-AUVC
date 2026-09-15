@@ -113,7 +113,6 @@ namespace AUCapture_WPF
             GameMemReader.getInstance().ProcessHook += OnProcessHook;
             GameMemReader.getInstance().UnsupportedGame += OnUnsupportedGame;
             GameMemReader.getInstance().PlayerChanged += UserForm_PlayerChanged;
-            GameMemReader.getInstance().PlayerCosmeticChanged += OnPlayerCosmeticChanged;
             GameMemReader.getInstance().CrackDetected += OnCrackDetected;
             GameMemReader.getInstance().JoinedLobby += OnJoinedLobby;
             GameMemReader.getInstance().GameOver += OnGameOver;
@@ -361,21 +360,6 @@ namespace AUCapture_WPF
             UpdateBadges();
         }
 
-        private void OnPlayerCosmeticChanged(object? sender, PlayerCosmeticChangedEventArgs e)
-        {
-            if (context.Players.Any(x => x.Name == e.Name))
-            {
-                var player = context.Players.First(x => x.Name == e.Name);
-                Console.WriteLine("Cosmetic change " + JsonConvert.SerializeObject(e));
-                Dispatcher.Invoke(() =>
-                {
-                    player.HatID = e.HatId;
-                    player.PantsID = e.SkinId;
-                    player.PetID = e.PetId;
-                });
-            }
-        }
-
         private const string BotConnectionName = "AUVC bot";
         private const string LocalBotConnectionName = "Discord bot";
 
@@ -607,7 +591,7 @@ namespace AUCapture_WPF
                 }
                 else
                 {
-                    if (e.Action == PlayerAction.Joined) Dispatcher.Invoke(() => { context.Players.Add(new Player(e.Name, e.Color, !e.IsDead, 0, 0, 0)); });
+                    if (e.Action == PlayerAction.Joined) Dispatcher.Invoke(() => { context.Players.Add(new Player(e.Name, e.Color, !e.IsDead)); });
                 }
             }
             Logger.Debug("{@e}", e);
@@ -799,49 +783,9 @@ namespace AUCapture_WPF
             context.GameState = state;
         }
 
-        private void RandomizePlayers()
-        {
-            var dispatcherTimer = new DispatcherTimer();
-            dispatcherTimer.Tick += dispatcherTimer_Tick;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            dispatcherTimer.Start();
-        }
-
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            var r = new Random();
-            var playerToChange = context.Players[r.Next(context.Players.Count)];
-            var hatID = r.Next(94);
-            var Alive = r.Next(0, 2) == 1;
-            var pantId = r.Next(0, 16);
-            var petID = r.Next(0, 12);
-            playerToChange.Alive = Alive;
-            if (!Alive)
-            {
-                playerToChange.HatID = (uint)hatID;
-                playerToChange.PantsID = (uint)pantId;
-                playerToChange.PetID = (uint)petID;
-            }
-
-
-
-        }
-
-        private void TestUsers()
-        {
-            context.Connected = true;
-            context.GameState = GameState.TASKS;
-            var numOfPlayers = 14;
-            for (uint i = 0; i < numOfPlayers; i++) context.Players.Add(new Player($"{i}Cool4u", (PlayerColor)(i % 12), true, i % 10, i, 0));
-
-            RandomizePlayers();
-        }
-
 
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
-
-            //TestUsers();
         }
 
         private async void MainWindow_OnContentRendered(object? sender, EventArgs e)

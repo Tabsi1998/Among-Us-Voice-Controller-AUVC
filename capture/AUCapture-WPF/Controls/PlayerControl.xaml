@@ -9,18 +9,12 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     x:Name="PlayerControlWindow"
     d:DesignHeight="212"
     d:DesignWidth="148"
     mc:Ignorable="d">
     <UserControl.Resources>
         <converters1:PlayerToImage x:Key="PlayerToImage" />
-        <converters1:PantsConverter x:Key="PantsConverter" />
-        <converters1:HatToStream x:Key="HatToStream" />
-        <converters1:HatToImage x:Key="HatToImage" />
-        <converters1:HatToZ x:Key="HatToZ" />
-        <converters1:PetToImageConverter x:Key="PetToIm" />
         <converters1:PlayerColorToBrush x:Key="PlayerColorToBrush" />
         <converters1:PlayerColorToBrushShaded x:Key="PlayerColorToBrushShaded" />
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -56,72 +50,6 @@
                         <Binding ElementName="PlayerControlWindow" Path="AliveStatus" />
                     </auCaptureWpf:BasePlayerGenerator.Alive>
                 </auCaptureWpf:BasePlayerGenerator>
-
-                <svgc:SvgViewbox
-                    x:Name="Pants"
-                    Width="148"
-                    Height="198"
-                    Margin="0,0,0,0"
-                    VerticalAlignment="Bottom"
-                    Panel.ZIndex="1"
-                    Stretch="Uniform">
-                    <svgc:SvgViewbox.StreamSource>
-                        <MultiBinding Converter="{StaticResource PantsConverter}">
-                            <Binding
-                                Delay="100"
-                                ElementName="PlayerControlWindow"
-                                IsAsync="True"
-                                Path="PlayerPantsID" />
-                            <Binding
-                                Delay="100"
-                                ElementName="PlayerControlWindow"
-                                IsAsync="True"
-                                Path="AliveStatus" />
-                        </MultiBinding>
-                    </svgc:SvgViewbox.StreamSource>
-                </svgc:SvgViewbox>
-                <svgc:SvgViewbox
-                    Width="212"
-                    Margin="0,0,0,0"
-                    VerticalAlignment="Bottom"
-                    Panel.ZIndex="{Binding ElementName=PlayerControlWindow, Path=PlayerHatID, Converter={StaticResource HatToZ}}"
-                    Stretch="Uniform">
-                    <svgc:SvgViewbox.StreamSource>
-                        <MultiBinding Converter="{StaticResource HatToStream}">
-                            <Binding
-                                Delay="100"
-                                ElementName="PlayerControlWindow"
-                                IsAsync="True"
-                                Path="PlayerHatID" />
-                            <Binding
-                                Delay="100"
-                                ElementName="PlayerControlWindow"
-                                IsAsync="True"
-                                Path="AliveStatus" />
-                        </MultiBinding>
-                    </svgc:SvgViewbox.StreamSource>
-                </svgc:SvgViewbox>
-                <svgc:SvgViewbox
-                    Width="212"
-                    Margin="0,0,0,0"
-                    VerticalAlignment="Bottom"
-                    Panel.ZIndex="1"
-                    Stretch="Uniform">
-                    <svgc:SvgViewbox.StreamSource>
-                        <MultiBinding Converter="{StaticResource PetToIm}">
-                            <Binding
-                                Delay="100"
-                                ElementName="PlayerControlWindow"
-                                IsAsync="True"
-                                Path="PlayerPetID" />
-                            <Binding
-                                Delay="100"
-                                ElementName="PlayerControlWindow"
-                                IsAsync="True"
-                                Path="AliveStatus" />
-                        </MultiBinding>
-                    </svgc:SvgViewbox.StreamSource>
-                </svgc:SvgViewbox>
             </Grid>
         </Viewbox>
 

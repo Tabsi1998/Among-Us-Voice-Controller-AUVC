@@ -19,39 +19,6 @@ namespace AUCapture_WPF.Models
 
             }
         }
-        private uint _hatID;
-        public uint HatID
-        {
-            get => _hatID;
-            set
-            {
-                _hatID = value;
-                OnPropertyChanged();
-
-            }
-        }
-        private uint _pantsID;
-        public uint PantsID
-        {
-            get => _pantsID;
-            set
-            {
-                _pantsID = value;
-                OnPropertyChanged();
-
-            }
-        }
-        private uint _petID;
-        public uint PetID
-        {
-            get => _petID;
-            set
-            {
-                _petID = value;
-                OnPropertyChanged();
-
-            }
-        }
         private PlayerColor _color;
 
         public PlayerColor Color
@@ -90,14 +57,11 @@ namespace AUCapture_WPF.Models
             }
         }
 
-        public Player(string name, PlayerColor color, bool alive, uint PantsID, uint HatID, uint petId)
+        public Player(string name, PlayerColor color, bool alive)
         {
             Name = name;
             Color = color;
             Alive = alive;
-            this.PantsID = PantsID;
-            this.HatID = HatID;
-            this.PetID = petId;
         }
 
 
