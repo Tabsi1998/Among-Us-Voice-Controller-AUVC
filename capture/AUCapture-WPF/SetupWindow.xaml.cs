@@ -107,6 +107,9 @@ namespace AUCapture_WPF
             ChannelIntro.Text = SetupText.ChannelIntro;
             MainChannelLabel.Text = SetupText.MainChannel;
             GhostChannelLabel.Text = SetupText.GhostChannel;
+            MoveGhostsBox.Content = SetupText.MoveGhosts;
+            StayInMainText.Text = SetupText.StayInMain;
+            MoveGhostsBox.IsChecked = true;
             ControlChannelLabel.Text = SetupText.ControlChannel;
             AutoStartBox.Content = SetupText.AutoStart;
             SaveChannelsButton.Content = SetupText.Save;
@@ -498,8 +501,13 @@ namespace AUCapture_WPF
                 // A first setup turns automatic start on; changing the channels
                 // later keeps whatever was chosen.
                 AutoStartBox.IsChecked = !editing || guild.AutoStart;
+                MoveGhostsBox.IsChecked = guild.AutoMoveGhosts;
 
-                if (voice.Count < 2)
+                if (voice.Count == 0)
+                {
+                    ChannelResult.Text = SetupText.NoVoiceChannels;
+                }
+                else if (voice.Count < 2 && MoveGhostsBox.IsChecked == true)
                 {
                     ChannelResult.Text = SetupText.TooFewVoiceChannels;
                 }
@@ -514,15 +522,36 @@ namespace AUCapture_WPF
             }
         }
 
+        private void MoveGhostsBox_Changed(object sender, RoutedEventArgs e) => ShowGhostChannel();
+
+        /// <summary>The ghost channel is asked for only while the dead are moved into it (#161).</summary>
+        private void ShowGhostChannel()
+        {
+            var move = MoveGhostsBox.IsChecked == true;
+            GhostChannelLabel.Visibility = move ? Visibility.Visible : Visibility.Collapsed;
+            GhostChannelBox.Visibility = move ? Visibility.Visible : Visibility.Collapsed;
+            StayInMainText.Visibility = move ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         private async Task SaveChannelsAsync(bool finishSetup)
         {
-            if (MainChannelBox.SelectedItem is not LocalChannel main ||
-                GhostChannelBox.SelectedItem is not LocalChannel ghost ||
-                main.Id == ghost.Id)
+            var moveGhosts = MoveGhostsBox.IsChecked == true;
+            if (MainChannelBox.SelectedItem is not LocalChannel main)
+            {
+                ChannelResult.Text = moveGhosts ? SetupText.NeedTwoVoiceChannels : SetupText.NeedMainChannel;
+                return;
+            }
+
+            var ghost = GhostChannelBox.SelectedItem as LocalChannel;
+            if (moveGhosts && (ghost is null || ghost.Id == main.Id))
             {
                 ChannelResult.Text = SetupText.NeedTwoVoiceChannels;
                 return;
             }
+
+            // A ghost channel chosen earlier stays stored while it is not used, so
+            // switching moving back on finds it again.
+            var ghostId = ghost is not null && ghost.Id != main.Id ? ghost.Id : "";
 
             var control = LocalBot.Control;
             if (control is null)
@@ -538,9 +567,10 @@ namespace AUCapture_WPF
                 await control.SetupAsync(guildId, new LocalSetup
                 {
                     MainVoiceChannelId = main.Id,
-                    GhostVoiceChannelId = ghost.Id,
+                    GhostVoiceChannelId = ghostId,
                     ControlTextChannelId = (ControlChannelBox.SelectedItem as LocalChannel)?.Id ?? "",
                     AutoStart = AutoStartBox.IsChecked == true,
+                    AutoMoveGhosts = moveGhosts,
                 });
 
                 if (!finishSetup)

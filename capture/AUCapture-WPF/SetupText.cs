@@ -108,10 +108,10 @@ namespace AUCapture_WPF
 
         public static string ChannelIntro => T(
             "Hauptkanal: Hier sind alle, die noch leben.\n" +
-            "Geisterkanal: Hierhin kommen Tote, sobald ihr Tod im Meeting bekannt wird.\n" +
+            "Geisterkanal: Hierhin kommen Tote, sobald ihr Tod im Meeting bekannt wird. Es geht auch ohne.\n" +
             "Textkanal: Optional. Hier schreibt AUVC Hinweise, zum Beispiel wenn das Spiel nicht mehr erkannt wird.",
             "Main channel: everyone still alive.\n" +
-            "Ghost channel: the dead go here once a meeting has announced their death.\n" +
+            "Ghost channel: the dead go here once a meeting has announced their death. You can also play without one.\n" +
             "Text channel: optional. AUVC posts notices here, for example when the game is no longer detected.");
 
         public static string MainChannel => T("Hauptkanal (Sprachkanal)", "Main channel (voice)");
@@ -124,6 +124,20 @@ namespace AUCapture_WPF
         public static string TooFewVoiceChannels => T(
             "Der Server hat noch keine zwei Sprachkanäle. Lege sie in Discord an und klicke auf „Aktualisieren“.",
             "The server does not have two voice channels yet. Create them in Discord and click “Refresh”.");
+
+        public static string MoveGhosts => T("Tote in den Geisterkanal verschieben", "Move the dead into the ghost channel");
+
+        public static string StayInMain => T(
+            "Alle bleiben im Hauptkanal. Wer tot ist, bleibt bis zum Ende der Runde stumm und hört weiter mit. " +
+            "Gut für PlayStation- und Xbox-Spieler: Discord kann sie trennen, wenn ein Bot sie in einen anderen Kanal verschiebt.",
+            "Everyone stays in the main channel. The dead stay muted until the round ends and can still listen. " +
+            "Good for PlayStation and Xbox players: Discord can disconnect them when a bot moves them to another channel.");
+
+        public static string NeedMainChannel => T("✖ Wähle einen Hauptkanal.", "✖ Choose a main channel.");
+
+        public static string NoVoiceChannels => T(
+            "Der Server hat noch keinen Sprachkanal. Lege einen in Discord an und klicke auf „Aktualisieren“.",
+            "The server has no voice channel yet. Create one in Discord and click “Refresh”.");
 
         // Step 4: done.
         public static string DoneTitle => T("4 von 4 · Fertig", "4 of 4 · Done");

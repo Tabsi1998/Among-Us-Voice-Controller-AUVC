@@ -138,6 +138,7 @@ const (
 	DoctorDisabled               Key = "doctor-disabled"
 	DoctorDisabledFix            Key = "doctor-disabled-fix"
 	DoctorNotSet                 Key = "doctor-not-set"
+	DoctorGhostNotUsed           Key = "doctor-ghost-not-used"
 	DoctorSetChannelFix          Key = "doctor-set-channel-fix"
 	DoctorControlChannelFix      Key = "doctor-control-channel-fix"
 	DoctorChannelUnconfirmed     Key = "doctor-channel-unconfirmed"

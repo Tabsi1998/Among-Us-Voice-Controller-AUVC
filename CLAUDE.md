@@ -9,7 +9,7 @@ where things stand. Keep it current when that changes.
 - **Language.** Answer in German. PR, commit and issue titles are English;
   issue bodies and comments may be German. Keep it simple and understandable.
 - **Roles.** The owner merges. Deliver complete, verified PRs from branches named
-  `codex/<nnn>-<topic>` (last number used: 083), then report CI.
+  `codex/<nnn>-<topic>` (last number used: 084), then report CI.
 - **Never do these yourself:** merge, push to `main`, rewrite or force-push `main`,
   create tags or releases. Tags and releases happen only when the owner says so.
 - **Work from GitHub issues.** Every change belongs to an issue.
@@ -148,7 +148,52 @@ entry moved into the version section first (see #156).
 - **Published.** `v0.1.4-beta` is out, tag at `d38e24e`: the name AUVC,
   diagnostics export, status line for bot problems, screen-reader names, and the
   cosmetics removal.
-- **Merged since the beta:** #158 (guides fixed, `GuideTextTests`, closes #143).
+- **Merged since the beta:** #158 (guides fixed, `GuideTextTests`, closes #143),
+  #159 (this file).
+- **Most urgent: [#160](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/160),
+  console players get dropped.**
+  - **Symptom** (the owner, 2026-09-15): an **unlinked** PlayStation player
+    joins the **main channel in the lobby** while AUVC runs, and is removed
+    from voice completely. Players who were in the channel before AUVC started
+    stay. PC players are fine.
+  - **Code reading found no cause:**
+    - The bot's only write to Discord members is `GuildMemberEdit` in
+      `bot/bot/voice_adapter.go`.
+    - It acts only on linked players (`bot/pkg/voice`) or on members with a
+      hold left over from a crash (`voice_hold.go`).
+    - It never sends `channel_id: null`.
+    - The bot sets no permissions and joins no voice channel.
+  - **Known Discord limitation:** Discord disconnects console voice users whom a
+    bot or moderator moves to another channel ([Discord community report](https://support.discord.com/hc/en-us/community/posts/12286453822231-Discord-Voice-Channels-Disconnect-on-Xbox-When-User-Is-Moved),
+    Xbox, likely PS5 too). AUVC moves linked players into the main channel in
+    the lobby, menu and at round end, into the ghost channel at a meeting, and
+    back when they walk off during a round. Every one of those moves can drop
+    a console player. A likely fix is to move only when the game needs it,
+    for example only out of the ghost channel after a round, but the log from
+    a real drop should confirm that first.
+  - **Diagnostics PR** (`codex/084-console-voice-log`, refs #160, does not close
+    it):
+    - logs every voice change AUVC makes, and every join, leave and switch in
+      the main and ghost channel (`bot/bot/voice_changes.go`)
+    - refuses a move into an empty channel
+  - **Option for the owner's wish, [#161](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/161)**,
+    in the same PR: **Move the dead into the ghost channel** can be switched
+    off in the app's setup and under **Bot → Channels**.
+    - **Then:** everyone stays in the main channel, and the dead stay muted
+      but can listen. This is the existing `auto_move_ghosts` behaviour of
+      `bot/pkg/voice`.
+    - **Ghost channel:** no longer needed. `NotReady`, `ConfigureFromApp`,
+      the local setup route and `/au doctor` require one only while the dead
+      are moved.
+    - **Local API:** `auto_move_ghosts` is a pointer, so an older app keeps
+      what is stored.
+  - **Next step:** in the next beta, repeat it with a PlayStation player and
+    read `%LOCALAPPDATA%\AUVC\logs\logs.txt` around the drop.
+    - **AUVC logged a change** for that member just before: fix that path.
+    - **Nothing logged:** AUVC did not cause it. Look at Discord's console
+      voice and document it.
+
+    The owner wants a new beta right after each fix is merged.
 - **Next: the owner's live test, [#157](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/157).**
   It gathers every open live test in one checklist. After it:
   1. Copy the results into #145, #141, #142, #144 and #136, and the keyboard,

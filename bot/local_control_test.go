@@ -143,6 +143,33 @@ func TestASetupFromTheAppIsSaved(t *testing.T) {
 	}
 }
 
+// Keeping the dead muted in the main channel needs no ghost channel (#161),
+// while moving them still does.
+func TestASetupWithoutAGhostChannelKeepsTheDeadInTheMainChannel(t *testing.T) {
+	fixture := newLocalFixture(t)
+	stay, move := false, true
+
+	if err := fixture.backend.Configure(localGuild, localcontrol.Setup{
+		MainVoiceChannelID: "voice-main", AutoMoveGhosts: &move,
+	}); !errors.Is(err, localcontrol.ErrInvalidSetup) {
+		t.Fatalf("moving the dead without a ghost channel gave %v, want %v", err, localcontrol.ErrInvalidSetup)
+	}
+
+	if err := fixture.backend.Configure(localGuild, localcontrol.Setup{
+		MainVoiceChannelID: "voice-main", AutoMoveGhosts: &stay,
+	}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+
+	guild, err := fixture.backend.Guild(localGuild, text.English)
+	if err != nil {
+		t.Fatalf("guild: %v", err)
+	}
+	if guild.AutoMoveGhosts || guild.GhostVoiceChannelID != "" || guild.MainVoiceChannelID != "voice-main" {
+		t.Errorf("the saved guild reads %+v", guild)
+	}
+}
+
 // The app sends plain ids, so the checks Discord makes for /au setup channels
 // by offering only voice channels have to happen here.
 func TestASetupWithTheWrongChannelsIsRefused(t *testing.T) {

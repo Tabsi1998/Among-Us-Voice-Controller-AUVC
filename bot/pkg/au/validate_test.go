@@ -110,6 +110,22 @@ func TestNotReadyReportsADisabledGuild(t *testing.T) {
 	}
 }
 
+// Without moving the dead no ghost channel is needed to run a session (#161).
+func TestReadyWithoutAGhostChannelWhenTheDeadStayInTheMainChannel(t *testing.T) {
+	config := configured()
+	config.GhostVoiceChannelID = ""
+	config.AutoMoveGhosts = false
+
+	if !Ready(config) {
+		t.Errorf("the dead stay in the main channel, yet the guild is not ready: %v", NotReady(config))
+	}
+
+	config.AutoMoveGhosts = true
+	if !mentions(NotReady(config), OptionGhostChannel) {
+		t.Error("moving the dead without a ghost channel must be reported as not ready")
+	}
+}
+
 func mentions(problems []Problem, field string) bool {
 	for _, problem := range problems {
 		if problem.Field == field {

@@ -146,14 +146,20 @@ verschieben*. Mit den ersten vier zeigt AUVC die Crewmate-Auswahl im Textkanal.
 | Feld | Wähle |
 | --- | --- |
 | **Hauptkanal (Sprachkanal)** | Den Sprachkanal, in dem alle spielen |
-| **Geisterkanal (Sprachkanal)** | Den Sprachkanal, in den die Toten kommen |
+| **Geisterkanal (Sprachkanal)** | Den Sprachkanal, in den die Toten kommen, solange **Tote in den Geisterkanal verschieben** an ist |
 | **Textkanal für die Crewmate-Auswahl und Hinweise (empfohlen)** | Wo die Spieler ihre Figur auswählen und AUVC Warnungen schreibt, zum Beispiel wenn das Spiel nicht mehr erkannt wird |
+
+**Tote in den Geisterkanal verschieben** ist eingeschaltet. Schaltest du es aus,
+bleiben alle im Hauptkanal: Wer tot ist, bleibt bis zum Ende der Runde stumm,
+hört aber weiter mit, und du brauchst keinen Geisterkanal. Das passt für
+PlayStation- und Xbox-Spieler, denn Discord kann sie trennen, wenn ein Bot sie in
+einen anderen Kanal verschiebt.
 
 **AUVC automatisch starten, sobald ein Spiel erkannt wird** ist eingeschaltet.
 Lass es an, dann legt AUVC los, sobald ihr spielt. Klicke auf **Weiter**, um zu
 speichern.
 
-Sind die Listen leer, hat der Server noch keine Sprachkanäle. Lege zwei in Discord
+Sind die Listen leer, hat der Server noch keine Sprachkanäle. Lege sie in Discord
 an und klicke auf **Aktualisieren**.
 
 ### Schritt 4 von 4: fertig
@@ -235,6 +241,10 @@ Ab dann folgt AUVC dem Spiel von selbst:
 | Meeting und Abstimmung | Hauptkanal, können reden | Geisterkanal, können reden |
 | Runde vorbei | Hauptkanal, können reden | Hauptkanal, können reden |
 
+Ist **Tote in den Geisterkanal verschieben** ausgeschaltet, wechselt niemand den
+Kanal: Tote bleiben im Hauptkanal, stumm, bis die Runde vorbei ist, und hören die
+ganze Zeit mit.
+
 - **Kills werden nicht verraten.** Wenn jemand in einen anderen Kanal wechselt,
   sieht das jeder in Discord. Deshalb bleibt ein getöteter Spieler, wo er ist,
   stumm, bis das nächste Meeting den Tod bekannt macht.
@@ -260,7 +270,7 @@ alles, was die Einrichtung festgelegt hat, in fünf Bereichen, die du einzeln
 | --- | --- |
 | **Token** | Neuen Token einfügen und **Token prüfen** klicken. Der Bot startet damit neu. |
 | **Server** | Anderen Server wählen und **Diesen Server verwenden** klicken, danach unter **Kanäle** dessen Kanäle wählen. **Bot einladen** fügt den Bot vorher einem anderen Server hinzu. |
-| **Kanäle** | Haupt-, Geister- und Textkanal sowie den automatischen Start ändern und **Speichern** klicken. |
+| **Kanäle** | Haupt-, Geister- und Textkanal, ob Tote in den Geisterkanal kommen, und den automatischen Start ändern und **Speichern** klicken. |
 | **Status** | Die Prüfungen des Bots. **Bot neu starten** startet ihn neu. **Bot auf diesem PC ausschalten** sorgt dafür, dass AUVC ihn nicht mehr startet. Token und Einstellungen bleiben gespeichert, und **Einrichten** schaltet ihn wieder ein. |
 | **Spieler** | Jede Figur der aktuellen Lobby, jeweils mit einem Menü der Mitglieder in den Sprachkanälen des Servers. Ein Mitglied wählen verknüpft es, *(niemand)* entfernt die Verknüpfung. Das wirkt sofort. |
 

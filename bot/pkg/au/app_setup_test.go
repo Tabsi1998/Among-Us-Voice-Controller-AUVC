@@ -94,3 +94,62 @@ func TestTheAppCannotStoreWhatTheCommandWouldRefuse(t *testing.T) {
 		t.Errorf("a setup without a guild gave %v, want %v", err, ErrInvalidInput)
 	}
 }
+
+// With the dead staying muted in the main channel no ghost channel is needed,
+// and the guild can still run a session (#161).
+func TestTheAppCanKeepTheDeadInTheMainChannel(t *testing.T) {
+	service, _ := appSetupService(t)
+	stay := false
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{MainVoiceChannelID: "main", AutoMoveGhosts: &stay}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+
+	stored, err := service.GuildConfig("guild-1")
+	if err != nil {
+		t.Fatalf("read back: %v", err)
+	}
+	if stored.AutoMoveGhosts || stored.GhostVoiceChannelID != "" || stored.MainVoiceChannelID != "main" {
+		t.Errorf("stored %+v", stored)
+	}
+	if _, ready, err := service.VoiceConfig("guild-1"); err != nil || !ready {
+		t.Errorf("a guild whose dead stay in the main channel must be ready, got ready=%v err=%v", ready, err)
+	}
+}
+
+// Choosing the ghost channel again needs one.
+func TestMovingTheDeadNeedsAGhostChannel(t *testing.T) {
+	service, _ := appSetupService(t)
+	move := true
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{MainVoiceChannelID: "main", AutoMoveGhosts: &move}); !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("got %v, want %v", err, ErrInvalidInput)
+	}
+}
+
+// An app that does not offer the choice keeps what an administrator chose in
+// Discord.
+func TestAnAppWithoutTheChoiceKeepsIt(t *testing.T) {
+	service, db := appSetupService(t)
+
+	config, err := db.EnsureGuildConfig("guild-1")
+	if err != nil {
+		t.Fatalf("ensure: %v", err)
+	}
+	config.AutoMoveGhosts = false
+	if err := db.SaveGuildConfig(config); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{MainVoiceChannelID: "main"}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+
+	stored, err := service.GuildConfig("guild-1")
+	if err != nil {
+		t.Fatalf("read back: %v", err)
+	}
+	if stored.AutoMoveGhosts {
+		t.Error("an app without the choice switched moving the dead back on")
+	}
+}

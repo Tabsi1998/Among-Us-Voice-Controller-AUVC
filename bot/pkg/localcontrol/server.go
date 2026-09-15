@@ -97,7 +97,10 @@ type Guild struct {
 	GhostVoiceChannelID  string `json:"ghost_voice_channel_id"`
 	ControlTextChannelID string `json:"control_text_channel_id"`
 	AutoStart            bool   `json:"auto_start"`
-	CaptureConnections   int    `json:"capture_connections"`
+	// AutoMoveGhosts is whether the dead move into the ghost channel, or stay
+	// muted in the main channel.
+	AutoMoveGhosts     bool `json:"auto_move_ghosts"`
+	CaptureConnections int  `json:"capture_connections"`
 	// Session is running, paused or stopped, as /au session status reports it.
 	Session string  `json:"session"`
 	Checks  []Check `json:"checks"`
@@ -117,6 +120,9 @@ type Setup struct {
 	GhostVoiceChannelID  string `json:"ghost_voice_channel_id"`
 	ControlTextChannelID string `json:"control_text_channel_id"`
 	AutoStart            bool   `json:"auto_start"`
+	// AutoMoveGhosts is nil from an app that does not offer the choice, which
+	// keeps what the bot has stored.
+	AutoMoveGhosts *bool `json:"auto_move_ghosts,omitempty"`
 }
 
 // Crewmates is who plays in the lobby, and whom the app can link them to.

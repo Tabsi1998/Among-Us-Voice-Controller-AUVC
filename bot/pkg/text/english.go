@@ -118,6 +118,7 @@ var english = map[Key]string{
 	DoctorDisabled:               "AUVC is switched off for this server",
 	DoctorDisabledFix:            "Turn it on with `/au settings voice enabled:true`.",
 	DoctorNotSet:                 "not set",
+	DoctorGhostNotUsed:           "not used: the dead stay muted in the main channel",
 	DoctorSetChannelFix:          "Set it with `/au setup channels`.",
 	DoctorControlChannelFix: "Set one with `/au setup channels`: players choose their crewmate there, " +
 		"and AUVC warns you when capture stops.",
