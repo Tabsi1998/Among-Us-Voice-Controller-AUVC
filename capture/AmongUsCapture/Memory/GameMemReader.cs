@@ -27,6 +27,7 @@ namespace AmongUsCapture
         public string GameHash = "";
 
         private LobbyEventArgs latestLobbyEventArgs;
+        private readonly LobbyWatch lobbyWatch = new();
 
         private Dictionary<string, PlayerInfo> newPlayerInfos = new(15); // container for new player infos. Also has capacity 15 already assigned so no internal resizing of the data structure is needed
 
@@ -38,7 +39,6 @@ namespace AmongUsCapture
         private int prevChatBubsVersion;
         private bool shouldForceTransmitState;
         private bool shouldForceUpdatePlayers;
-        private bool shouldReadLobby;
         private bool shouldTransmitLobby;
 
         private bool Attached => ProcessMemory.getInstance().IsHooked &&
@@ -267,6 +267,25 @@ namespace AmongUsCapture
             return (PlayMap)memInstance.Read<int>(GameAssemblyPtr, CurrentOffsets.PlayMapOffsets);
         }
 
+        /// <summary>
+        /// The lobby the game is in, or null while it has no usable code yet. A usable
+        /// code is four or six capital letters, or six asterisks when the host hides it.
+        /// </summary>
+        private LobbyEventArgs ReadLobby(ProcessMemory memInstance)
+        {
+            var gameCode = GetGameCode(memInstance);
+            if (string.IsNullOrEmpty(gameCode) || !Regex.IsMatch(gameCode, "^[A-Z]{4}$|^[A-Z]{6}$|^\\*{6}$"))
+            {
+                return null;
+            }
+            return new LobbyEventArgs
+            {
+                LobbyCode = gameCode,
+                Region = GetPlayRegion(memInstance),
+                Map = GetMap(memInstance)
+            };
+        }
+
         private string GetSha256Hash(string path)
         {
             using var sha256 = new SHA256Managed();
@@ -406,24 +425,13 @@ namespace AmongUsCapture
 
                     #region Lobby Reading
 
-                    if (state != oldState && state == GameState.LOBBY || shouldReadLobby)
+                    // Read on entering a lobby and on every pass inside it: the host can
+                    // still pick another map there, and the crewmate message shows it.
+                    var lobby = lobbyWatch.Next(oldState, state, () => ReadLobby(ProcessMemory.getInstance()));
+                    if (lobby is not null)
                     {
-                        var gameCode = GetGameCode(ProcessMemory.getInstance());
-                        if (!string.IsNullOrEmpty(gameCode) && Regex.IsMatch(gameCode, "^[A-Z]{4}$|^[A-Z]{6}$|^\\*{6}$"))
-                        {
-                            latestLobbyEventArgs = new LobbyEventArgs
-                            {
-                                LobbyCode = gameCode,
-                                Region = GetPlayRegion(ProcessMemory.getInstance()),
-                                Map = GetMap(ProcessMemory.getInstance())
-                            };
-                            shouldReadLobby = false;
-                            shouldTransmitLobby = true; // since this is probably new info
-                        }
-                        else
-                        {
-                            shouldReadLobby = true; //We got a blank game code last time, so lets try again next time
-                        }
+                        latestLobbyEventArgs = lobby;
+                        shouldTransmitLobby = true;
                     }
 
                     #endregion

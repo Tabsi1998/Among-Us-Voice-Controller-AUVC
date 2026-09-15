@@ -4,6 +4,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Fixed
+
+- The crewmate message follows a map the host picks in the lobby
+  ([#168](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/168)).
+  - **Before:** the app read the lobby code and the map only when it entered the
+    lobby, so the picture and the map name stayed on the first map.
+  - **Now:** the app reads the lobby on every pass inside it and tells the bot
+    when the code, the map or the region changed, and nothing while they stay
+    the same. Nothing is read during a round.
+  - **Always copy lobby code:** a map change no longer copies the code again.
+  - **Test:** `LobbyWatchTests` covers when the lobby is told.
+
 ## v0.1.5-beta — 2026-09-15
 
 The sixth pre-release. The dead can stay muted in the main channel instead of

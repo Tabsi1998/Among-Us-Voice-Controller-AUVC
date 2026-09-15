@@ -602,11 +602,15 @@ namespace AUCapture_WPF
 
         private void OnJoinedLobby(object sender, LobbyEventArgs e)
         {
+            // The reader tells about the lobby again when the host picks another map in
+            // it. The code was copied when the lobby was joined; copying it again would
+            // overwrite whatever the player copied since.
+            var onlyTheMapChanged = e.LobbyCode == context.GameCode && context.GameMap is not null && e.Map != context.GameMap;
             context.GameCode = e.LobbyCode;
             context.GameMap = e.Map;
             this.BeginInvoke(a =>
             {
-                if (context.Settings.AlwaysCopyGameCode) Clipboard.SetText(e.LobbyCode);
+                if (context.Settings.AlwaysCopyGameCode && !onlyTheMapChanged) Clipboard.SetText(e.LobbyCode);
             });
         }
 
