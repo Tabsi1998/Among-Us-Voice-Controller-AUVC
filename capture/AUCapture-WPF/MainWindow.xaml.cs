@@ -88,6 +88,7 @@ namespace AUCapture_WPF
             context.Settings.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(IAppSettings.language)) ApplyLanguage();
+                if (e.PropertyName == nameof(IAppSettings.checkForUpdate)) _ = CheckForUpdateAsync();
             };
             // The status line follows the game as the reader reports it, and the bot
             // on this PC as a poll finds it.
@@ -100,6 +101,7 @@ namespace AUCapture_WPF
             };
             statusPoll.Tick += async (_, _) => await PollBotAsync();
             statusPoll.Start();
+            _ = CheckForUpdateAsync();
             context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = BotConnectionName });
             if (context.Settings.runBotOnThisPc)
             {
@@ -174,6 +176,7 @@ namespace AUCapture_WPF
             UpdateSetupButton();
             UpdateStatus();
             UpdateBadges();
+            ShowUpdate();
         }
 
         // What the status line knows beyond the window's own state: the link as it
@@ -203,6 +206,85 @@ namespace AUCapture_WPF
 
             (context.StatusIcon, context.StatusHeadline, context.StatusNextStep) = StatusText.For(status, runsBot);
         }
+
+        // What the About tab and the line at the top say about newer versions. It is
+        // kept rather than the text, so a change of language rewrites it.
+        private enum UpdateOutcome
+        {
+            Checking,
+            Off,
+            DevelopmentBuild,
+            UpToDate,
+            Available,
+            Failed,
+        }
+
+        private UpdateOutcome updateOutcome = UpdateOutcome.Checking;
+        private NewerRelease newerRelease;
+        private int updateCheck;
+
+        /// <summary>
+        /// Asks GitHub once per start, and again when the setting is switched on.
+        /// The answer is a line at the top, never a dialog, so a round is not
+        /// interrupted; nothing is downloaded.
+        /// </summary>
+        private async Task CheckForUpdateAsync()
+        {
+            var attempt = ++updateCheck;
+            var current = ReleaseCheck.Current;
+            newerRelease = null;
+            if (!context.Settings.checkForUpdate)
+            {
+                updateOutcome = UpdateOutcome.Off;
+            }
+            else if (current is null || current.IsDevelopment)
+            {
+                updateOutcome = UpdateOutcome.DevelopmentBuild;
+            }
+            else
+            {
+                updateOutcome = UpdateOutcome.Checking;
+                ShowUpdate();
+
+                NewerRelease found = null;
+                var outcome = UpdateOutcome.Failed;
+                try
+                {
+                    found = await ReleaseCheck.FindAsync(current);
+                    outcome = found is null ? UpdateOutcome.UpToDate : UpdateOutcome.Available;
+                }
+                catch (Exception error) when (error is System.Net.Http.HttpRequestException or TaskCanceledException
+                                                  or FormatException)
+                {
+                    Logger.Warn(error, "Could not check for a newer AUVC version");
+                }
+
+                // A later check, or the setting switched off meanwhile, has the last word.
+                if (attempt != updateCheck) return;
+                (updateOutcome, newerRelease) = (outcome, found);
+            }
+            ShowUpdate();
+        }
+
+        private void ShowUpdate()
+        {
+            context.LatestVersion = updateOutcome switch
+            {
+                UpdateOutcome.Off => Properties.Resources.UpdateCheckOff,
+                UpdateOutcome.DevelopmentBuild => Properties.Resources.UpdateDevelopmentBuild,
+                UpdateOutcome.UpToDate => Properties.Resources.UpdateUpToDate,
+                UpdateOutcome.Available => newerRelease.Version.ToString(),
+                UpdateOutcome.Failed => Properties.Resources.UpdateCheckFailed,
+                _ => Properties.Resources.UpdateChecking,
+            };
+            context.UpdatePage = newerRelease?.Page ?? ReleaseFeed.ReleasesPage;
+            context.UpdateNotice = updateOutcome == UpdateOutcome.Available
+                ? string.Format(Properties.Resources.UpdateAvailable, newerRelease.Version)
+                : "";
+        }
+
+        private void UpdatePageLink_OnClick(object sender, RoutedEventArgs e) =>
+            Process.Start(new ProcessStartInfo(context.UpdatePage) { UseShellExecute = true });
 
         private static GameView GameViewOf(bool gameFound, GameState? state) => state switch
         {

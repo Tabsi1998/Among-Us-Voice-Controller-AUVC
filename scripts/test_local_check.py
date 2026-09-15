@@ -83,6 +83,18 @@ class GitleaksTests(unittest.TestCase):
         self.assertEqual(len(digest), 64)
 
 
+class PublishTests(unittest.TestCase):
+    def test_the_app_is_stamped_with_the_version_it_is_built_as(self):
+        command = check.publish_command("dotnet", "v1.2.3-rc.1")
+
+        self.assertIn("-p:Version=1.2.3-rc.1", command)
+
+    def test_the_release_workflow_stamps_the_app_too(self):
+        workflow = (check.ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+
+        self.assertIn('"-p:Version=$version"', workflow)
+
+
 class ReportTests(unittest.TestCase):
     def test_test_counts_are_read_from_a_trx_report(self):
         report = (

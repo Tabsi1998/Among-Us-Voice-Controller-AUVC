@@ -8,6 +8,11 @@ needs: the mutes and moves, the crewmate message in your text channel with the
 map picture it carries, and the crewmate pictures, which are uploaded to your
 own bot.
 
+To tell you about a newer version, the app also asks GitHub for the public list
+of AUVC releases on every start, unless **Check for new versions** is switched
+off in its settings. The request carries nothing about you, your server or your
+game. GitHub sees the PC's IP address, as with any visit to a web page.
+
 ## What AUVC does not collect
 
 - **Audio.** The bot never joins a voice channel to listen. It changes mute,
