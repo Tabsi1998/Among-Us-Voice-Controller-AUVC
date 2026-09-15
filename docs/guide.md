@@ -272,8 +272,9 @@ Windows** goes back.
 | About | App version | The installed AUVC version, for example `0.1.2-beta` |
 | About | Latest version | A newer AUVC version, *Up to date*, or why it was not checked. On a pre-release you hear of newer pre-releases and releases; on a release, only of releases |
 
-Keyboard shortcuts in the main window: **Ctrl+L** opens the log folder, **F2**
-copies the newest log to the clipboard, **Ctrl+R** restarts the app.
+Keyboard shortcuts in the main window: **F1** opens this guide, **Ctrl+L** opens
+the log folder, **F2** copies the newest log to the clipboard, **Ctrl+R** restarts
+the app.
 
 ### Game settings in Discord
 

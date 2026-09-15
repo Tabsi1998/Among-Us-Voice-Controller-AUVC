@@ -25,6 +25,16 @@ namespace AUCapture_WPF
         /// <summary>The languages every text of the app is translated into.</summary>
         public static readonly string[] Supported = ["de", "en"];
 
+        /// <summary>The user guide in English, which every other language falls back to.</summary>
+        public const string EnglishGuide = "https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/blob/main/docs/guide.md";
+
+        /// <summary>The user guide in German.</summary>
+        public const string GermanGuide = "https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/blob/main/docs/anleitung.md";
+
+        /// <summary>The guide to open for the language the app shows.</summary>
+        public static string GuideFor(CultureInfo language) =>
+            language.TwoLetterISOLanguageName == "de" ? GermanGuide : EnglishGuide;
+
         /// <summary>
         /// The saved choice as one of <see cref="Supported"/>, or
         /// <see cref="SameAsWindows"/> for anything the app does not offer (any more).

@@ -8,5 +8,3 @@ capture/.all-contributorsrc	automute.us
 capture/AUCapture-WPF/Converters/HatToImage.cs	automute.us
 capture/AUCapture-WPF/Converters/PantsConverter.cs	automute.us
 capture/AUCapture-WPF/Converters/PetToImageConverter.cs	automute.us
-capture/AUCapture-WPF/MainWindow.xaml.cs	automute.us
-capture/AUCapture-WPF/UserDataContext.cs	automute.us

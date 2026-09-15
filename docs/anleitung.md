@@ -283,8 +283,9 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.2-beta` |
 | Info | Neueste Version | Eine neuere AUVC-Version, *Aktuell* oder warum nicht geprüft wurde. Mit einer Vorabversion erfährst du von neueren Vorabversionen und Releases, mit einem Release nur von Releases |
 
-Tastenkürzel im Hauptfenster: **Strg+L** öffnet den Log-Ordner, **F2** kopiert das
-neueste Log in die Zwischenablage, **Strg+R** startet die App neu.
+Tastenkürzel im Hauptfenster: **F1** öffnet diese Anleitung, **Strg+L** öffnet
+den Log-Ordner, **F2** kopiert das neueste Log in die Zwischenablage, **Strg+R**
+startet die App neu.
 
 ### Spiel-Einstellungen in Discord
 

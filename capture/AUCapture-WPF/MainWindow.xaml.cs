@@ -947,11 +947,6 @@ namespace AUCapture_WPF
             c.Show();
         }
 
-        private void PremiumButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            OpenBrowser("https://automute.us/premium");
-        }
-
         private void OpenLogsFolderButton_OnClick(object sender, RoutedEventArgs e)
         {
             if (!Directory.Exists(App.LogFolder)) return;
