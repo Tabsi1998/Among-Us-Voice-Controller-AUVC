@@ -4,8 +4,9 @@ What AUVC stores, where, for how long, and how to remove it.
 
 AUVC is not a hosted service. It runs on your PC, and whoever runs it is
 responsible for the data it keeps. Nothing leaves that PC except what Discord
-needs: the mutes and moves, the crewmate message in your text channel, and the
-crewmate pictures, which are uploaded to your own bot.
+needs: the mutes and moves, the crewmate message in your text channel with the
+map picture it carries, and the crewmate pictures, which are uploaded to your
+own bot.
 
 ## What AUVC does not collect
 
@@ -47,8 +48,8 @@ codes and credentials are kept only as hashes.
 and who disconnected. It is gone when AUVC closes.
 
 **Shown in Discord:** while AUVC runs, the crewmate message in your text channel
-lists the map, the phase and the lobby code, the in-game names and colours of the
-lobby and which members picked them. A lobby code the host hides stays hidden.
+lists the map with its picture, the phase and the lobby code, the in-game names
+and colours of the lobby and which members picked them. A lobby code the host hides stays hidden.
 Everyone who can read that channel sees it. It is deleted when AUVC closes.
 
 The app reads the memory of the Among Us process to find the game phase and the

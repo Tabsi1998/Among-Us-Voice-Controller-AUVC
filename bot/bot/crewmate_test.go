@@ -245,6 +245,101 @@ func TestARestartedBotEditsTheBoardItLeftBehind(t *testing.T) {
 	}
 }
 
+func boardOnMap(mapName string, names ...string) crewmate.Board {
+	players := make([]session.GamePlayer, 0, len(names))
+	for index, name := range names {
+		players = append(players, session.GamePlayer{Name: name, Color: index, Alive: true})
+	}
+	return crewmate.Render(text.English, crewmate.Round{Phase: game.LOBBY, Map: mapName}, players, nil, nil)
+}
+
+// The map picture is a file on the message. It goes along when the map changes,
+// and an edit on the same map leaves the file alone: a round edits the board
+// every few seconds, and a picture is up to a megabyte.
+func TestTheMapPictureIsUploadedOnlyWhenTheMapChanges(t *testing.T) {
+	api := &fakeCrewmateAPI{}
+	boards := NewCrewmateBoards(api, openCrewDB(t), "app")
+
+	show(t, boards, "text-1", boardOnMap(protocol.MapPolus, "Alice"))
+	if files := api.sent[0].message.Files; len(files) != 1 || files[0].Name != "polus.png" {
+		t.Fatalf("the first board carries %+v, want the picture of Polus", files)
+	}
+
+	show(t, boards, "text-1", boardOnMap(protocol.MapPolus, "Alice", "Bob"))
+	if edit := api.edits[0]; edit.Files != nil || edit.Attachments != nil {
+		t.Errorf("an edit on the same map touched the picture: files %+v, attachments %+v", edit.Files, edit.Attachments)
+	}
+
+	show(t, boards, "text-1", boardOnMap(protocol.MapTheSkeld, "Alice", "Bob"))
+	edit := api.edits[1]
+	if len(edit.Files) != 1 || edit.Files[0].Name != "the_skeld.png" {
+		t.Errorf("a new map uploaded %+v, want the picture of The Skeld", edit.Files)
+	}
+	if edit.Attachments == nil || len(*edit.Attachments) != 1 ||
+		(*edit.Attachments)[0].ID != "0" || (*edit.Attachments)[0].Filename != "the_skeld.png" {
+		t.Errorf("the message should keep only the new picture: %+v", edit.Attachments)
+	}
+
+	show(t, boards, "text-1", boardOnMap("", "Alice", "Bob"))
+	if edit := api.edits[2]; edit.Files != nil || edit.Attachments == nil || len(*edit.Attachments) != 0 {
+		t.Errorf("without a map the picture should be removed: files %+v, attachments %+v", edit.Files, edit.Attachments)
+	}
+}
+
+// A restarted bot cannot know which picture the message it left behind
+// carries. Its first edit sets the picture even when there is none to show, or
+// the last run's picture would hang below the board as a loose file.
+func TestARestartedBotSetsThePictureAgain(t *testing.T) {
+	api := &fakeCrewmateAPI{}
+	db := openCrewDB(t)
+
+	show(t, NewCrewmateBoards(api, db, "app"), "text-1", boardOnMap(protocol.MapPolus, "Alice"))
+	show(t, NewCrewmateBoards(api, db, "app"), "text-1", boardOnMap("", "Alice"))
+
+	if _, edited, _ := api.counts(); edited != 1 {
+		t.Fatalf("edited %d times, want once", edited)
+	}
+	if edit := api.edits[0]; edit.Files != nil || edit.Attachments == nil || len(*edit.Attachments) != 0 {
+		t.Errorf("the edit after a restart should remove the last run's picture: files %+v, attachments %+v",
+			edit.Files, edit.Attachments)
+	}
+}
+
+// The embed points at the picture by file name, so the upload has to carry
+// exactly that name, as a PNG.
+func TestAPictureIsUploadedUnderTheNameTheEmbedPointsAt(t *testing.T) {
+	files, err := pictureUpload(&crewmate.Picture{Name: "polus.png", Map: game.POLUS})
+	if err != nil || len(files) != 1 || files[0].Name != "polus.png" || files[0].ContentType != "image/png" {
+		t.Fatalf("upload %+v (%v), want polus.png as a PNG", files, err)
+	}
+
+	if files, err := pictureUpload(&crewmate.Picture{Name: "polus.png", Map: game.SKELD}); err == nil {
+		t.Errorf("a picture whose name does not match its map was uploaded: %+v", files)
+	}
+	if files, err := pictureUpload(nil); err != nil || files != nil {
+		t.Errorf("no picture uploaded %+v (%v)", files, err)
+	}
+}
+
+// The private menu from /au link uploads nothing, so it must not point at a
+// picture it does not carry.
+func TestThePrivateMenuPointsAtNoPicture(t *testing.T) {
+	bot, _, _, _ := newCrewBot(t)
+	lobbyOf(bot, game.LOBBY, "Alice")
+	guild := bot.CaptureSessions.forGuild(crewGuild)
+	guild.mu.Lock()
+	guild.live.SetLobby(session.Lobby{Code: "ABCD", Map: protocol.MapPolus})
+	guild.mu.Unlock()
+
+	if view, err := bot.crewmateMenu(crewGuild, text.English); err != nil || view.Embed.Thumbnail == nil {
+		t.Fatalf("the board shows no picture (%v), so this test proves nothing", err)
+	}
+	response := bot.crewmatePicker(crewGuild, text.English)
+	if thumbnail := response.Data.Embeds[0].Thumbnail; thumbnail != nil {
+		t.Errorf("the private menu points at %q", thumbnail.URL)
+	}
+}
+
 func TestStoppingTakesEveryBoardDownAndPostsNoMore(t *testing.T) {
 	api := &fakeCrewmateAPI{}
 	db := openCrewDB(t)

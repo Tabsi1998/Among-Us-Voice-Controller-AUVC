@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/crewmate"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
@@ -85,7 +87,15 @@ type crewmateBoard struct {
 	channelID string
 	messageID string
 	rendered  string
+	// picture is the file name of the map picture the message carries, or
+	// pictureUnknown when a previous run posted it.
+	picture string
 }
+
+// pictureUnknown is a picture name no map has. A board a previous run left
+// behind carries whatever that run attached, so its next edit sends the picture
+// again rather than trusting it is there.
+const pictureUnknown = "\x00unknown"
 
 // NewCrewmateBoards returns boards that post through api and remember their
 // messages in store.
@@ -217,9 +227,28 @@ func (c *CrewmateBoards) Show(guildID, channelID string, view crewmate.Board) er
 		edit.Embeds = &embeds
 		edit.Components = &components
 
+		// A round edits the board every few seconds, and a map picture is up to
+		// a megabyte. Without attachments in the edit Discord keeps the file the
+		// message has, so the picture goes along only when the map changed.
+		picture := view.PictureName()
+		if picture != board.picture {
+			files, err := pictureUpload(view.Picture)
+			if err != nil {
+				return fmt.Errorf("edit the crewmate board in guild %s: %w", guildID, err)
+			}
+			// The attachments listed are all the message keeps: the new picture,
+			// which is the first file of this upload, or nothing.
+			attachments := []*discordgo.MessageAttachment{}
+			if len(files) > 0 {
+				attachments = append(attachments, &discordgo.MessageAttachment{ID: "0", Filename: files[0].Name})
+			}
+			edit.Files = files
+			edit.Attachments = &attachments
+		}
+
 		_, err := c.api.EditMessage(edit)
 		if err == nil {
-			board.rendered = key
+			board.rendered, board.picture = key, picture
 			return nil
 		}
 		if !gone(err) {
@@ -237,9 +266,14 @@ func (c *CrewmateBoards) Show(guildID, channelID string, view crewmate.Board) er
 		}
 	}
 
+	files, err := pictureUpload(view.Picture)
+	if err != nil {
+		return fmt.Errorf("post the crewmate board in guild %s: %w", guildID, err)
+	}
 	message, err := c.api.SendMessage(channelID, &discordgo.MessageSend{
 		Embeds:     []*discordgo.MessageEmbed{view.Embed},
 		Components: view.Components,
+		Files:      files,
 		// The board names players with mentions so everyone can see who is who.
 		// Nobody should be pinged for it.
 		AllowedMentions: &discordgo.MessageAllowedMentions{},
@@ -249,6 +283,7 @@ func (c *CrewmateBoards) Show(guildID, channelID string, view crewmate.Board) er
 	}
 
 	board.channelID, board.messageID, board.rendered = channelID, message.ID, key
+	board.picture = view.PictureName()
 	if err := c.store.SaveCrewmateBoard(sqlite.CrewmateBoard{
 		GuildID: guildID, ChannelID: channelID, MessageID: message.ID,
 	}); err != nil {
@@ -362,6 +397,20 @@ func (c *CrewmateBoards) load(guildID string, board *crewmateBoard) {
 		return
 	}
 	board.channelID, board.messageID = stored.ChannelID, stored.MessageID
+	board.picture = pictureUnknown
+}
+
+// pictureUpload is the file a board's map picture is uploaded as, or none. The
+// bytes are read here, when the picture has to go along, not for every render.
+func pictureUpload(picture *crewmate.Picture) ([]*discordgo.File, error) {
+	if picture == nil {
+		return nil, nil
+	}
+	name, data, ok := game.MapImage(picture.Map, false)
+	if !ok || name != picture.Name {
+		return nil, fmt.Errorf("the picture %s is not bundled", picture.Name)
+	}
+	return []*discordgo.File{{Name: name, ContentType: "image/png", Reader: bytes.NewReader(data)}}, nil
 }
 
 // takeDown deletes a board's message and forgets it. The caller holds the
@@ -375,7 +424,7 @@ func (c *CrewmateBoards) takeDown(guildID string, board *crewmateBoard) error {
 		return fmt.Errorf("delete the crewmate board: %w", err)
 	}
 
-	board.channelID, board.messageID, board.rendered = "", "", ""
+	board.channelID, board.messageID, board.rendered, board.picture = "", "", "", ""
 	return c.store.DeleteCrewmateBoard(guildID)
 }
 
@@ -496,6 +545,9 @@ func (bot *Bot) crewmatePicker(guildID string, language text.Language) *discordg
 	if len(view.Components) == 0 {
 		return auPrivateResponse(language.Say(text.NoLobbyYet))
 	}
+	// The private menu uploads nothing, so it must not point at a picture it
+	// does not carry. The map picture stays on the board.
+	view.Embed.Thumbnail = nil
 
 	return &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
