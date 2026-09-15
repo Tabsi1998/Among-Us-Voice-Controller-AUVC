@@ -4,6 +4,25 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The bot log shows what happens to a player in voice
+  ([#160](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/160)).
+  PlayStation players who join the main channel while AUVC runs have been
+  dropped from voice. Discord is known to disconnect console players whom a
+  bot moves to another channel. AUVC moves linked players into the main
+  channel in the lobby and into the ghost channel at a meeting. Which move hit
+  the player is not known yet.
+  - **Every change AUVC makes** to a member is written down: move, server mute,
+    server deafen.
+  - **Every join, leave and switch** in the main or ghost channel is written
+    down too.
+  - **The log answers the question:** whether AUVC acted on a player the moment
+    they dropped out, or did nothing.
+  - **Refused on purpose:** AUVC refuses any change that would remove a member
+    from voice. It never made one, but a mistake upstream now ends as an error
+    in the log instead of a dropped call.
+
 ### Fixed
 
 - The guides match the app again
