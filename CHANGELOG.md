@@ -29,6 +29,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - The Japanese, Russian, Portuguese and Chinese translations of the app. They
   covered only part of it, so the app showed two languages at once; a language
   comes back once every text of the app is translated.
+- The bot's old AutoMuteUs translations in `bot/locales`, their Crowdin
+  configuration and the `BOT_LANG` and `LOCALE_PATH` settings
+  ([#44](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/44),
+  [#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)).
+  No `/au` command used them, and they still carried AutoMuteUs texts and
+  links. The bot's German and English are compiled into it.
 
 ## v0.1.2-beta — 2026-09-14
 

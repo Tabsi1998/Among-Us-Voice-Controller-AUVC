@@ -17,7 +17,6 @@ import (
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/command"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/au"
-	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/locale"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/pairing"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/bwmarrin/discordgo"
@@ -79,8 +78,6 @@ func run() error {
 		return err
 	}
 	log.Printf("AUVC %s-%s (%s)", version, commit, date)
-
-	locale.InitLang(os.Getenv("LOCALE_PATH"), os.Getenv("BOT_LANG"))
 
 	databasePath := os.Getenv("AUVC_DATABASE_PATH")
 	if databasePath == "" {

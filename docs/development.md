@@ -74,9 +74,10 @@ python scripts/check_upstream_references.py
 gitleaks detect --redact --no-git --config .gitleaks.toml
 ```
 
-To run the app with its bot from a local build, put the built `auvc.exe` and
-`bot/locales` into a `bot` folder beside `AUCapture-WPF.exe`. The app looks for
-`bot\auvc.exe` next to itself.
+To run the app with its bot from a local build, put the built `auvc.exe` into a
+`bot` folder beside `AUCapture-WPF.exe`. The app looks for `bot\auvc.exe` next to
+itself. The bot's texts are compiled into it (`bot/pkg/text`), so nothing else
+goes with it.
 
 ## Running the bot on its own
 
@@ -94,7 +95,6 @@ in the user guide.
 | `SLASH_COMMAND_GUILD_IDS` | global | Register `/au` in named servers only, which takes effect at once. `*` registers it in every server the bot is in |
 | `AUVC_LOCAL_CONTROL_SECRET` | — | Set by the app when it starts the bot. Leave it unset otherwise |
 | `LOG_PATH`, `DISABLE_LOG_FILE` | `./`, off | Where `logs.txt` goes, or no file at all |
-| `BOT_LANG`, `LOCALE_PATH` | English | Language of bot messages |
 | `AUVC_LISTENING` | `/au` | The activity Discord shows |
 
 `GET /healthz` on the capture port answers `ok`, or names what is wrong.

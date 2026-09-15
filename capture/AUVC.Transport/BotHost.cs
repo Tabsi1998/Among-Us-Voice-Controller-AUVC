@@ -53,7 +53,7 @@ public static class BotLaunch
     /// how this bot behaves.
     /// </summary>
     public static IReadOnlyDictionary<string, string?> EnvironmentFor(
-        string token, string secret, int port, string dataDirectory, string botDirectory) =>
+        string token, string secret, int port, string dataDirectory) =>
         new Dictionary<string, string?>
         {
             ["DISCORD_BOT_TOKEN"] = token,
@@ -65,7 +65,6 @@ public static class BotLaunch
             ["SLASH_COMMAND_GUILD_IDS"] = "*",
             ["AUVC_DATABASE_PATH"] = Path.Combine(dataDirectory, "amongus.db"),
             ["LOG_PATH"] = Path.Combine(dataDirectory, "logs"),
-            ["LOCALE_PATH"] = Path.Combine(botDirectory, "locales"),
             ["AUVC_CAPTURE_TLS_CERT"] = null,
             ["AUVC_CAPTURE_TLS_KEY"] = null,
             ["DISABLE_LOG_FILE"] = null,
@@ -186,7 +185,7 @@ public sealed class BotHost : IAsyncDisposable
             CreateNoWindow = true,
             WorkingDirectory = botDirectory,
         };
-        foreach (var (name, value) in BotLaunch.EnvironmentFor(token, secret, port, _dataDirectory, botDirectory))
+        foreach (var (name, value) in BotLaunch.EnvironmentFor(token, secret, port, _dataDirectory))
         {
             if (value is null)
             {
