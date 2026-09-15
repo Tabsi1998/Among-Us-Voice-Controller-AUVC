@@ -137,7 +137,8 @@ func TestASetupFromTheAppIsSaved(t *testing.T) {
 		t.Fatalf("guild: %v", err)
 	}
 	if guild.Name != "The Crew" || guild.MainVoiceChannelID != "voice-main" ||
-		guild.GhostVoiceChannelID != "voice-ghosts" || guild.ControlTextChannelID != "text-general" || !guild.AutoStart {
+		guild.GhostVoiceChannelID != "voice-ghosts" || guild.ControlTextChannelID != "text-general" || !guild.AutoStart ||
+		guild.Session != "stopped" {
 		t.Errorf("the saved guild reads %+v", guild)
 	}
 }

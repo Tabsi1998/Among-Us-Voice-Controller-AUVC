@@ -23,6 +23,13 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   the one set in Discord, until an administrator picks another with
   `/au settings language`. The checks the app shows behind **Bot** come in the
   app's own language.
+- A status line at the top of the app's main window
+  ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  It names the most urgent thing and what to do about it: AUVC not set up, the
+  bot on this PC not running, app and bot not matching, the bot refusing the app,
+  no connection, Among Us not started, no lobby, a paused session, a round AUVC
+  does not manage, or nobody linked. Once everything is in place it says
+  *Ready*, with how many players in the lobby are linked.
 
 ### Removed
 

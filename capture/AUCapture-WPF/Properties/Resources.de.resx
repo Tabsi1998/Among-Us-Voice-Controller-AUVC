@@ -306,4 +306,82 @@ Das lässt sich nicht rückgängig machen.</value>
   <data name="ContributorsHeader" xml:space="preserve">
     <value>Die Menschen, die Capture möglich machen</value>
   </data>
+  <data name="StatusNotSetUp" xml:space="preserve">
+    <value>AUVC ist noch nicht eingerichtet</value>
+  </data>
+  <data name="StatusNotSetUpNext" xml:space="preserve">
+    <value>Klicke oben auf „Einrichten“.</value>
+  </data>
+  <data name="StatusBotNotRunning" xml:space="preserve">
+    <value>Der Bot auf diesem PC läuft nicht</value>
+  </data>
+  <data name="StatusBotNotRunningNext" xml:space="preserve">
+    <value>Öffne „Bot“ → Status und klicke auf „Bot neu starten“.</value>
+  </data>
+  <data name="StatusWrongVersion" xml:space="preserve">
+    <value>App und Bot passen nicht zusammen</value>
+  </data>
+  <data name="StatusWrongVersionNext" xml:space="preserve">
+    <value>Installiere die AUVC-Version, die zum Bot passt.</value>
+  </data>
+  <data name="StatusRefused" xml:space="preserve">
+    <value>Der Bot hat diese App abgelehnt</value>
+  </data>
+  <data name="StatusRefusedLocalNext" xml:space="preserve">
+    <value>Öffne „Bot“ → Status und starte den Bot neu.</value>
+  </data>
+  <data name="StatusRefusedRemoteNext" xml:space="preserve">
+    <value>Hol dir mit /au capture pair einen neuen Code und kopple erneut.</value>
+  </data>
+  <data name="StatusNotPaired" xml:space="preserve">
+    <value>Nicht mit einem Bot gekoppelt</value>
+  </data>
+  <data name="StatusNotPairedNext" xml:space="preserve">
+    <value>Hol dir mit /au capture pair einen Code und gib ihn über den Kopplungsknopf oben ein.</value>
+  </data>
+  <data name="StatusConnecting" xml:space="preserve">
+    <value>Verbinde mit dem Bot …</value>
+  </data>
+  <data name="StatusConnectingRemoteNext" xml:space="preserve">
+    <value>Dauert das lange, prüfe, ob der Bot läuft und erreichbar ist.</value>
+  </data>
+  <data name="StatusWaitingForGame" xml:space="preserve">
+    <value>Warte auf Among Us</value>
+  </data>
+  <data name="StatusWaitingForGameNext" xml:space="preserve">
+    <value>Starte Among Us auf diesem PC.</value>
+  </data>
+  <data name="StatusInMenu" xml:space="preserve">
+    <value>Among Us läuft</value>
+  </data>
+  <data name="StatusInMenuNext" xml:space="preserve">
+    <value>Geh in eine Lobby oder erstelle eine.</value>
+  </data>
+  <data name="StatusPaused" xml:space="preserve">
+    <value>Pausiert</value>
+  </data>
+  <data name="StatusPausedNext" xml:space="preserve">
+    <value>Alle bleiben, wie sie sind. Weiter geht es mit /au session resume.</value>
+  </data>
+  <data name="StatusStopped" xml:space="preserve">
+    <value>AUVC steuert die Sprachkanäle gerade nicht</value>
+  </data>
+  <data name="StatusStoppedNext" xml:space="preserve">
+    <value>Starte mit /au session start, oder schalte unter „Bot“ → Kanäle den automatischen Start ein.</value>
+  </data>
+  <data name="StatusNobodyLinked" xml:space="preserve">
+    <value>Noch niemand ist verknüpft</value>
+  </data>
+  <data name="StatusNobodyLinkedNext" xml:space="preserve">
+    <value>AUVC steuert nur verknüpfte Spieler. Sie wählen ihre Figur im Textkanal, oder du ordnest sie unter „Bot“ → Spieler zu.</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>Bereit</value>
+  </data>
+  <data name="StatusReadyNext" xml:space="preserve">
+    <value>AUVC verfolgt das Spiel.</value>
+  </data>
+  <data name="StatusReadyCounted" xml:space="preserve">
+    <value>{0} von {1} Spielern verknüpft. AUVC steuert nur verknüpfte Spieler.</value>
+  </data>
 </root>

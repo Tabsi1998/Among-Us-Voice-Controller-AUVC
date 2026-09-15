@@ -306,4 +306,82 @@ This cannot be undone.</value>
   <data name="ContributorsHeader" xml:space="preserve">
     <value>The special people that make capture possible</value>
   </data>
+  <data name="StatusNotSetUp" xml:space="preserve">
+    <value>AUVC is not set up yet</value>
+  </data>
+  <data name="StatusNotSetUpNext" xml:space="preserve">
+    <value>Click “Set up” at the top.</value>
+  </data>
+  <data name="StatusBotNotRunning" xml:space="preserve">
+    <value>The bot on this PC is not running</value>
+  </data>
+  <data name="StatusBotNotRunningNext" xml:space="preserve">
+    <value>Open “Bot” → Status and click “Restart the bot”.</value>
+  </data>
+  <data name="StatusWrongVersion" xml:space="preserve">
+    <value>The app and the bot do not match</value>
+  </data>
+  <data name="StatusWrongVersionNext" xml:space="preserve">
+    <value>Install the AUVC version that matches the bot.</value>
+  </data>
+  <data name="StatusRefused" xml:space="preserve">
+    <value>The bot refused this app</value>
+  </data>
+  <data name="StatusRefusedLocalNext" xml:space="preserve">
+    <value>Open “Bot” → Status and restart the bot.</value>
+  </data>
+  <data name="StatusRefusedRemoteNext" xml:space="preserve">
+    <value>Get a new code with /au capture pair and pair again.</value>
+  </data>
+  <data name="StatusNotPaired" xml:space="preserve">
+    <value>Not paired with a bot</value>
+  </data>
+  <data name="StatusNotPairedNext" xml:space="preserve">
+    <value>Get a code with /au capture pair and enter it with the pairing button at the top.</value>
+  </data>
+  <data name="StatusConnecting" xml:space="preserve">
+    <value>Connecting to the bot …</value>
+  </data>
+  <data name="StatusConnectingRemoteNext" xml:space="preserve">
+    <value>If this takes long, check that the bot is running and reachable.</value>
+  </data>
+  <data name="StatusWaitingForGame" xml:space="preserve">
+    <value>Waiting for Among Us</value>
+  </data>
+  <data name="StatusWaitingForGameNext" xml:space="preserve">
+    <value>Start Among Us on this PC.</value>
+  </data>
+  <data name="StatusInMenu" xml:space="preserve">
+    <value>Among Us is running</value>
+  </data>
+  <data name="StatusInMenuNext" xml:space="preserve">
+    <value>Join a lobby or create one.</value>
+  </data>
+  <data name="StatusPaused" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="StatusPausedNext" xml:space="preserve">
+    <value>Everyone stays as they are. Continue with /au session resume.</value>
+  </data>
+  <data name="StatusStopped" xml:space="preserve">
+    <value>AUVC is not managing voice</value>
+  </data>
+  <data name="StatusStoppedNext" xml:space="preserve">
+    <value>Start with /au session start, or switch on automatic start under “Bot” → Channels.</value>
+  </data>
+  <data name="StatusNobodyLinked" xml:space="preserve">
+    <value>Nobody is linked yet</value>
+  </data>
+  <data name="StatusNobodyLinkedNext" xml:space="preserve">
+    <value>AUVC manages only linked players. They pick their crewmate in the text channel, or link them under “Bot” → Players.</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="StatusReadyNext" xml:space="preserve">
+    <value>AUVC follows the game.</value>
+  </data>
+  <data name="StatusReadyCounted" xml:space="preserve">
+    <value>{0} of {1} players linked. AUVC manages only linked players.</value>
+  </data>
 </root>

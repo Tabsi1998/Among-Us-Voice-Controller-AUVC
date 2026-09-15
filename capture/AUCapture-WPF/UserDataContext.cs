@@ -310,6 +310,39 @@ namespace AUCapture_WPF
             }
         }
 
+        private string _statusIcon = "";
+        public string StatusIcon
+        {
+            get => _statusIcon;
+            set
+            {
+                _statusIcon = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _statusHeadline = "";
+        public string StatusHeadline
+        {
+            get => _statusHeadline;
+            set
+            {
+                _statusHeadline = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _statusNextStep = "";
+        public string StatusNextStep
+        {
+            get => _statusNextStep;
+            set
+            {
+                _statusNextStep = value;
+                OnPropertyChanged();
+            }
+        }
+
         private static void Shuffle<T>(List<T> list)
         {
             Random rng = new Random();

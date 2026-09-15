@@ -43,7 +43,15 @@ public sealed record LocalGuild
     [JsonPropertyName("ghost_voice_channel_id")] public string GhostVoiceChannelId { get; init; } = "";
     [JsonPropertyName("control_text_channel_id")] public string ControlTextChannelId { get; init; } = "";
     [JsonPropertyName("auto_start")] public bool AutoStart { get; init; }
+    public const string SessionRunning = "running";
+    public const string SessionPaused = "paused";
+    public const string SessionStopped = "stopped";
+
     [JsonPropertyName("capture_connections")] public int CaptureConnections { get; init; }
+
+    /// <summary>Running, paused or stopped, as /au session status reports it; empty from an older bot.</summary>
+    [JsonPropertyName("session")] public string Session { get; init; } = "";
+
     [JsonPropertyName("checks")] public IReadOnlyList<LocalCheck> Checks { get; init; } = [];
 }
 

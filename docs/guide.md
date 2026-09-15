@@ -167,7 +167,10 @@ does it touch bots such as music bots.
 
 ## 5. Play
 
-1. Start AUVC. The main window says *Waiting for Among Us*.
+1. Start AUVC. The line at the top of the main window always says what AUVC is
+   waiting for and what to do next, for example *Waiting for Among Us: Start
+   Among Us on this PC*. Once everything is in place it says *Ready* and how many
+   players in the lobby are linked.
 2. Start Among Us. As soon as you are in a lobby, AUVC shows the players.
 3. Everyone joins the main voice channel.
 

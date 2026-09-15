@@ -126,6 +126,10 @@ func (l *localBackend) Guild(guildID string, language text.Language) (localcontr
 	if l.capture != nil {
 		result.CaptureConnections = l.capture.Connections(guildID)
 	}
+	if l.controller.CaptureSessions != nil {
+		// So the app can say when AUVC follows the game without managing voice.
+		result.Session = l.controller.CaptureSessions.Mode(guildID).String()
+	}
 	if l.doctor != nil {
 		// In the app's own language, so the checks match the window around them.
 		for _, check := range l.doctor.Report(guildID, language) {

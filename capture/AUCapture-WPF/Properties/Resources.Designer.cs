@@ -656,6 +656,240 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The bot on this PC is not running.
+        /// </summary>
+        public static string StatusBotNotRunning {
+            get {
+                return ResourceManager.GetString("StatusBotNotRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open “Bot” → Status and click “Restart the bot”..
+        /// </summary>
+        public static string StatusBotNotRunningNext {
+            get {
+                return ResourceManager.GetString("StatusBotNotRunningNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to the bot ….
+        /// </summary>
+        public static string StatusConnecting {
+            get {
+                return ResourceManager.GetString("StatusConnecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If this takes long, check that the bot is running and reachable..
+        /// </summary>
+        public static string StatusConnectingRemoteNext {
+            get {
+                return ResourceManager.GetString("StatusConnectingRemoteNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Among Us is running.
+        /// </summary>
+        public static string StatusInMenu {
+            get {
+                return ResourceManager.GetString("StatusInMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join a lobby or create one..
+        /// </summary>
+        public static string StatusInMenuNext {
+            get {
+                return ResourceManager.GetString("StatusInMenuNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nobody is linked yet.
+        /// </summary>
+        public static string StatusNobodyLinked {
+            get {
+                return ResourceManager.GetString("StatusNobodyLinked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUVC manages only linked players. They pick their crewmate in the text channel, or link them under “Bot” → Players..
+        /// </summary>
+        public static string StatusNobodyLinkedNext {
+            get {
+                return ResourceManager.GetString("StatusNobodyLinkedNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not paired with a bot.
+        /// </summary>
+        public static string StatusNotPaired {
+            get {
+                return ResourceManager.GetString("StatusNotPaired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get a code with /au capture pair and enter it with the pairing button at the top..
+        /// </summary>
+        public static string StatusNotPairedNext {
+            get {
+                return ResourceManager.GetString("StatusNotPairedNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUVC is not set up yet.
+        /// </summary>
+        public static string StatusNotSetUp {
+            get {
+                return ResourceManager.GetString("StatusNotSetUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click “Set up” at the top..
+        /// </summary>
+        public static string StatusNotSetUpNext {
+            get {
+                return ResourceManager.GetString("StatusNotSetUpNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paused.
+        /// </summary>
+        public static string StatusPaused {
+            get {
+                return ResourceManager.GetString("StatusPaused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Everyone stays as they are. Continue with /au session resume..
+        /// </summary>
+        public static string StatusPausedNext {
+            get {
+                return ResourceManager.GetString("StatusPausedNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ready.
+        /// </summary>
+        public static string StatusReady {
+            get {
+                return ResourceManager.GetString("StatusReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of {1} players linked. AUVC manages only linked players..
+        /// </summary>
+        public static string StatusReadyCounted {
+            get {
+                return ResourceManager.GetString("StatusReadyCounted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUVC follows the game..
+        /// </summary>
+        public static string StatusReadyNext {
+            get {
+                return ResourceManager.GetString("StatusReadyNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bot refused this app.
+        /// </summary>
+        public static string StatusRefused {
+            get {
+                return ResourceManager.GetString("StatusRefused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open “Bot” → Status and restart the bot..
+        /// </summary>
+        public static string StatusRefusedLocalNext {
+            get {
+                return ResourceManager.GetString("StatusRefusedLocalNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get a new code with /au capture pair and pair again..
+        /// </summary>
+        public static string StatusRefusedRemoteNext {
+            get {
+                return ResourceManager.GetString("StatusRefusedRemoteNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUVC is not managing voice.
+        /// </summary>
+        public static string StatusStopped {
+            get {
+                return ResourceManager.GetString("StatusStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start with /au session start, or switch on automatic start under “Bot” → Channels..
+        /// </summary>
+        public static string StatusStoppedNext {
+            get {
+                return ResourceManager.GetString("StatusStoppedNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting for Among Us.
+        /// </summary>
+        public static string StatusWaitingForGame {
+            get {
+                return ResourceManager.GetString("StatusWaitingForGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start Among Us on this PC..
+        /// </summary>
+        public static string StatusWaitingForGameNext {
+            get {
+                return ResourceManager.GetString("StatusWaitingForGameNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The app and the bot do not match.
+        /// </summary>
+        public static string StatusWrongVersion {
+            get {
+                return ResourceManager.GetString("StatusWrongVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install the AUVC version that matches the bot..
+        /// </summary>
+        public static string StatusWrongVersionNext {
+            get {
+                return ResourceManager.GetString("StatusWrongVersionNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to AUCapture.
         /// </summary>
         public static string Title {
