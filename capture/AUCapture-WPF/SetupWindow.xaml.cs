@@ -771,11 +771,9 @@ namespace AUCapture_WPF
                 LocalCheck.Warn => "⚠️",
                 _ => "✅",
             };
-            var line = $"{icon} {check.Name}: {Plain(check.Detail)}";
-            return string.IsNullOrEmpty(check.Fix) ? line : line + " → " + Plain(check.Fix);
+            var line = $"{icon} {check.Name}: {DoctorLine.Plain(check.Detail)}";
+            return string.IsNullOrEmpty(check.Fix) ? line : line + " → " + DoctorLine.Plain(check.Fix);
         }
-
-        private static string Plain(string markdown) => markdown.Replace("**", "").Replace("`", "");
 
         private void OnClosed(object sender, EventArgs e)
         {

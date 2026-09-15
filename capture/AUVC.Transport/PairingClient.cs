@@ -21,7 +21,33 @@ public sealed record PairingResult
 /// Raised when the bot refused a pairing attempt. The message is written for
 /// the person who typed the code.
 /// </summary>
-public sealed class PairingRefusedException(string message) : Exception(message);
+public sealed class PairingRefusedException(PairingProblem problem, string message) : Exception(message)
+{
+    /// <summary>Why, so the app can say it in its own language. The message stays English, for the log.</summary>
+    public PairingProblem Problem { get; } = problem;
+}
+
+/// <summary>Why a pairing attempt did not work. Each leads to a different next step.</summary>
+public enum PairingProblem
+{
+    /// <summary>No code was entered.</summary>
+    EmptyCode,
+
+    /// <summary>What was typed as the bot's address is not one.</summary>
+    InvalidAddress,
+
+    /// <summary>The bot did not answer: a wrong address, or a bot that is not running.</summary>
+    Unreachable,
+
+    /// <summary>The code was right but too old.</summary>
+    Expired,
+
+    /// <summary>The code is wrong or was used already.</summary>
+    Rejected,
+
+    /// <summary>Anything else the bot answered; the message says what.</summary>
+    Other,
+}
 
 /// <summary>
 /// Exchanges a pairing code for a credential.
@@ -58,7 +84,7 @@ public sealed class PairingClient(HttpClient http)
     {
         if (string.IsNullOrWhiteSpace(code))
         {
-            throw new PairingRefusedException("Enter the pairing code from /au capture pair.");
+            throw new PairingRefusedException(PairingProblem.EmptyCode, "Enter the pairing code from /au capture pair.");
         }
 
         var endpoint = new Uri(botAddress, "/capture/pair");
@@ -74,7 +100,7 @@ public sealed class PairingClient(HttpClient http)
             // A connection failure is not a rejected code, and telling a user to
             // ask for a new one when the bot is simply unreachable sends them
             // down the wrong path entirely.
-            throw new PairingRefusedException(
+            throw new PairingRefusedException(PairingProblem.Unreachable,
                 $"Could not reach the AUVC bot at {botAddress}. Check the address and that the bot is running. ({error.Message})");
         }
 
@@ -85,7 +111,8 @@ public sealed class PairingClient(HttpClient http)
             return new PairingResult { Guild = body.Guild, Credential = body.Credential };
         }
 
-        throw new PairingRefusedException(Explain(response.StatusCode, body));
+        var (problem, message) = Explain(response.StatusCode, body);
+        throw new PairingRefusedException(problem, message);
     }
 
     private static async Task<Response> ReadBodyAsync(
@@ -105,11 +132,13 @@ public sealed class PairingClient(HttpClient http)
         }
     }
 
-    private static string Explain(HttpStatusCode status, Response body) => body.Error switch
+    private static (PairingProblem, string) Explain(HttpStatusCode status, Response body) => body.Error switch
     {
-        "expired" => "That pairing code has expired. Ask an administrator for a new one with /au capture pair.",
-        "rejected" => "That pairing code is not valid. Ask an administrator for a new one with /au capture pair.",
-        _ when body.Message.Length > 0 => body.Message,
-        _ => $"The AUVC bot refused the pairing request ({(int)status}).",
+        "expired" => (PairingProblem.Expired,
+            "That pairing code has expired. Ask an administrator for a new one with /au capture pair."),
+        "rejected" => (PairingProblem.Rejected,
+            "That pairing code is not valid. Ask an administrator for a new one with /au capture pair."),
+        _ when body.Message.Length > 0 => (PairingProblem.Other, body.Message),
+        _ => (PairingProblem.Other, $"The AUVC bot refused the pairing request ({(int)status})."),
     };
 }

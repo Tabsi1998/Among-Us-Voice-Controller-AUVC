@@ -423,4 +423,34 @@ Das lässt sich nicht rückgängig machen.</value>
   <data name="UpdateOpenReleasePage" xml:space="preserve">
     <value>Release-Seite öffnen</value>
   </data>
+  <data name="StatusBotProblem" xml:space="preserve">
+    <value>Der Bot meldet ein Problem: {0}</value>
+  </data>
+  <data name="StatusGameNotSupported" xml:space="preserve">
+    <value>AUVC kann diese Among-Us-Version nicht lesen</value>
+  </data>
+  <data name="StatusGameNotSupportedNext" xml:space="preserve">
+    <value>Among Us wurde vermutlich aktualisiert. Installiere die neueste AUVC-Version; eine Zeile oben verlinkt sie, sobald es eine gibt.</value>
+  </data>
+  <data name="PairedMessage" xml:space="preserve">
+    <value>Die App ist mit dem AUVC-Bot gekoppelt und verbindet sich ab jetzt von selbst.</value>
+  </data>
+  <data name="PairedInClearWarning" xml:space="preserve">
+    <value>Achtung: Diese Adresse nutzt einfaches HTTP zu einem anderen Rechner, die Zugangsdaten gehen also unverschlüsselt durchs Netz. Frag den Admin des Bots nach einer https://-Adresse.</value>
+  </data>
+  <data name="PairingEmptyCode" xml:space="preserve">
+    <value>Gib den Kopplungscode aus /au capture pair ein.</value>
+  </data>
+  <data name="PairingInvalidAddress" xml:space="preserve">
+    <value>Das ist keine Adresse eines Bots. Gib sie in der Form {0} ein.</value>
+  </data>
+  <data name="PairingUnreachable" xml:space="preserve">
+    <value>Der AUVC-Bot unter {0} ist nicht erreichbar. Prüfe die Adresse und ob der Bot läuft.</value>
+  </data>
+  <data name="PairingExpired" xml:space="preserve">
+    <value>Der Kopplungscode ist abgelaufen. Lass dir von einem Admin mit /au capture pair einen neuen geben.</value>
+  </data>
+  <data name="PairingRejected" xml:space="preserve">
+    <value>Der Kopplungscode ist nicht gültig. Lass dir von einem Admin mit /au capture pair einen neuen geben.</value>
+  </data>
 </root>

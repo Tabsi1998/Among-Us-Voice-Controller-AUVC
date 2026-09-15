@@ -9,8 +9,11 @@ using NLog;
 
 namespace AUCapture_WPF
 {
-    /// <summary>What pairing produced: where the bot is, and what to tell the person who paired.</summary>
-    public sealed record PairingOutcome(Uri Address, string Message);
+    /// <summary>
+    /// What pairing produced: where the bot is, and whether the credential crosses
+    /// the network unencrypted, which the person who paired has to be told.
+    /// </summary>
+    public sealed record PairingOutcome(Uri Address, bool SendsCredentialInClear);
 
     /// <summary>
     /// The capture window's connection to the AUVC bot: the link, the stored
@@ -60,7 +63,7 @@ namespace AUCapture_WPF
         {
             if (!BotAddress.TryParse(typedAddress, out var parsed, out var problem))
             {
-                throw new PairingRefusedException(problem);
+                throw new PairingRefusedException(PairingProblem.InvalidAddress, problem);
             }
 
             var result = await new PairingClient(Http).PairAsync(parsed, code);
@@ -70,14 +73,7 @@ namespace AUCapture_WPF
             Link.Reconnect();
             Logger.Info("Paired with the AUVC bot at {address}", parsed);
 
-            var message = "Capture is paired with the AUVC bot and connects by itself from now on.";
-            if (BotAddress.SendsCredentialInClear(parsed))
-            {
-                message += Environment.NewLine + Environment.NewLine +
-                           "Warning: this address uses plain HTTP to another computer, so the credential " +
-                           "crosses the network unencrypted. Ask the bot's administrator for an https:// address.";
-            }
-            return new PairingOutcome(parsed, message);
+            return new PairingOutcome(parsed, BotAddress.SendsCredentialInClear(parsed));
         }
 
         /// <summary>Whether capture holds a credential for some bot.</summary>

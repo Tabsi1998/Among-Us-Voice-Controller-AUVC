@@ -27,6 +27,8 @@ public enum AppStatusKind
     Refused,
     NotPaired,
     Connecting,
+    BotProblem,
+    GameNotSupported,
     WaitingForGame,
     InMenu,
     SessionPaused,
@@ -54,6 +56,15 @@ public sealed record AppSituation
     public int? Players { get; init; }
 
     public int? LinkedPlayers { get; init; }
+
+    /// <summary>
+    /// The doctor's checks from the bot on this PC (<see cref="LocalGuild.Checks"/>), in
+    /// the app's language, or empty when the app cannot ask.
+    /// </summary>
+    public IReadOnlyList<LocalCheck> Checks { get; init; } = [];
+
+    /// <summary>Among Us runs, but this AUVC has no offsets for its version and reads nothing.</summary>
+    public bool GameNotSupported { get; init; }
 }
 
 /// <summary>
@@ -64,7 +75,8 @@ public sealed record AppSituation
 /// with no bot there is no point in asking for a lobby. Somebody who follows the
 /// line one step at a time ends up in a round that AUVC manages.
 /// </remarks>
-public sealed record AppStatus(AppStatusKind Kind, int LinkedPlayers = 0, int Players = 0, bool Counted = false)
+public sealed record AppStatus(
+    AppStatusKind Kind, int LinkedPlayers = 0, int Players = 0, bool Counted = false, LocalCheck? Problem = null)
 {
     public static AppStatus For(AppSituation situation)
     {
@@ -87,6 +99,20 @@ public sealed record AppStatus(AppStatusKind Kind, int LinkedPlayers = 0, int Pl
                 return new(AppStatusKind.NotPaired);
             case not LinkState.Connected:
                 return new(AppStatusKind.Connecting);
+        }
+
+        // What the bot reports itself, such as a missing permission or a deleted
+        // channel, keeps voice from working whatever the game does. A warning is
+        // not shown: it names something optional or on its way.
+        if (situation.Checks.FirstOrDefault(check => check.Level == LocalCheck.Fail) is { } problem)
+        {
+            return new(AppStatusKind.BotProblem, Problem: problem);
+        }
+        // The game runs, but nothing can be read from it, so waiting for it would
+        // wait forever.
+        if (situation.GameNotSupported)
+        {
+            return new(AppStatusKind.GameNotSupported);
         }
 
         switch (situation.Game)

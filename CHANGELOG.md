@@ -4,6 +4,26 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The status line names what keeps AUVC from working and what to do about it
+  ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  When the bot on this PC reports a problem, such as a missing Discord
+  permission or a deleted channel, the line says so with the bot's own fix.
+  When Among Us runs in a version this AUVC cannot read, the line says that
+  instead of waiting for the game, and points to the newest AUVC version.
+- Pairing messages come in the app's language
+  ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)):
+  no code, an address that is not one, a bot that cannot be reached, and an
+  expired or invalid code each say what to do next.
+
+### Fixed
+
+- After **Settings → Debug → Reload offsets** finds offsets for a game AUVC could
+  not read, the window follows the game. It used to keep waiting for Among Us.
+- While AUVC cannot read the running Among Us version, it checks again once a
+  second instead of without pause.
+
 ## v0.1.3-beta — 2026-09-15
 
 The fourth pre-release. App and bot speak German, the app says in one line what
