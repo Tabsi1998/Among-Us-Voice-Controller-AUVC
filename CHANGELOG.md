@@ -4,6 +4,28 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+## v0.1.4-beta — 2026-09-15
+
+The fifth pre-release. The app is called AUVC everywhere, saves a redacted
+diagnostics zip for whoever helps, and names the problem and the next step when
+the bot or the game version gets in the way. It no longer contacts AutoMuteUs
+when it starts, and screen readers can name every button.
+
+**Update.** Install over v0.1.3-beta, or unpack the new portable zip and start
+`AUVC.exe`; the token, the settings and the links stay. The installer removes
+the old `AUCapture-WPF.exe` and the *AUVC Capture* shortcuts; a shortcut pinned
+to the taskbar by hand has to be pinned again. v0.1.3-beta tells you about this
+version and links its page. Nothing needs to change in Discord.
+
+**Known limitations.** Unsigned, so Windows warns about an unknown publisher;
+the guide shows an install with PowerShell that avoids both download warnings.
+The update from v0.1.3-beta to the new name, the diagnostics export and the new
+status lines have passed the automated checks but not yet a live round, and
+neither have the features of v0.1.3-beta. Keyboard use and high DPI are not
+checked yet. With a bot on another computer the player badges stay empty. Built
+and published from the maintainer's PC; `SHA256SUMS` lists the hash of every
+file.
+
 ### Added
 
 - The status line names what keeps AUVC from working and what to do about it
