@@ -91,14 +91,16 @@ type Channel struct {
 
 // Guild is one server: how it is set up and how the doctor judges it.
 type Guild struct {
-	ID                   string  `json:"id"`
-	Name                 string  `json:"name"`
-	MainVoiceChannelID   string  `json:"main_voice_channel_id"`
-	GhostVoiceChannelID  string  `json:"ghost_voice_channel_id"`
-	ControlTextChannelID string  `json:"control_text_channel_id"`
-	AutoStart            bool    `json:"auto_start"`
-	CaptureConnections   int     `json:"capture_connections"`
-	Checks               []Check `json:"checks"`
+	ID                   string `json:"id"`
+	Name                 string `json:"name"`
+	MainVoiceChannelID   string `json:"main_voice_channel_id"`
+	GhostVoiceChannelID  string `json:"ghost_voice_channel_id"`
+	ControlTextChannelID string `json:"control_text_channel_id"`
+	AutoStart            bool   `json:"auto_start"`
+	CaptureConnections   int    `json:"capture_connections"`
+	// Session is running, paused or stopped, as /au session status reports it.
+	Session string  `json:"session"`
+	Checks  []Check `json:"checks"`
 }
 
 // Check is one line of the doctor's report.

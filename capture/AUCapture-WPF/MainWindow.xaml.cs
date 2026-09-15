@@ -89,6 +89,17 @@ namespace AUCapture_WPF
             {
                 if (e.PropertyName == nameof(IAppSettings.language)) ApplyLanguage();
             };
+            // The status line follows the game as the reader reports it, and the bot
+            // on this PC as a poll finds it.
+            context.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(UserDataContext.Connected) or nameof(UserDataContext.GameState))
+                {
+                    Dispatcher.InvokeAsync(UpdateStatus);
+                }
+            };
+            statusPoll.Tick += async (_, _) => await PollBotAsync();
+            statusPoll.Start();
             context.ConnectionStatuses.Add(new ConnectionStatus { Connected = false, ConnectionName = BotConnectionName });
             if (context.Settings.runBotOnThisPc)
             {
@@ -161,6 +172,81 @@ namespace AUCapture_WPF
             CultureInfo.CurrentUICulture = language;
             Translator.Culture = language;
             UpdateSetupButton();
+            UpdateStatus();
+        }
+
+        // What the status line knows beyond the window's own state: the link as it
+        // last reported, and the bot on this PC as the last poll found it.
+        private LinkStatus linkStatus = new(LinkState.Stopped);
+        private LocalGuild localGuild;
+        private int? lobbyPlayers;
+        private int? linkedPlayers;
+        private bool polling;
+        private readonly DispatcherTimer statusPoll = new() { Interval = TimeSpan.FromSeconds(5) };
+
+        private void UpdateStatus()
+        {
+            var runsBot = context.Settings.runBotOnThisPc;
+            var status = AppStatus.For(new AppSituation
+            {
+                RunsBotOnThisPc = runsBot,
+                Paired = BotConnection.IsPaired,
+                LocalBotRunning = LocalBot.IsRunning,
+                Link = linkStatus,
+                Game = GameViewOf(context.Connected == true, context.GameState),
+                Session = localGuild?.Session,
+                Players = lobbyPlayers,
+                LinkedPlayers = linkedPlayers,
+            });
+
+            (context.StatusIcon, context.StatusHeadline, context.StatusNextStep) = StatusText.For(status, runsBot);
+        }
+
+        private static GameView GameViewOf(bool gameFound, GameState? state) => state switch
+        {
+            _ when !gameFound => GameView.NotRunning,
+            GameState.LOBBY or GameState.ENDED => GameView.Lobby,
+            GameState.TASKS or GameState.DISCUSSION => GameView.Round,
+            _ => GameView.Menu,
+        };
+
+        /// <summary>
+        /// Asks the bot on this PC about the session and the lobby. A bot on another
+        /// computer cannot be asked, so the status line does without.
+        /// </summary>
+        private async Task PollBotAsync()
+        {
+            if (polling) return;
+            polling = true;
+            try
+            {
+                var control = LocalBot.Control;
+                var guildId = context.Settings.botGuildId;
+                if (!context.Settings.runBotOnThisPc || !LocalBot.IsRunning || control is null || string.IsNullOrEmpty(guildId))
+                {
+                    (localGuild, lobbyPlayers, linkedPlayers) = (null, null, null);
+                }
+                else
+                {
+                    try
+                    {
+                        localGuild = await control.GetGuildAsync(guildId);
+                        var crewmates = await control.GetCrewmatesAsync(guildId);
+                        lobbyPlayers = crewmates.Players.Count;
+                        linkedPlayers = crewmates.Players.Count(player => !string.IsNullOrEmpty(player.UserId));
+                    }
+                    catch (Exception error) when (error is LocalControlException or System.Net.Http.HttpRequestException
+                                                      or TaskCanceledException)
+                    {
+                        (localGuild, lobbyPlayers, linkedPlayers) = (null, null, null);
+                    }
+                }
+                UpdateStatus();
+            }
+            finally
+            {
+                polling = false;
+            }
         }
 
 
@@ -200,6 +286,8 @@ namespace AUCapture_WPF
             {
                 context.ConnectionStatuses.First(x => x.ConnectionName == BotConnectionName).Connected =
                     status.State == LinkState.Connected;
+                linkStatus = status;
+                UpdateStatus();
 
                 // Every other state resolves itself. A refusal does not, and nothing
                 // else would tell the person running capture what to do about it.
@@ -236,9 +324,12 @@ namespace AUCapture_WPF
             if (status is null)
             {
                 context.ConnectionStatuses.Add(new ConnectionStatus { Connected = connected, ConnectionName = LocalBotConnectionName });
-                return;
             }
-            status.Connected = connected;
+            else
+            {
+                status.Connected = connected;
+            }
+            UpdateStatus();
         }
 
         // Once the bot is set up, the same button opens its settings instead of the
@@ -269,6 +360,7 @@ namespace AUCapture_WPF
                     context.ConnectionStatuses.Remove(local);
                 }
             }
+            UpdateStatus();
         }
 
         /// <summary>

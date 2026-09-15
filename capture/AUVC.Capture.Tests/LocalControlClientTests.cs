@@ -122,7 +122,7 @@ namespace AUVC.Capture.Tests
             var handler = new StubHandler((request, _) => request.RequestUri!.AbsolutePath.EndsWith("/channels")
                 ? Json(HttpStatusCode.OK, """[{"id":"v1","name":"Among Us","kind":"voice","position":1}]""")
                 : Json(HttpStatusCode.OK,
-                    """{"id":"g1","name":"The Crew","main_voice_channel_id":"v1","ghost_voice_channel_id":"v2","control_text_channel_id":"t1","auto_start":true,"capture_connections":1,"checks":[{"name":"Discord","level":"ok","detail":"connected"}]}"""));
+                    """{"id":"g1","name":"The Crew","main_voice_channel_id":"v1","ghost_voice_channel_id":"v2","control_text_channel_id":"t1","auto_start":true,"capture_connections":1,"session":"paused","checks":[{"name":"Discord","level":"ok","detail":"connected"}]}"""));
 
             var channels = await Client(handler).GetChannelsAsync("g1");
             var guild = await Client(handler).GetGuildAsync("g1");
@@ -131,6 +131,7 @@ namespace AUVC.Capture.Tests
             Assert.Equal("v2", guild.GhostVoiceChannelId);
             Assert.True(guild.AutoStart);
             Assert.Equal(1, guild.CaptureConnections);
+            Assert.Equal(LocalGuild.SessionPaused, guild.Session);
             Assert.Equal(LocalCheck.Ok, Assert.Single(guild.Checks).Level);
         }
 

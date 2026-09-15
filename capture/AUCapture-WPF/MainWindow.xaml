@@ -348,6 +348,51 @@
             </mah:Flyout>
         </mah:FlyoutsControl>
     </mah:MetroWindow.Flyouts>
+    <DockPanel>
+        <!--  The status line: the most urgent thing and what to do about it (AppStatus).  -->
+        <Border
+            Padding="10,6"
+            Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}"
+            BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+            BorderThickness="0,0,0,1"
+            DockPanel.Dock="Top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="0"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Top"
+                    AutomationProperties.Name="{Binding StatusHeadline}"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource MahApps.Brushes.Text}"
+                    Text="{Binding StatusIcon}" />
+                <StackPanel Grid.Column="1" Orientation="Vertical">
+                    <TextBlock
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource MahApps.Brushes.Text}"
+                        Text="{Binding StatusHeadline}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Foreground="{DynamicResource MahApps.Brushes.Text}"
+                        Text="{Binding StatusNextStep}"
+                        TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding StatusNextStep}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -664,4 +709,5 @@
         </StackPanel>
 
     </Grid>
+    </DockPanel>
 </mah:MetroWindow>

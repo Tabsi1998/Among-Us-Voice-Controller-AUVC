@@ -176,7 +176,10 @@ verschiebt sie nie. Bots wie Musik-Bots fasst es ebenfalls nicht an.
 
 ## 5. Spielen
 
-1. Starte AUVC. Im Hauptfenster steht *Warte auf Among Us*.
+1. Starte AUVC. Die Zeile oben im Hauptfenster sagt immer, worauf AUVC wartet
+   und was als Nächstes zu tun ist, zum Beispiel *Warte auf Among Us: Starte
+   Among Us auf diesem PC*. Passt alles, steht dort *Bereit* und wie viele
+   Spieler der Lobby verknüpft sind.
 2. Starte Among Us. Sobald du in einer Lobby bist, zeigt AUVC die Spieler.
 3. Alle gehen in den Hauptkanal.
 
