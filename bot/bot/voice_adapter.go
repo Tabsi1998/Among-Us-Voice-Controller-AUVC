@@ -55,6 +55,10 @@ type discordApplier struct {
 }
 
 func (a discordApplier) Apply(guildID string, change voice.Change) error {
+	if err := refuseDisconnect(change); err != nil {
+		return err
+	}
+	logVoiceChange(guildID, change)
 	_, err := a.session.GuildMemberEdit(guildID, change.UserID, memberParams(change))
 	return err
 }

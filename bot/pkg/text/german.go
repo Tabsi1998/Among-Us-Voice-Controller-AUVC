@@ -118,6 +118,7 @@ var german = map[Key]string{
 	DoctorDisabled:               "AUVC ist für diesen Server ausgeschaltet",
 	DoctorDisabledFix:            "Schalte es mit `/au settings voice enabled:true` ein.",
 	DoctorNotSet:                 "nicht gesetzt",
+	DoctorGhostNotUsed:           "nicht genutzt: Tote bleiben stumm im Hauptkanal",
 	DoctorSetChannelFix:          "Lege ihn mit `/au setup channels` fest.",
 	DoctorControlChannelFix: "Lege ihn mit `/au setup channels` fest: Dort wählen die Spieler ihren Crewmate, " +
 		"und AUVC warnt dich, wenn die App verstummt.",

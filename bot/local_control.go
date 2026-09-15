@@ -121,6 +121,7 @@ func (l *localBackend) Guild(guildID string, language text.Language) (localcontr
 		GhostVoiceChannelID:  config.GhostVoiceChannelID,
 		ControlTextChannelID: config.ControlTextChannelID,
 		AutoStart:            config.AutoStart,
+		AutoMoveGhosts:       config.AutoMoveGhosts,
 		Checks:               []localcontrol.Check{},
 	}
 	if l.capture != nil {
@@ -163,7 +164,9 @@ func (l *localBackend) Configure(guildID string, setup localcontrol.Setup) error
 	if kinds[setup.MainVoiceChannelID] != localcontrol.KindVoice {
 		return fmt.Errorf("%w: the main channel must be a voice channel in this server", localcontrol.ErrInvalidSetup)
 	}
-	if kinds[setup.GhostVoiceChannelID] != localcontrol.KindVoice {
+	// No ghost channel is fine when the dead stay in the main channel; whether
+	// one is needed is decided with the stored setting in ConfigureFromApp.
+	if setup.GhostVoiceChannelID != "" && kinds[setup.GhostVoiceChannelID] != localcontrol.KindVoice {
 		return fmt.Errorf("%w: the ghost channel must be a voice channel in this server", localcontrol.ErrInvalidSetup)
 	}
 	if setup.ControlTextChannelID != "" && kinds[setup.ControlTextChannelID] != localcontrol.KindText {
@@ -175,6 +178,7 @@ func (l *localBackend) Configure(guildID string, setup localcontrol.Setup) error
 		GhostVoiceChannelID:  setup.GhostVoiceChannelID,
 		ControlTextChannelID: setup.ControlTextChannelID,
 		AutoStart:            setup.AutoStart,
+		AutoMoveGhosts:       setup.AutoMoveGhosts,
 	})
 	if errors.Is(err, au.ErrInvalidInput) {
 		return fmt.Errorf("%w: %v", localcontrol.ErrInvalidSetup, err)

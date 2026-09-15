@@ -200,6 +200,7 @@ func (bot *Bot) AttachVoiceHolds(store HoldStore) error {
 			update.UserID: {ChannelID: update.ChannelID, Muted: update.Mute, Deafened: update.Deaf},
 		})
 	})
+	bot.logVoiceMoves()
 
 	bot.PrimarySession.State.RLock()
 	guilds := append([]*discordgo.Guild(nil), bot.PrimarySession.State.Guilds...)

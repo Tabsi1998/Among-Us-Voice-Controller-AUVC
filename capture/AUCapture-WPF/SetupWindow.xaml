@@ -107,6 +107,16 @@
                     <TextBlock x:Name="ChannelIntro" TextWrapping="Wrap" />
                     <TextBlock x:Name="MainChannelLabel" Margin="0,16,0,4" />
                     <ComboBox x:Name="MainChannelBox" DisplayMemberPath="Name" />
+                    <CheckBox
+                        x:Name="MoveGhostsBox"
+                        Margin="0,12,0,0"
+                        Checked="MoveGhostsBox_Changed"
+                        Unchecked="MoveGhostsBox_Changed" />
+                    <TextBlock
+                        x:Name="StayInMainText"
+                        Margin="0,4,0,0"
+                        TextWrapping="Wrap"
+                        Visibility="Collapsed" />
                     <TextBlock x:Name="GhostChannelLabel" Margin="0,12,0,4" />
                     <ComboBox x:Name="GhostChannelBox" DisplayMemberPath="Name" />
                     <TextBlock x:Name="ControlChannelLabel" Margin="0,12,0,4" />

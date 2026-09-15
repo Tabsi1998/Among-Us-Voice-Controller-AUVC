@@ -115,10 +115,11 @@ func (d *Doctor) checkStorage(report *doctor.Report, guildID string, language te
 	}
 
 	return voiceChannels{
-		main:    config.MainVoiceChannelID,
-		ghost:   config.GhostVoiceChannelID,
-		control: config.ControlTextChannelID,
-		enabled: config.Enabled,
+		main:       config.MainVoiceChannelID,
+		ghost:      config.GhostVoiceChannelID,
+		control:    config.ControlTextChannelID,
+		enabled:    config.Enabled,
+		moveGhosts: config.AutoMoveGhosts,
 	}, true
 }
 
@@ -128,6 +129,8 @@ type voiceChannels struct {
 	ghost   string
 	control string
 	enabled bool
+	// moveGhosts is whether the ghost channel is used at all (#161).
+	moveGhosts bool
 }
 
 // checkChannels reports on the three channels a guild configures.
@@ -156,6 +159,10 @@ func (d *Doctor) checkChannels(report *doctor.Report, channels voiceChannels, co
 	} {
 		name := language.Say(entry.name)
 		switch {
+		case entry.name == text.CheckGhostChannel && !channels.moveGhosts:
+			// The dead stay muted in the main channel, so no ghost channel is
+			// needed, and one that is still set is not used (#161).
+			report.Add(doctor.Check{Name: name, Level: doctor.OK, Detail: language.Say(text.DoctorGhostNotUsed)})
 		case entry.channelID == "" && entry.required:
 			report.Add(doctor.Check{
 				Name: name, Level: doctor.Fail,
@@ -196,14 +203,19 @@ func (d *Doctor) describeChannel(name, channelID string, language text.Language)
 
 // checkPermissions reports the effective permissions on the voice channels.
 func (d *Doctor) checkPermissions(report *doctor.Report, channels voiceChannels, configured bool, language text.Language) {
-	if !configured || channels.main == "" || channels.ghost == "" {
+	if !configured || channels.main == "" || (channels.moveGhosts && channels.ghost == "") {
 		return
 	}
 	if d.bot.PrimarySession == nil {
 		return
 	}
 
-	reports := permission.Audit(d.bot.voiceChannelPermissions(channels.main, channels.ghost)...)
+	// A ghost channel nobody is moved into needs no permissions (#161).
+	ghost := ""
+	if channels.moveGhosts {
+		ghost = channels.ghost
+	}
+	reports := permission.Audit(d.bot.voiceChannelPermissions(channels.main, ghost)...)
 	if len(reports) == 0 {
 		report.Add(doctor.Check{
 			Name: language.Say(text.CheckPermissions), Level: doctor.OK,

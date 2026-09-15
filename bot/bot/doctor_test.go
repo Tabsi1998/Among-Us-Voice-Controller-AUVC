@@ -83,6 +83,36 @@ func TestAFreshGuildIsToldWhatToSetUp(t *testing.T) {
 	}
 }
 
+// With the dead kept in the main channel a missing ghost channel is fine, and the
+// report says the channel is not used rather than asking for one (#161).
+func TestAGhostChannelIsNotAskedForWhenTheDeadStayInTheMainChannel(t *testing.T) {
+	doctor, db := doctorBot(t)
+
+	config, err := db.EnsureGuildConfig(guild)
+	if err != nil {
+		t.Fatalf("ensure: %v", err)
+	}
+	config.MainVoiceChannelID = "main"
+	config.AutoMoveGhosts = false
+	if err := db.SaveGuildConfig(config); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	line := lineContaining(t, diagnose(t, doctor), "Ghost voice channel")
+	if !strings.HasPrefix(strings.TrimSpace(line), "✅") || !strings.Contains(line, "not used") {
+		t.Errorf("an unused ghost channel should read as fine and not used: %q", line)
+	}
+
+	config.AutoMoveGhosts = true
+	if err := db.SaveGuildConfig(config); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	line = lineContaining(t, diagnose(t, doctor), "Ghost voice channel")
+	if !strings.HasPrefix(strings.TrimSpace(line), "❌") {
+		t.Errorf("moving the dead without a ghost channel should fail: %q", line)
+	}
+}
+
 func TestAnUnpairedCaptureIsAWarningNotAFailure(t *testing.T) {
 	doctor, _ := doctorBot(t)
 

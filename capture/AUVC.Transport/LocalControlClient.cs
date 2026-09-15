@@ -43,6 +43,9 @@ public sealed record LocalGuild
     [JsonPropertyName("ghost_voice_channel_id")] public string GhostVoiceChannelId { get; init; } = "";
     [JsonPropertyName("control_text_channel_id")] public string ControlTextChannelId { get; init; } = "";
     [JsonPropertyName("auto_start")] public bool AutoStart { get; init; }
+
+    /// <summary>Whether the dead move into the ghost channel, or stay muted in the main channel. An older bot does not say, and always moved them.</summary>
+    [JsonPropertyName("auto_move_ghosts")] public bool AutoMoveGhosts { get; init; } = true;
     public const string SessionRunning = "running";
     public const string SessionPaused = "paused";
     public const string SessionStopped = "stopped";
@@ -75,6 +78,9 @@ public sealed record LocalSetup
     [JsonPropertyName("ghost_voice_channel_id")] public string GhostVoiceChannelId { get; init; } = "";
     [JsonPropertyName("control_text_channel_id")] public string ControlTextChannelId { get; init; } = "";
     [JsonPropertyName("auto_start")] public bool AutoStart { get; init; }
+
+    /// <summary>Whether the dead move into the ghost channel. Off, everyone stays in the main channel and the dead stay muted.</summary>
+    [JsonPropertyName("auto_move_ghosts")] public bool AutoMoveGhosts { get; init; } = true;
 }
 
 /// <summary>Who plays in the lobby, and whom the app can link them to.</summary>

@@ -101,6 +101,9 @@ func (f *fakeBackend) Configure(guildID string, setup Setup) error {
 	guild.GhostVoiceChannelID = setup.GhostVoiceChannelID
 	guild.ControlTextChannelID = setup.ControlTextChannelID
 	guild.AutoStart = setup.AutoStart
+	if setup.AutoMoveGhosts != nil {
+		guild.AutoMoveGhosts = *setup.AutoMoveGhosts
+	}
 	f.guilds[guildID] = guild
 	return nil
 }
@@ -334,6 +337,21 @@ func TestASetupIsPassedOnAndAnsweredWithTheSavedGuild(t *testing.T) {
 	}
 	if guild.GhostVoiceChannelID != "v2" || !guild.AutoStart {
 		t.Errorf("the answer does not show the saved setup: %+v", guild)
+	}
+}
+
+// The choice about the dead reaches the backend as sent (#161). The test above
+// sends none, and the backend receives none, so an older app keeps what is stored.
+func TestASetupCarriesTheChoiceAboutTheDead(t *testing.T) {
+	backend := newFake()
+	response := serve(t, backend, request{method: http.MethodPut, path: "/local/guilds/g1/setup",
+		body: `{"main_voice_channel_id":"v1","ghost_voice_channel_id":"","auto_move_ghosts":false}`})
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", response.Code, response.Body)
+	}
+	if len(backend.setups) != 1 || backend.setups[0].AutoMoveGhosts == nil || *backend.setups[0].AutoMoveGhosts {
+		t.Errorf("the backend received %+v, want auto_move_ghosts false", backend.setups)
 	}
 }
 

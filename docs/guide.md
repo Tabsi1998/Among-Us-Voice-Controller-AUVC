@@ -139,13 +139,19 @@ channel.
 | Field | Choose |
 | --- | --- |
 | **Main channel (voice)** | The voice channel everyone plays in |
-| **Ghost channel (voice)** | The voice channel the dead move to |
+| **Ghost channel (voice)** | The voice channel the dead move to, while **Move the dead into the ghost channel** is on |
 | **Text channel for choosing crewmates and for notices (recommended)** | Where players choose their crewmate, and where AUVC posts warnings, for example when the game is no longer detected |
+
+**Move the dead into the ghost channel** is on. Switch it off to keep everyone
+in the main channel: whoever dies then stays muted until the round ends, but can
+still listen, and no ghost channel is needed. That suits PlayStation and Xbox
+players, because Discord can disconnect them when a bot moves them to another
+channel.
 
 **Start AUVC automatically when a game is detected** is on. Leave it on, and AUVC
 starts working as soon as you play. Click **Next** to save.
 
-If the lists are empty, the server has no voice channels yet: create two in
+If the lists are empty, the server has no voice channels yet: create them in
 Discord and click **Refresh**.
 
 ### Step 4 of 4: done
@@ -223,6 +229,10 @@ From then on AUVC follows the game on its own:
 | Meeting and voting | Main channel, can talk | Ghost channel, can talk |
 | Round over | Main channel, can talk | Main channel, can talk |
 
+With **Move the dead into the ghost channel** switched off, nobody changes
+channels: the dead stay in the main channel, muted, until the round is over, and
+can listen the whole time.
+
 - **Kills are not given away.** Moving a player to another channel is visible to
   everyone in Discord, so a killed player stays where they are, muted, until the
   next meeting announces the death.
@@ -247,7 +257,7 @@ opens everything the setup chose, as five sections you can change one at a time:
 | --- | --- |
 | **Token** | Paste a new token and click **Check token**. The bot restarts with it. |
 | **Server** | Choose another server and click **Use this server**, then choose its channels under **Channels**. **Invite the bot** adds the bot to another server first. |
-| **Channels** | Change the main, ghost and text channel and automatic start, then click **Save**. |
+| **Channels** | Change the main, ghost and text channel, whether the dead move into the ghost channel, and automatic start, then click **Save**. |
 | **Status** | The bot's checks. **Restart the bot** restarts it. **Stop running the bot on this PC** keeps AUVC from starting it; the token and the settings stay stored, and **Set up** switches it back on. |
 | **Players** | Every crewmate in the current lobby, each with a menu of the members in the server's voice channels. Choose a member to link them, or *(nobody)* to remove the link. It takes effect at once. |
 

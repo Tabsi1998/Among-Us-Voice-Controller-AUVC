@@ -96,7 +96,9 @@ func NotReady(config sqlite.GuildConfig) []Problem {
 	if config.MainVoiceChannelID == "" {
 		add(OptionMainChannel, text.ProblemNotSet)
 	}
-	if config.GhostVoiceChannelID == "" {
+	// A ghost channel is only needed while the dead are moved into it. Without
+	// that everyone stays in the main channel and the dead stay muted (#161).
+	if config.AutoMoveGhosts && config.GhostVoiceChannelID == "" {
 		add(OptionGhostChannel, text.ProblemNotSet)
 	}
 

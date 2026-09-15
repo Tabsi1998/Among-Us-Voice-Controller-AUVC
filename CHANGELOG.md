@@ -4,6 +4,54 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+## v0.1.5-beta — 2026-09-15
+
+The sixth pre-release. The dead can stay muted in the main channel instead of
+moving into the ghost channel, so PlayStation and Xbox players are not moved,
+which Discord can disconnect them for. The bot log now shows every voice change
+AUVC makes, and the guides match the app again.
+
+**Update.** Install over v0.1.4-beta, or unpack the new portable zip; the token,
+the settings and the links stay. Nothing changes until you switch off **Move the
+dead into the ghost channel** under **Bot → Channels**. v0.1.4-beta tells you
+about this version.
+
+**Known limitations.** Unsigned, so Windows warns about an unknown publisher.
+The new option and the voice log have passed the automated checks but not yet a
+live round. Why a PlayStation player who joined the main channel in the lobby
+was dropped is not known yet; the bot log shows what happened next time (#160).
+With a bot on another computer the player badges stay empty. Built and
+published from the maintainer's PC; `SHA256SUMS` lists the hash of every file.
+
+### Added
+
+- The dead can stay in the main channel instead of moving into the ghost channel
+  ([#161](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/161)).
+  - **Where:** in the setup and under **Bot → Channels**, switch off **Move the
+    dead into the ghost channel**.
+  - **What happens:** everyone stays in the main channel. Whoever dies stays
+    muted until the round ends, but can still listen. No ghost channel is
+    needed.
+  - **Why:** PlayStation and Xbox players are not moved, and Discord can
+    disconnect them when a bot moves them.
+  - **`/au doctor`:** it then reports the ghost channel as not used.
+- The bot log shows what happens to a player in voice
+  ([#160](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/160)).
+  PlayStation players who join the main channel while AUVC runs have been
+  dropped from voice. Discord is known to disconnect console players whom a
+  bot moves to another channel. AUVC moves linked players into the main
+  channel in the lobby and into the ghost channel at a meeting. Which move hit
+  the player is not known yet.
+  - **Every change AUVC makes** to a member is written down: move, server mute,
+    server deafen.
+  - **Every join, leave and switch** in the main or ghost channel is written
+    down too.
+  - **The log answers the question:** whether AUVC acted on a player the moment
+    they dropped out, or did nothing.
+  - **Refused on purpose:** AUVC refuses any change that would remove a member
+    from voice. It never made one, but a mistake upstream now ends as an error
+    in the log instead of a dropped call.
+
 ### Fixed
 
 - The guides match the app again

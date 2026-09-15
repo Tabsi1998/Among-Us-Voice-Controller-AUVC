@@ -37,20 +37,24 @@ func (s *Service) LinkFromApp(guildID, player, userID string) error {
 }
 
 // AppSetup is what the AUVC Windows app configures for a guild: the same
-// channels /au setup channels takes, and whether a connecting capture starts a
-// session on its own.
+// channels /au setup channels takes, whether the dead move into the ghost
+// channel, and whether a connecting capture starts a session on its own.
 type AppSetup struct {
 	MainVoiceChannelID   string
 	GhostVoiceChannelID  string
 	ControlTextChannelID string
 	AutoStart            bool
+	// AutoMoveGhosts is nil from an app that does not offer the choice, and then
+	// what is stored stays. With it off no ghost channel is needed: everyone
+	// stays in the main channel and the dead stay muted (#161).
+	AutoMoveGhosts *bool
 }
 
 // ConfigureFromApp saves a setup chosen in the Windows app and returns the
 // configuration as stored.
 //
 // Only the fields the app offers change. Everything else an administrator set
-// in Discord, the admin role and the ghost and safety settings, is kept: the app
+// in Discord, the admin role and the safety settings, is kept: the app
 // finishing a setup must not quietly undo one.
 //
 // It goes through the same validation and the same lock as the commands, so
@@ -59,8 +63,8 @@ func (s *Service) ConfigureFromApp(guildID string, setup AppSetup) (sqlite.Guild
 	if guildID == "" {
 		return sqlite.GuildConfig{}, fmt.Errorf("%w: a guild is required", ErrInvalidInput)
 	}
-	if setup.MainVoiceChannelID == "" || setup.GhostVoiceChannelID == "" {
-		return sqlite.GuildConfig{}, fmt.Errorf("%w: main and ghost channels are required", ErrInvalidInput)
+	if setup.MainVoiceChannelID == "" {
+		return sqlite.GuildConfig{}, fmt.Errorf("%w: a main channel is required", ErrInvalidInput)
 	}
 
 	s.mu.Lock()
@@ -69,6 +73,13 @@ func (s *Service) ConfigureFromApp(guildID string, setup AppSetup) (sqlite.Guild
 	config, err := s.store.EnsureGuildConfig(guildID)
 	if err != nil {
 		return sqlite.GuildConfig{}, fmt.Errorf("load guild configuration: %w", err)
+	}
+
+	if setup.AutoMoveGhosts != nil {
+		config.AutoMoveGhosts = *setup.AutoMoveGhosts
+	}
+	if config.AutoMoveGhosts && setup.GhostVoiceChannelID == "" {
+		return sqlite.GuildConfig{}, fmt.Errorf("%w: a ghost channel is required while the dead are moved into it", ErrInvalidInput)
 	}
 
 	config.MainVoiceChannelID = setup.MainVoiceChannelID
