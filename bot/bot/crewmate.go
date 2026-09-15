@@ -462,9 +462,11 @@ func (bot *Bot) refreshCrewmateBoard(guildID string) {
 // crewmateMenu renders the board for a guild's current session, in a language.
 func (bot *Bot) crewmateMenu(guildID string, language text.Language) (crewmate.Board, error) {
 	if bot.CaptureSessions == nil {
-		return crewmate.Render(language, nil, nil, nil), nil
+		return crewmate.Render(language, crewmate.Round{}, nil, nil, nil), nil
 	}
-	_, _, players := bot.CaptureSessions.Snapshot(guildID)
+	_, phase, players := bot.CaptureSessions.Snapshot(guildID)
+	lobby := bot.CaptureSessions.Lobby(guildID)
+	round := crewmate.Round{Phase: phase, Map: lobby.Map, Code: lobby.Code}
 
 	owners := map[string]string{}
 	if bot.AUVCLinks != nil {
@@ -481,7 +483,7 @@ func (bot *Bot) crewmateMenu(guildID string, language text.Language) (crewmate.B
 	if bot.Crewmates != nil {
 		emojis = bot.Crewmates.Emojis()
 	}
-	return crewmate.Render(language, players, owners, emojis), nil
+	return crewmate.Render(language, round, players, owners, emojis), nil
 }
 
 // crewmatePicker answers /au link without a name: the menu, visible only to

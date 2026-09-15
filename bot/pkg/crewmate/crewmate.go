@@ -16,6 +16,7 @@ import (
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/assets"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/game"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/session"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
@@ -146,7 +147,10 @@ func (b Board) Key() string {
 // A death nobody has been told about yet looks exactly like a living player.
 // The board is public, and a figure that turned into a ghost during tasks
 // would announce the kill to everyone reading the channel.
-func Render(language text.Language, players []session.GamePlayer, owners map[string]string, emojis Emojis) Board {
+//
+// round is what the board says about the game besides the crewmates: the map,
+// the phase and the lobby code, each only once capture has reported it.
+func Render(language text.Language, round Round, players []session.GamePlayer, owners map[string]string, emojis Emojis) Board {
 	shown := visible(players)
 
 	embed := &discordgo.MessageEmbed{
@@ -196,6 +200,7 @@ func Render(language text.Language, players []session.GamePlayer, owners map[str
 
 	unlink := language.Say(text.BoardUnlink)
 	embed.Description = strings.Join(lines, "\n")
+	embed.Fields = roundFields(language, round)
 	embed.Footer = &discordgo.MessageEmbedFooter{Text: language.Say(text.BoardFooter, unlink)}
 
 	options = append(options, discordgo.SelectMenuOption{
@@ -278,6 +283,55 @@ func escape(name string) string {
 		builder.WriteRune(r)
 	}
 	return builder.String()
+}
+
+// Round is what the board says about the game besides the crewmates. Map is a
+// protocol map name and Code a lobby code; either is empty while unknown.
+type Round struct {
+	Phase game.Phase
+	Map   string
+	Code  string
+}
+
+// mapNames are the maps as the game names them, the same in every language.
+var mapNames = map[string]string{
+	protocol.MapTheSkeld: "The Skeld",
+	protocol.MapMiraHQ:   "MIRA HQ",
+	protocol.MapPolus:    "Polus",
+	protocol.MapDleks:    "dlekS",
+	protocol.MapAirship:  "The Airship",
+	protocol.MapFungle:   "The Fungle",
+}
+
+// phaseNames name the phases a board can be shown in.
+var phaseNames = map[game.Phase]text.Key{
+	game.MENU:     text.PhaseMenu,
+	game.LOBBY:    text.PhaseLobby,
+	game.TASKS:    text.PhaseTasks,
+	game.DISCUSS:  text.PhaseDiscussion,
+	game.GAMEOVER: text.PhaseBetweenRounds,
+}
+
+// roundFields put the map, the phase and the lobby code side by side, each only
+// when it is known.
+func roundFields(language text.Language, round Round) []*discordgo.MessageEmbedField {
+	var fields []*discordgo.MessageEmbedField
+	add := func(name text.Key, value string) {
+		fields = append(fields, &discordgo.MessageEmbedField{Name: language.Say(name), Value: value, Inline: true})
+	}
+
+	if name, ok := mapNames[round.Map]; ok {
+		add(text.BoardMap, name)
+	}
+	if phase, ok := phaseNames[round.Phase]; ok {
+		add(text.BoardPhase, language.Say(phase))
+	}
+	// Six asterisks is the host hiding the code, and the board keeps it hidden.
+	// The receiver has already refused anything that is not a lobby code.
+	if round.Code != "" && round.Code != "******" {
+		add(text.BoardCode, "`"+round.Code+"`")
+	}
+	return fields
 }
 
 func truncate(text string, limit int) string {

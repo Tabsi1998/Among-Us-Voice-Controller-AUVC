@@ -18,6 +18,28 @@ namespace AmongUsCapture
             reader.GameStateChanged += (_, e) => Forward(report, e);
             reader.PlayerChanged += (_, e) => Forward(report, e);
             reader.GameOver += (_, _) => report.ReportGameEnded();
+            reader.JoinedLobby += (_, e) => Forward(report, e);
+        }
+
+        /// <summary>
+        /// The protocol name of a map, or empty for a map the protocol has no name for.
+        /// </summary>
+        public static string MapFor(PlayMap map) => map switch
+        {
+            PlayMap.Skeld => ProtocolContract.MapTheSkeld,
+            PlayMap.Mira => ProtocolContract.MapMiraHQ,
+            PlayMap.Polus => ProtocolContract.MapPolus,
+            PlayMap.dlekS => ProtocolContract.MapDleks,
+            PlayMap.Airship => ProtocolContract.MapAirship,
+            PlayMap.Fungle => ProtocolContract.MapFungle,
+            _ => "",
+        };
+
+        public static void Forward(IRoundReporter report, LobbyEventArgs e)
+        {
+            // The reader raises this only with a code the game uses: four or six
+            // capital letters, or six asterisks when the host hides it.
+            report.ReportLobby(new Lobby { Code = e.LobbyCode ?? "", Map = MapFor(e.Map) });
         }
 
         /// <summary>

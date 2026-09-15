@@ -59,8 +59,8 @@ connection, and it is what makes a reconnect testable by replaying messages.
 | `hello` | `capture` | Opens a session and declares the capture build. |
 | `authentication` | `credential` | Presents the credential from `/au capture pair`. |
 | `heartbeat` | — | Capture is alive and still reading the game. |
-| `snapshot` | `phase`, `players` | The complete state of the round. |
-| `game_state_changed` | `phase` | A phase transition. |
+| `snapshot` | `phase`, `players`, `lobby` | The complete state of the round. |
+| `game_state_changed` | `phase`, `lobby` | A phase transition. |
 | `player_joined` | `player` | A player entered the lobby. |
 | `player_left` | `player` | A player left. |
 | `player_changed` | `player` | A change that is neither death nor departure. |
@@ -75,6 +75,21 @@ A `player` is `{"name", "color", "dead", "disconnected"}`. The in-game name is
 what links a player to a Discord account. There is no Discord identity in this
 protocol on purpose: capture reads the game and must not need to know anything
 about Discord.
+
+A `lobby` is `{"code", "map"}` and is left out while capture knows neither. It
+is what the crewmate board shows about the lobby; voice does not depend on it.
+
+- `code` is four or six capital letters, or `******` when the host hides it.
+  Anything else is refused, because the code is posted in a Discord channel.
+- `map` is one of `the_skeld`, `mira_hq`, `polus`, `dleks`, `airship`, `fungle`.
+  A map the receiver does not know is ignored rather than refused, so a newer
+  capture keeps working with an older bot.
+- The game reads the lobby only after the phase has changed. Capture therefore
+  reports joining a lobby as a `game_state_changed` into the phase it is already
+  in, and every later phase change and snapshot carries the lobby too. Returning
+  to the menu leaves it out.
+- `lobby` is optional, so a capture or bot from before it keeps working with one
+  that sends it.
 
 ## Order
 

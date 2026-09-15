@@ -12,7 +12,7 @@ import (
 // Everybody in the text channel reads the board, so all of it is in the
 // server's language, the colour names included.
 func TestTheBoardIsWrittenInTheServerLanguage(t *testing.T) {
-	board := Render(text.German, []session.GamePlayer{
+	board := Render(text.German, Round{}, []session.GamePlayer{
 		{Name: "Alice", Color: game.Red, Alive: true},
 		{Name: "Bob", Color: game.Lime, Alive: true},
 	}, map[string]string{"Alice": "user-a"}, nil)
@@ -38,7 +38,7 @@ func TestTheBoardIsWrittenInTheServerLanguage(t *testing.T) {
 		t.Errorf("the unlink option %q and the footer %q do not agree", unlink.Label, board.Embed.Footer.Text)
 	}
 
-	empty := Render(text.German, nil, nil, nil)
+	empty := Render(text.German, Round{}, nil, nil, nil)
 	if empty.Embed.Description != text.German.Say(text.BoardWaiting) {
 		t.Errorf("an empty German board reads %q", empty.Embed.Description)
 	}

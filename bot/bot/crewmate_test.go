@@ -125,7 +125,7 @@ func boardWith(names ...string) crewmate.Board {
 	for index, name := range names {
 		players = append(players, session.GamePlayer{Name: name, Color: index, Alive: true})
 	}
-	return crewmate.Render(text.English, players, nil, nil)
+	return crewmate.Render(text.English, crewmate.Round{}, players, nil, nil)
 }
 
 func show(t *testing.T, boards *CrewmateBoards, channelID string, view crewmate.Board) {

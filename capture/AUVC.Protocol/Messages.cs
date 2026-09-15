@@ -61,6 +61,26 @@ public static class ProtocolContract
     public const string CodeSnapshotRequired = "snapshot_required";
     public const string CodeMalformed = "malformed";
 
+    // Map names as they travel on the wire. The bot ignores a map it does not
+    // know rather than refusing it, so a newer capture works with an older bot.
+    public const string MapTheSkeld = "the_skeld";
+    public const string MapMiraHQ = "mira_hq";
+    public const string MapPolus = "polus";
+    public const string MapDleks = "dleks";
+    public const string MapAirship = "airship";
+    public const string MapFungle = "fungle";
+
+    /// <summary>Every map name the contract defines.</summary>
+    public static readonly IReadOnlyList<string> Maps =
+        [MapTheSkeld, MapMiraHQ, MapPolus, MapDleks, MapAirship, MapFungle];
+
+    /// <summary>
+    /// Whether a lobby code is one the game uses: four or six capital letters, or
+    /// six asterisks when the host hides it.
+    /// </summary>
+    public static bool IsLobbyCode(string code) =>
+        code == "******" || (code.Length is 4 or 6 && code.All(letter => letter is >= 'A' and <= 'Z'));
+
     public static bool IsKnownPhase(string phase) => Phases.Contains(phase);
 
     public static bool IsKnownType(string type) => Types.Contains(type);
@@ -78,6 +98,19 @@ public sealed record Player
     [JsonPropertyName("color")] public int Color { get; init; }
     [JsonPropertyName("dead")] public bool Dead { get; init; }
     [JsonPropertyName("disconnected")] public bool Disconnected { get; init; }
+}
+
+/// <summary>
+/// The lobby capture is in: its code and its map. It travels on a snapshot and on
+/// a phase change, and is left out while capture knows neither.
+/// </summary>
+public sealed record Lobby
+{
+    /// <summary>The lobby code, or six asterisks when the host hides it.</summary>
+    [JsonPropertyName("code")] public string Code { get; init; } = "";
+
+    /// <summary>One of <see cref="ProtocolContract.Maps"/>, or empty when capture does not know the map.</summary>
+    [JsonPropertyName("map")] public string Map { get; init; } = "";
 }
 
 /// <summary>
@@ -132,6 +165,10 @@ public sealed record Snapshot : Message
 
     [JsonPropertyName("phase")] public string Phase { get; init; } = "";
     [JsonPropertyName("players")] public IReadOnlyList<Player> Players { get; init; } = [];
+
+    [JsonPropertyName("lobby")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Lobby? Lobby { get; init; }
 }
 
 /// <summary>Reports a phase transition.</summary>
@@ -140,6 +177,14 @@ public sealed record GameStateChanged : Message
     public GameStateChanged() => Type = ProtocolContract.TypeGameStateChanged;
 
     [JsonPropertyName("phase")] public string Phase { get; init; } = "";
+
+    /// <summary>
+    /// The lobby, once capture has read it. The game reads it only after the
+    /// phase has changed, so joining a lobby is a change into the same phase.
+    /// </summary>
+    [JsonPropertyName("lobby")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Lobby? Lobby { get; init; }
 }
 
 /// <summary>Reports a player entering the lobby.</summary>

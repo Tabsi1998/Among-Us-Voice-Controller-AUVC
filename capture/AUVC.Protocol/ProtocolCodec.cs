@@ -126,8 +126,7 @@ public static class MessageValidator
             Authentication authentication when string.IsNullOrEmpty(authentication.Credential) =>
                 "authentication carries no credential",
             Snapshot snapshot => SnapshotRefusal(snapshot),
-            GameStateChanged changed when !ProtocolContract.IsKnownPhase(changed.Phase) =>
-                $"unknown phase '{changed.Phase}'",
+            GameStateChanged changed => PhaseChangeRefusal(changed),
             PlayerJoined joined => PlayerRefusal(joined.Player),
             PlayerLeft left => PlayerRefusal(left.Player),
             PlayerChanged changed => PlayerRefusal(changed.Player),
@@ -146,8 +145,19 @@ public static class MessageValidator
         }
         return snapshot.Players.Any(player => string.IsNullOrEmpty(player.Name))
             ? "a player in the snapshot has no name"
-            : null;
+            : LobbyRefusal(snapshot.Lobby);
     }
+
+    private static string? PhaseChangeRefusal(GameStateChanged changed) =>
+        ProtocolContract.IsKnownPhase(changed.Phase) ? LobbyRefusal(changed.Lobby) : $"unknown phase '{changed.Phase}'";
+
+    // The code ends up in a Discord channel, so anything that is not a lobby code
+    // is refused rather than posted. The map is not checked: the bot ignores one
+    // it does not know.
+    private static string? LobbyRefusal(Lobby? lobby) =>
+        lobby is not null && lobby.Code != "" && !ProtocolContract.IsLobbyCode(lobby.Code)
+            ? "the lobby code is not one the game uses"
+            : null;
 
     // The name is what links a player to a Discord account, so an event without
     // one cannot be acted on at all.

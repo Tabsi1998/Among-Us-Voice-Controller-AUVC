@@ -286,3 +286,10 @@ const (
 	NoticeResumesOnItsOwn Key = "notice-resumes-on-its-own"
 	NoticeCaptureBack     Key = "notice-capture-back"
 )
+
+// The round on the crewmate message: map, phase and lobby code.
+const (
+	BoardMap   Key = "board-map"
+	BoardPhase Key = "board-phase"
+	BoardCode  Key = "board-code"
+)

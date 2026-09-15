@@ -54,6 +54,9 @@ public interface IRoundReporter
     void ReportPlayerDied(Player player);
 
     void ReportGameEnded();
+
+    /// <summary>The lobby's code and map, read after the phase changed into it.</summary>
+    void ReportLobby(Lobby lobby);
 }
 
 public sealed record CaptureLinkOptions
@@ -198,7 +201,7 @@ public sealed class CaptureLink : IRoundReporter, IAsyncDisposable
     }
 
     public void ReportPhase(string phase) =>
-        Report(round => round.SetPhase(phase), session => session.PhaseChanged(phase));
+        Report(round => round.SetPhase(phase), session => session.PhaseChanged(phase, _round.Lobby));
 
     public void ReportPlayerJoined(Player player) =>
         Report(round => round.Join(player), session => session.PlayerJoined(player));
@@ -214,6 +217,13 @@ public sealed class CaptureLink : IRoundReporter, IAsyncDisposable
 
     public void ReportGameEnded() =>
         Report(round => round.End(), session => session.GameEnded());
+
+    /// <summary>
+    /// Records the lobby and tells the bot with a change into the phase capture is
+    /// already in: the game reads the code and the map only after the phase changed.
+    /// </summary>
+    public void ReportLobby(Lobby lobby) =>
+        Report(round => round.SetLobby(lobby), session => session.PhaseChanged(_round.Phase, _round.Lobby));
 
     /// <summary>
     /// Records a change and, while connected, queues the event that tells the
@@ -310,7 +320,7 @@ public sealed class CaptureLink : IRoundReporter, IAsyncDisposable
             {
                 outbound.Writer.TryWrite(_session.Open());
                 outbound.Writer.TryWrite(_session.Authenticate(credential));
-                outbound.Writer.TryWrite(_session.Snapshot(_round.Phase, _round.Players));
+                outbound.Writer.TryWrite(_session.Snapshot(_round.Phase, _round.Players, _round.Lobby));
                 _outbound = outbound;
             }
             SetStatus(new LinkStatus(LinkState.Connected));
@@ -368,7 +378,7 @@ public sealed class CaptureLink : IRoundReporter, IAsyncDisposable
                     {
                         if (_outbound == outbound)
                         {
-                            outbound.Writer.TryWrite(_session.Snapshot(_round.Phase, _round.Players));
+                            outbound.Writer.TryWrite(_session.Snapshot(_round.Phase, _round.Players, _round.Lobby));
                         }
                     }
                     break;

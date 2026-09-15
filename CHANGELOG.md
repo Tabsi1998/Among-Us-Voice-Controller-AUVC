@@ -35,6 +35,11 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
   It shows what AUVC actually set, so a mute that failed is not shown as done.
   With a bot on another computer the line stays empty.
+- The crewmate message shows the map, the phase and the lobby code
+  ([#110](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/110)).
+  A code the host hides stays hidden. The app now sends the lobby's code and map
+  to the bot in an optional `lobby` field of the protocol, so an older bot or app
+  keeps working with a newer one.
 
 ### Removed
 

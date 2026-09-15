@@ -23,5 +23,9 @@
       "dead": true,
       "disconnected": false
     }
-  ]
+  ],
+  "lobby": {
+    "code": "ABCDEF",
+    "map": "the_skeld"
+  }
 }

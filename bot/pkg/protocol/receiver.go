@@ -196,10 +196,12 @@ func validatePayload(message Message) *Error {
 				return refuse("a player in the snapshot has no name")
 			}
 		}
+		return validateLobby(typed.Lobby, refuse)
 	case *GameStateChanged:
 		if !typed.Phase.Valid() {
 			return refuse(fmt.Sprintf("unknown phase %q", typed.Phase))
 		}
+		return validateLobby(typed.Lobby, refuse)
 	case *PlayerJoined:
 		return validatePlayer(typed.Player, refuse)
 	case *PlayerLeft:
@@ -222,6 +224,17 @@ func validatePayload(message Message) *Error {
 func validatePlayer(player Player, refuse func(string) *Error) *Error {
 	if player.Name == "" {
 		return refuse("the event carries a player with no name")
+	}
+	return nil
+}
+
+// validateLobby checks the lobby a snapshot or a phase change carries. The code
+// ends up in a Discord channel, so anything that is not a lobby code is refused
+// rather than posted. The map is not checked: one this build does not know is
+// simply not shown.
+func validateLobby(lobby *Lobby, refuse func(string) *Error) *Error {
+	if lobby != nil && lobby.Code != "" && !IsLobbyCode(lobby.Code) {
+		return refuse("the lobby code is not one the game uses")
 	}
 	return nil
 }

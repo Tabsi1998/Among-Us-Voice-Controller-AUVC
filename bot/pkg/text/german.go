@@ -247,4 +247,8 @@ var german = map[Key]string{
 	NoticeReleased:        "Alle sind freigegeben und zurück im Hauptkanal.",
 	NoticeResumesOnItsOwn: "Die Sitzung ist pausiert und läuft von selbst weiter, sobald die App wieder da ist.",
 	NoticeCaptureBack:     "✅ Die AUVC-App ist wieder da. AUVC verfolgt das Spiel wieder.",
+
+	BoardMap:   "Karte",
+	BoardPhase: "Phase",
+	BoardCode:  "Lobby-Code",
 }
