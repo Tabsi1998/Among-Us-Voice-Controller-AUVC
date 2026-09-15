@@ -16,6 +16,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   ([#112](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/112)):
   no code, an address that is not one, a bot that cannot be reached, and an
   expired or invalid code each say what to do next.
+- The guide explains the two download warnings and shows an install with
+  PowerShell that avoids them
+  ([#131](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/131)).
+  PowerShell downloads the installer and `SHA256SUMS` itself, so the file is not
+  marked as coming from the internet, and it starts the installer only when the
+  checksum matches.
 
 ### Fixed
 

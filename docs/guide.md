@@ -41,8 +41,43 @@ and pick the newest version.
 
 Versions ending in `-beta` are pre-releases for testing.
 
-**Windows will warn you.** The files are not signed, so Windows shows *"Windows
-protected your PC"*. Click **More info**, then **Run anyway**.
+**Windows will warn you.** The files are not signed, and every new version has
+been downloaded only a few times at first. Two warnings are expected:
+
+- **Edge, while downloading:** *"… isn't commonly downloaded"*. Click **…** next
+  to the download, then **Keep**, then **Show more** and **Keep anyway**.
+- **Windows, when you start the file:** *"Windows protected your PC"*. Click
+  **More info**, then **Run anyway**.
+
+### Install with PowerShell, without the warnings
+
+PowerShell can fetch the installer itself. A file it downloads is not marked as
+coming from the internet, so neither warning appears. Open **PowerShell** from
+the Start menu, paste the whole block and press Enter:
+
+```powershell
+& {
+  $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
+  $release = (Invoke-RestMethod 'https://api.github.com/repos/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases?per_page=1')[0]
+  $setup = $release.assets | Where-Object name -eq 'AmongUsVoiceCapture-Setup-win-x64.exe'
+  $sums = $release.assets | Where-Object name -eq 'SHA256SUMS'
+  $dir = New-Item -ItemType Directory -Force (Join-Path $env:TEMP "AUVC-$($release.tag_name)")
+  $file = Join-Path $dir $setup.name
+  Invoke-WebRequest $setup.browser_download_url -OutFile $file -UseBasicParsing
+  Invoke-WebRequest $sums.browser_download_url -OutFile (Join-Path $dir 'SHA256SUMS') -UseBasicParsing
+  $expected = (Get-Content (Join-Path $dir 'SHA256SUMS') | Where-Object { $_ -like "*$($setup.name)" }) -split '\s+' | Select-Object -First 1
+  if ($expected -and (Get-FileHash $file -Algorithm SHA256).Hash -eq $expected) { Start-Process $file }
+  else { Write-Error 'The download does not match SHA256SUMS. Nothing was started.' }
+}
+```
+
+It takes the newest release, pre-releases included, downloads the installer and
+`SHA256SUMS` into your temporary folder, and starts the installer only when its
+checksum matches. When it does not match, nothing is started. Nothing in Windows
+is changed.
+
+If *Smart App Control* is switched on in Windows 11, it can still block AUVC,
+because the files are not signed.
 
 ## 2. Install or unpack
 
