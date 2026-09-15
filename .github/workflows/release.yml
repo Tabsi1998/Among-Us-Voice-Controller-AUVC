@@ -111,7 +111,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'the bot did not build' }
       - name: Check the payload needs no installed .NET
         run: |
-          $config = Get-Content ../artifacts/capture/win-x64/AUCapture-WPF.runtimeconfig.json -Raw | ConvertFrom-Json
+          $config = Get-Content ../artifacts/capture/win-x64/AUVC.runtimeconfig.json -Raw | ConvertFrom-Json
           if (-not $config.runtimeOptions.includedFrameworks) {
             throw 'The payload is framework-dependent and would need .NET installed on the player machine.'
           }

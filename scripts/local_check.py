@@ -535,14 +535,20 @@ def restored_afterwards(paths: Iterable[Path]) -> Iterator[None]:
                 path.write_bytes(content)
 
 
+# The app's program file and its runtime configuration, as the project's
+# AssemblyName names them. The installer and both workflows use the same names.
+APP_EXE = "AUVC.exe"
+APP_RUNTIME_CONFIG = "AUVC.runtimeconfig.json"
+
+
 def payload_problems(folder: Path) -> list[str]:
     problems = []
-    if not (folder / "AUCapture-WPF.exe").exists():
-        problems.append("the publish produced no AUCapture-WPF.exe")
+    if not (folder / APP_EXE).exists():
+        problems.append(f"the publish produced no {APP_EXE}")
     try:
-        config = json.loads((folder / "AUCapture-WPF.runtimeconfig.json").read_text(encoding="utf-8"))
+        config = json.loads((folder / APP_RUNTIME_CONFIG).read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        problems.append("the publish has no readable AUCapture-WPF.runtimeconfig.json")
+        problems.append(f"the publish has no readable {APP_RUNTIME_CONFIG}")
     else:
         if not config.get("runtimeOptions", {}).get("includedFrameworks"):
             problems.append("the app is framework-dependent and would need .NET installed on the player's PC")

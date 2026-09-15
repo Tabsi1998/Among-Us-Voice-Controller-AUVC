@@ -62,8 +62,10 @@ except that it is signed.
 
 ## What the installer does
 
-- Installs per user, under `%LOCALAPPDATA%\Programs\AUVC Capture`, with no
-  elevation prompt.
+- Installs per user, under `%LOCALAPPDATA%\Programs\AUVC`, with no
+  elevation prompt. An update keeps the folder an earlier version was installed
+  in, such as `AUVC Capture`, and removes the program file and the shortcuts
+  under their old names (`AUCapture-WPF.exe`, *AUVC Capture*).
 - Refuses to install over a running capture, rather than replacing files in use
   and failing halfway.
 - Upgrades in place and **keeps settings and the paired credential**. An upgrade

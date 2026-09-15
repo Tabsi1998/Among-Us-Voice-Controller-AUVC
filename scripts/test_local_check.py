@@ -95,6 +95,22 @@ class PublishTests(unittest.TestCase):
         self.assertIn('"-p:Version=$version"', workflow)
 
 
+class AppNameTests(unittest.TestCase):
+    def test_the_program_file_has_one_name_everywhere(self):
+        """The project names the file; the check, the installer and CI look for it."""
+        project = (check.ROOT / "capture" / "AUCapture-WPF" / "AUCapture-WPF.csproj").read_text(encoding="utf-8")
+        installer = (check.ROOT / "installer" / "auvc-capture.iss").read_text(encoding="utf-8")
+
+        self.assertIn(f"<AssemblyName>{check.APP_EXE.removesuffix('.exe')}</AssemblyName>", project)
+        self.assertEqual(check.APP_RUNTIME_CONFIG, check.APP_EXE.removesuffix(".exe") + ".runtimeconfig.json")
+        self.assertIn(f'#define AppExe "{check.APP_EXE}"', installer)
+        for workflow in ("baseline.yml", "release.yml"):
+            text = (check.ROOT / ".github" / "workflows" / workflow).read_text(encoding="utf-8")
+            self.assertIn(check.APP_RUNTIME_CONFIG, text)
+            self.assertNotIn("AUCapture-WPF.exe", text)
+            self.assertNotIn("AUCapture-WPF.runtimeconfig.json", text)
+
+
 class ReportTests(unittest.TestCase):
     def test_test_counts_are_read_from_a_trx_report(self):
         report = (
@@ -205,10 +221,10 @@ class PayloadTests(unittest.TestCase):
             payload = Path(folder)
             self.assertEqual(len(check.payload_problems(payload)), 2 + len(check.PAYLOAD_FILES))
 
-            (payload / "AUCapture-WPF.exe").write_bytes(b"MZ")
+            (payload / check.APP_EXE).write_bytes(b"MZ")
             for name in check.PAYLOAD_FILES:
                 (payload / name).write_bytes(b"MZ")
-            config = payload / "AUCapture-WPF.runtimeconfig.json"
+            config = payload / check.APP_RUNTIME_CONFIG
             config.write_text('{"runtimeOptions":{"framework":{"name":"Microsoft.WindowsDesktop.App"}}}')
             self.assertEqual(len(check.payload_problems(payload)), 1)
 

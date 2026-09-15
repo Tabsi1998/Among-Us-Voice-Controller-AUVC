@@ -114,9 +114,9 @@ jobs:
       - name: Prove the self-contained win-x64 payload
         run: |
           dotnet publish AUCapture-WPF/AUCapture-WPF.csproj --configuration Release --runtime win-x64 --self-contained true -o ../artifacts/publish/win-x64
-          $exe = '../artifacts/publish/win-x64/AUCapture-WPF.exe'
+          $exe = '../artifacts/publish/win-x64/AUVC.exe'
           if (-not (Test-Path $exe)) { throw 'The self-contained publish produced no executable.' }
-          $config = Get-Content ../artifacts/publish/win-x64/AUCapture-WPF.runtimeconfig.json -Raw | ConvertFrom-Json
+          $config = Get-Content ../artifacts/publish/win-x64/AUVC.runtimeconfig.json -Raw | ConvertFrom-Json
           if (-not $config.runtimeOptions.includedFrameworks) {
             throw 'The payload is framework-dependent: it would need .NET installed on the player machine.'
           }

@@ -85,11 +85,11 @@ AUVC trotzdem blockieren, weil die Dateien nicht signiert sind.
 ## 2. Installieren oder entpacken
 
 **Installer.** Starte ihn und folge ihm. Er installiert nur für dein
-Windows-Konto, ohne Administratorrechte, und legt **AUVC Capture** im Startmenü
+Windows-Konto, ohne Administratorrechte, und legt **AUVC** im Startmenü
 an. Auf der letzten Seite kannst du AUVC gleich starten.
 
 **Portabel.** Entpacke die Zip-Datei in einen eigenen Ordner, zum Beispiel
-`Dokumente\AUVC`, und starte `AUCapture-WPF.exe`. Lass den Ordner vollständig:
+`Dokumente\AUVC`, und starte `AUVC.exe`. Lass den Ordner vollständig:
 Der Bot liegt im Unterordner `bot`.
 
 Beide Versionen speichern ihre Einstellungen am selben Ort, du kannst also
@@ -386,8 +386,8 @@ Füge den Pfad in die Adressleiste des Windows-Explorers ein, um ihn zu öffnen.
 
 ## 10. Deinstallieren und Daten löschen
 
-**Installer.** In Windows **Einstellungen → Apps → Installierte Apps → AUVC
-Capture → Deinstallieren**. Dabei wird gefragt, ob die AUVC-Daten mit gelöscht
+**Installer.** In Windows **Einstellungen → Apps → Installierte Apps → AUVC →
+Deinstallieren**. Dabei wird gefragt, ob die AUVC-Daten mit gelöscht
 werden sollen: Einstellungen, Bot-Token, die Datenbank des Bots mit Kanälen und
 Verknüpfungen, und die Logs. Wähle **Nein**, um sie für eine spätere
 Neuinstallation zu behalten.

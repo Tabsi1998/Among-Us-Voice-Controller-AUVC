@@ -31,6 +31,19 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   - **What never goes in:** the token file, the credential file and the
     database. Nothing is sent anywhere.
 
+### Changed
+
+- The app is called AUVC everywhere
+  ([#140](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/140)):
+  the window title, the program file (`AUVC.exe` instead of `AUCapture-WPF.exe`),
+  the Start menu entry and the installer.
+  - **Updating** with the installer keeps the installation folder, the settings,
+    the bot token and the links, and removes the old program file and
+    shortcuts.
+  - **Pinned shortcuts:** a shortcut pinned to the taskbar by hand still points
+    at the old file and has to be pinned again.
+  - **Portable version:** start `AUVC.exe`.
+
 ### Fixed
 
 - After **Settings → Debug → Reload offsets** finds offsets for a game AUVC could

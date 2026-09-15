@@ -1063,7 +1063,7 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to AUCapture.
+        ///   Looks up a localized string similar to AUVC.
         /// </summary>
         public static string Title {
             get {
