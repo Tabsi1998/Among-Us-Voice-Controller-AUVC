@@ -22,6 +22,14 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   PowerShell downloads the installer and `SHA256SUMS` itself, so the file is not
   marked as coming from the internet, and it starts the installer only when the
   checksum matches.
+- **Settings → Debug → Export diagnostics** saves a zip for whoever helps
+  ([#134](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/134)).
+  - **What it holds:** the app's and the bot's logs (only the end of a long
+    one), both settings files, the versions and the bot's checks.
+  - **What is blacked out:** bot tokens, app credentials, pairing codes,
+    authorization values, and the Windows user name in paths.
+  - **What never goes in:** the token file, the credential file and the
+    database. Nothing is sent anywhere.
 
 ### Fixed
 

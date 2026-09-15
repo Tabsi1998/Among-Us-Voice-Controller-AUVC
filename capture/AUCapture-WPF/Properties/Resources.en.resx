@@ -143,6 +143,23 @@
   <data name="SettingsDebugOpenLogsFolderButton" xml:space="preserve">
     <value>Open log folder</value>
   </data>
+  <data name="SettingsDebugExportDiagnosticsButton" xml:space="preserve">
+    <value>Export diagnostics</value>
+  </data>
+  <data name="DiagnosticsFileFilter" xml:space="preserve">
+    <value>Zip archive (*.zip)|*.zip</value>
+  </data>
+  <data name="DiagnosticsExportedTitle" xml:space="preserve">
+    <value>Diagnostics exported</value>
+  </data>
+  <data name="DiagnosticsExportedMessage" xml:space="preserve">
+    <value>Saved to {0}.
+
+It holds AUVC's logs, settings and checks, with in-game names and Discord IDs. Tokens, credentials and pairing codes are blacked out. Share it only with whoever helps you.</value>
+  </data>
+  <data name="DiagnosticsExportFailedTitle" xml:space="preserve">
+    <value>Export failed</value>
+  </data>
   <data name="SettingsDebugTabReloadOffsetsButton" xml:space="preserve">
     <value>Reload offsets</value>
   </data>

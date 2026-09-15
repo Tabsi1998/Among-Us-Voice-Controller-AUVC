@@ -947,6 +947,38 @@ namespace AUCapture_WPF
             c.Show();
         }
 
+        // Logs, settings, versions and the bot's checks in one zip for whoever helps,
+        // with every secret blacked out. It is saved where the person chooses and
+        // sent nowhere.
+        private async void ExportDiagnosticsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog
+            {
+                FileName = $"AUVC-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.zip",
+                Filter = Properties.Resources.DiagnosticsFileFilter,
+                DefaultExt = ".zip",
+                AddExtension = true,
+            };
+            if (dialog.ShowDialog(this) != true) return;
+
+            try
+            {
+                var files = await DiagnosticsExport.CollectAsync(context.Settings);
+                await using (var output = File.Create(dialog.FileName))
+                {
+                    DiagnosticsBundle.Write(output, files, Environment.UserName);
+                }
+                Logger.Info("Exported diagnostics with {count} files", files.Count);
+                await this.ShowMessageAsync(Properties.Resources.DiagnosticsExportedTitle,
+                    string.Format(Properties.Resources.DiagnosticsExportedMessage, dialog.FileName));
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                Logger.Warn(error, "Could not export diagnostics");
+                await this.ShowMessageAsync(Properties.Resources.DiagnosticsExportFailedTitle, error.Message);
+            }
+        }
+
         private void OpenLogsFolderButton_OnClick(object sender, RoutedEventArgs e)
         {
             if (!Directory.Exists(App.LogFolder)) return;

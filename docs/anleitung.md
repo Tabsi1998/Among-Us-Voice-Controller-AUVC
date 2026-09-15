@@ -278,6 +278,7 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | Allgemein | Nach neuen Versionen suchen | Fragt beim Start bei GitHub die Liste der AUVC-Releases ab. Gibt es eine neuere Version, zeigt eine Zeile oben einen Link zur Release-Seite. Es wird nichts heruntergeladen oder installiert. Standardmäßig an |
 | Fehlersuche | Debug-Modus | Öffnet beim nächsten Start ein zusätzliches Konsolenfenster mit technischen Ausgaben |
 | Fehlersuche | Log-Ordner öffnen | Öffnet den Ordner mit den Log-Dateien |
+| Fehlersuche | Diagnose exportieren | Speichert eine Zip-Datei für alle, die dir helfen: Logs von App und Bot, Einstellungen, Versionen und die Prüfungen des Bots. Tokens, Zugangsdaten, Kopplungscodes und dein Windows-Benutzername in Pfaden sind geschwärzt; Spielernamen und Discord-IDs bleiben. Es wird nichts verschickt |
 | Fehlersuche | Offsets neu laden | Liest die Speicher-Offsets neu ein, auch eine `index.json` in `%AppData%\AmongUsCapture`. Offsets für eine neue Among-Us-Version kommen meist mit einer neueren AUVC-Version |
 | Fehlersuche | Einstellungen zurücksetzen | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
 | Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.2-beta` |

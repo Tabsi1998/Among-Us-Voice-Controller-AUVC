@@ -250,6 +250,44 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Saved to {0}.
+        ///
+        ///It holds AUVC&apos;s logs, settings and checks, with in-game names and Discord IDs. Tokens, credentials and pairing codes are blacked out. Share it only with whoever helps you..
+        /// </summary>
+        public static string DiagnosticsExportedMessage {
+            get {
+                return ResourceManager.GetString("DiagnosticsExportedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diagnostics exported.
+        /// </summary>
+        public static string DiagnosticsExportedTitle {
+            get {
+                return ResourceManager.GetString("DiagnosticsExportedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export failed.
+        /// </summary>
+        public static string DiagnosticsExportFailedTitle {
+            get {
+                return ResourceManager.GetString("DiagnosticsExportFailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zip archive (*.zip)|*.zip.
+        /// </summary>
+        public static string DiagnosticsFileFilter {
+            get {
+                return ResourceManager.GetString("DiagnosticsFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exit.
         /// </summary>
         public static string ExitText {
@@ -616,6 +654,15 @@ namespace AUCapture_WPF.Properties {
         public static string SettingsAboutTabLatestVersion {
             get {
                 return ResourceManager.GetString("SettingsAboutTabLatestVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export diagnostics.
+        /// </summary>
+        public static string SettingsDebugExportDiagnosticsButton {
+            get {
+                return ResourceManager.GetString("SettingsDebugExportDiagnosticsButton", resourceCulture);
             }
         }
         

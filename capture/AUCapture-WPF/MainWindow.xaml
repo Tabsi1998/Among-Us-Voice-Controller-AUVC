@@ -210,6 +210,12 @@
                                                 Content="{l:Static properties:Resources.SettingsDebugOpenLogsFolderButton}"
                                                 Style="{StaticResource MahApps.Styles.Button.Square.Accent}" />
                                             <Button
+                                                x:Name="ExportDiagnosticsButton"
+                                                Margin="0,10,10,0"
+                                                Click="ExportDiagnosticsButton_OnClick"
+                                                Content="{l:Static properties:Resources.SettingsDebugExportDiagnosticsButton}"
+                                                Style="{StaticResource MahApps.Styles.Button.Square.Accent}" />
+                                            <Button
                                                 x:Name="ReloadOffsetsButton"
                                                 Margin="0,10,10,0"
                                                 Click="ReloadOffsetsButton_OnClick"

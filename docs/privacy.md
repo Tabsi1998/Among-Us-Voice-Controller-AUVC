@@ -60,6 +60,15 @@ Everyone who can read that channel sees it. It is deleted when AUVC closes.
 The app reads the memory of the Among Us process to find the game phase and the
 players.
 
+**Diagnostics export.** **Settings → Debug → Export diagnostics** writes a zip
+where you choose, and sends it nowhere.
+- **What it holds:** the app's and the bot's logs (in-game names, Discord server
+  and user ids), the app's settings, the versions and the bot's checks.
+- **What is blacked out first:** bot tokens, app credentials, pairing codes,
+  authorization values, and your Windows user name in paths.
+- **What never goes in:** the token file, the credential file and the database.
+- **Who sees it:** only whoever you give it to.
+
 ## Removing data
 
 | To remove | Do |

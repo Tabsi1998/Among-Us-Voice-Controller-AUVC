@@ -26,4 +26,4 @@ body:
     id: diagnostics
     attributes:
       label: Redacted diagnostics
-      description: Doctor output and logs, if available. Never include tokens, pairing codes or credentials.
+      description: Attach the zip from Settings > Debug > Export diagnostics, which blacks out tokens, credentials and pairing codes. Otherwise doctor output and logs, if available. Never include tokens, pairing codes or credentials.
