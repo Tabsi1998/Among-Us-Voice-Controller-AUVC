@@ -4,6 +4,24 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+## v0.1.3-beta — 2026-09-15
+
+The fourth pre-release. App and bot speak German, the app says in one line what
+is going on and what to do next, and the crewmate message shows the map, the
+phase and the lobby code. From this version on the app knows its own version and
+says when a newer one is out.
+
+**Update.** Install over the previous version, or unpack the new portable zip;
+the token, the settings and the links stay. Nothing needs to change in Discord.
+Earlier versions do not tell you about this one, because they have no check for
+new versions yet.
+
+**Known limitations.** Unsigned, so Windows warns about an unknown publisher. The
+status line, the player badges, the map picture and the check for new versions
+have passed the automated checks but not yet a live round. With a bot on another
+computer the player badges stay empty. Built and published from the maintainer's
+PC; `SHA256SUMS` lists the hash of every file.
+
 ### Added
 
 - The app speaks German
