@@ -4,6 +4,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The guide explains the two download warnings and shows an install with
+  PowerShell that avoids them
+  ([#131](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/131)).
+  PowerShell downloads the installer and `SHA256SUMS` itself, so the file is not
+  marked as coming from the internet, and it starts the installer only when the
+  checksum matches.
+
 ## v0.1.3-beta — 2026-09-15
 
 The fourth pre-release. App and bot speak German, the app says in one line what

@@ -42,9 +42,45 @@ und wähle die neueste Version.
 
 Versionen mit `-beta` am Ende sind Vorabversionen zum Testen.
 
-**Windows warnt dich.** Die Dateien sind nicht signiert, deshalb zeigt Windows
-*„Der Computer wurde durch Windows geschützt“*. Klicke auf **Weitere
-Informationen** und dann auf **Trotzdem ausführen**.
+**Windows warnt dich.** Die Dateien sind nicht signiert, und jede neue Version
+wurde anfangs erst selten heruntergeladen. Zwei Warnungen sind deshalb normal:
+
+- **Edge beim Herunterladen:** *„… wird häufig nicht heruntergeladen“*. Klicke
+  neben dem Download auf **…** und behalte die Datei; über **Mehr anzeigen**
+  bestätigst du das noch einmal.
+- **Windows beim Starten:** *„Der Computer wurde durch Windows geschützt“*.
+  Klicke auf **Weitere Informationen** und dann auf **Trotzdem ausführen**.
+
+### Mit PowerShell installieren, ohne die Warnungen
+
+PowerShell kann den Installer selbst herunterladen. Eine so geladene Datei ist
+nicht als „aus dem Internet“ markiert, deshalb erscheint keine der beiden
+Warnungen. Öffne **PowerShell** über das Startmenü, füge den ganzen Block ein und
+drücke Enter:
+
+```powershell
+& {
+  $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
+  $release = (Invoke-RestMethod 'https://api.github.com/repos/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases?per_page=1')[0]
+  $setup = $release.assets | Where-Object name -eq 'AmongUsVoiceCapture-Setup-win-x64.exe'
+  $sums = $release.assets | Where-Object name -eq 'SHA256SUMS'
+  $dir = New-Item -ItemType Directory -Force (Join-Path $env:TEMP "AUVC-$($release.tag_name)")
+  $file = Join-Path $dir $setup.name
+  Invoke-WebRequest $setup.browser_download_url -OutFile $file -UseBasicParsing
+  Invoke-WebRequest $sums.browser_download_url -OutFile (Join-Path $dir 'SHA256SUMS') -UseBasicParsing
+  $expected = (Get-Content (Join-Path $dir 'SHA256SUMS') | Where-Object { $_ -like "*$($setup.name)" }) -split '\s+' | Select-Object -First 1
+  if ($expected -and (Get-FileHash $file -Algorithm SHA256).Hash -eq $expected) { Start-Process $file }
+  else { Write-Error 'The download does not match SHA256SUMS. Nothing was started.' }
+}
+```
+
+Der Block nimmt die neueste Version, Vorabversionen eingeschlossen, lädt den
+Installer und `SHA256SUMS` in deinen Temp-Ordner und startet den Installer nur,
+wenn die Prüfsumme passt. Passt sie nicht, wird nichts gestartet. An Windows
+wird nichts verändert.
+
+Ist unter Windows 11 die *intelligente App-Steuerung* eingeschaltet, kann sie
+AUVC trotzdem blockieren, weil die Dateien nicht signiert sind.
 
 ## 2. Installieren oder entpacken
 

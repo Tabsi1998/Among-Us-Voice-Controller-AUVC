@@ -13,7 +13,9 @@ It is not an official AutoMuteUs project or an official new AutoMuteUs version.
 ## Get started
 
 1. Download `AmongUsVoiceCapture-Setup-win-x64.exe` from the
-   [releases page](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases).
+   [releases page](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases),
+   or [install it with PowerShell](docs/guide.md#install-with-powershell-without-the-warnings),
+   which avoids the download warnings.
 2. Install it and start **AUVC Capture**.
 3. Follow the setup window: paste a Discord bot token, invite the bot, choose
    the server and the channels.
