@@ -111,6 +111,7 @@ namespace AUCapture_WPF
             Window.Topmost = context.Settings.alwaysOnTop;
             GameMemReader.getInstance().GameStateChanged += GameStateChangedHandler;
             GameMemReader.getInstance().ProcessHook += OnProcessHook;
+            GameMemReader.getInstance().UnsupportedGame += OnUnsupportedGame;
             GameMemReader.getInstance().PlayerChanged += UserForm_PlayerChanged;
             GameMemReader.getInstance().PlayerCosmeticChanged += OnPlayerCosmeticChanged;
             GameMemReader.getInstance().CrackDetected += OnCrackDetected;
@@ -202,6 +203,8 @@ namespace AUCapture_WPF
                 Session = localGuild?.Session,
                 Players = lobbyPlayers,
                 LinkedPlayers = linkedPlayers,
+                Checks = localGuild?.Checks ?? [],
+                GameNotSupported = UnsupportedGameRuns(),
             });
 
             (context.StatusIcon, context.StatusHeadline, context.StatusNextStep) = StatusText.For(status, runsBot);
@@ -508,16 +511,44 @@ namespace AUCapture_WPF
                 context.Settings.host = outcome.Address.ToString();
                 Code.Text = "";
                 ManualConnectionFlyout.IsOpen = false;
-                await this.ShowMessageAsync(Properties.Resources.PairedTitle, outcome.Message);
+                await this.ShowMessageAsync(Properties.Resources.PairedTitle, PairingText.Paired(outcome));
             }
             catch (PairingRefusedException refused)
             {
-                await this.ShowMessageAsync(Properties.Resources.PairingFailedTitle, refused.Message);
+                Logger.Info("Pairing failed ({problem}): {message}", refused.Problem, refused.Message);
+                await this.ShowMessageAsync(Properties.Resources.PairingFailedTitle, PairingText.Refused(refused, address));
+            }
+        }
+
+        // Among Us runs, but this AUVC has no offsets for its version, so nothing is
+        // read and the window would otherwise keep waiting for a game that is there.
+        private volatile bool gameNotSupported;
+
+        private void OnUnsupportedGame(object sender, ProcessHookArgs e)
+        {
+            gameNotSupported = true;
+            Dispatcher.InvokeAsync(UpdateStatus);
+        }
+
+        // Only while that game still runs. Nothing turns Exited events on for the
+        // game's process, so the line asks the process itself, as the reader does,
+        // and the status poll brings it up to date within seconds of closing.
+        private bool UnsupportedGameRuns()
+        {
+            if (!gameNotSupported) return false;
+            try
+            {
+                return ProcessMemory.getInstance().process is { HasExited: false };
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
             }
         }
 
         private void OnProcessHook(object? sender, ProcessHookArgs e)
         {
+            gameNotSupported = false;
             context.Connected = true;
             //context.ConnectionStatuses.First(x => x.ConnectionName == "Among us").Connected = true;
             ProcessMemory.getInstance().process.Exited += ProcessOnExited;
@@ -882,10 +913,14 @@ namespace AUCapture_WPF
             await GameMemReader.getInstance().offMan.RefreshIndex();
             GameMemReader.getInstance().CurrentOffsets = GameMemReader.getInstance().offMan
                 .FetchForHash(GameMemReader.getInstance().GameHash);
-            if (GameMemReader.getInstance().CurrentOffsets is not null)
+            if (GameMemReader.getInstance().CurrentOffsets is not null && gameNotSupported)
             {
-                //WriteConsoleLineFormatted("GameMemReader", Color.Lime, $"Loaded offsets: {GameMemReader.getInstance().CurrentOffsets.Description}");
+                // The reader was waiting for exactly these offsets and reads the game
+                // from now on, but it does not announce that again. The window has to
+                // follow as if the game had just been found.
+                OnProcessHook(this, new ProcessHookArgs { PID = ProcessMemory.getInstance().process.Id });
             }
+            UpdateStatus();
         }
 
         private void APIServerToggleSwitch_Toggled(object sender, RoutedEventArgs e)

@@ -279,7 +279,7 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | Allgemein | Nach neuen Versionen suchen | Fragt beim Start bei GitHub die Liste der AUVC-Releases ab. Gibt es eine neuere Version, zeigt eine Zeile oben einen Link zur Release-Seite. Es wird nichts heruntergeladen oder installiert. Standardmäßig an |
 | Fehlersuche | Debug-Modus | Öffnet beim nächsten Start ein zusätzliches Konsolenfenster mit technischen Ausgaben |
 | Fehlersuche | Log-Ordner öffnen | Öffnet den Ordner mit den Log-Dateien |
-| Fehlersuche | Offsets neu laden | Lädt die Speicher-Offsets neu, mit denen AUVC das Spiel liest. Hilft nach einem Among-Us-Update |
+| Fehlersuche | Offsets neu laden | Liest die Speicher-Offsets neu ein, auch eine `index.json` in `%AppData%\AmongUsCapture`. Offsets für eine neue Among-Us-Version kommen meist mit einer neueren AUVC-Version |
 | Fehlersuche | Einstellungen zurücksetzen | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
 | Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.2-beta` |
 | Info | Neueste Version | Eine neuere AUVC-Version, *Aktuell* oder warum nicht geprüft wurde. Mit einer Vorabversion erfährst du von neueren Vorabversionen und Releases, mit einem Release nur von Releases |
@@ -368,7 +368,8 @@ nichts verloren.
 | Problem | Was zu tun ist |
 | --- | --- |
 | *Warte auf Among Us* verschwindet nicht | Läuft Among Us auf diesem PC und unter demselben Windows-Konto? |
-| Das Spiel wird erkannt, aber keine Spieler angezeigt | Among Us wurde vielleicht aktualisiert. **Zahnrad → Fehlersuche → Offsets neu laden**, dann AUVC neu starten |
+| Die Statuszeile sagt *AUVC kann diese Among-Us-Version nicht lesen* | Among Us wurde aktualisiert, und dieses AUVC kennt die neue Version noch nicht. Installiere die neueste AUVC-Version; eine Zeile oben im Fenster verlinkt sie, sobald es eine gibt |
+| Die Statuszeile sagt *Der Bot meldet ein Problem* | Die Zeile darunter nennt, was fehlt und was zu tun ist, zum Beispiel eine fehlende Berechtigung. **Bot → Status** zeigt alle Prüfungen |
 
 ### Log-Dateien
 

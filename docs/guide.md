@@ -268,7 +268,7 @@ Windows** goes back.
 | General | Check for new versions | On start, asks GitHub for the list of AUVC releases. When a newer version exists, a line at the top links to the release page. Nothing is downloaded or installed. On by default |
 | Debug | Debug mode | Opens an extra console window with technical output on the next start |
 | Debug | Open log folder | Opens the folder with AUVC's log files |
-| Debug | Reload offsets | Reloads the memory offsets AUVC reads the game with, after an Among Us update |
+| Debug | Reload offsets | Reads the memory offsets again, including an `index.json` placed in `%AppData%\AmongUsCapture`. Offsets for a new Among Us version usually come with a newer AUVC version |
 | Debug | Reset Config | Deletes the app's settings and offers to restart. The bot token stays stored; run **Set up** again afterwards |
 | About | App version | The installed AUVC version, for example `0.1.2-beta` |
 | About | Latest version | A newer AUVC version, *Up to date*, or why it was not checked. On a pre-release you hear of newer pre-releases and releases; on a release, only of releases |
@@ -356,7 +356,8 @@ and data are not kept in that folder, so nothing is lost.
 | Problem | What to do |
 | --- | --- |
 | *Waiting for Among Us* does not go away | Make sure Among Us is running, on this PC and under the same Windows account |
-| The game is detected but no players appear | Among Us may have been updated. **Settings → Debug → Reload offsets**, then restart AUVC |
+| The status line says *AUVC cannot read this Among Us version* | Among Us was updated and this AUVC does not know the new version yet. Install the newest AUVC version; a line at the top of the window links to it as soon as one is out |
+| The status line says *The bot reports a problem* | The line below it names what is wrong and what to do, for example a permission the bot is missing. **Bot → Status** lists every check |
 
 ### Log files
 

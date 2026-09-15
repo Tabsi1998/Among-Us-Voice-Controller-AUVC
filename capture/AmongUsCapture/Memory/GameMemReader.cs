@@ -57,6 +57,12 @@ namespace AmongUsCapture
         public event EventHandler<ProcessHookArgs> ProcessHook;
         public event EventHandler<ProcessHookArgs> ProcessUnHook;
 
+        /// <summary>
+        /// Among Us runs, but there are no offsets for its version, so nothing can be
+        /// read from it. Raised instead of <see cref="ProcessHook"/>.
+        /// </summary>
+        public event EventHandler<ProcessHookArgs> UnsupportedGame;
+
         public event EventHandler CrackDetected;
         public event EventHandler<GameOverEventArgs> GameOver;
         public event EventHandler<PlayerCosmeticChangedEventArgs> PlayerCosmeticChanged;
@@ -325,6 +331,7 @@ namespace AmongUsCapture
                                 else
                                 {
                                     Logger.Fatal("No offsets found for hash: {GameHash}", GameHash);
+                                    UnsupportedGame?.Invoke(this, new ProcessHookArgs { PID = ProcessMemory.getInstance().process.Id });
                                 }
 
                                 foundModule = true;
@@ -345,7 +352,13 @@ namespace AmongUsCapture
                         CrackDetected?.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (CurrentOffsets is null) continue;
+                    if (CurrentOffsets is null)
+                    {
+                        // Nothing can be read until offsets are reloaded or the game
+                        // closes, so there is no point in asking again at full speed.
+                        Thread.Sleep(1000);
+                        continue;
+                    }
 
 
                     #endregion

@@ -22,6 +22,10 @@ namespace AUCapture_WPF
             AppStatusKind.NotPaired => ("⚠", Resources.StatusNotPaired, Resources.StatusNotPairedNext),
             AppStatusKind.Connecting => ("…", Resources.StatusConnecting,
                 runsBotOnThisPc ? "" : Resources.StatusConnectingRemoteNext),
+            // The doctor's own words, which the bot on this PC wrote in the app's language.
+            AppStatusKind.BotProblem => ("✖", string.Format(Resources.StatusBotProblem, status.Problem.Name),
+                DoctorLine.Explain(status.Problem)),
+            AppStatusKind.GameNotSupported => ("✖", Resources.StatusGameNotSupported, Resources.StatusGameNotSupportedNext),
             AppStatusKind.WaitingForGame => ("…", Resources.StatusWaitingForGame, Resources.StatusWaitingForGameNext),
             AppStatusKind.InMenu => ("…", Resources.StatusInMenu, Resources.StatusInMenuNext),
             AppStatusKind.SessionPaused => ("⏸", Resources.StatusPaused, Resources.StatusPausedNext),

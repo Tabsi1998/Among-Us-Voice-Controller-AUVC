@@ -121,5 +121,59 @@ namespace AUVC.Capture.Tests
         [Fact]
         public void AnOlderBotWithoutASessionIsTakenAsReady() =>
             Assert.Equal(AppStatusKind.Ready, AppStatus.For(Playing with { Session = "" }).Kind);
+
+        private static LocalCheck Check(string name, string level) => new()
+        {
+            Name = name,
+            Level = level,
+            Detail = name + " detail",
+        };
+
+        /// <summary>
+        /// A missing permission or a deleted channel keeps voice from working whatever
+        /// the game does, so it is named before the game, and the first failure is the one.
+        /// </summary>
+        [Fact]
+        public void AFailureTheBotReportsComesBeforeTheGame()
+        {
+            var permissions = Check("Permissions", LocalCheck.Fail);
+            var status = AppStatus.For(Playing with
+            {
+                Game = GameView.NotRunning,
+                Checks = [Check("Discord", LocalCheck.Ok), Check("Heartbeat", LocalCheck.Warn), permissions, Check("Channel", LocalCheck.Fail)],
+            });
+
+            Assert.Equal(new AppStatus(AppStatusKind.BotProblem, Problem: permissions), status);
+        }
+
+        [Fact]
+        public void AWarningFromTheBotIsNoProblem() =>
+            Assert.Equal(AppStatusKind.Ready,
+                AppStatus.For(Playing with { Checks = [Check("Crewmate menu", LocalCheck.Warn)] }).Kind);
+
+        [Fact]
+        public void TheLinkComesBeforeWhatTheBotReports() =>
+            Assert.Equal(AppStatusKind.Connecting, AppStatus.For(Playing with
+            {
+                Link = new LinkStatus(LinkState.Retrying),
+                Checks = [Check("Permissions", LocalCheck.Fail)],
+            }).Kind);
+
+        /// <summary>
+        /// A game AUVC cannot read looks like no game at all to the window. Waiting for
+        /// it would wait forever, so it is said before waiting for the game.
+        /// </summary>
+        [Fact]
+        public void AGameThatCannotBeReadIsSaidInsteadOfWaitingForIt()
+        {
+            Assert.Equal(AppStatusKind.GameNotSupported,
+                AppStatus.For(Playing with { Game = GameView.NotRunning, GameNotSupported = true }).Kind);
+            Assert.Equal(AppStatusKind.BotProblem, AppStatus.For(Playing with
+            {
+                Game = GameView.NotRunning,
+                GameNotSupported = true,
+                Checks = [Check("Permissions", LocalCheck.Fail)],
+            }).Kind);
+        }
     }
 }
