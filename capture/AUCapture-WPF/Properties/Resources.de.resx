@@ -143,6 +143,23 @@
   <data name="SettingsDebugOpenLogsFolderButton" xml:space="preserve">
     <value>Log-Ordner öffnen</value>
   </data>
+  <data name="SettingsDebugExportDiagnosticsButton" xml:space="preserve">
+    <value>Diagnose exportieren</value>
+  </data>
+  <data name="DiagnosticsFileFilter" xml:space="preserve">
+    <value>Zip-Archiv (*.zip)|*.zip</value>
+  </data>
+  <data name="DiagnosticsExportedTitle" xml:space="preserve">
+    <value>Diagnose exportiert</value>
+  </data>
+  <data name="DiagnosticsExportedMessage" xml:space="preserve">
+    <value>Gespeichert unter {0}.
+
+Die Datei enthält Logs, Einstellungen und Prüfungen von AUVC, mit Spielernamen und Discord-IDs. Tokens, Zugangsdaten und Kopplungscodes sind geschwärzt. Gib sie nur an, wer dir hilft.</value>
+  </data>
+  <data name="DiagnosticsExportFailedTitle" xml:space="preserve">
+    <value>Export fehlgeschlagen</value>
+  </data>
   <data name="SettingsDebugTabReloadOffsetsButton" xml:space="preserve">
     <value>Offsets neu laden</value>
   </data>

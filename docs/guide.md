@@ -267,6 +267,7 @@ Windows** goes back.
 | General | Check for new versions | On start, asks GitHub for the list of AUVC releases. When a newer version exists, a line at the top links to the release page. Nothing is downloaded or installed. On by default |
 | Debug | Debug mode | Opens an extra console window with technical output on the next start |
 | Debug | Open log folder | Opens the folder with AUVC's log files |
+| Debug | Export diagnostics | Saves a zip for whoever helps you: the app's and the bot's logs, the settings, the versions and the bot's checks. Tokens, credentials, pairing codes and your Windows user name in paths are blacked out; in-game names and Discord IDs stay. Nothing is sent anywhere |
 | Debug | Reload offsets | Reads the memory offsets again, including an `index.json` placed in `%AppData%\AmongUsCapture`. Offsets for a new Among Us version usually come with a newer AUVC version |
 | Debug | Reset Config | Deletes the app's settings and offers to restart. The bot token stays stored; run **Set up** again afterwards |
 | About | App version | The installed AUVC version, for example `0.1.2-beta` |
