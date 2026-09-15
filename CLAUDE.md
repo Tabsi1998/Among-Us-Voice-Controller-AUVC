@@ -9,7 +9,7 @@ where things stand. Keep it current when that changes.
 - **Language.** Answer in German. PR, commit and issue titles are English;
   issue bodies and comments may be German. Keep it simple and understandable.
 - **Roles.** The owner merges. Deliver complete, verified PRs from branches named
-  `codex/<nnn>-<topic>` (last number used: 084), then report CI.
+  `codex/<nnn>-<topic>` (last number used: 085), then report CI.
 - **Never do these yourself:** merge, push to `main`, rewrite or force-push `main`,
   create tags or releases. Tags and releases happen only when the owner says so.
 - **Work from GitHub issues.** Every change belongs to an issue.
@@ -68,6 +68,16 @@ where things stand. Keep it current when that changes.
 holds `go\go\bin\go.exe`, `dotnet\dotnet.exe` and `bootstrap\Scripts\python.exe`.
 On another machine you need Go 1.27, the .NET 10 SDK, Python 3, the `gh` CLI, and
 Inno Setup 6 for the installer (`winget install JRSoftware.InnoSetup`).
+
+**Toolchain on the second PC** (`C:\Programmieren`, since 2026-09-15): Go 1.27.1
+and the llvm-mingw clang for `go test -race` live in `~/.local-toolchain` and are
+on the user PATH; the .NET SDK 10.0.401, gitleaks, Docker Desktop and `gh` are
+installed system-wide. No `.vscode/testing.json` exists there, so the tools come
+from PATH. Machine-local, not in Git:
+- `.ci-panel/test_checks.py` shows every step of `scripts/local_check.py` in the
+  VS Code Testing panel (hidden through `.git/info/exclude`).
+- `C:\Programmieren\check-all.py --serve` is a live dashboard over all five
+  repositories; `C:\Programmieren\Programmieren.code-workspace` opens them.
 
 **PowerShell pitfalls:**
 - Write commit messages to a file and use `git commit -F <file>`.
