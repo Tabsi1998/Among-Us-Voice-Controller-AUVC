@@ -58,29 +58,50 @@ everything in practice.
 **That the two halves connect at all.** `pkg/transport` and
 `bot/recovery_test.go` open real WebSockets, but with a Go client, on localhost,
 in one process, with no TLS, no proxy and no home router in between. The capture
-side's `CaptureLinkTests` run against a scripted channel. The C# client and the
-Go server have never spoken to each other in a test.
+side's `CaptureLinkTests` run against a scripted channel. Since
+[#117](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/pull/117)
+both sides are held to one recorded round,
+`protocol/fixtures/rounds/fifteen_players.jsonl`: `CaptureLinkTests` checks that
+capture sends exactly those messages, and `bot/recorded_round_test.go` plays them
+through the real WebSocket server and the bot. Neither side can read that round
+differently without its test failing. The C# client and the Go server have
+still never spoken to each other in a test.
 
-**That the capture window works.** Pairing, the connection indicator and the
-refusal dialog have no automated tests.
+**That the app's windows work.** What they decide is tested:
+- **Status line:** which status the top line shows (`AppStatusTests`).
+- **Bot checks:** how the bot's checks read (`DoctorLineTests`).
+- **Pairing:** what it sends and how it fails (`PairingClientTests`).
+- **Buttons:** every button has a name a screen reader can read (`XamlAccessibilityTests`).
 
-**That the installer installs.** It is built by the release workflow and has
-never been run by anything here.
+Whether the setup window, the pairing and the connection indicator actually show
+all this is not tested.
+
+**That the installer installs.** `scripts/local_release.py` builds it, and so
+does the release workflow for finished releases, but nothing here has ever run
+it.
 
 ## Manual smoke test
 
 Run this against a real Discord server and a real game before calling a release
-good. It takes one round.
+good. It takes one round. It is written for the usual case, one PC with the bot
+inside the app; where a bot on another computer behaves differently, the step
+says so.
 
 **Setup**
 
-1. Invite the bot, run `/au setup channels`, then `/au doctor`. Every line
-   should be green; fix anything that is not before going on.
-2. `/au capture pair`, type the code into the capture app, `/au doctor` again.
-   Capture and heartbeat should now be green.
-3. Open a lobby. The crewmate message should appear in the text channel, and
-   `/au doctor` should show the crewmate menu green. Every player picks their
-   crewmate there; one player uses `/au link` without a name instead.
+1. Set AUVC up with its setup window: token, invite, server and channels. Its
+   last step lists the bot's checks, and none should show ❌. `/au doctor` in
+   Discord should say the same.
+2. **Bot on another computer:** set that bot up with `/au setup channels`, then
+   run `/au capture pair` and type the code into the app behind its pairing
+   button. `/au doctor` should show *Capture* and *Heartbeat* green.
+3. Open a lobby.
+   - **Text channel:** the crewmate message should appear there.
+   - **`/au doctor`:** it should show *Crewmate menu*, *Capture* and
+     *Heartbeat* green.
+   - **Linking:** every player picks their crewmate in the crewmate message;
+     one player uses `/au link` without a name instead.
+   - **Status line:** the app should say *Ready* and count the linked players.
 
 **One round**
 
@@ -98,19 +119,29 @@ good. It takes one round.
 
 **Failure handling**
 
-10. Kill the capture app mid-round. Within the configured timeout everybody
-    should be released and the control channel should say so. This is the one
-    that matters most: getting it wrong leaves a room full of people unable to
-    speak.
-11. Start capture again. The session should resume on its own.
-12. Restart the bot mid-round. Capture reconnects, sends a snapshot, and voice
-    should match the game again within a few seconds.
+10. End AUVC mid-round, for example in Task Manager. This is the one that
+    matters most: getting it wrong leaves a room full of people unable to speak.
+    - **Bot inside the app:** the bot ends with it, so nobody is released at
+      that moment. Start AUVC again. The bot should release everyone it had
+      muted, deafened or moved into the ghost channel, and nobody else.
+    - **Bot on another computer:** within the configured timeout everybody
+      should be released, and the text channel should say so.
+11. Carry on playing. AUVC should follow the game again on its own. With a bot
+    on another computer the text channel should say the app is back.
+12. Restart the bot mid-round: **Bot → Status → Restart the bot**, or restart
+    the bot on the other computer. The app reconnects and sends a snapshot.
+    Voice should match the game again within a few seconds.
 
 **Leave no trace**
 
-13. With capture connected, `/au capture revoke`. Capture should be disconnected
-    at once and say its access was revoked, and it should not be able to
-    connect again until it is paired anew.
+13. With the app connected, run `/au capture revoke`. The app should be
+    disconnected at once.
+    - **Bot inside the app:** the app takes a new credential from its own bot,
+      once per start, and connects again. Revoke a second time. Now the app
+      should stay disconnected, and its status line should say *The bot
+      refused this app*.
+    - **Bot on another computer:** the app should say its access was revoked.
+      It should not connect again until it is paired anew.
 
 Record the result in the release notes. A release that has not been through this
 has been tested against a simulation of Discord, which is not the same as

@@ -161,8 +161,8 @@ an und klicke auf **Aktualisieren**.
 AUVC verbindet sich mit seinem Bot und zeigt dessen Prüfungen:
 
 - ✅ alles in Ordnung
-- ⚠️ gut zu wissen, meist ein Schritt, der noch aussteht, zum Beispiel *no game
-  data yet*, bevor jemand gespielt hat
+- ⚠️ gut zu wissen, meist ein Schritt, der noch aussteht, zum Beispiel *noch keine
+  Spieldaten*, bevor jemand gespielt hat
 - ❌ muss behoben werden, was zu tun ist, steht hinter dem Pfeil
 
 Klicke auf **Fertig**.
@@ -178,9 +178,11 @@ Befehl** beschrieben.
 den Textkanal aus der Einrichtung. Sie zeigt die Karte mit Name und
 Bild, die Phase und den Lobby-Code, außer der Host verbirgt ihn, dann jede Figur
 in der Lobby, wer schon
-welche gewählt hat, und ein Menü **Choose your crewmate**. Wähle dort deine
-Figur. Wählst du eine andere, wandert deine Verknüpfung mit; **Unlink me**
-entfernt sie. Die Antwort von AUVC siehst nur du.
+welche gewählt hat, und ein Menü **Wähle deinen Crewmate**. Wähle dort deine
+Figur. Wählst du eine andere, wandert deine Verknüpfung mit; **Verknüpfung
+lösen** entfernt sie. Die Antwort von AUVC siehst nur du. Die Nachricht kommt in
+der Sprache des Servers: Auf einem englischen Server heißen Menü und Knopf
+*Choose your crewmate* und *Unlink me*.
 
 **Mit einem Befehl.** Tippe in einem beliebigen Textkanal des Servers nur
 `/au link`, dann bekommst du dasselbe Menü, sichtbar nur für dich. Oder tippe
@@ -213,10 +215,10 @@ verschiebt sie nie. Bots wie Musik-Bots fasst es ebenfalls nicht an.
 
 ## 5. Spielen
 
-1. Starte AUVC. Die Zeile oben im Hauptfenster sagt immer, worauf AUVC wartet
-   und was als Nächstes zu tun ist, zum Beispiel *Warte auf Among Us: Starte
-   Among Us auf diesem PC*. Passt alles, steht dort *Bereit* und wie viele
-   Spieler der Lobby verknüpft sind.
+1. Starte AUVC. Die Zeile oben im Hauptfenster sagt immer, worauf AUVC wartet,
+   und darunter, was als Nächstes zu tun ist, zum Beispiel *Warte auf Among Us*
+   und *Starte Among Us auf diesem PC*. Passt alles, steht dort *Bereit* und
+   darunter, wie viele Spieler der Lobby verknüpft sind.
 2. Starte Among Us. Sobald du in einer Lobby bist, zeigt AUVC die Spieler. Unter
    jedem Namen steht, ob der Spieler verknüpft ist und ob AUVC ihn stumm oder
    taub geschaltet oder in den Geisterkanal verschoben hat, zum Beispiel
@@ -281,7 +283,7 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | Fehlersuche | Diagnose exportieren | Speichert eine Zip-Datei für alle, die dir helfen: Logs von App und Bot, Einstellungen, Versionen und die Prüfungen des Bots. Tokens, Zugangsdaten, Kopplungscodes und dein Windows-Benutzername in Pfaden sind geschwärzt; Spielernamen und Discord-IDs bleiben. Es wird nichts verschickt |
 | Fehlersuche | Offsets neu laden | Liest die Speicher-Offsets neu ein, auch eine `index.json` in `%AppData%\AmongUsCapture`. Offsets für eine neue Among-Us-Version kommen meist mit einer neueren AUVC-Version |
 | Fehlersuche | Einstellungen zurücksetzen | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
-| Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.2-beta` |
+| Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.4-beta` |
 | Info | Neueste Version | Eine neuere AUVC-Version, *Aktuell* oder warum nicht geprüft wurde. Mit einer Vorabversion erfährst du von neueren Vorabversionen und Releases, mit einem Release nur von Releases |
 
 Tastenkürzel im Hauptfenster: **F1** öffnet diese Anleitung, **Strg+L** öffnet
@@ -341,6 +343,11 @@ vorher.
 Zip-Datei. Einstellungen und Daten liegen nicht in diesem Ordner, es geht also
 nichts verloren.
 
+**Von `v0.1.3-beta` oder älter.** Seit `v0.1.4-beta` heißt die Programmdatei
+`AUVC.exe` statt `AUCapture-WPF.exe`. Der Installer entfernt die alte Datei und
+die alten Verknüpfungen *AUVC Capture*. Eine Verknüpfung, die du selbst an die
+Taskleiste angeheftet hast, zeigt noch auf die alte Datei: Hefte AUVC neu an.
+
 ## 9. Probleme lösen
 
 ### Einrichtung
@@ -374,8 +381,10 @@ nichts verloren.
 
 ### Log-Dateien
 
-Wenn du um Hilfe fragst, schick diese Dateien und die Ausgabe von `/au doctor`
-mit. Keins davon enthält den Token.
+Wenn du um Hilfe fragst, speichere über das Zahnrad unter **Fehlersuche →
+Diagnose exportieren** eine Zip-Datei und schick sie mit der Ausgabe von
+`/au doctor` mit. Die Zip enthält die Logs unten, mit geschwärzten Tokens und
+Kopplungscodes. Einzeln liegen die Logs hier; auch in ihnen steht nie der Token.
 
 | Datei | Was sie ist |
 | --- | --- |
@@ -411,7 +420,7 @@ auf einem Server, der immer an ist, kann sich AUVC stattdessen damit verbinden:
 2. In Discord führt ein Administrator `/au capture pair` aus und bekommt einen
    Code.
 3. Klicke in AUVC auf den Knopf mit dem Hinweis **Mit dem AUVC-Bot koppeln**, gib
-   die Adresse des Bots und den Code ein und klicke auf **Pair**.
+   die Adresse des Bots und den Code ein und klicke auf **Koppeln**.
 
 Releases enthalten nur die App. Wie der Bot allein läuft, steht in
 [development.md](development.md) (Englisch).

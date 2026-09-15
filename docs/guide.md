@@ -204,9 +204,9 @@ does it touch bots such as music bots.
 ## 5. Play
 
 1. Start AUVC. The line at the top of the main window always says what AUVC is
-   waiting for and what to do next, for example *Waiting for Among Us: Start
-   Among Us on this PC*. Once everything is in place it says *Ready* and how many
-   players in the lobby are linked.
+   waiting for, and below it what to do next, for example *Waiting for Among Us*
+   and *Start Among Us on this PC*. Once everything is in place it says *Ready*,
+   and below it how many players in the lobby are linked.
 2. Start Among Us. As soon as you are in a lobby, AUVC shows the players. Under
    each name it says whether the player is linked and whether AUVC has muted or
    deafened them or moved them into the ghost channel, for example *linked ·
@@ -270,7 +270,7 @@ Windows** goes back.
 | Debug | Export diagnostics | Saves a zip for whoever helps you: the app's and the bot's logs, the settings, the versions and the bot's checks. Tokens, credentials, pairing codes and your Windows user name in paths are blacked out; in-game names and Discord IDs stay. Nothing is sent anywhere |
 | Debug | Reload offsets | Reads the memory offsets again, including an `index.json` placed in `%AppData%\AmongUsCapture`. Offsets for a new Among Us version usually come with a newer AUVC version |
 | Debug | Reset Config | Deletes the app's settings and offers to restart. The bot token stays stored; run **Set up** again afterwards |
-| About | App version | The installed AUVC version, for example `0.1.2-beta` |
+| About | App version | The installed AUVC version, for example `0.1.4-beta` |
 | About | Latest version | A newer AUVC version, *Up to date*, or why it was not checked. On a pre-release you hear of newer pre-releases and releases; on a release, only of releases |
 
 Keyboard shortcuts in the main window: **F1** opens this guide, **Ctrl+L** opens
@@ -329,6 +329,11 @@ settings, token and links stay. Close AUVC first.
 **Portable.** Close AUVC, delete the old folder and unpack the new zip. Settings
 and data are not kept in that folder, so nothing is lost.
 
+**From `v0.1.3-beta` or older.** Since `v0.1.4-beta` the program file is
+`AUVC.exe` instead of `AUCapture-WPF.exe`. The installer removes the old file and
+the old *AUVC Capture* shortcuts. A shortcut you pinned to the taskbar yourself
+still points at the old file: pin AUVC again.
+
 ## 9. Troubleshooting
 
 ### Setup
@@ -362,8 +367,10 @@ and data are not kept in that folder, so nothing is lost.
 
 ### Log files
 
-If you ask for help, include these files and the output of `/au doctor`. Neither
-contains the token.
+If you ask for help, save a zip with the gear button under **Debug → Export
+diagnostics** and send it with the output of `/au doctor`. The zip holds the
+logs below, with tokens and pairing codes blacked out. On their own the logs are
+here; they never contain the token either.
 
 | File | What it is |
 | --- | --- |
