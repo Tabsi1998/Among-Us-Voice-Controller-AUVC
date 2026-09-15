@@ -746,15 +746,6 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Startup memes.
-        /// </summary>
-        public static string SettingsGeneralTabStartupMemes {
-            get {
-                return ResourceManager.GetString("SettingsGeneralTabStartupMemes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string SettingsHeader {

@@ -2,8 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Media;
-using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -51,22 +49,6 @@ namespace AUCapture_WPF
             LoggingConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
             NLog.LogManager.Configuration = LoggingConfig;
         }
-        public void PlaySound(string URL)
-        {
-            try
-            {
-                var req = WebRequest.Create(URL);
-                using Stream stream = req.GetResponse().GetResponseStream();
-                var myNewSound = new SoundPlayer(stream);
-                myNewSound.Load();
-                myNewSound.Play();
-            }
-            catch (Exception errrr)
-            {
-                Console.WriteLine("Minor error");
-            }
-        }
-
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -109,43 +91,10 @@ namespace AUCapture_WPF
                         "\\AmongUsCapture\\AmongUsGUI", "Settings.json")).Build();
             }
 
-            var r = new Random();
-            var rValue = r.Next(101);
-            var goingToPop = rValue == 1;
-            var goingToDouche = rValue == 2;
-            var goingToMonke = rValue == 3;
-            var Valentines = DateTime.UtcNow >= new DateTime(2021, 2, 7) && DateTime.UtcNow <= new DateTime(2021, 2, 20);
-            if (!config.startupMemes || (!goingToPop && !goingToDouche && !goingToMonke) || Valentines)
-            {
-                if (DateTime.Now.Month == 12)
-                {
-                    new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenChristmas.png").Show(true);
-                }
-                else if (Valentines)
-                {
-                    new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenLovely.png").Show(true);
-                }
-                else
-                {
-                    new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenNormal.png").Show(true);
-                }
-                //Console.WriteLine(string.Join(", ",Assembly.GetExecutingAssembly().GetManifestResourceNames())); //Gets all the embedded resources
-            }
-            else if (goingToPop)
-            {
-                new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenPop.png").Show(true);
-                PlaySound("https://cdn.automute.us/Eggs/popcat.wav");
-            }
-            else if (goingToDouche)
-            {
-                new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenDouche.png").Show(true);
-                PlaySound("https://cdn.automute.us/Eggs/douchebag.wav");
-            }
-            else
-            {
-                new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\SplashScreenMonke.png").Show(true);
-                PlaySound("https://cdn.automute.us/Eggs/stinky.wav");
-            }
+            // The splash screen ships with the app. The joke screens that fetched a
+            // sound from AutoMuteUs's server on start are gone (#138).
+            var splash = DateTime.Now.Month == 12 ? "SplashScreenChristmas.png" : "SplashScreenNormal.png";
+            new SplashScreen(Assembly.GetExecutingAssembly(), "SplashScreens\\" + splash).Show(true);
 
             var mainWindow = new MainWindow();
             this.MainWindow = mainWindow;

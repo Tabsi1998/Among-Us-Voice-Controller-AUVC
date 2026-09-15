@@ -190,11 +190,6 @@
                                                 OffContent="{l:Static properties:Resources.OffText}"
                                                 OnContent="{l:Static properties:Resources.OnText}" />
                                             <mah:ToggleSwitch
-                                                Header="{l:Static properties:Resources.SettingsGeneralTabStartupMemes}"
-                                                IsOn="{Binding Settings.startupMemes, Mode=TwoWay}"
-                                                OffContent="{l:Static properties:Resources.OffText}"
-                                                OnContent="{l:Static properties:Resources.OnText}" />
-                                            <mah:ToggleSwitch
                                                 Header="{l:Static properties:Resources.SettingsGeneralTabFocusOnConnect}"
                                                 IsOn="{Binding Settings.FocusOnToken, Mode=TwoWay}"
                                                 OffContent="{l:Static properties:Resources.OffText}"

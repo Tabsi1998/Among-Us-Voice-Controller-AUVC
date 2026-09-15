@@ -272,7 +272,6 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | --- | --- | --- |
 | Allgemein | Sprache | **Wie Windows**, **Deutsch** oder **English** |
 | Allgemein | Lobby-Code immer kopieren | Kopiert den Lobby-Code in die Zwischenablage, sobald du einer Lobby beitrittst |
-| Allgemein | Spaß-Startbildschirme | Zeigt ab und zu beim Start einen Spaß-Startbildschirm mit Ton. Der Ton wird vom Server des ursprünglichen AutoMuteUs geladen. Schalte das aus, wenn du das nicht willst |
 | Allgemein | Fenster beim Koppeln nach vorn holen | Holt das Fenster nach vorn, wenn ein Kopplungslink AUVC öffnet |
 | Allgemein | API-Server | Startet eine lokale Schnittstelle für Overlay-Programme. Lass sie aus, solange kein Programm sie braucht |
 | Allgemein | Immer im Vordergrund | Hält das AUVC-Fenster über anderen Fenstern |
