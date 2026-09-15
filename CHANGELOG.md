@@ -40,6 +40,10 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   A code the host hides stays hidden. The app now sends the lobby's code and map
   to the bot in an optional `lobby` field of the protocol, so an older bot or app
   keeps working with a newer one.
+- The crewmate message shows the original picture of the map
+  ([#110](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/110)).
+  The picture ships with the bot and is uploaded with the message only when the
+  map changes, not on every update.
 
 ### Removed
 

@@ -140,8 +140,9 @@ jeder Spieler einmal. Die Auswahl der Figur aus einem Menü gibt es ab
 Befehl** beschrieben.
 
 **Im Textkanal.** Sobald die App eine Lobby sieht, schreibt AUVC eine Nachricht in
-den Textkanal aus der Einrichtung. Sie zeigt Karte, Phase und Lobby-Code, außer
-der Host verbirgt ihn, dann jede Figur in der Lobby, wer schon
+den Textkanal aus der Einrichtung. Sie zeigt die Karte mit Name und
+Bild, die Phase und den Lobby-Code, außer der Host verbirgt ihn, dann jede Figur
+in der Lobby, wer schon
 welche gewählt hat, und ein Menü **Choose your crewmate**. Wähle dort deine
 Figur. Wählst du eine andere, wandert deine Verknüpfung mit; **Unlink me**
 entfernt sie. Die Antwort von AUVC siehst nur du.

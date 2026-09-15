@@ -121,6 +121,17 @@ func Images() ([]Image, error) {
 type Board struct {
 	Embed      *discordgo.MessageEmbed
 	Components []discordgo.MessageComponent
+	// Picture is the map picture the embed points at, which the message has to
+	// carry as a file. It is nil while the map is unknown.
+	Picture *Picture
+}
+
+// PictureName is the file name of the picture the board shows, or "".
+func (b Board) PictureName() string {
+	if b.Picture == nil {
+		return ""
+	}
+	return b.Picture.Name
 }
 
 // Key identifies what a board looks like. Two boards with the same key look
@@ -201,6 +212,10 @@ func Render(language text.Language, round Round, players []session.GamePlayer, o
 	unlink := language.Say(text.BoardUnlink)
 	embed.Description = strings.Join(lines, "\n")
 	embed.Fields = roundFields(language, round)
+	picture := mapPicture(round.Map)
+	if picture != nil {
+		embed.Thumbnail = &discordgo.MessageEmbedThumbnail{URL: "attachment://" + picture.Name}
+	}
 	embed.Footer = &discordgo.MessageEmbedFooter{Text: language.Say(text.BoardFooter, unlink)}
 
 	options = append(options, discordgo.SelectMenuOption{
@@ -211,7 +226,8 @@ func Render(language text.Language, round Round, players []session.GamePlayer, o
 	})
 
 	return Board{
-		Embed: embed,
+		Embed:   embed,
+		Picture: picture,
 		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{Components: []discordgo.MessageComponent{
 				discordgo.SelectMenu{
@@ -301,6 +317,38 @@ var mapNames = map[string]string{
 	protocol.MapDleks:    "dlekS",
 	protocol.MapAirship:  "The Airship",
 	protocol.MapFungle:   "The Fungle",
+}
+
+// mapPlays tie each map name to the game's map, whose original picture ships
+// with the bot.
+var mapPlays = map[string]game.PlayMap{
+	protocol.MapTheSkeld: game.SKELD,
+	protocol.MapMiraHQ:   game.MIRA,
+	protocol.MapPolus:    game.POLUS,
+	protocol.MapDleks:    game.DLEKS,
+	protocol.MapAirship:  game.AIRSHIP,
+	protocol.MapFungle:   game.FUNGLE,
+}
+
+// Picture is the picture of a map a board shows. Rendering only names it; the
+// bot reads the file when it has to upload it, which is once per map rather
+// than once per edit.
+type Picture struct {
+	Name string
+	Map  game.PlayMap
+}
+
+// mapPicture is the picture of a map, or nil for a map without one.
+func mapPicture(name string) *Picture {
+	playMap, ok := mapPlays[name]
+	if !ok {
+		return nil
+	}
+	file := game.MapFileName(playMap, false)
+	if file == "" {
+		return nil
+	}
+	return &Picture{Name: file, Map: playMap}
 }
 
 // phaseNames name the phases a board can be shown in.

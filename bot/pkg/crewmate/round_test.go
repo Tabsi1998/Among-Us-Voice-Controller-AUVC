@@ -66,6 +66,47 @@ func TestNothingKnownShowsNoFields(t *testing.T) {
 	}
 }
 
+func TestTheBoardPointsAtThePictureOfTheMap(t *testing.T) {
+	board := Render(text.English, Round{Phase: game.LOBBY, Map: protocol.MapPolus}, aLobby, nil, nil)
+
+	if board.Picture == nil || *board.Picture != (Picture{Name: "polus.png", Map: game.POLUS}) {
+		t.Fatalf("picture %+v, want polus.png", board.Picture)
+	}
+	if board.Embed.Thumbnail == nil || board.Embed.Thumbnail.URL != "attachment://polus.png" {
+		t.Errorf("the embed points at %+v, want the attached picture", board.Embed.Thumbnail)
+	}
+}
+
+// Without a known map there is no picture, and the embed must not point at a
+// file the message does not carry.
+func TestNoKnownMapShowsNoPicture(t *testing.T) {
+	for name, board := range map[string]Board{
+		"unknown map": Render(text.English, Round{Phase: game.LOBBY, Map: "a_map_from_the_future"}, aLobby, nil, nil),
+		"no map":      Render(text.English, Round{Phase: game.LOBBY}, aLobby, nil, nil),
+		"empty lobby": Render(text.English, Round{Phase: game.LOBBY, Map: protocol.MapPolus}, nil, nil, nil),
+	} {
+		if board.Picture != nil || board.Embed.Thumbnail != nil || board.PictureName() != "" {
+			t.Errorf("%s: picture %+v, thumbnail %+v", name, board.Picture, board.Embed.Thumbnail)
+		}
+	}
+}
+
+// Every map capture can report has its original picture bundled, under the
+// name the board points at.
+func TestEveryProtocolMapHasABundledPicture(t *testing.T) {
+	for _, name := range protocol.Maps {
+		picture := mapPicture(name)
+		if picture == nil {
+			t.Errorf("%s has no picture", name)
+			continue
+		}
+		file, data, ok := game.MapImage(picture.Map, false)
+		if !ok || file != picture.Name || len(data) == 0 {
+			t.Errorf("%s: bundled %q (%d bytes, %t), board points at %q", name, file, len(data), ok, picture.Name)
+		}
+	}
+}
+
 func fieldsOf(board Board) []string {
 	var fields []string
 	for _, field := range board.Embed.Fields {

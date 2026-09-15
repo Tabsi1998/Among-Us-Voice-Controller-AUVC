@@ -132,8 +132,9 @@ it once. Choosing a crewmate from a menu is new in `v0.1.1-beta`; with
 `v0.1.0-beta`, type your name as described under **With a command**.
 
 **In the text channel.** As soon as the app sees a lobby, AUVC posts a message in
-the text channel chosen during setup. It shows the map, the phase and the lobby
-code, unless the host hides it, then every crewmate in the lobby, who
+the text channel chosen during setup. It shows the map by name and
+picture, the phase and the lobby code, unless the host hides it, then every
+crewmate in the lobby, who
 has already picked which one, and a menu **Choose your crewmate**. Pick your own
 figure there. Picking another one moves your link, and **Unlink me** removes it.
 Only you see AUVC's answer.
