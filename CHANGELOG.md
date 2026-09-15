@@ -30,6 +30,11 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   no connection, Among Us not started, no lobby, a paused session, a round AUVC
   does not manage, or nobody linked. Once everything is in place it says
   *Ready*, with how many players in the lobby are linked.
+- Under each player's name the app shows whether the player is linked and
+  whether AUVC has muted or deafened them or moved them into the ghost channel
+  ([#21](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/21)).
+  It shows what AUVC actually set, so a mute that failed is not shown as done.
+  With a bot on another computer the line stays empty.
 
 ### Removed
 

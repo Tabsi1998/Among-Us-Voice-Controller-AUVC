@@ -281,6 +281,22 @@ func (bot *Bot) voiceChannels(guildID string) voice.Config {
 	return config
 }
 
+// VoiceHoldOf reports what AUVC holds on a member right now: a server mute, a
+// server deafen, a move into the ghost channel. It is empty for a member AUVC
+// has left alone, and for a bot that does not record holds.
+func (bot *Bot) VoiceHoldOf(guildID, userID string) sqlite.VoiceHold {
+	empty := sqlite.VoiceHold{GuildID: guildID, UserID: userID}
+	if bot.holdStore == nil || userID == "" {
+		return empty
+	}
+	hold, err := bot.holdStore.VoiceHold(guildID, userID)
+	if err != nil {
+		log.Printf("Could not read what AUVC holds on member %s in guild %s: %v", userID, guildID, err)
+		return empty
+	}
+	return hold
+}
+
 func describeHold(hold sqlite.VoiceHold) string {
 	var parts []string
 	if hold.Muted {

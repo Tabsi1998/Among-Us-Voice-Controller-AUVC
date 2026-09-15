@@ -249,6 +249,38 @@ func TestTheAppSeesTheLobbyAndWhomItCanLink(t *testing.T) {
 	}
 }
 
+// The app shows on each tile whether AUVC has muted, deafened or moved the
+// linked member, so it is told what AUVC holds on them.
+func TestTheAppSeesWhatAUVCHoldsOnEachLinkedCrewmate(t *testing.T) {
+	fixture := newLocalFixture(t)
+	if err := fixture.controller.AttachVoiceHolds(fixture.db); err != nil {
+		t.Fatalf("attach voice holds: %v", err)
+	}
+	fixture.lobby(t, protocol.Player{Name: "Alice", Color: 0}, protocol.Player{Name: "Bob", Color: 1})
+	if err := fixture.db.SaveLink(localGuild, "Alice", "member-red"); err != nil {
+		t.Fatalf("link: %v", err)
+	}
+	if err := fixture.db.SaveVoiceHold(sqlite.VoiceHold{
+		// Deliberately not all alike, so no field can pass for another.
+		GuildID: localGuild, UserID: "member-red", Muted: true, Deafened: false, GhostChannelID: "voice-ghosts",
+	}); err != nil {
+		t.Fatalf("hold: %v", err)
+	}
+
+	crewmates, err := fixture.backend.Crewmates(localGuild)
+	if err != nil {
+		t.Fatalf("crewmates: %v", err)
+	}
+
+	want := []localcontrol.Crewmate{
+		{Name: "Alice", Color: "red", UserID: "member-red", Muted: true, Deafened: false, InGhostChannel: true},
+		{Name: "Bob", Color: "blue"},
+	}
+	if !reflect.DeepEqual(crewmates.Players, want) {
+		t.Errorf("players %+v, want %+v", crewmates.Players, want)
+	}
+}
+
 func TestTheAppLinksAndUnlinksACrewmate(t *testing.T) {
 	fixture := newLocalFixture(t)
 	fixture.lobby(t, protocol.Player{Name: "Alice", Color: 0})

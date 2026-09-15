@@ -130,6 +130,11 @@ type Crewmate struct {
 	Name   string `json:"name"`
 	Color  string `json:"color"`
 	UserID string `json:"user_id"`
+	// Muted, Deafened and InGhostChannel are what AUVC holds on the linked member
+	// right now. All are false for a crewmate nobody is linked to.
+	Muted          bool `json:"muted"`
+	Deafened       bool `json:"deafened"`
+	InGhostChannel bool `json:"in_ghost_channel"`
 }
 
 // Member is a Discord member the app can link a crewmate to.

@@ -180,7 +180,10 @@ verschiebt sie nie. Bots wie Musik-Bots fasst es ebenfalls nicht an.
    und was als Nächstes zu tun ist, zum Beispiel *Warte auf Among Us: Starte
    Among Us auf diesem PC*. Passt alles, steht dort *Bereit* und wie viele
    Spieler der Lobby verknüpft sind.
-2. Starte Among Us. Sobald du in einer Lobby bist, zeigt AUVC die Spieler.
+2. Starte Among Us. Sobald du in einer Lobby bist, zeigt AUVC die Spieler. Unter
+   jedem Namen steht, ob der Spieler verknüpft ist und ob AUVC ihn stumm oder
+   taub geschaltet oder in den Geisterkanal verschoben hat, zum Beispiel
+   *verknüpft · stumm · taub*.
 3. Alle gehen in den Hauptkanal.
 
 Ab dann folgt AUVC dem Spiel von selbst:

@@ -173,6 +173,7 @@ namespace AUCapture_WPF
             Translator.Culture = language;
             UpdateSetupButton();
             UpdateStatus();
+            UpdateBadges();
         }
 
         // What the status line knows beyond the window's own state: the link as it
@@ -181,6 +182,7 @@ namespace AUCapture_WPF
         private LocalGuild localGuild;
         private int? lobbyPlayers;
         private int? linkedPlayers;
+        private IReadOnlyDictionary<string, LocalCrewmate> crewmatesByName;
         private bool polling;
         private readonly DispatcherTimer statusPoll = new() { Interval = TimeSpan.FromSeconds(5) };
 
@@ -224,7 +226,7 @@ namespace AUCapture_WPF
                 var guildId = context.Settings.botGuildId;
                 if (!context.Settings.runBotOnThisPc || !LocalBot.IsRunning || control is null || string.IsNullOrEmpty(guildId))
                 {
-                    (localGuild, lobbyPlayers, linkedPlayers) = (null, null, null);
+                    (localGuild, lobbyPlayers, linkedPlayers, crewmatesByName) = (null, null, null, null);
                 }
                 else
                 {
@@ -234,18 +236,32 @@ namespace AUCapture_WPF
                         var crewmates = await control.GetCrewmatesAsync(guildId);
                         lobbyPlayers = crewmates.Players.Count;
                         linkedPlayers = crewmates.Players.Count(player => !string.IsNullOrEmpty(player.UserId));
+                        crewmatesByName = PlayerBadges.ByName(crewmates.Players);
                     }
                     catch (Exception error) when (error is LocalControlException or System.Net.Http.HttpRequestException
                                                       or TaskCanceledException)
                     {
-                        (localGuild, lobbyPlayers, linkedPlayers) = (null, null, null);
+                        (localGuild, lobbyPlayers, linkedPlayers, crewmatesByName) = (null, null, null, null);
                     }
                 }
                 UpdateStatus();
+                UpdateBadges();
             }
             finally
             {
                 polling = false;
+            }
+        }
+
+        // Each tile says who plays that crewmate and what AUVC does to them, as the
+        // last poll found it.
+        private void UpdateBadges()
+        {
+            foreach (var player in context.Players)
+            {
+                LocalCrewmate crewmate = null;
+                crewmatesByName?.TryGetValue(player.Name, out crewmate);
+                player.Badges = PlayerBadgeText.For(PlayerBadges.For(crewmate));
             }
         }
 
@@ -256,6 +272,8 @@ namespace AUCapture_WPF
             context.PlayerCols = (int)Math.Ceiling(context.Players.Count / Math.Ceiling(Math.Sqrt(context.Players.Count)));
             Trace.WriteLine(context.PlayerCols);
             Trace.WriteLine(context.PlayerRows);
+            // A player who joins gets their badges now, not at the next poll.
+            UpdateBadges();
         }
 
         private void OnPlayerCosmeticChanged(object? sender, PlayerCosmeticChangedEventArgs e)

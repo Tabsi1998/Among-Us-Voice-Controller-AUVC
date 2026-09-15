@@ -61,6 +61,51 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to deafened.
+        /// </summary>
+        public static string BadgeDeafened {
+            get {
+                return ResourceManager.GetString("BadgeDeafened", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ghost channel.
+        /// </summary>
+        public static string BadgeInGhostChannel {
+            get {
+                return ResourceManager.GetString("BadgeInGhostChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to linked.
+        /// </summary>
+        public static string BadgeLinked {
+            get {
+                return ResourceManager.GetString("BadgeLinked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to muted.
+        /// </summary>
+        public static string BadgeMuted {
+            get {
+                return ResourceManager.GetString("BadgeMuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not linked.
+        /// </summary>
+        public static string BadgeNotLinked {
+            get {
+                return ResourceManager.GetString("BadgeNotLinked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Install the capture version that matches the bot..
         /// </summary>
         public static string CaptureRefusedIncompatible {

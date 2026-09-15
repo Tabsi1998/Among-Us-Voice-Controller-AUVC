@@ -171,7 +171,10 @@ does it touch bots such as music bots.
    waiting for and what to do next, for example *Waiting for Among Us: Start
    Among Us on this PC*. Once everything is in place it says *Ready* and how many
    players in the lobby are linked.
-2. Start Among Us. As soon as you are in a lobby, AUVC shows the players.
+2. Start Among Us. As soon as you are in a lobby, AUVC shows the players. Under
+   each name it says whether the player is linked and whether AUVC has muted or
+   deafened them or moved them into the ghost channel, for example *linked ·
+   muted · deafened*.
 3. Everyone joins the main voice channel.
 
 From then on AUVC follows the game on its own:
