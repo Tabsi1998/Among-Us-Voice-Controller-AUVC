@@ -844,15 +844,6 @@ namespace AUCapture_WPF
             //TestUsers();
         }
 
-        public void PlayGotEm()
-        {
-            this.BeginInvoke(win =>
-            {
-                //win.MemeFlyout.IsOpen = true;
-                //win.MemePlayer.Position = TimeSpan.Zero;
-            });
-        }
-
         private async void MainWindow_OnContentRendered(object? sender, EventArgs e)
         {
             //TestFillConsole(10);
@@ -861,10 +852,6 @@ namespace AUCapture_WPF
             SetDefaultThemeColor();
 
             ApplyDarkMode();
-            if (!config.startupMemes)
-            {
-                Logger.Info("Meme Module disabled :(");
-            }
 
             await StartLocalBotOrOfferSetupAsync();
         }
@@ -874,39 +861,6 @@ namespace AUCapture_WPF
             await PairAsync(Host.Text, Code.Text);
         }
 
-        private void MemePlayer_OnMediaEnded(object sender, RoutedEventArgs e)
-        {
-            this.BeginInvoke(win =>
-            {
-                //win.MemeFlyout.IsOpen = false;
-            });
-        }
-
-        //private void MemeFlyout_OnIsOpenChanged(object sender, RoutedEventArgs e)
-        //{
-        //if (MemeFlyout.IsOpen)
-        //{
-        //    MemePlayer.Play();
-        //    Task.Factory.StartNew(() =>
-        //   {
-        //       Thread.Sleep(5000);
-        //        MemeFlyout.Invoke(new Action(() =>
-        //        {
-        //            if (MemeFlyout.IsOpen)
-        //             {
-        //                 MemeFlyout.CloseButtonVisibility = Visibility.Visible;
-        //             }
-        //        }));
-        //
-        //      });
-        // }
-        // else
-        // {
-        //    MemeFlyout.CloseButtonVisibility = Visibility.Hidden;
-        //    MemePlayer.Close();
-        //    GC.Collect();
-        // }
-        //}
         private async void ReloadOffsetsButton_OnClick(object sender, RoutedEventArgs e)
         {
             GameMemReader.getInstance().offMan.refreshLocal();

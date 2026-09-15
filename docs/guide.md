@@ -261,7 +261,6 @@ Windows** goes back.
 | --- | --- | --- |
 | General | Language | **Same as Windows**, **Deutsch** or **English** |
 | General | Always copy game code | Copies the lobby code to the clipboard whenever you join a lobby |
-| General | Startup memes | Now and then shows a joke splash screen with a sound on start. The sound is downloaded from the original AutoMuteUs server; switch this off if you do not want that |
 | General | Focus window on connect | Brings the window to the front when a pairing link opens AUVC |
 | General | API Server | Starts a local interface for overlay tools. Leave it off unless a tool asks for it |
 | General | Always on top | Keeps the AUVC window above other windows |

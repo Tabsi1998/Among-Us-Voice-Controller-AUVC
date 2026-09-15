@@ -30,6 +30,15 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - While AUVC cannot read the running Among Us version, it checks again once a
   second instead of without pause.
 
+### Removed
+
+- The joke splash screens and **Settings → General → Startup memes**
+  ([#138](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/138)).
+  Now and then they showed a meme on start and downloaded a sound for it from
+  AutoMuteUs's server. The app now starts with its own splash screen only, and
+  makes no request to AutoMuteUs when it starts. A saved setting from an earlier
+  version is ignored.
+
 ## v0.1.3-beta — 2026-09-15
 
 The fourth pre-release. App and bot speak German, the app says in one line what

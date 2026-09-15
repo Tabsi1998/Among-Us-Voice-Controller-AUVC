@@ -134,9 +134,6 @@
   <data name="SettingsGeneralTabAlwaysOnTop" xml:space="preserve">
     <value>Always on top</value>
   </data>
-  <data name="SettingsGeneralTabStartupMemes" xml:space="preserve">
-    <value>Startup memes</value>
-  </data>
   <data name="SettingsGeneralTabCheckForUpdate" xml:space="preserve">
     <value>Check for new versions</value>
   </data>
