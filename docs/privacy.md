@@ -47,7 +47,8 @@ codes and credentials are kept only as hashes.
 and who disconnected. It is gone when AUVC closes.
 
 **Shown in Discord:** while AUVC runs, the crewmate message in your text channel
-lists the in-game names and colours of the lobby and which members picked them.
+lists the map, the phase and the lobby code, the in-game names and colours of the
+lobby and which members picked them. A lobby code the host hides stays hidden.
 Everyone who can read that channel sees it. It is deleted when AUVC closes.
 
 The app reads the memory of the Among Us process to find the game phase and the

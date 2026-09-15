@@ -85,12 +85,12 @@ public sealed class CaptureSession
     /// was already running from incremental events, so it refuses them until a
     /// snapshot arrives.
     /// </remarks>
-    public Snapshot Snapshot(string phase, IReadOnlyList<Player> players)
+    public Snapshot Snapshot(string phase, IReadOnlyList<Player> players, Lobby? lobby = null)
     {
         RequireOpenSession();
 
         _snapshotSent = true;
-        return new Snapshot { Session = _session, Seq = Next(), Phase = phase, Players = players };
+        return new Snapshot { Session = _session, Seq = Next(), Phase = phase, Players = players, Lobby = lobby };
     }
 
     public Heartbeat Heartbeat()
@@ -99,10 +99,10 @@ public sealed class CaptureSession
         return new Heartbeat { Session = _session, Seq = Next() };
     }
 
-    public GameStateChanged PhaseChanged(string phase)
+    public GameStateChanged PhaseChanged(string phase, Lobby? lobby = null)
     {
         RequireEvent();
-        return new GameStateChanged { Session = _session, Seq = Next(), Phase = phase };
+        return new GameStateChanged { Session = _session, Seq = Next(), Phase = phase, Lobby = lobby };
     }
 
     public PlayerJoined PlayerJoined(Player player)

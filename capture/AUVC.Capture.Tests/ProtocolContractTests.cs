@@ -139,6 +139,38 @@ namespace AUVC.Capture.Tests
             Assert.Equal(ProtocolContract.Version, hello.Protocol);
         }
 
+        /// <summary>
+        /// The lobby code is posted in a Discord channel, so capture refuses to send
+        /// anything that is not a code the game uses, as the bot would.
+        /// </summary>
+        [Theory]
+        [InlineData("ABCD", true)]
+        [InlineData("ABCDEF", true)]
+        [InlineData("******", true)]
+        [InlineData("", true)]
+        [InlineData("abcd", false)]
+        [InlineData("ABCDE", false)]
+        [InlineData("<b>hi</b>", false)]
+        public void OnlyALobbyCodeTheGameUsesIsSent(string code, bool valid)
+        {
+            var lobby = new Lobby { Code = code, Map = ProtocolContract.MapPolus };
+
+            Assert.Equal(valid, MessageValidator.Refusal(new GameStateChanged
+            {
+                Session = "s",
+                Seq = 1,
+                Phase = ProtocolContract.PhaseLobby,
+                Lobby = lobby,
+            }) is null);
+            Assert.Equal(valid, MessageValidator.Refusal(new Snapshot
+            {
+                Session = "s",
+                Seq = 1,
+                Phase = ProtocolContract.PhaseLobby,
+                Lobby = lobby,
+            }) is null);
+        }
+
         [Fact]
         public void AnUnknownMessageTypeIsRefusedRatherThanIgnored()
         {

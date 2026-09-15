@@ -287,6 +287,53 @@ namespace AUVC.Capture.Tests
         }
 
         /// <summary>
+        /// The game reads the lobby code and map only after the phase changed, so
+        /// joining a lobby is sent as a change into the same phase. Every later
+        /// phase change carries the lobby, the same lobby twice is sent once, and
+        /// the menu leaves it behind.
+        /// </summary>
+        [Fact]
+        public async Task TheLobbyTravelsWithThePhaseAndStaysBehindInTheMenu()
+        {
+            var bot = new FakeBot();
+            await using var link = NewLink(bot, Paired());
+            link.Start();
+            var channel = await bot.AcceptAsync();
+            await HandshakeAsync(channel);
+
+            var lobby = new Lobby { Code = "ABCDEF", Map = ProtocolContract.MapPolus };
+            link.ReportPhase(ProtocolContract.PhaseLobby);
+            link.ReportLobby(lobby);
+            link.ReportLobby(lobby);
+            link.ReportPhase(ProtocolContract.PhaseTasks);
+            link.ReportPhase(ProtocolContract.PhaseMenu);
+
+            var entered = Assert.IsType<GameStateChanged>(await channel.NextAsync());
+            Assert.Equal((ProtocolContract.PhaseLobby, (Lobby?)null), (entered.Phase, entered.Lobby));
+            var joined = Assert.IsType<GameStateChanged>(await channel.NextAsync());
+            Assert.Equal((ProtocolContract.PhaseLobby, (Lobby?)lobby), (joined.Phase, joined.Lobby));
+            var tasks = Assert.IsType<GameStateChanged>(await channel.NextAsync());
+            Assert.Equal((ProtocolContract.PhaseTasks, (Lobby?)lobby), (tasks.Phase, tasks.Lobby));
+            var menu = Assert.IsType<GameStateChanged>(await channel.NextAsync());
+            Assert.Equal((ProtocolContract.PhaseMenu, (Lobby?)null), (menu.Phase, menu.Lobby));
+        }
+
+        [Fact]
+        public async Task ASnapshotCarriesTheLobby()
+        {
+            var bot = new FakeBot();
+            await using var link = NewLink(bot, Paired());
+            var lobby = new Lobby { Code = "ABCD", Map = ProtocolContract.MapFungle };
+            link.ReportPhase(ProtocolContract.PhaseLobby);
+            link.ReportLobby(lobby);
+            link.Start();
+
+            var sent = await HandshakeAsync(await bot.AcceptAsync());
+
+            Assert.Equal(lobby, Assert.IsType<Snapshot>(sent[2]).Lobby);
+        }
+
+        /// <summary>
         /// Reconnecting is a new session from the bot's point of view, and what
         /// happened while capture was away has to arrive in its snapshot.
         /// </summary>

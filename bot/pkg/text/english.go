@@ -247,4 +247,8 @@ var english = map[Key]string{
 	NoticeReleased:        "Everyone has been unmuted and returned to the main channel.",
 	NoticeResumesOnItsOwn: "The session is paused and resumes on its own when capture comes back.",
 	NoticeCaptureBack:     "✅ The capture app is back. AUVC is following the game again.",
+
+	BoardMap:   "Map",
+	BoardPhase: "Phase",
+	BoardCode:  "Lobby code",
 }

@@ -33,6 +33,7 @@ type GamePlayer struct {
 type Live struct {
 	phase   game.Phase
 	players map[string]GamePlayer
+	lobby   Lobby
 }
 
 // NewLive returns an empty session, before any snapshot has arrived.

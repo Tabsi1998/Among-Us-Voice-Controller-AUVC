@@ -85,11 +85,11 @@ func TestEveryColourHasAnAliveAndADeadPicture(t *testing.T) {
 func TestAnUnannouncedDeathLooksExactlyLikeALivingPlayer(t *testing.T) {
 	owners := map[string]string{"Alice": "user-a"}
 
-	alive := Render(text.English, []session.GamePlayer{
+	alive := Render(text.English, Round{}, []session.GamePlayer{
 		{Name: "Alice", Color: game.Red, Alive: true},
 		{Name: "Bob", Color: game.Blue, Alive: true},
 	}, owners, uploaded)
-	killed := Render(text.English, []session.GamePlayer{
+	killed := Render(text.English, Round{}, []session.GamePlayer{
 		{Name: "Alice", Color: game.Red, Alive: false, Revealed: false},
 		{Name: "Bob", Color: game.Blue, Alive: true},
 	}, owners, uploaded)
@@ -100,7 +100,7 @@ func TestAnUnannouncedDeathLooksExactlyLikeALivingPlayer(t *testing.T) {
 }
 
 func TestAnAnnouncedDeathShowsTheGhost(t *testing.T) {
-	board := Render(text.English, []session.GamePlayer{
+	board := Render(text.English, Round{}, []session.GamePlayer{
 		{Name: "Alice", Color: game.Red, Alive: false, Revealed: true},
 	}, nil, uploaded)
 
@@ -113,7 +113,7 @@ func TestAnAnnouncedDeathShowsTheGhost(t *testing.T) {
 }
 
 func TestTheBoardSaysWhoIsWhoAndWhatIsFree(t *testing.T) {
-	board := Render(text.English, []session.GamePlayer{
+	board := Render(text.English, Round{}, []session.GamePlayer{
 		{Name: "Bob", Color: game.Blue, Alive: true},
 		{Name: "Alice", Color: game.Red, Alive: true},
 	}, map[string]string{"Alice": "user-a"}, uploaded)
@@ -140,7 +140,7 @@ func TestTheBoardSaysWhoIsWhoAndWhatIsFree(t *testing.T) {
 }
 
 func TestADisconnectedPlayerIsNotOffered(t *testing.T) {
-	board := Render(text.English, []session.GamePlayer{
+	board := Render(text.English, Round{}, []session.GamePlayer{
 		{Name: "Alice", Color: game.Red, Alive: true},
 		{Name: "Gone", Color: game.Blue, Alive: true, Disconnected: true},
 	}, nil, uploaded)
@@ -156,7 +156,7 @@ func TestADisconnectedPlayerIsNotOffered(t *testing.T) {
 }
 
 func TestAnEmptyLobbyHasNoMenu(t *testing.T) {
-	board := Render(text.English, nil, nil, uploaded)
+	board := Render(text.English, Round{}, nil, nil, uploaded)
 
 	if len(board.Components) != 0 {
 		t.Errorf("Discord refuses a menu without options, got %+v", board.Components)
@@ -169,7 +169,7 @@ func TestAnEmptyLobbyHasNoMenu(t *testing.T) {
 // The pictures are uploaded in the background. Until they are, the board must
 // still work rather than refer to emojis Discord does not know.
 func TestTheBoardWorksBeforeThePicturesAreUploaded(t *testing.T) {
-	board := Render(text.English, []session.GamePlayer{{Name: "Alice", Color: game.Red, Alive: true}}, nil, nil)
+	board := Render(text.English, Round{}, []session.GamePlayer{{Name: "Alice", Color: game.Red, Alive: true}}, nil, nil)
 
 	if strings.Contains(board.Embed.Description, "<:") {
 		t.Errorf("the board refers to an emoji that does not exist yet: %s", board.Embed.Description)
@@ -185,7 +185,7 @@ func TestTheMenuStaysWithinDiscordsLimit(t *testing.T) {
 		players = append(players, session.GamePlayer{Name: strings.Repeat("x", i+1), Color: i % 18, Alive: true})
 	}
 
-	options := menuOf(t, Render(text.English, players, nil, nil)).Options
+	options := menuOf(t, Render(text.English, Round{}, players, nil, nil)).Options
 	if len(options) != maxOptions {
 		t.Fatalf("got %d options, want %d", len(options), maxOptions)
 	}
@@ -195,7 +195,7 @@ func TestTheMenuStaysWithinDiscordsLimit(t *testing.T) {
 }
 
 func TestEveryOfferedChoiceReadsBackAsThatPlayer(t *testing.T) {
-	board := Render(text.English, []session.GamePlayer{
+	board := Render(text.English, Round{}, []session.GamePlayer{
 		{Name: "Alice", Color: game.Red, Alive: true},
 		{Name: "player:odd", Color: game.Blue, Alive: true},
 	}, nil, nil)
@@ -225,7 +225,7 @@ func TestEveryOfferedChoiceReadsBackAsThatPlayer(t *testing.T) {
 }
 
 func TestANameCannotFormatTheBoard(t *testing.T) {
-	board := Render(text.English, []session.GamePlayer{{Name: "**@everyone**", Color: game.Red, Alive: true}}, nil, nil)
+	board := Render(text.English, Round{}, []session.GamePlayer{{Name: "**@everyone**", Color: game.Red, Alive: true}}, nil, nil)
 
 	if strings.Contains(board.Embed.Description, "**@everyone**") {
 		t.Errorf("the name was not escaped: %s", board.Embed.Description)

@@ -101,6 +101,47 @@ type Player struct {
 	Disconnected bool   `json:"disconnected"`
 }
 
+// Lobby is the lobby capture is in: its code and its map. It travels on a
+// snapshot and on a phase change, and is left out while capture knows neither.
+type Lobby struct {
+	// Code is the lobby code, or six asterisks when the host hides it.
+	Code string `json:"code"`
+	// Map is one of Maps, or a map this build does not know yet.
+	Map string `json:"map"`
+}
+
+// Map names as they travel on the wire. A map this build does not know is
+// ignored rather than refused, so a newer capture keeps working with an older
+// bot.
+const (
+	MapTheSkeld = "the_skeld"
+	MapMiraHQ   = "mira_hq"
+	MapPolus    = "polus"
+	MapDleks    = "dleks"
+	MapAirship  = "airship"
+	MapFungle   = "fungle"
+)
+
+// Maps lists every map name the contract defines.
+var Maps = []string{MapTheSkeld, MapMiraHQ, MapPolus, MapDleks, MapAirship, MapFungle}
+
+// IsLobbyCode reports whether a code is one the game uses: four or six capital
+// letters, or six asterisks when the host hides it.
+func IsLobbyCode(code string) bool {
+	if code == "******" {
+		return true
+	}
+	if len(code) != 4 && len(code) != 6 {
+		return false
+	}
+	for _, letter := range code {
+		if letter < 'A' || letter > 'Z' {
+			return false
+		}
+	}
+	return true
+}
+
 // Header is carried by every message.
 //
 // Session travels on every message rather than only on hello. That makes the
@@ -151,12 +192,17 @@ type Snapshot struct {
 	Header
 	Phase   Phase    `json:"phase"`
 	Players []Player `json:"players"`
+	Lobby   *Lobby   `json:"lobby,omitempty"`
 }
 
 // GameStateChanged reports a phase transition.
 type GameStateChanged struct {
 	Header
 	Phase Phase `json:"phase"`
+	// Lobby comes along once capture has read it. The game reads it only after
+	// the phase has changed, so joining a lobby arrives as a change into the
+	// phase capture is already in.
+	Lobby *Lobby `json:"lobby,omitempty"`
 }
 
 // PlayerJoined reports a player entering the lobby.

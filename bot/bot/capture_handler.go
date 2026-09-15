@@ -163,6 +163,16 @@ func (c *CaptureSessions) Snapshot(guildID string) (Mode, game.Phase, []session.
 	return guild.mode, guild.live.Phase(), guild.live.Players()
 }
 
+// Lobby returns the lobby a guild's session is in, for the crewmate board.
+func (c *CaptureSessions) Lobby(guildID string) session.Lobby {
+	guild := c.forGuild(guildID)
+
+	guild.mu.Lock()
+	defer guild.mu.Unlock()
+
+	return guild.live.Lobby()
+}
+
 // HandleCapture applies one accepted protocol message and brings Discord voice
 // into line with the result.
 //
@@ -230,6 +240,7 @@ func applyCaptureMessage(live *session.Live, message protocol.Message) (bool, er
 			players = append(players, playerFromProtocol(player))
 		}
 		live.Reset(phase, players)
+		live.SetLobby(lobbyFromProtocol(typed.Lobby))
 		return true, nil
 
 	case *protocol.GameStateChanged:
@@ -237,7 +248,11 @@ func applyCaptureMessage(live *session.Live, message protocol.Message) (bool, er
 		if !ok {
 			return false, fmt.Errorf("capture reported unknown phase %q", typed.Phase)
 		}
-		return live.SetPhase(phase), nil
+		phaseChanged := live.SetPhase(phase)
+		// Joining a lobby arrives as a change into the same phase. It changes
+		// nothing for voice, but it redraws the crewmate board.
+		lobbyChanged := live.SetLobby(lobbyFromProtocol(typed.Lobby))
+		return phaseChanged || lobbyChanged, nil
 
 	case *protocol.PlayerJoined:
 		live.Upsert(playerFromProtocol(typed.Player))
@@ -266,6 +281,15 @@ func applyCaptureMessage(live *session.Live, message protocol.Message) (bool, er
 	default:
 		return false, nil
 	}
+}
+
+// lobbyFromProtocol is the lobby a message carries. A message without one, as
+// every message from an older capture is, means capture knows no lobby.
+func lobbyFromProtocol(lobby *protocol.Lobby) session.Lobby {
+	if lobby == nil {
+		return session.Lobby{}
+	}
+	return session.Lobby{Code: lobby.Code, Map: lobby.Map}
 }
 
 // reconcileCaptureSession projects the session, asks the voice policy what it

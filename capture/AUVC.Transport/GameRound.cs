@@ -25,6 +25,21 @@ public sealed class GameRound
     public IReadOnlyList<Player> Players =>
         _players.Values.OrderBy(player => player.Name, StringComparer.Ordinal).ToList();
 
+    /// <summary>The lobby capture last read, or null outside a lobby or before it was read.</summary>
+    public Lobby? Lobby { get; private set; }
+
+    /// <summary>Records the lobby and reports whether it changed.</summary>
+    public bool SetLobby(Lobby lobby)
+    {
+        if (Lobby == lobby)
+        {
+            return false;
+        }
+
+        Lobby = lobby;
+        return true;
+    }
+
     /// <summary>Records a phase and reports whether it changed.</summary>
     public bool SetPhase(string phase)
     {
@@ -45,6 +60,11 @@ public sealed class GameRound
         if (phase is ProtocolContract.PhaseLobby or ProtocolContract.PhaseMenu)
         {
             Revive();
+        }
+        // The menu is outside any lobby; the next lobby reports its own code and map.
+        if (phase == ProtocolContract.PhaseMenu)
+        {
+            Lobby = null;
         }
         return true;
     }

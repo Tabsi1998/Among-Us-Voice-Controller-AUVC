@@ -35,6 +35,48 @@ func TestEveryProtocolPhaseIsUnderstood(t *testing.T) {
 	}
 }
 
+// The game reads the lobby only after the phase changed, so capture reports
+// joining a lobby as a change into the same phase. That has to count as a
+// change, because it is what redraws the crewmate board.
+func TestALobbyAloneIsAChange(t *testing.T) {
+	live := session.NewLive()
+	header := protocol.Header{Protocol: protocol.Version, Type: protocol.TypeGameStateChanged, Session: "s", Seq: 1}
+	polus := &protocol.Lobby{Code: "ABCDEF", Map: protocol.MapPolus}
+
+	if !apply(t, live, &protocol.GameStateChanged{Header: header, Phase: protocol.PhaseTasks}) {
+		t.Fatal("entering tasks changed nothing")
+	}
+	if !apply(t, live, &protocol.GameStateChanged{Header: header, Phase: protocol.PhaseTasks, Lobby: polus}) {
+		t.Error("a new lobby in the same phase counted as no change")
+	}
+	if got := live.Lobby(); got != (session.Lobby{Code: "ABCDEF", Map: protocol.MapPolus}) {
+		t.Errorf("the lobby is %+v", got)
+	}
+	if apply(t, live, &protocol.GameStateChanged{Header: header, Phase: protocol.PhaseTasks, Lobby: polus}) {
+		t.Error("the same lobby again counted as a change")
+	}
+
+	// Leaving for the menu carries no lobby, and none is kept.
+	if !apply(t, live, &protocol.GameStateChanged{Header: header, Phase: protocol.PhaseMenu}) || live.Lobby() != (session.Lobby{}) {
+		t.Errorf("the menu kept the lobby %+v", live.Lobby())
+	}
+}
+
+func TestASnapshotBringsItsLobby(t *testing.T) {
+	live := session.NewLive()
+
+	apply(t, live, &protocol.Snapshot{
+		Header:  protocol.Header{Protocol: protocol.Version, Type: protocol.TypeSnapshot, Session: "s", Seq: 1},
+		Phase:   protocol.PhaseLobby,
+		Players: []protocol.Player{{Name: "Red"}},
+		Lobby:   &protocol.Lobby{Code: "ABCD", Map: protocol.MapFungle},
+	})
+
+	if got := live.Lobby(); got != (session.Lobby{Code: "ABCD", Map: protocol.MapFungle}) {
+		t.Errorf("the lobby is %+v", got)
+	}
+}
+
 func TestAnUnknownPhaseIsRefusedRatherThanGuessed(t *testing.T) {
 	if _, ok := phaseFromProtocol("voting"); ok {
 		t.Error("an unknown phase must not be mapped")

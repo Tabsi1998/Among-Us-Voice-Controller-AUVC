@@ -28,6 +28,35 @@ namespace AUVC.Capture.Tests
             public void ReportPlayerDied(Player player) => Reports.Add(("died", player, null));
 
             public void ReportGameEnded() => Reports.Add(("ended", null, null));
+
+            public void ReportLobby(Lobby lobby) => Reports.Add(("lobby", null, lobby.Code + "@" + lobby.Map));
+        }
+
+        [Theory]
+        [InlineData(PlayMap.Skeld, ProtocolContract.MapTheSkeld)]
+        [InlineData(PlayMap.Mira, ProtocolContract.MapMiraHQ)]
+        [InlineData(PlayMap.Polus, ProtocolContract.MapPolus)]
+        [InlineData(PlayMap.dlekS, ProtocolContract.MapDleks)]
+        [InlineData(PlayMap.Airship, ProtocolContract.MapAirship)]
+        [InlineData(PlayMap.Fungle, ProtocolContract.MapFungle)]
+        public void JoiningALobbyForwardsItsCodeAndMap(PlayMap map, string name)
+        {
+            var recorder = new Recorder();
+
+            CaptureBridge.Forward(recorder, new LobbyEventArgs { LobbyCode = "ABCDEF", Map = map });
+
+            var report = Assert.Single(recorder.Reports);
+            Assert.Equal(("lobby", "ABCDEF@" + name), (report.Report, report.Phase));
+        }
+
+        // A map the game adds later must not turn up on the board as a guess.
+        [Fact]
+        public void EveryMapTheReaderKnowsHasAProtocolName()
+        {
+            foreach (var map in Enum.GetValues<PlayMap>())
+            {
+                Assert.Contains(CaptureBridge.MapFor(map), ProtocolContract.Maps);
+            }
         }
 
         [Theory]
