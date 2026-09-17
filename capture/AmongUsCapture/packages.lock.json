@@ -24,9 +24,9 @@
       },
       "NLog": {
         "type": "Direct",
-        "requested": "[4.7.15, )",
-        "resolved": "4.7.15",
-        "contentHash": "vXMmsK17hXnMsKd8BdCrJzvb8JMT0+cPgBGRfnqcXIb6y8b6RMIZexO4hMhQgifcTHgU7dbubvCR5A5wX6Ne+A=="
+        "requested": "[6.2.1, )",
+        "resolved": "6.2.1",
+        "contentHash": "fTGNuJyzkgDc1TBEGXF+FMT4b6kB7gygkSN3dLei2Ziiwx/rugXA+OyyFWZ60P1G/+SzzSKiWHlQ4OklC8AgRg=="
       },
       "System.Configuration.ConfigurationManager": {
         "type": "Direct",

@@ -76,7 +76,7 @@
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />
     <PackageReference Include="LoadingIndicators.WPF.Core" Version="1.0.1" />
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
-    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="NLog" Version="6.2.1" />
     <PackageReference Include="Octokit" Version="0.52.0" />
     <PackageReference Include="SharedMemory" Version="2.3.2" />
     <PackageReference Include="WpfScreenHelper" Version="2.1.1" />
