@@ -79,7 +79,6 @@
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
 
-            <Button x:Name="SetupButton" Click="SetupButton_Click" Padding="8,0" />
             <Button
                 AutomationProperties.Name="{l:Static properties:Resources.SettingsTooltip}"
                 Click="Settings"
@@ -102,29 +101,6 @@
                     </DataTemplate>
                 </Button.ContentTemplate>
             </Button>
-            <Button
-                x:Name="ManualConnectButton"
-                AutomationProperties.Name="{l:Static properties:Resources.ManualConnectTooltip}"
-                Click="ManualConnect_Click"
-                ToolTip="{l:Static properties:Resources.ManualConnectTooltip}">
-                <Button.ContentTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <Path
-                                Width="22"
-                                Height="22"
-                                Fill="{DynamicResource MahApps.Brushes.Text}"
-                                StrokeThickness="1">
-                                <Path.Data>
-                                    <PathGeometry>
-                                        M 25.7639,28.0031L 20.0866,22.3258C 19.4683,21.7075 19.4683,20.705 20.0866,20.0866C 20.705,19.4683 21.7075,19.4683 22.3258,20.0867L 28.0031,25.7639C 32.3443,22.5092 38.5302,22.856 42.4783,26.8042L 26.8041,42.4784C 22.856,38.5302 22.5092,32.3443 25.7639,28.0031 Z M 49.1958,33.5217C 53.144,37.4699 53.4908,43.6557 50.2361,47.9969L 55.9133,53.6742C 56.5317,54.2925 56.5317,55.295 55.9133,55.9134C 55.295,56.5317 54.2925,56.5317 53.6742,55.9134L 47.9969,50.2361C 43.6557,53.4908 37.4698,53.1441 33.5216,49.1959L 36.8804,45.8371L 34.0814,43.0381C 33.1539,42.1107 33.1539,40.6069 34.0814,39.6794C 35.0089,38.7519 36.5127,38.7519 37.4402,39.6794L 40.2392,42.4784L 42.4783,40.2392L 39.6794,37.4402C 38.7519,36.5127 38.7519,35.009 39.6794,34.0815C 40.6069,33.154 42.1106,33.154 43.0381,34.0815L 45.8371,36.8804L 49.1958,33.5217 Z
-                                    </PathGeometry>
-                                </Path.Data>
-                            </Path>
-                        </StackPanel>
-                    </DataTemplate>
-                </Button.ContentTemplate>
-            </Button>
         </mah:WindowCommands>
 
     </mah:MetroWindow.LeftWindowCommands>
@@ -132,71 +108,96 @@
         <mah:FlyoutsControl>
             <mah:Flyout
                 x:Name="SettingsFlyout"
-                Width="275"
+                Width="440"
                 AnimateOpacity="True"
                 Header="{l:Static properties:Resources.SettingsHeader}"
                 IsAutoCloseEnabled="False"
-                Opacity="0.90"
                 Position="Left"
                 Theme="Adapt">
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Orientation="Vertical">
                         <Grid>
+                            <!--  The tabs sit on top: their names are as long as the settings
+                                  themselves, and beside them they left a column too narrow to read (#172).  -->
                             <mah:MetroAnimatedTabControl
                                 mah:TabControlHelper.Transition="LeftReplace"
-                                mah:TabControlHelper.UnderlinePlacement="Right"
+                                mah:TabControlHelper.UnderlinePlacement="Bottom"
                                 mah:TabControlHelper.Underlined="TabPanel"
-                                TabStripMargin="0 0 10 0"
-                                TabStripPlacement="Left">
+                                TabStripMargin="0 0 0 8"
+                                TabStripPlacement="Top">
+                                <mah:MetroTabItem x:Name="BotTab" Header="{l:Static properties:Resources.SettingsBotTabHeader}">
+                                    <StackPanel Margin="0,10,10,0" Orientation="Vertical">
+                                        <Button
+                                            x:Name="SetupButton"
+                                            HorizontalAlignment="Left"
+                                            Padding="12,6"
+                                            Click="SetupButton_Click"
+                                            Style="{StaticResource MahApps.Styles.Button.Square.Accent}" />
+                                        <TextBlock
+                                            x:Name="SetupButtonHint"
+                                            Margin="0,8,0,0"
+                                            TextWrapping="Wrap" />
+                                        <Button
+                                            x:Name="ManualConnectButton"
+                                            Margin="0,20,0,0"
+                                            HorizontalAlignment="Left"
+                                            Padding="12,6"
+                                            Click="ManualConnect_Click"
+                                            Content="{l:Static properties:Resources.ManualConnectTooltip}"
+                                            Style="{StaticResource MahApps.Styles.Button.Square.Accent}" />
+                                        <TextBlock
+                                            x:Name="ManualConnectHint"
+                                            Margin="0,8,0,0"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </mah:MetroTabItem>
                                 <mah:MetroTabItem Header="{l:Static properties:Resources.SettingsGeneralTabHeader}">
-                                    <Viewbox Margin="0,0,10,0">
-                                        <StackPanel Orientation="Vertical">
-                                            <mah:MetroHeader Header="{l:Static properties:Resources.SettingsGeneralTabLanguageHeader}">
+                                    <StackPanel Margin="0,10,10,0" Orientation="Vertical">
+                                        <mah:MetroHeader Header="{l:Static properties:Resources.SettingsGeneralTabLanguageHeader}">
 
-                                                <!--  The codes are AppLanguage.Supported. Each language is named in itself, so it can be found from any.  -->
-                                                <ComboBox
-                                                    MinWidth="100"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Top"
-                                                    SelectedValue="{Binding Settings.language, Mode=TwoWay}"
-                                                    SelectedValuePath="Tag">
-                                                    <ComboBoxItem Content="{l:Static properties:Resources.SettingsGeneralTabLanguageSameAsWindows}" Tag="" />
-                                                    <ComboBoxItem Content="Deutsch" Tag="de" />
-                                                    <ComboBoxItem Content="English" Tag="en" />
-                                                </ComboBox>
-                                            </mah:MetroHeader>
+                                            <!--  The codes are AppLanguage.Supported. Each language is named in itself, so it can be found from any.  -->
+                                            <ComboBox
+                                                MinWidth="100"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                SelectedValue="{Binding Settings.language, Mode=TwoWay}"
+                                                SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="{l:Static properties:Resources.SettingsGeneralTabLanguageSameAsWindows}" Tag="" />
+                                                <ComboBoxItem Content="Deutsch" Tag="de" />
+                                                <ComboBoxItem Content="English" Tag="en" />
+                                            </ComboBox>
+                                        </mah:MetroHeader>
 
-                                            <mah:ToggleSwitch
-                                                Header="{l:Static properties:Resources.SettingsGeneralTabAlwaysCopyGameCode}"
-                                                IsOn="{Binding Settings.AlwaysCopyGameCode, Mode=TwoWay}"
-                                                OffContent="{l:Static properties:Resources.OffText}"
-                                                OnContent="{l:Static properties:Resources.OnText}" />
-                                            <mah:ToggleSwitch
-                                                Header="{l:Static properties:Resources.SettingsGeneralTabFocusOnConnect}"
-                                                IsOn="{Binding Settings.FocusOnToken, Mode=TwoWay}"
-                                                OffContent="{l:Static properties:Resources.OffText}"
-                                                OnContent="{l:Static properties:Resources.OnText}" />
-                                            <mah:ToggleSwitch
-                                                Header="{l:Static properties:Resources.SettingsGeneralTabAPIServer}"
-                                                IsOn="{Binding Settings.ApiServer, Mode=TwoWay}"
-                                                OffContent="{l:Static properties:Resources.OffText}"
-                                                OnContent="{l:Static properties:Resources.OnText}"
-                                                Toggled="APIServerToggleSwitch_Toggled" />
-                                            <mah:ToggleSwitch
-                                                x:Name="AlwaysOnTopSwitch"
-                                                Header="{l:Static properties:Resources.SettingsGeneralTabAlwaysOnTop}"
-                                                IsOn="{Binding Settings.alwaysOnTop, Mode=TwoWay}"
-                                                OffContent="{l:Static properties:Resources.OffText}"
-                                                OnContent="{l:Static properties:Resources.OnText}"
-                                                Toggled="AlwaysOnTopSwitch_OnToggled" />
-                                            <mah:ToggleSwitch
-                                                Header="{l:Static properties:Resources.SettingsGeneralTabCheckForUpdate}"
-                                                IsOn="{Binding Settings.checkForUpdate, Mode=TwoWay}"
-                                                OffContent="{l:Static properties:Resources.OffText}"
-                                                OnContent="{l:Static properties:Resources.OnText}" />
-                                        </StackPanel>
-                                    </Viewbox>
+                                        <mah:ToggleSwitch
+                                            Header="{l:Static properties:Resources.SettingsGeneralTabAlwaysCopyGameCode}"
+                                            IsOn="{Binding Settings.AlwaysCopyGameCode, Mode=TwoWay}"
+                                            OffContent="{l:Static properties:Resources.OffText}"
+                                            OnContent="{l:Static properties:Resources.OnText}" />
+                                        <mah:ToggleSwitch
+                                            Header="{l:Static properties:Resources.SettingsGeneralTabFocusOnConnect}"
+                                            IsOn="{Binding Settings.FocusOnToken, Mode=TwoWay}"
+                                            OffContent="{l:Static properties:Resources.OffText}"
+                                            OnContent="{l:Static properties:Resources.OnText}" />
+                                        <mah:ToggleSwitch
+                                            Header="{l:Static properties:Resources.SettingsGeneralTabAPIServer}"
+                                            IsOn="{Binding Settings.ApiServer, Mode=TwoWay}"
+                                            OffContent="{l:Static properties:Resources.OffText}"
+                                            OnContent="{l:Static properties:Resources.OnText}"
+                                            Toggled="APIServerToggleSwitch_Toggled" />
+                                        <mah:ToggleSwitch
+                                            x:Name="AlwaysOnTopSwitch"
+                                            Header="{l:Static properties:Resources.SettingsGeneralTabAlwaysOnTop}"
+                                            IsOn="{Binding Settings.alwaysOnTop, Mode=TwoWay}"
+                                            OffContent="{l:Static properties:Resources.OffText}"
+                                            OnContent="{l:Static properties:Resources.OnText}"
+                                            Toggled="AlwaysOnTopSwitch_OnToggled" />
+                                        <mah:ToggleSwitch
+                                            Header="{l:Static properties:Resources.SettingsGeneralTabCheckForUpdate}"
+                                            IsOn="{Binding Settings.checkForUpdate, Mode=TwoWay}"
+                                            OffContent="{l:Static properties:Resources.OffText}"
+                                            OnContent="{l:Static properties:Resources.OnText}" />
+    </StackPanel>
                                 </mah:MetroTabItem>
                                 <mah:MetroTabItem x:Name="DebugTab" Header="{l:Static properties:Resources.SettingsDebugTabHeader}">
                                     <Grid Margin="0,10,10,0">

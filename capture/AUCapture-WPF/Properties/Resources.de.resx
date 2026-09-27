@@ -134,6 +134,9 @@
   <data name="SettingsGeneralTabCheckForUpdate" xml:space="preserve">
     <value>Nach neuen Versionen suchen</value>
   </data>
+  <data name="SettingsBotTabHeader" xml:space="preserve">
+    <value>Bot</value>
+  </data>
   <data name="SettingsDebugTabHeader" xml:space="preserve">
     <value>Fehlersuche</value>
   </data>

@@ -71,7 +71,7 @@ namespace AUVC.Capture.Tests
         public void EverySettingTheGuideNamesIsOneTheAppShows(string guide, string resources, string heading)
         {
             var texts = Texts(resources);
-            var tabs = new[] { "SettingsGeneralTabHeader", "SettingsDebugTabHeader", "SettingsAboutTabHeader" }
+            var tabs = new[] { "SettingsBotTabHeader", "SettingsGeneralTabHeader", "SettingsDebugTabHeader", "SettingsAboutTabHeader" }
                 .Select(key => texts[key]).ToHashSet();
             var shown = texts.Values.ToHashSet();
             var rows = TableAfter(Guide(guide), heading);

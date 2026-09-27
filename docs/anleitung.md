@@ -98,7 +98,7 @@ wechseln.
 ## 3. Ersteinrichtung
 
 Beim ersten Start öffnet sich das Einrichtungsfenster von selbst. Du kannst es
-jederzeit über den Knopf **Einrichten** oben im Hauptfenster wieder öffnen.
+jederzeit über das Zahnrad oben im Hauptfenster unter **Bot** wieder öffnen.
 
 ### Schritt 1 von 4: der Bot-Token
 
@@ -269,11 +269,12 @@ ganze Zeit mit.
 
 ## 6. Einstellungen
 
-### Bot-Einstellungen: der Knopf „Bot“
+### Bot-Einstellungen: Zahnrad, dann „Bot“
 
-Ist AUVC eingerichtet, heißt der Knopf oben im Hauptfenster **Bot**. Er öffnet
-alles, was die Einrichtung festgelegt hat, in fünf Bereichen, die du einzeln
-ändern kannst:
+Das Zahnrad oben im Hauptfenster öffnet die Einstellungen. Im ersten Reiter
+**Bot** steht der Knopf zur Einrichtung: Er heißt **Einrichten**, solange AUVC
+nicht eingerichtet ist, und danach **Bot**. Er öffnet alles, was die Einrichtung
+festgelegt hat, in fünf Bereichen, die du einzeln ändern kannst:
 
 | Bereich | Was du tun kannst |
 | --- | --- |
@@ -291,6 +292,7 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 
 | Reiter | Einstellung | Was sie tut |
 | --- | --- | --- |
+| Bot | Mit dem AUVC-Bot koppeln | Nur sichtbar, solange der Bot nicht auf diesem PC läuft. Verbindet die App mit einem Bot auf einem anderen Rechner |
 | Allgemein | Sprache | **Wie Windows**, **Deutsch** oder **English** |
 | Allgemein | Lobby-Code immer kopieren | Kopiert den Lobby-Code in die Zwischenablage, sobald du einer Lobby beitrittst |
 | Allgemein | Fenster beim Koppeln nach vorn holen | Holt das Fenster nach vorn, wenn ein Kopplungslink AUVC öffnet |
@@ -438,8 +440,9 @@ auf einem Server, der immer an ist, kann sich AUVC stattdessen damit verbinden:
 1. Schließe das Einrichtungsfenster.
 2. In Discord führt ein Administrator `/au capture pair` aus und bekommt einen
    Code.
-3. Klicke in AUVC auf den Knopf mit dem Hinweis **Mit dem AUVC-Bot koppeln**, gib
-   die Adresse des Bots und den Code ein und klicke auf **Koppeln**.
+3. Öffne in AUVC das Zahnrad, gehe auf **Bot** und klicke auf
+   **Mit dem AUVC-Bot koppeln**, gib die Adresse des Bots und den Code ein und
+   klicke auf **Koppeln**.
 
 Releases enthalten nur die App. Wie der Bot allein läuft, steht in
 [development.md](development.md) (Englisch).

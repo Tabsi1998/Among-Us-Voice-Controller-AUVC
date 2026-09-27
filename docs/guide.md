@@ -95,7 +95,7 @@ them.
 ## 3. First setup
 
 The first time AUVC starts, the setup window opens by itself. You can open it
-again at any time with the **Set up** button at the top of the main window.
+again at any time behind the gear button, under **Bot**.
 
 ### Step 1 of 4: the bot token
 
@@ -257,10 +257,12 @@ can listen the whole time.
 
 ## 6. Settings
 
-### Bot settings: the Bot button
+### Bot settings: the gear, then Bot
 
-Once AUVC is set up, the button at the top of the main window reads **Bot**. It
-opens everything the setup chose, as five sections you can change one at a time:
+The gear button at the top of the main window opens the settings. Its first tab,
+**Bot**, holds the button to the setup: it reads **Set up** until AUVC is set up
+and **Bot** afterwards. It opens everything the setup chose, as five sections you
+can change one at a time:
 
 | Section | What you can do |
 | --- | --- |
@@ -278,6 +280,7 @@ Windows** goes back.
 
 | Tab | Setting | What it does |
 | --- | --- | --- |
+| Bot | Pair with the AUVC bot | Only shown while the bot does not run on this PC. Connects the app to a bot on another computer |
 | General | Language | **Same as Windows**, **Deutsch** or **English** |
 | General | Always copy game code | Copies the lobby code to the clipboard whenever you join a lobby |
 | General | Focus window on connect | Brings the window to the front when a pairing link opens AUVC |
@@ -421,8 +424,9 @@ a server that is always on, AUVC can connect to it instead:
 
 1. Close the setup window.
 2. In Discord, an administrator runs `/au capture pair` and gets a code.
-3. In AUVC, click the button with the tooltip **Pair with the AUVC bot**, enter
-   the bot's address and the code, and click **Pair**.
+3. In AUVC, open the gear button, go to **Bot** and click
+   **Pair with the AUVC bot**, enter the bot's address and the code, and click
+   **Pair**.
 
 Releases contain only the app. Running the bot on its own is described in
 [development.md](development.md).

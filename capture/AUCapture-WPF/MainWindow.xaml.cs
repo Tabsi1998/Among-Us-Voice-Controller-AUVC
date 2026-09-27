@@ -427,6 +427,14 @@ namespace AUCapture_WPF
         {
             SetupButton.Content = context.Settings.runBotOnThisPc ? SetupText.SettingsButton : SetupText.SetupButton;
             SetupButton.ToolTip = context.Settings.runBotOnThisPc ? SetupText.SettingsButtonTooltip : SetupText.SetupButtonTooltip;
+            SetupButtonHint.Text = context.Settings.runBotOnThisPc ? SetupText.SettingsButtonTooltip : SetupText.SetupButtonTooltip;
+
+            // Pairing is the way to a bot on another computer (#173). With the bot
+            // running here, the app connects itself and the button only confuses.
+            ManualConnectHint.Text = SetupText.PairOnlyForAnotherPc;
+            var pairing = context.Settings.runBotOnThisPc ? Visibility.Collapsed : Visibility.Visible;
+            ManualConnectButton.Visibility = pairing;
+            ManualConnectHint.Visibility = pairing;
         }
 
         private void OpenSetup(bool editing = false)
