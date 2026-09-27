@@ -159,18 +159,61 @@ func (r *Reconciler) Exclusive(guildID string, work func()) {
 
 // Reconcile applies every difference between the observed and desired states.
 //
+// The changes go out in two waves, and everything inside a wave at the same
+// time, one goroutine per player: first every move, then every mute and
+// deafen. A full lobby is fifteen edits, and sending them one after the other
+// meant the last player was still unmuted seconds after the first, because
+// every request waited for the answer of the one before it. Discord's own rate
+// limit still decides how fast they actually leave.
+//
+// The two waves are what keeps a round secret: see Diff for why a move must
+// land before the living are relaxed.
+//
 // A failure on one player does not abandon the rest: the others are still
-// brought into line and the errors are reported together. Giving up halfway
-// would leave a round in a state that is neither the old one nor the new one.
+// brought into line and the errors are reported together, in the order of the
+// changes. Giving up halfway would leave a round in a state that is neither the
+// old one nor the new one.
 func (r *Reconciler) Reconcile(guildID string, observed map[string]Observed, desired map[string]DesiredVoiceState) error {
 	lock := r.lockFor(guildID)
 	lock.Lock()
 	defer lock.Unlock()
 
+	changes := Diff(observed, desired)
+	errs := make([]error, len(changes))
+
+	// Diff puts the moves first, and that order has to survive: relaxing a
+	// living player before the corpse has left the main channel gives the round
+	// away. So the moves go out together, and the rest only once they are done.
+	moves := 0
+	for _, change := range changes {
+		if change.MoveTo == nil {
+			break
+		}
+		moves++
+	}
+
+	together := func(from, to int) {
+		var work sync.WaitGroup
+		for i := from; i < to; i++ {
+			work.Add(1)
+			go func(i int) {
+				defer work.Done()
+
+				change := changes[i]
+				if err := r.applier.Apply(guildID, change); err != nil {
+					errs[i] = fmt.Errorf("user %s: %w", change.UserID, err)
+				}
+			}(i)
+		}
+		work.Wait()
+	}
+	together(0, moves)
+	together(moves, len(changes))
+
 	var failures []error
-	for _, change := range Diff(observed, desired) {
-		if err := r.applier.Apply(guildID, change); err != nil {
-			failures = append(failures, fmt.Errorf("user %s: %w", change.UserID, err))
+	for _, err := range errs {
+		if err != nil {
+			failures = append(failures, err)
 		}
 	}
 

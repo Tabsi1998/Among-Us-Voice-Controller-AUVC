@@ -233,6 +233,10 @@ With **Move the dead into the ghost channel** switched off, nobody changes
 channels: the dead stay in the main channel, muted, until the round is over, and
 can listen the whole time.
 
+- **Three seconds of grace.** After a meeting everybody stays audible about
+  three seconds longer before the tasks silence them, and at the end of a round
+  everybody is released about three seconds after the game says so. Everything
+  else, a kill above all, happens at once.
 - **Kills are not given away.** Moving a player to another channel is visible to
   everyone in Discord, so a killed player stays where they are, muted, until the
   next meeting announces the death.

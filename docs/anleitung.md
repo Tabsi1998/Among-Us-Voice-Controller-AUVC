@@ -245,6 +245,10 @@ Ist **Tote in den Geisterkanal verschieben** ausgeschaltet, wechselt niemand den
 Kanal: Tote bleiben im Hauptkanal, stumm, bis die Runde vorbei ist, und hören die
 ganze Zeit mit.
 
+- **Drei Sekunden Luft.** Nach einem Meeting bleiben alle noch etwa drei
+  Sekunden laut, bevor die Aufgaben sie stumm schalten, und am Ende einer Runde
+  werden alle etwa drei Sekunden später freigegeben. Alles andere, vor allem ein
+  Kill, passiert sofort.
 - **Kills werden nicht verraten.** Wenn jemand in einen anderen Kanal wechselt,
   sieht das jeder in Discord. Deshalb bleibt ein getöteter Spieler, wo er ist,
   stumm, bis das nächste Meeting den Tod bekannt macht.

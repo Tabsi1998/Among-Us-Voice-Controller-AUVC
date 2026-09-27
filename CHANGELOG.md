@@ -6,6 +6,22 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- Voice changes wait three seconds where the game is faster than the people
+  ([#169](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/169)).
+  - **After a meeting** everybody stays audible about three seconds longer
+    before the tasks silence them.
+  - **At the end of a round** everybody is released about three seconds later.
+  - **Everything else stays immediate**, a kill above all. A newer phase
+    replaces a change that is still waiting, so nothing from a phase that is
+    already over reaches Discord.
+- Everyone is muted at the same time at a phase change
+  ([#170](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/170)).
+  - **Before:** the bot sent one change per player, each waiting for Discord's
+    answer, so the last player of a full lobby was seconds behind the first.
+  - **Now:** the moves go out together, and once they are through, every mute
+    and deafen goes out together. Moves stay first, because a living player who
+    can hear again while a corpse is still in the main channel gives the round
+    away.
 - NLog is at 6.2.1 in both capture projects
   ([#177](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/177)).
   - **Why:** Dependabot bumped only one of the two projects, which left the
