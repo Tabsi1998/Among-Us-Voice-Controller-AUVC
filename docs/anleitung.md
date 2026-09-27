@@ -236,10 +236,15 @@ Ab dann folgt AUVC dem Spiel von selbst:
 | Phase | Lebende | Tote |
 | --- | --- | --- |
 | Lobby | Hauptkanal, können reden | Hauptkanal, können reden |
-| Aufgaben, Tod noch nicht bekannt | Hauptkanal, stumm und taub | Bleiben, wo sie sind, stumm |
-| Aufgaben, Tod bekannt | Hauptkanal, stumm und taub | Geisterkanal, können reden |
+| Aufgaben, Tod noch nicht bekannt | Hauptkanal, stumm | Bleiben, wo sie sind, stumm |
+| Aufgaben, Tod bekannt | Hauptkanal, stumm | Geisterkanal, können reden |
 | Meeting und Abstimmung | Hauptkanal, können reden | Geisterkanal, können reden |
 | Runde vorbei | Hauptkanal, können reden | Hauptkanal, können reden |
+
+Ist **Lebende während der Aufgaben auch taub schalten** eingeschaltet, hören die
+Lebenden während der Aufgaben ebenfalls nichts. Standardmäßig ist es aus: Für das
+Spiel reicht das stumme Mikrofon, und Taubschalten blendet auch Leute im
+Hauptkanal aus, die AUVC nicht steuert, zum Beispiel Zuschauer.
 
 Ist **Tote in den Geisterkanal verschieben** ausgeschaltet, wechselt niemand den
 Kanal: Tote bleiben im Hauptkanal, stumm, bis die Runde vorbei ist, und hören die

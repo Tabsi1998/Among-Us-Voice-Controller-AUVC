@@ -61,6 +61,7 @@ const (
 	OptionEnabled        = "enabled"
 	OptionPolicy         = "policy"
 	OptionAutoMoveGhosts = "auto_move_ghosts"
+	OptionDeafen         = "deafen_during_tasks"
 	OptionEnforce        = "enforce_channels"
 	OptionTimeout        = "capture_timeout_seconds"
 	OptionTimeoutAction  = "capture_timeout_action"
@@ -258,6 +259,7 @@ func Command() *discordgo.ApplicationCommand {
 				sub(SettingsVoice, text.DescribeSettingsVoice,
 					boolean(OptionEnabled, text.DescribeEnabled, false),
 					freeText(OptionPolicy, text.DescribePolicy, false, VoicePolicies...),
+					boolean(OptionDeafen, text.DescribeDeafenDuringTasks, false),
 				),
 				sub(SettingsGhosts, text.DescribeSettingsGhosts,
 					boolean(OptionAutoMoveGhosts, text.DescribeAutoMoveGhosts, false),

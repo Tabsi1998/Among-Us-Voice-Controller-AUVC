@@ -127,6 +127,18 @@ namespace AUCapture_WPF
 
         public static string MoveGhosts => T("Tote in den Geisterkanal verschieben", "Move the dead into the ghost channel");
 
+        public static string DeafenDuringTasks => T(
+            "Lebende während der Aufgaben auch taub schalten",
+            "Also deafen living players during the tasks");
+
+        public static string DeafenExplained => T(
+            "Aus: Lebende sind während der Aufgaben nur stumm und hören weiter. " +
+            "An: Sie hören auch nichts mehr. Das blendet auch Leute im Hauptkanal aus, die AUVC nicht steuert, " +
+            "zum Beispiel Zuschauer oder nicht verknüpfte Spieler.",
+            "Off: during the tasks the living are only muted and keep listening. " +
+            "On: they hear nothing either. That also hides people in the main channel AUVC does not manage, " +
+            "such as spectators or players nobody linked.");
+
         public static string StayInMain => T(
             "Alle bleiben im Hauptkanal. Wer tot ist, bleibt bis zum Ende der Runde stumm und hört weiter mit. " +
             "Gut für PlayStation- und Xbox-Spieler: Discord kann sie trennen, wenn ein Bot sie in einen anderen Kanal verschiebt.",

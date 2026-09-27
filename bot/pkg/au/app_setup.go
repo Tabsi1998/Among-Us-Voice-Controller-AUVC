@@ -48,6 +48,10 @@ type AppSetup struct {
 	// what is stored stays. With it off no ghost channel is needed: everyone
 	// stays in the main channel and the dead stay muted (#161).
 	AutoMoveGhosts *bool
+	// DeafenDuringTasks is nil from an app that does not offer the choice, and
+	// then what is stored stays. With it off the living keep their headphones
+	// during the tasks and only lose the microphone (#171).
+	DeafenDuringTasks *bool
 }
 
 // ConfigureFromApp saves a setup chosen in the Windows app and returns the
@@ -77,6 +81,9 @@ func (s *Service) ConfigureFromApp(guildID string, setup AppSetup) (sqlite.Guild
 
 	if setup.AutoMoveGhosts != nil {
 		config.AutoMoveGhosts = *setup.AutoMoveGhosts
+	}
+	if setup.DeafenDuringTasks != nil {
+		config.DeafenDuringTasks = *setup.DeafenDuringTasks
 	}
 	if config.AutoMoveGhosts && setup.GhostVoiceChannelID == "" {
 		return sqlite.GuildConfig{}, fmt.Errorf("%w: a ghost channel is required while the dead are moved into it", ErrInvalidInput)

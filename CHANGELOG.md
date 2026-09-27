@@ -6,6 +6,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- The living only lose their microphone during the tasks
+  ([#171](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/171)).
+  - **Before:** they were muted and deafened, so they heard nothing at all.
+  - **Now:** they are muted and keep listening. **Also deafen living players
+    during the tasks** in the setup and under **Bot → Channels** brings the old
+    behaviour back, and `/au settings voice deafen_during_tasks` does the same
+    in Discord.
+  - **Why it is off by default:** the game only needs the microphone gone.
+    Deafening also hides anybody in the main channel AUVC does not manage.
+  - **Servers that already ran AUVC** change with the update: the new column
+    starts switched off, so they mute the microphone only. Switch the option on
+    to get the old behaviour back.
 - Voice changes wait three seconds where the game is faster than the people
   ([#169](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/169)).
   - **After a meeting** everybody stays audible about three seconds longer

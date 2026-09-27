@@ -99,7 +99,10 @@ type Guild struct {
 	AutoStart            bool   `json:"auto_start"`
 	// AutoMoveGhosts is whether the dead move into the ghost channel, or stay
 	// muted in the main channel.
-	AutoMoveGhosts     bool `json:"auto_move_ghosts"`
+	AutoMoveGhosts bool `json:"auto_move_ghosts"`
+	// DeafenDuringTasks is whether the living also lose their headphones
+	// during the tasks, on top of the microphone.
+	DeafenDuringTasks  bool `json:"deafen_during_tasks"`
 	CaptureConnections int  `json:"capture_connections"`
 	// Session is running, paused or stopped, as /au session status reports it.
 	Session string  `json:"session"`
@@ -123,6 +126,9 @@ type Setup struct {
 	// AutoMoveGhosts is nil from an app that does not offer the choice, which
 	// keeps what the bot has stored.
 	AutoMoveGhosts *bool `json:"auto_move_ghosts,omitempty"`
+	// DeafenDuringTasks is nil from an app that does not offer the choice,
+	// which keeps what the bot has stored.
+	DeafenDuringTasks *bool `json:"deafen_during_tasks,omitempty"`
 }
 
 // Crewmates is who plays in the lobby, and whom the app can link them to.

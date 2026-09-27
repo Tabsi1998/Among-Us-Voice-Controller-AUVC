@@ -153,3 +153,62 @@ func TestAnAppWithoutTheChoiceKeepsIt(t *testing.T) {
 		t.Error("an app without the choice switched moving the dead back on")
 	}
 }
+
+// Since #171 the app also chooses whether the living lose their headphones
+// during the tasks. A nil choice keeps what is stored, as with the ghosts.
+func TestTheAppChoosesWhetherTheLivingAreDeafened(t *testing.T) {
+	service, db := appSetupService(t)
+	on, off := true, false
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost", DeafenDuringTasks: &on}); err != nil {
+		t.Fatalf("configure with deafening: %v", err)
+	}
+	if config, _, err := service.VoiceConfig("guild-1"); err != nil || !config.DeafenDuringTasks {
+		t.Fatalf("the policy reads deafening as %v (err %v), want true", config.DeafenDuringTasks, err)
+	}
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost", DeafenDuringTasks: &off}); err != nil {
+		t.Fatalf("configure without deafening: %v", err)
+	}
+	if config, _, err := service.VoiceConfig("guild-1"); err != nil || config.DeafenDuringTasks {
+		t.Fatalf("the policy reads deafening as %v (err %v), want false", config.DeafenDuringTasks, err)
+	}
+
+	// An older app does not send the choice and must not undo it.
+	stored, err := db.GuildConfig("guild-1")
+	if err != nil {
+		t.Fatalf("read back: %v", err)
+	}
+	stored.DeafenDuringTasks = true
+	if err := db.SaveGuildConfig(stored); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost"}); err != nil {
+		t.Fatalf("configure without the choice: %v", err)
+	}
+	if config, _, err := service.VoiceConfig("guild-1"); err != nil || !config.DeafenDuringTasks {
+		t.Errorf("an app without the choice changed it to %v", config.DeafenDuringTasks)
+	}
+}
+
+// A guild nobody configured keeps its headphones: the owner asked for the
+// microphone alone (#171).
+func TestANewGuildOnlyLosesTheMicrophone(t *testing.T) {
+	service, _ := appSetupService(t)
+
+	if _, err := service.ConfigureFromApp("guild-2", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost"}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+
+	config, _, err := service.VoiceConfig("guild-2")
+	if err != nil {
+		t.Fatalf("voice config: %v", err)
+	}
+	if config.DeafenDuringTasks {
+		t.Error("a new guild deafens the living during the tasks")
+	}
+}
