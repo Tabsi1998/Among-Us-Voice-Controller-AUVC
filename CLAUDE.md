@@ -9,7 +9,7 @@ where things stand. Keep it current when that changes.
 - **Language.** Answer in German. PR, commit and issue titles are English;
   issue bodies and comments may be German. Keep it simple and understandable.
 - **Roles.** The owner merges. Deliver complete, verified PRs from branches named
-  `codex/<nnn>-<topic>` (last number used: 085), then report CI.
+  `codex/<nnn>-<topic>` (last number used: 087), then report CI.
 - **Never do these yourself:** merge, push to `main`, rewrite or force-push `main`,
   create tags or releases. Tags and releases happen only when the owner says so.
 - **Work from GitHub issues.** Every change belongs to an issue.
@@ -71,9 +71,12 @@ Inno Setup 6 for the installer (`winget install JRSoftware.InnoSetup`).
 
 **Toolchain on the second PC** (`C:\Programmieren`, since 2026-09-15): Go 1.27.1
 and the llvm-mingw clang for `go test -race` live in `~/.local-toolchain` and are
-on the user PATH; the .NET SDK 10.0.401, gitleaks, Docker Desktop and `gh` are
-installed system-wide. No `.vscode/testing.json` exists there, so the tools come
-from PATH. Machine-local, not in Git:
+on the user PATH. The .NET SDK 10.0.401 and Docker Desktop are installed
+system-wide; gitleaks, `gh` and Inno Setup 6 (`%LOCALAPPDATA%\Programs\Inno Setup 6`,
+found by `local_check.inno_setup`) come from winget for the user. No
+`.vscode/testing.json` exists there, so the tools come from PATH. A terminal or
+VS Code started before a PATH change does not see new tools until it restarts.
+Machine-local, not in Git:
 - `.ci-panel/test_checks.py` shows every step of `scripts/local_check.py` in the
   VS Code Testing panel (hidden through `.git/info/exclude`).
 - `C:\Programmieren\check-all.py --serve` is a live dashboard over all five
@@ -153,71 +156,71 @@ from PATH. Machine-local, not in Git:
 A PR merged after the changelog PR but before publishing needs its changelog
 entry moved into the version section first (see #156).
 
-## Where things stand (2026-09-15)
+## Where things stand (2026-09-27)
 
-- **Published.** `v0.1.4-beta` is out, tag at `d38e24e`: the name AUVC,
-  diagnostics export, status line for bot problems, screen-reader names, and the
-  cosmetics removal.
-- **Merged since the beta:** #158 (guides fixed, `GuideTextTests`, closes #143),
-  #159 (this file).
-- **Most urgent: [#160](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/160),
-  console players get dropped.**
-  - **Symptom** (the owner, 2026-09-15): an **unlinked** PlayStation player
-    joins the **main channel in the lobby** while AUVC runs, and is removed
-    from voice completely. Players who were in the channel before AUVC started
-    stay. PC players are fine.
-  - **Code reading found no cause:**
-    - The bot's only write to Discord members is `GuildMemberEdit` in
-      `bot/bot/voice_adapter.go`.
-    - It acts only on linked players (`bot/pkg/voice`) or on members with a
-      hold left over from a crash (`voice_hold.go`).
-    - It never sends `channel_id: null`.
-    - The bot sets no permissions and joins no voice channel.
+- **Published.** `v0.1.5-beta` is out, tag at `5282e03` (the merge of #162): the
+  choice to keep the dead muted in the main channel (#161), the voice log (#160)
+  and the fixed guides (#143). `main` is at `d0e5957` (#164, local setup notes,
+  closes #163) and has not moved since 2026-09-15. CI on `main` is green.
+- **#160 was closed by mistake and is open again.** The body of #162 said "it
+  does not close #160"; GitHub read "close #160" in it as a closing keyword and
+  closed the issue on merge.
+  - **Rule from this:** in a PR body, "close", "fix" or "resolve" followed by an
+    issue number closes that issue, even inside "does not close". Write only
+    `Refs #N` for an issue the PR must leave open.
+- **#160, console players get dropped.** The owner reported on #157 that with
+  v0.1.5-beta PlayStation players are still dropped, less often than before.
+  - **Symptom:** an unlinked PlayStation player who joins the main channel in
+    the lobby while AUVC runs is removed from voice. Players who were in the
+    channel before AUVC started stay. PC players are fine.
+  - **Code reading found no cause.** The bot's only write to members is
+    `GuildMemberEdit` in `bot/bot/voice_adapter.go`. It acts only on linked
+    players (`bot/pkg/voice`) or on holds left by a crash (`voice_hold.go`),
+    never sends `channel_id: null`, sets no permissions and joins no channel.
   - **Known Discord limitation:** Discord disconnects console voice users whom a
-    bot or moderator moves to another channel ([Discord community report](https://support.discord.com/hc/en-us/community/posts/12286453822231-Discord-Voice-Channels-Disconnect-on-Xbox-When-User-Is-Moved),
-    Xbox, likely PS5 too). AUVC moves linked players into the main channel in
-    the lobby, menu and at round end, into the ghost channel at a meeting, and
-    back when they walk off during a round. Every one of those moves can drop
-    a console player. A likely fix is to move only when the game needs it,
-    for example only out of the ghost channel after a round, but the log from
-    a real drop should confirm that first.
-  - **Diagnostics PR** (`codex/084-console-voice-log`, refs #160, does not close
-    it):
-    - logs every voice change AUVC makes, and every join, leave and switch in
-      the main and ghost channel (`bot/bot/voice_changes.go`)
-    - refuses a move into an empty channel
-  - **Option for the owner's wish, [#161](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/161)**,
-    in the same PR: **Move the dead into the ghost channel** can be switched
-    off in the app's setup and under **Bot → Channels**.
-    - **Then:** everyone stays in the main channel, and the dead stay muted
-      but can listen. This is the existing `auto_move_ghosts` behaviour of
-      `bot/pkg/voice`.
-    - **Ghost channel:** no longer needed. `NotReady`, `ConfigureFromApp`,
-      the local setup route and `/au doctor` require one only while the dead
-      are moved.
-    - **Local API:** `auto_move_ghosts` is a pointer, so an older app keeps
-      what is stored.
-  - **Next step:** in the next beta, repeat it with a PlayStation player and
-    read `%LOCALAPPDATA%\AUVC\logs\logs.txt` around the drop.
-    - **AUVC logged a change** for that member just before: fix that path.
-    - **Nothing logged:** AUVC did not cause it. Look at Discord's console
-      voice and document it.
-
-    The owner wants a new beta right after each fix is merged.
-- **Next: the owner's live test, [#157](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/157).**
-  It gathers every open live test in one checklist. After it:
+    bot or moderator moves ([Discord community report](https://support.discord.com/hc/en-us/community/posts/12286453822231-Discord-Voice-Channels-Disconnect-on-Xbox-When-User-Is-Moved)).
+  - **Since v0.1.5-beta** the bot log names every voice change AUVC makes and
+    every join, leave and switch in its channels (`bot/bot/voice_changes.go`).
+  - **Next step:** read `%LOCALAPPDATA%\AUVC\logs\logs.txt` around a real drop.
+    A change logged by AUVC for that member just before means that path gets
+    fixed. Nothing logged means Discord dropped the player on its own.
+- **The live tests became issues on 2026-09-27**, one per point the owner
+  reported on #157 and #145:
+  - **#168** the crewmate message keeps the first map when the host picks
+    another one in the lobby. Cause: the memory reader read code and map only
+    when the state changed into the lobby.
+  - **#169** wait about 3 s before muting after a meeting and before unmuting at
+    round end. `bot/pkg/game/delay.go` still holds AutoMuteUs' unused waits.
+  - **#170** muting everyone at a phase change takes too long. The reconciler
+    sends one `GuildMemberEdit` per player, one after another.
+  - **#171** mute only the microphone of the living during tasks, instead of
+    muting and deafening (`bot/pkg/voice/policy.go`). Proposed as a setting that
+    is off by default, because deafening also hides unlinked speakers.
+  - **#172** the settings flyout is cut off and cramped; it is 275 px wide.
+  - **#173** move **Bot** and pairing out of the title bar into the settings.
+    Pairing stays reachable for a bot on another PC.
+  - **#174** this file, kept current.
+- **Live tests.** #157 gathers every open live test for v0.1.5-beta and is in
+  milestone `v0.1.4-beta`, like #145. After it:
   1. Copy the results into #145, #141, #142, #144 and #136, and the keyboard,
-     DPI and screen-reader results onto #135's checklist. #135 itself was closed
-     by #153.
+     DPI and screen-reader results onto #135's checklist.
   2. Open one bug issue per deviation.
   3. Close what passed.
+- **Dependabot** keeps three open PRs: #165 (Microsoft.NET.Test.Sdk 18.10.1) and
+  #167 (modernc.org/sqlite 1.59.0) are green; #166 (NLog 6.2.1) fails the
+  Windows job because only one project's lock file was updated, so the locked
+  restore refuses. It needs `dotnet restore --force-evaluate` and a check that
+  NLog 6 still builds.
+- **Open issues, milestone `v0.1.4-beta`:** #145, #157.
 - **Open issues, milestone `v1.0.0`:** #18 (release), #21 (UI tracking), #44
-  (upstream), #136, #141, #142, #144.
+  (upstream), #136, #141, #142, #144, #168, #169, #170, #171, #172, #173.
 - **Open issues, milestone `after v1.0.0`:** #131.
-- **Open issues without a milestone:** #146, #147, #148.
+- **Open issues without a milestone:** #146, #147, #148, #160, #174.
 - **Proposed to the owner, not yet decided:**
-  - an issue for `capture/.vs/` (Visual Studio's cache, tracked in git since the
-    AmongUsCapture import)
+  - an issue for `capture/.vs/` (Visual Studio's cache, 4 files tracked in git
+    since the AmongUsCapture import)
   - a feature issue to show cosmetics again (string ids plus original pictures)
+  - deleting the remote branches `codex/061` to `codex/085`, which are all
+    merged into `main`
 - **Not possible:** a "join lobby" button. Among Us has no official deep link,
   and Discord link buttons allow only http, https and discord.
