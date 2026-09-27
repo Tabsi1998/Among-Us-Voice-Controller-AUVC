@@ -9,7 +9,6 @@ using System.Threading;
 using AmongUsCapture.Memory.Structs;
 using AUOffsetManager;
 using Newtonsoft.Json;
-using NLog.Fluent;
 using Color = System.Drawing.Color;
 
 namespace AmongUsCapture
