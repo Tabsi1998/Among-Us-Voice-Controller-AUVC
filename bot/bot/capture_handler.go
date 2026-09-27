@@ -109,11 +109,23 @@ type guildSession struct {
 type CaptureSessions struct {
 	mu       sync.Mutex
 	sessions map[string]*guildSession
+
+	// waits holds back the voice changes of the two phase changes that are
+	// better a moment late, see voiceWait.
+	waits *voiceWaits
 }
 
 // NewCaptureSessions returns an empty set.
 func NewCaptureSessions() *CaptureSessions {
-	return &CaptureSessions{sessions: map[string]*guildSession{}}
+	return &CaptureSessions{sessions: map[string]*guildSession{}, waits: newVoiceWaits()}
+}
+
+// waitThen runs the voice work of a guild, after wait or at once.
+func (c *CaptureSessions) waitThen(guildID string, wait time.Duration, work func() error) error {
+	if c.waits == nil {
+		return work()
+	}
+	return c.waits.run(guildID, wait, work)
 }
 
 // forGuild returns a guild's session, creating it on first use.
@@ -196,7 +208,9 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 		guild.mu.Unlock()
 		return nil
 	}
+	before := guild.live.Phase()
 	changed, err := applyCaptureMessage(guild.live, message)
+	after := guild.live.Phase()
 	mode := guild.mode
 	guild.mu.Unlock()
 
@@ -222,7 +236,11 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 		return nil
 	}
 
-	return bot.reconcileCaptureSession(guildID)
+	// Two phase changes are better a moment late than instant, see voiceWait.
+	// Everything else, a kill above all, reaches Discord straight away.
+	return bot.CaptureSessions.waitThen(guildID, voiceWait(before, after), func() error {
+		return bot.reconcileCaptureSession(guildID)
+	})
 }
 
 // applyCaptureMessage updates the session and reports whether the voice picture
