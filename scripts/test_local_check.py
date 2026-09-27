@@ -313,5 +313,53 @@ class PlanTests(unittest.TestCase):
         self.assertIn("FAIL  capture", text)
 
 
+
+class GoCoverageTests(unittest.TestCase):
+    """What the report says about Go coverage (#147).
+
+    Counting the wrong thing would put a number next to every package that
+    nobody can act on, so the statements Go itself counts are counted here.
+    """
+
+    profile = "\n".join([
+        "mode: set",
+        # Two files of one package, one block of statements never run.
+        "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice/policy.go:10.2,12.3 4 1",
+        "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice/policy.go:20.2,21.3 2 3",
+        "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/voice/reconcile.go:5.1,6.2 6 0",
+        # Another package, fully covered.
+        "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/bot/crewmate.go:1.1,2.2 10 1",
+        "",
+    ])
+
+    def test_statements_are_counted_per_package(self):
+        self.assertEqual(
+            check.coverage_by_package(self.profile),
+            [("bot", 10, 10), ("pkg/voice", 6, 12)])
+
+    def test_a_profile_without_measurements_reports_nothing(self):
+        self.assertEqual(check.coverage_by_package("mode: set\n"), [])
+        self.assertEqual(check.coverage_report([]), [])
+
+    def test_the_report_leads_with_the_total_and_the_thinnest_package(self):
+        lines = check.coverage_report(check.coverage_by_package(self.profile))
+
+        self.assertIn("Go coverage: 73% of 22 statements", lines[0])
+        self.assertIn("pkg/voice", lines[1])
+        self.assertIn("50%", lines[1])
+        self.assertIn("6/12", lines[1])
+        self.assertIn("bot", lines[2])
+        self.assertIn("100%", lines[2])
+
+    def test_the_summary_carries_the_coverage(self):
+        check.GO_COVERAGE[:] = check.coverage_by_package(self.profile)
+        self.addCleanup(check.GO_COVERAGE.clear)
+
+        text = check.summary([], 1.0)
+
+        self.assertIn("Go coverage: 73% of 22 statements", text)
+        self.assertIn("pkg/voice", text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -30,7 +30,12 @@ python scripts/local_check.py
 
 `--only bot,capture` runs some groups and `--list` shows every step. Results go
 to `.local-testing/`, which Git ignores: `local-check.json`, `local-check.log`,
-`go-events.jsonl` and `dotnet/local.trx`.
+`go-events.jsonl`, `go-coverage.out` and `dotnet/local.trx`.
+
+After the steps the report names the Go coverage: the share of statements the
+tests ran, in total and per package, least covered first. The same numbers are
+in `local-check.json` under `go_coverage`, so a thin package is visible without
+reading the profile.
 
 - Tools come from `PATH`. With the VS Code test setup on the PC, its pinned Go,
   .NET SDK and clang are used first.
