@@ -49,6 +49,9 @@ public sealed record LocalGuild
 
     /// <summary>Whether the living also lose their headphones during the tasks. An older bot does not say, and always deafened them.</summary>
     [JsonPropertyName("deafen_during_tasks")] public bool DeafenDuringTasks { get; init; } = true;
+
+    /// <summary>What the bot writes in for everybody in the server: "de", "en", or empty for the server language set in Discord.</summary>
+    [JsonPropertyName("language")] public string Language { get; init; } = "";
     public const string SessionRunning = "running";
     public const string SessionPaused = "paused";
     public const string SessionStopped = "stopped";
@@ -87,6 +90,9 @@ public sealed record LocalSetup
 
     /// <summary>Whether the living also lose their headphones during the tasks. Off, only their microphone is muted.</summary>
     [JsonPropertyName("deafen_during_tasks")] public bool DeafenDuringTasks { get; init; }
+
+    /// <summary>What the bot writes in for everybody in the server: "de", "en", or empty for the server language set in Discord.</summary>
+    [JsonPropertyName("language")] public string Language { get; init; } = "";
 }
 
 /// <summary>Who plays in the lobby, and whom the app can link them to.</summary>

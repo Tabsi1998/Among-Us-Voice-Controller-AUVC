@@ -102,8 +102,11 @@ type Guild struct {
 	AutoMoveGhosts bool `json:"auto_move_ghosts"`
 	// DeafenDuringTasks is whether the living also lose their headphones
 	// during the tasks, on top of the microphone.
-	DeafenDuringTasks  bool `json:"deafen_during_tasks"`
-	CaptureConnections int  `json:"capture_connections"`
+	DeafenDuringTasks bool `json:"deafen_during_tasks"`
+	// Language is what the bot writes in for this server: "de", "en", or empty
+	// to follow the server language set in Discord.
+	Language           string `json:"language"`
+	CaptureConnections int    `json:"capture_connections"`
 	// Session is running, paused or stopped, as /au session status reports it.
 	Session string  `json:"session"`
 	Checks  []Check `json:"checks"`
@@ -129,6 +132,10 @@ type Setup struct {
 	// DeafenDuringTasks is nil from an app that does not offer the choice,
 	// which keeps what the bot has stored.
 	DeafenDuringTasks *bool `json:"deafen_during_tasks,omitempty"`
+	// Language is "de", "en" or empty for the server language set in Discord.
+	// It is nil from an app that does not offer the choice, which keeps what
+	// the bot has stored; empty is a choice and does not.
+	Language *string `json:"language,omitempty"`
 }
 
 // Crewmates is who plays in the lobby, and whom the app can link them to.

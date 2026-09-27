@@ -52,6 +52,11 @@ type AppSetup struct {
 	// then what is stored stays. With it off the living keep their headphones
 	// during the tasks and only lose the microphone (#171).
 	DeafenDuringTasks *bool
+	// Language is what the bot writes in for everybody in the server: "de",
+	// "en", or empty to follow the server language set in Discord. It is nil
+	// from an app that does not offer the choice, and then what is stored
+	// stays (#148).
+	Language *string
 }
 
 // ConfigureFromApp saves a setup chosen in the Windows app and returns the
@@ -84,6 +89,11 @@ func (s *Service) ConfigureFromApp(guildID string, setup AppSetup) (sqlite.Guild
 	}
 	if setup.DeafenDuringTasks != nil {
 		config.DeafenDuringTasks = *setup.DeafenDuringTasks
+	}
+	if setup.Language != nil {
+		// An unknown language is refused by the same validation the command
+		// goes through, further down in save.
+		config.Language = *setup.Language
 	}
 	if config.AutoMoveGhosts && setup.GhostVoiceChannelID == "" {
 		return sqlite.GuildConfig{}, fmt.Errorf("%w: a ghost channel is required while the dead are moved into it", ErrInvalidInput)

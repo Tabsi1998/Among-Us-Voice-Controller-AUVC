@@ -475,3 +475,42 @@ func TestTheLocalRouteCarriesTheDeafenChoice(t *testing.T) {
 		t.Errorf("the guild still reports deafening after it was switched off")
 	}
 }
+
+// The app's language choice travels the local route and comes back with the
+// guild (#148).
+func TestTheLocalRouteCarriesTheServerLanguage(t *testing.T) {
+	fixture := newLocalFixture(t)
+	german := "de"
+
+	if err := fixture.backend.Configure(localGuild, localcontrol.Setup{
+		MainVoiceChannelID:  "voice-main",
+		GhostVoiceChannelID: "voice-ghosts",
+		Language:            &german,
+	}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+
+	guild, err := fixture.backend.Guild(localGuild, text.English)
+	if err != nil {
+		t.Fatalf("guild: %v", err)
+	}
+	if guild.Language != "de" {
+		t.Errorf("the guild reports the language as %q, want de", guild.Language)
+	}
+
+	discord := ""
+	if err := fixture.backend.Configure(localGuild, localcontrol.Setup{
+		MainVoiceChannelID:  "voice-main",
+		GhostVoiceChannelID: "voice-ghosts",
+		Language:            &discord,
+	}); err != nil {
+		t.Fatalf("configure again: %v", err)
+	}
+	guild, err = fixture.backend.Guild(localGuild, text.English)
+	if err != nil {
+		t.Fatalf("guild: %v", err)
+	}
+	if guild.Language != "" {
+		t.Errorf("the guild still reports %q after the Discord language was chosen", guild.Language)
+	}
+}

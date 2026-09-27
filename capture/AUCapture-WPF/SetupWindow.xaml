@@ -126,6 +126,16 @@
                         TextWrapping="Wrap" />
                     <TextBlock x:Name="ControlChannelLabel" Margin="0,12,0,4" />
                     <ComboBox x:Name="ControlChannelBox" DisplayMemberPath="Name" />
+                    <TextBlock x:Name="ServerLanguageLabel" Margin="0,12,0,4" />
+                    <ComboBox x:Name="ServerLanguageBox" SelectedValuePath="Tag">
+                        <ComboBoxItem x:Name="LanguageFromDiscordItem" Tag="" />
+                        <ComboBoxItem Content="Deutsch" Tag="de" />
+                        <ComboBoxItem Content="English" Tag="en" />
+                    </ComboBox>
+                    <TextBlock
+                        x:Name="ServerLanguageText"
+                        Margin="0,4,0,0"
+                        TextWrapping="Wrap" />
                     <CheckBox
                         x:Name="AutoStartBox"
                         Margin="0,16,0,0"

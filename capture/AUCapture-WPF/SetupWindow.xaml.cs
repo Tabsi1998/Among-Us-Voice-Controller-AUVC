@@ -113,6 +113,10 @@ namespace AUCapture_WPF
             DeafenBox.Content = SetupText.DeafenDuringTasks;
             DeafenText.Text = SetupText.DeafenExplained;
             DeafenBox.IsChecked = false;
+            ServerLanguageLabel.Text = SetupText.ServerLanguage;
+            ServerLanguageText.Text = SetupText.ServerLanguageExplained;
+            LanguageFromDiscordItem.Content = SetupText.LanguageFromDiscord;
+            ServerLanguageBox.SelectedValue = "";
             ControlChannelLabel.Text = SetupText.ControlChannel;
             AutoStartBox.Content = SetupText.AutoStart;
             SaveChannelsButton.Content = SetupText.Save;
@@ -506,6 +510,9 @@ namespace AUCapture_WPF
                 AutoStartBox.IsChecked = !editing || guild.AutoStart;
                 MoveGhostsBox.IsChecked = guild.AutoMoveGhosts;
                 DeafenBox.IsChecked = guild.DeafenDuringTasks;
+                // A language the app does not offer, set with /au settings, would
+                // otherwise be silently replaced by "same as Discord" on save.
+                ServerLanguageBox.SelectedValue = LanguageChoices.Contains(guild.Language) ? guild.Language : "";
 
                 if (voice.Count == 0)
                 {
@@ -525,6 +532,9 @@ namespace AUCapture_WPF
                 SetBusy(false);
             }
         }
+
+        /// <summary>The languages the setup offers for the server, empty being Discord's own.</summary>
+        private static readonly string[] LanguageChoices = ["", "de", "en"];
 
         private void MoveGhostsBox_Changed(object sender, RoutedEventArgs e) => ShowGhostChannel();
 
@@ -576,6 +586,7 @@ namespace AUCapture_WPF
                     AutoStart = AutoStartBox.IsChecked == true,
                     AutoMoveGhosts = moveGhosts,
                     DeafenDuringTasks = DeafenBox.IsChecked == true,
+                    Language = ServerLanguageBox.SelectedValue as string ?? "",
                 });
 
                 if (!finishSetup)

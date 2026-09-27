@@ -123,6 +123,7 @@ func (l *localBackend) Guild(guildID string, language text.Language) (localcontr
 		AutoStart:            config.AutoStart,
 		AutoMoveGhosts:       config.AutoMoveGhosts,
 		DeafenDuringTasks:    config.DeafenDuringTasks,
+		Language:             config.Language,
 		Checks:               []localcontrol.Check{},
 	}
 	if l.capture != nil {
@@ -181,6 +182,7 @@ func (l *localBackend) Configure(guildID string, setup localcontrol.Setup) error
 		AutoStart:            setup.AutoStart,
 		AutoMoveGhosts:       setup.AutoMoveGhosts,
 		DeafenDuringTasks:    setup.DeafenDuringTasks,
+		Language:             setup.Language,
 	})
 	if errors.Is(err, au.ErrInvalidInput) {
 		return fmt.Errorf("%w: %v", localcontrol.ErrInvalidSetup, err)

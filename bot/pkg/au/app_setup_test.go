@@ -212,3 +212,61 @@ func TestANewGuildOnlyLosesTheMicrophone(t *testing.T) {
 		t.Error("a new guild deafens the living during the tasks")
 	}
 }
+
+// The app may choose what the bot writes in for a server (#148). Empty follows
+// the server language set in Discord, and that is a choice like any other.
+func TestTheAppChoosesTheServerLanguage(t *testing.T) {
+	service, db := appSetupService(t)
+	german, discord := "de", ""
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost", Language: &german}); err != nil {
+		t.Fatalf("configure with German: %v", err)
+	}
+	if stored, err := db.GuildConfig("guild-1"); err != nil || stored.Language != "de" {
+		t.Fatalf("stored language is %q (err %v), want de", stored.Language, err)
+	}
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost", Language: &discord}); err != nil {
+		t.Fatalf("configure with the Discord language: %v", err)
+	}
+	if stored, err := db.GuildConfig("guild-1"); err != nil || stored.Language != "" {
+		t.Fatalf("stored language is %q (err %v), want empty", stored.Language, err)
+	}
+}
+
+// An app that does not offer the choice must not undo what /au settings set.
+func TestAnAppWithoutTheLanguageKeepsIt(t *testing.T) {
+	service, db := appSetupService(t)
+
+	config, err := db.EnsureGuildConfig("guild-1")
+	if err != nil {
+		t.Fatalf("ensure: %v", err)
+	}
+	config.Language = "de"
+	if err := db.SaveGuildConfig(config); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	if _, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost"}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+	if stored, err := db.GuildConfig("guild-1"); err != nil || stored.Language != "de" {
+		t.Errorf("the language became %q (err %v), want de", stored.Language, err)
+	}
+}
+
+// A language nobody speaks is refused, the way the command refuses it.
+func TestALanguageTheBotDoesNotKnowIsRefused(t *testing.T) {
+	service, _ := appSetupService(t)
+	klingon := "tlh"
+
+	_, err := service.ConfigureFromApp("guild-1", AppSetup{
+		MainVoiceChannelID: "main", GhostVoiceChannelID: "ghost", Language: &klingon})
+
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("got %v, want %v", err, ErrInvalidInput)
+	}
+}
