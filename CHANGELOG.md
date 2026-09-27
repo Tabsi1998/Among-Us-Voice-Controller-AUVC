@@ -4,6 +4,17 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- NLog is at 6.2.1 in both capture projects
+  ([#177](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/177)).
+  - **Why:** Dependabot bumped only one of the two projects, which left the
+    locked restore of every dependent project inconsistent and failed the
+    Windows job of its own pull request (#166).
+  - **Log files:** NLog 6 dropped the archive numbering modes. The log of the
+    previous start is now `latest_<date>.log` beside `latest.log`, at most 100
+    are kept, and **Export diagnostics** still collects them.
+
 ### Fixed
 
 - The crewmate message follows a map the host picks in the lobby

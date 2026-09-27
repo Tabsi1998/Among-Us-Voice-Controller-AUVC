@@ -37,12 +37,13 @@ namespace AUCapture_WPF
             var logfile = new NLog.Targets.FileTarget("logfile")
             {
                 FileName = "${specialfolder:folder=ApplicationData:cached=true}/AmongUsCapture/logs/latest.log",
-                ArchiveFileName = "${specialfolder:folder=ApplicationData:cached=true}/AmongUsCapture/logs/{#}.log",
-                ArchiveNumbering = ArchiveNumberingMode.Date,
                 Layout = "${time:universalTime=True}|${level:uppercase=true}|${logger}|${message}",
+                // NLog 6 dropped the archive numbering modes. The archive of every
+                // start is now latest_<date>.log next to latest.log, which the
+                // diagnostics export still picks up as *.log.
+                ArchiveSuffixFormat = "_{1:yyyy-MM-dd HH_mm_ss}",
                 MaxArchiveFiles = 100,
                 ArchiveOldFileOnStartup = true,
-                ArchiveDateFormat = "yyyy-MM-dd HH_mm_ss",
                 Header = $"Capture version: {v.FileMajorPart}.{v.FileMinorPart}.{v.FileBuildPart}.{v.FilePrivatePart}\n",
                 Footer = $"\nCapture version: {v.FileMajorPart}.{v.FileMinorPart}.{v.FileBuildPart}.{v.FilePrivatePart}"
             };
