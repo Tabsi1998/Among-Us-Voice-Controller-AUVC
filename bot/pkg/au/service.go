@@ -125,10 +125,11 @@ func (s *Service) VoiceConfig(guildID string) (voice.Config, bool, error) {
 	}
 
 	return voice.Config{
-		MainChannelID:   config.MainVoiceChannelID,
-		GhostChannelID:  config.GhostVoiceChannelID,
-		AutoMoveGhosts:  config.AutoMoveGhosts,
-		EnforceChannels: config.EnforceChannels,
+		MainChannelID:     config.MainVoiceChannelID,
+		GhostChannelID:    config.GhostVoiceChannelID,
+		AutoMoveGhosts:    config.AutoMoveGhosts,
+		EnforceChannels:   config.EnforceChannels,
+		DeafenDuringTasks: config.DeafenDuringTasks,
 	}, Ready(config), nil
 }
 
@@ -273,6 +274,9 @@ func (s *Service) handleSettings(request Request, config sqlite.GuildConfig) (st
 		if policy, ok := request.Values.String(OptionPolicy); ok {
 			config.VoicePolicy = policy
 		}
+		if deafen, ok := request.Values.Bool(OptionDeafen); ok {
+			config.DeafenDuringTasks = deafen
+		}
 
 	case SettingsGhosts:
 		if autoMove, ok := request.Values.Bool(OptionAutoMoveGhosts); ok {
@@ -397,6 +401,7 @@ func formatSettings(config sqlite.GuildConfig, language text.Language) string {
 	return language.Say(text.SettingsList,
 		yesNo(config.Enabled, language), formatChannels(config, language), adminRole, config.VoicePolicy,
 		yesNo(config.AutoMoveGhosts, language), yesNo(config.EnforceChannels, language),
+		yesNo(config.DeafenDuringTasks, language),
 		config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
 		yesNo(config.AutoStart, language), serverLanguage(config, language), config.ConfigVersion)
 }

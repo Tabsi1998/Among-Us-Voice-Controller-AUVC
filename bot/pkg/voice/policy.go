@@ -40,6 +40,12 @@ type Config struct {
 	// to each other. With it off, or with no ghost channel configured, dead
 	// players stay in the main channel and are silenced instead.
 	AutoMoveGhosts bool
+	// DeafenDuringTasks also takes the headphones of the living while the
+	// tasks run. Muting their microphone is what the game needs; deafening on
+	// top of it also hides anybody in the main channel AUVC does not manage,
+	// such as a spectator or a player nobody linked.
+	DeafenDuringTasks bool
+
 	// EnforceChannels returns players who switch channels themselves. It is on
 	// by default. With it off the bot stops deciding where a living player
 	// sits during a round and only manages what they can say and hear.
@@ -83,7 +89,8 @@ func (c Config) enforcedMain() string {
 // The mapping follows the ghost-chat table in docs/requirements.md:
 //
 //	Lobby       living and dead   main, open
-//	Tasks       living            main, muted and deafened
+//	Tasks       living            main, muted, deafened only when the guild
+//	                              asks for it (DeafenDuringTasks)
 //	            dead, secret      left where they are, muted
 //	            dead, announced   ghost, open
 //	Discussion  living            main, open
@@ -115,12 +122,14 @@ func desiredFor(phase game.Phase, alive, revealed bool, config Config) DesiredVo
 	switch phase {
 	case game.TASKS:
 		if alive {
-			// Living players cannot talk and cannot hear anything while the
-			// round is running.
+			// Living players cannot talk while the round is running. Whether
+			// they can hear is the guild's choice: the game only needs the
+			// microphone gone, but deafening also hides anybody unmanaged who
+			// talks in the main channel.
 			return DesiredVoiceState{
 				TargetChannelID: config.enforcedMain(),
 				Muted:           true,
-				Deafened:        true,
+				Deafened:        config.DeafenDuringTasks,
 			}
 		}
 		if !revealed {

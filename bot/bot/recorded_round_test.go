@@ -27,10 +27,11 @@ var roundPlayers = []string{"Ava", "Ben", "Cleo", "Dario", "Elif", "Finn", "Gret
 	"Ines", "Jonas", "Kira", "Luca", "Mia", "Noah", "Omar"}
 
 var roundConfig = voice.Config{
-	MainChannelID:   mainChannel,
-	GhostChannelID:  ghostChannel,
-	AutoMoveGhosts:  true,
-	EnforceChannels: true,
+	MainChannelID:     mainChannel,
+	GhostChannelID:    ghostChannel,
+	AutoMoveGhosts:    true,
+	DeafenDuringTasks: true,
+	EnforceChannels:   true,
 }
 
 // notManaged marks a player the voice policy must leave entirely alone.

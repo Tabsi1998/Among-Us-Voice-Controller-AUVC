@@ -65,10 +65,11 @@ func newLobby(t *testing.T, players ...string) *lobby {
 			AUVCLinks:       db,
 		},
 		config: voice.Config{
-			MainChannelID:   mainChannel,
-			GhostChannelID:  ghostChannel,
-			AutoMoveGhosts:  true,
-			EnforceChannels: true,
+			MainChannelID:     mainChannel,
+			GhostChannelID:    ghostChannel,
+			AutoMoveGhosts:    true,
+			EnforceChannels:   true,
+			DeafenDuringTasks: true,
 		},
 		observed: map[string]voice.Observed{},
 	}

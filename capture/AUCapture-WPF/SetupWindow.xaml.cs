@@ -110,6 +110,9 @@ namespace AUCapture_WPF
             MoveGhostsBox.Content = SetupText.MoveGhosts;
             StayInMainText.Text = SetupText.StayInMain;
             MoveGhostsBox.IsChecked = true;
+            DeafenBox.Content = SetupText.DeafenDuringTasks;
+            DeafenText.Text = SetupText.DeafenExplained;
+            DeafenBox.IsChecked = false;
             ControlChannelLabel.Text = SetupText.ControlChannel;
             AutoStartBox.Content = SetupText.AutoStart;
             SaveChannelsButton.Content = SetupText.Save;
@@ -502,6 +505,7 @@ namespace AUCapture_WPF
                 // later keeps whatever was chosen.
                 AutoStartBox.IsChecked = !editing || guild.AutoStart;
                 MoveGhostsBox.IsChecked = guild.AutoMoveGhosts;
+                DeafenBox.IsChecked = guild.DeafenDuringTasks;
 
                 if (voice.Count == 0)
                 {
@@ -571,6 +575,7 @@ namespace AUCapture_WPF
                     ControlTextChannelId = (ControlChannelBox.SelectedItem as LocalChannel)?.Id ?? "",
                     AutoStart = AutoStartBox.IsChecked == true,
                     AutoMoveGhosts = moveGhosts,
+                    DeafenDuringTasks = DeafenBox.IsChecked == true,
                 });
 
                 if (!finishSetup)

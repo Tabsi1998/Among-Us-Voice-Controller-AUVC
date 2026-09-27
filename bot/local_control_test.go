@@ -436,3 +436,42 @@ func TestCommandTargets(t *testing.T) {
 		}
 	}
 }
+
+// The app's choice about deafening travels the local route and comes back with
+// the guild (#171).
+func TestTheLocalRouteCarriesTheDeafenChoice(t *testing.T) {
+	fixture := newLocalFixture(t)
+	on := true
+
+	if err := fixture.backend.Configure(localGuild, localcontrol.Setup{
+		MainVoiceChannelID:  "voice-main",
+		GhostVoiceChannelID: "voice-ghosts",
+		DeafenDuringTasks:   &on,
+	}); err != nil {
+		t.Fatalf("configure: %v", err)
+	}
+
+	guild, err := fixture.backend.Guild(localGuild, text.English)
+	if err != nil {
+		t.Fatalf("guild: %v", err)
+	}
+	if !guild.DeafenDuringTasks {
+		t.Errorf("the guild reports deafening as %v, want true", guild.DeafenDuringTasks)
+	}
+
+	off := false
+	if err := fixture.backend.Configure(localGuild, localcontrol.Setup{
+		MainVoiceChannelID:  "voice-main",
+		GhostVoiceChannelID: "voice-ghosts",
+		DeafenDuringTasks:   &off,
+	}); err != nil {
+		t.Fatalf("configure again: %v", err)
+	}
+	guild, err = fixture.backend.Guild(localGuild, text.English)
+	if err != nil {
+		t.Fatalf("guild: %v", err)
+	}
+	if guild.DeafenDuringTasks {
+		t.Errorf("the guild still reports deafening after it was switched off")
+	}
+}

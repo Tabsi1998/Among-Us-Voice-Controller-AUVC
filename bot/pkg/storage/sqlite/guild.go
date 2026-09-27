@@ -25,6 +25,10 @@ type GuildConfig struct {
 	VoicePolicy     string `json:"voice_policy"`
 	AutoMoveGhosts  bool   `json:"auto_move_ghosts"`
 	EnforceChannels bool   `json:"enforce_channels"`
+	// DeafenDuringTasks also takes the living players' headphones during
+	// the tasks. Muting them is what the game needs; deafening additionally
+	// hides members AUVC does not manage.
+	DeafenDuringTasks bool `json:"deafen_during_tasks"`
 
 	CaptureTimeoutSeconds int    `json:"capture_timeout_seconds"`
 	CaptureTimeoutAction  string `json:"capture_timeout_action"`
@@ -52,6 +56,7 @@ func DefaultGuildConfig(guildID string) GuildConfig {
 		VoicePolicy:           "ghost-chat",
 		AutoMoveGhosts:        true,
 		EnforceChannels:       true,
+		DeafenDuringTasks:     false,
 		CaptureTimeoutSeconds: 60,
 		CaptureTimeoutAction:  "fail-open",
 		AutoStart:             false,
@@ -62,7 +67,7 @@ func DefaultGuildConfig(guildID string) GuildConfig {
 
 const guildColumns = `guild_id, enabled, main_voice_channel_id, ghost_voice_channel_id,
 	control_text_channel_id, admin_role_id, voice_policy, auto_move_ghosts,
-	enforce_channels, capture_timeout_seconds, capture_timeout_action, auto_start,
+	enforce_channels, deafen_during_tasks, capture_timeout_seconds, capture_timeout_action, auto_start,
 	language, config_version, created_at, updated_at`
 
 // GuildConfig returns the stored configuration for a guild, or ErrNotFound.
@@ -111,7 +116,7 @@ func (d *DB) SaveGuildConfig(config GuildConfig) error {
 
 	_, err := d.db.Exec(`
 		INSERT INTO guild_config (`+guildColumns+`)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())
 		ON CONFLICT(guild_id) DO UPDATE SET
 			enabled                 = excluded.enabled,
 			main_voice_channel_id   = excluded.main_voice_channel_id,
@@ -121,6 +126,7 @@ func (d *DB) SaveGuildConfig(config GuildConfig) error {
 			voice_policy            = excluded.voice_policy,
 			auto_move_ghosts        = excluded.auto_move_ghosts,
 			enforce_channels        = excluded.enforce_channels,
+			deafen_during_tasks     = excluded.deafen_during_tasks,
 			capture_timeout_seconds = excluded.capture_timeout_seconds,
 			capture_timeout_action  = excluded.capture_timeout_action,
 			auto_start              = excluded.auto_start,
@@ -129,7 +135,7 @@ func (d *DB) SaveGuildConfig(config GuildConfig) error {
 			updated_at              = unixepoch()`,
 		config.GuildID, config.Enabled, config.MainVoiceChannelID, config.GhostVoiceChannelID,
 		config.ControlTextChannelID, config.AdminRoleID, config.VoicePolicy, config.AutoMoveGhosts,
-		config.EnforceChannels, config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
+		config.EnforceChannels, config.DeafenDuringTasks, config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
 		config.AutoStart, config.Language, config.ConfigVersion)
 	if err != nil {
 		return fmt.Errorf("save guild %s: %w", config.GuildID, err)
@@ -146,7 +152,7 @@ func scanGuildConfig(row scanner) (GuildConfig, error) {
 	err := row.Scan(
 		&c.GuildID, &c.Enabled, &c.MainVoiceChannelID, &c.GhostVoiceChannelID,
 		&c.ControlTextChannelID, &c.AdminRoleID, &c.VoicePolicy, &c.AutoMoveGhosts,
-		&c.EnforceChannels, &c.CaptureTimeoutSeconds, &c.CaptureTimeoutAction,
+		&c.EnforceChannels, &c.DeafenDuringTasks, &c.CaptureTimeoutSeconds, &c.CaptureTimeoutAction,
 		&c.AutoStart, &c.Language, &c.ConfigVersion, &c.CreatedAt, &c.UpdatedAt)
 	return c, err
 }

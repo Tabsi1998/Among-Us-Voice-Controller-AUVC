@@ -19,7 +19,7 @@ That absence is the whole point of this page.
 | # | Scenario | Where |
 | --- | --- | --- |
 | 1 | Lobby: everyone open in main | `bot/acceptance_test.go` |
-| 2 | Tasks: living muted and deafened | `bot/acceptance_test.go` |
+| 2 | Tasks: living muted, and deafened when the guild asks for it | `bot/acceptance_test.go`, `bot/mic_only_test.go` |
 | 3 | Death during tasks is not announced by a move | `bot/acceptance_test.go`, `pkg/voice/secrecy_test.go` |
 | 4 | The meeting sends the ghost to the ghost channel | `bot/acceptance_test.go` |
 | 5 | Two ghosts share the ghost channel | `bot/acceptance_test.go` |

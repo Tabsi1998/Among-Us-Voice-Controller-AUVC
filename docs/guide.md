@@ -224,10 +224,15 @@ From then on AUVC follows the game on its own:
 | Phase | Living players | Dead players |
 | --- | --- | --- |
 | Lobby | Main channel, can talk | Main channel, can talk |
-| Tasks, death not yet announced | Main channel, muted and deafened | Stay where they are, muted |
-| Tasks, death announced | Main channel, muted and deafened | Ghost channel, can talk |
+| Tasks, death not yet announced | Main channel, muted | Stay where they are, muted |
+| Tasks, death announced | Main channel, muted | Ghost channel, can talk |
 | Meeting and voting | Main channel, can talk | Ghost channel, can talk |
 | Round over | Main channel, can talk | Main channel, can talk |
+
+With **Also deafen living players during the tasks** switched on, the living
+also hear nothing while the tasks run. It is off by default: muting the
+microphone is what the game needs, and deafening also hides anybody in the main
+channel AUVC does not manage, such as a spectator.
 
 With **Move the dead into the ghost channel** switched off, nobody changes
 channels: the dead stay in the main channel, muted, until the round is over, and
@@ -261,7 +266,7 @@ opens everything the setup chose, as five sections you can change one at a time:
 | --- | --- |
 | **Token** | Paste a new token and click **Check token**. The bot restarts with it. |
 | **Server** | Choose another server and click **Use this server**, then choose its channels under **Channels**. **Invite the bot** adds the bot to another server first. |
-| **Channels** | Change the main, ghost and text channel, whether the dead move into the ghost channel, and automatic start, then click **Save**. |
+| **Channels** | Change the main, ghost and text channel, whether the dead move into the ghost channel, whether the living are also deafened during the tasks, and automatic start, then click **Save**. |
 | **Status** | The bot's checks. **Restart the bot** restarts it. **Stop running the bot on this PC** keeps AUVC from starting it; the token and the settings stay stored, and **Set up** switches it back on. |
 | **Players** | Every crewmate in the current lobby, each with a menu of the members in the server's voice channels. Choose a member to link them, or *(nobody)* to remove the link. It takes effect at once. |
 

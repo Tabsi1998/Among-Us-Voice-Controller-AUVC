@@ -16,11 +16,20 @@ const (
 // on and channel enforcement on.
 func ghostChat() Config {
 	return Config{
-		MainChannelID:   main,
-		GhostChannelID:  ghost,
-		AutoMoveGhosts:  true,
-		EnforceChannels: true,
+		MainChannelID:     main,
+		GhostChannelID:    ghost,
+		AutoMoveGhosts:    true,
+		EnforceChannels:   true,
+		DeafenDuringTasks: true,
 	}
+}
+
+// micOnly is the default since #171: the living lose the microphone during the
+// tasks and keep their headphones.
+func micOnly() Config {
+	config := ghostChat()
+	config.DeafenDuringTasks = false
+	return config
 }
 
 func stateWith(phase game.Phase, players ...session.PlayerState) session.State {
