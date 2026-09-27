@@ -268,7 +268,7 @@ can change one at a time:
 | --- | --- |
 | **Token** | Paste a new token and click **Check token**. The bot restarts with it. |
 | **Server** | Choose another server and click **Use this server**, then choose its channels under **Channels**. **Invite the bot** adds the bot to another server first. |
-| **Channels** | Change the main, ghost and text channel, whether the dead move into the ghost channel, whether the living are also deafened during the tasks, and automatic start, then click **Save**. |
+| **Channels** | Change the main, ghost and text channel, whether the dead move into the ghost channel, whether the living are also deafened during the tasks, the bot's language in the server, and automatic start, then click **Save**. |
 | **Status** | The bot's checks. **Restart the bot** restarts it. **Stop running the bot on this PC** keeps AUVC from starting it; the token and the settings stay stored, and **Set up** switches it back on. |
 | **Players** | Every crewmate in the current lobby, each with a menu of the members in the server's voice channels. Choose a member to link them, or *(nobody)* to remove the link. It takes effect at once. |
 
@@ -322,7 +322,9 @@ Every answer is visible only to whoever typed the command. It comes in your
 Discord language: German when your Discord is set to German, English otherwise.
 Discord shows the command descriptions the same way. The crewmate message and
 the notices in the text channel are read by everyone, so they come in the
-server's language (`/au settings language`).
+server's language. Choose it with `/au settings language`, or in the app under
+**Bot** → **Channels**, where **Same as the Discord server** follows the server
+language set in Discord.
 
 | Command | What it does |
 | --- | --- |

@@ -127,6 +127,16 @@ namespace AUCapture_WPF
 
         public static string MoveGhosts => T("Tote in den Geisterkanal verschieben", "Move the dead into the ghost channel");
 
+        public static string ServerLanguage => T("Sprache des Bots im Server", "The bot's language in the server");
+
+        public static string ServerLanguageExplained => T(
+            "In dieser Sprache schreibt der Bot für alle im Server, zum Beispiel die Crewmate-Nachricht. " +
+            "Antworten, die nur eine Person sieht, kommen immer in deren eigener Discord-Sprache.",
+            "The bot writes in this language for everybody in the server, the crewmate message for example. " +
+            "Replies only one person sees always use that person's own Discord language.");
+
+        public static string LanguageFromDiscord => T("Wie der Discord-Server", "Same as the Discord server");
+
         public static string DeafenDuringTasks => T(
             "Lebende während der Aufgaben auch taub schalten",
             "Also deafen living players during the tasks");

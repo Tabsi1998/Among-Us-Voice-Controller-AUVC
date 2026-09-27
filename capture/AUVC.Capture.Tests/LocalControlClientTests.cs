@@ -123,7 +123,7 @@ namespace AUVC.Capture.Tests
             var handler = new StubHandler((request, _) => request.RequestUri!.AbsolutePath.EndsWith("/channels")
                 ? Json(HttpStatusCode.OK, """[{"id":"v1","name":"Among Us","kind":"voice","position":1}]""")
                 : Json(HttpStatusCode.OK,
-                    """{"id":"g1","name":"The Crew","main_voice_channel_id":"v1","ghost_voice_channel_id":"v2","control_text_channel_id":"t1","auto_start":true,"auto_move_ghosts":false,"deafen_during_tasks":false,"capture_connections":1,"session":"paused","checks":[{"name":"Discord","level":"ok","detail":"connected"}]}"""));
+                    """{"id":"g1","name":"The Crew","main_voice_channel_id":"v1","ghost_voice_channel_id":"v2","control_text_channel_id":"t1","auto_start":true,"auto_move_ghosts":false,"deafen_during_tasks":false,"language":"de","capture_connections":1,"session":"paused","checks":[{"name":"Discord","level":"ok","detail":"connected"}]}"""));
 
             var channels = await Client(handler).GetChannelsAsync("g1");
             var guild = await Client(handler).GetGuildAsync("g1");
@@ -133,6 +133,7 @@ namespace AUVC.Capture.Tests
             Assert.True(guild.AutoStart);
             Assert.False(guild.AutoMoveGhosts);
             Assert.False(guild.DeafenDuringTasks);
+            Assert.Equal("de", guild.Language);
             Assert.Equal(1, guild.CaptureConnections);
             Assert.Equal(LocalGuild.SessionPaused, guild.Session);
             Assert.Equal(LocalCheck.Ok, Assert.Single(guild.Checks).Level);
@@ -151,12 +152,13 @@ namespace AUVC.Capture.Tests
                 AutoStart = true,
                 AutoMoveGhosts = false,
                 DeafenDuringTasks = true,
+                Language = "de",
             });
 
             Assert.Equal(HttpMethod.Put, handler.Last!.Method);
             Assert.Equal("/local/guilds/g1/setup", handler.Last.RequestUri!.AbsolutePath);
             Assert.Equal(
-                """{"main_voice_channel_id":"v1","ghost_voice_channel_id":"v2","control_text_channel_id":"t1","auto_start":true,"auto_move_ghosts":false,"deafen_during_tasks":true}""",
+                """{"main_voice_channel_id":"v1","ghost_voice_channel_id":"v2","control_text_channel_id":"t1","auto_start":true,"auto_move_ghosts":false,"deafen_during_tasks":true,"language":"de"}""",
                 handler.LastBody);
         }
 

@@ -280,7 +280,7 @@ festgelegt hat, in fünf Bereichen, die du einzeln ändern kannst:
 | --- | --- |
 | **Token** | Neuen Token einfügen und **Token prüfen** klicken. Der Bot startet damit neu. |
 | **Server** | Anderen Server wählen und **Diesen Server verwenden** klicken, danach unter **Kanäle** dessen Kanäle wählen. **Bot einladen** fügt den Bot vorher einem anderen Server hinzu. |
-| **Kanäle** | Haupt-, Geister- und Textkanal, ob Tote in den Geisterkanal kommen, und den automatischen Start ändern und **Speichern** klicken. |
+| **Kanäle** | Haupt-, Geister- und Textkanal, ob Tote in den Geisterkanal kommen, ob Lebende während der Aufgaben auch taub geschaltet werden, die Sprache des Bots im Server und den automatischen Start ändern und **Speichern** klicken. |
 | **Status** | Die Prüfungen des Bots. **Bot neu starten** startet ihn neu. **Bot auf diesem PC ausschalten** sorgt dafür, dass AUVC ihn nicht mehr startet. Token und Einstellungen bleiben gespeichert, und **Einrichten** schaltet ihn wieder ein. |
 | **Spieler** | Jede Figur der aktuellen Lobby, jeweils mit einem Menü der Mitglieder in den Sprachkanälen des Servers. Ein Mitglied wählen verknüpft es, *(niemand)* entfernt die Verknüpfung. Das wirkt sofort. |
 
@@ -334,7 +334,9 @@ Jede Antwort sieht nur, wer den Befehl eingegeben hat. Sie kommt in deiner
 Discord-Sprache: auf Deutsch, wenn dein Discord auf Deutsch eingestellt ist, sonst
 auf Englisch. Die Beschreibungen der Befehle zeigt Discord ebenso an. Die
 Crewmate-Nachricht und die Hinweise im Textkanal lesen alle; sie kommen in der
-Sprache des Servers (`/au settings language`).
+Sprache des Servers. Wähle sie mit `/au settings language` oder in der App unter
+**Bot** → **Kanäle**; **Wie der Discord-Server** folgt der Serversprache, die in
+Discord eingestellt ist.
 
 | Befehl | Was er tut |
 | --- | --- |

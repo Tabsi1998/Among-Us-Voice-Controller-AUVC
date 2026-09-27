@@ -4,6 +4,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- The app chooses the bot's language in the server
+  ([#148](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/148)).
+  - **Where:** in the setup and under **Bot → Channels**: **Same as the Discord
+    server**, **Deutsch** or **English**.
+  - **What it covers:** what everybody in the server reads, the crewmate
+    message above all. A reply only one person sees keeps that person's own
+    Discord language.
+  - **Same as `/au settings language`**, which still works. A language set in
+    Discord that the app does not offer is left alone rather than overwritten.
+
 ## v0.1.6-beta — 2026-09-27
 
 The seventh pre-release, and all of it comes from the live test of v0.1.5-beta:
