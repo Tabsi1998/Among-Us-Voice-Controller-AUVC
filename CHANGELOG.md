@@ -4,22 +4,28 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
-### Changed
+## v0.1.6-beta — 2026-09-27
 
-- The settings panel is readable again
-  ([#172](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/172)).
-  - **Before:** the panel was 275 pixels wide, its tab names stood beside the
-    content and were cut off, and a `Viewbox` scaled every setting down to fit
-    the rest of the width. On a 4K screen almost nothing could be read.
-  - **Now:** the panel is 440 pixels wide, the tabs sit on top, the settings are
-    shown at their normal size, and the panel is fully opaque.
-- **Bot** and pairing moved from the title bar into the settings
-  ([#173](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/173)).
-  - **Title bar:** only the gear button is left.
-  - **Settings, first tab Bot:** the button to the setup, and **Pair with the
-    AUVC bot** while the bot does not run on this PC, each with a line saying
-    what it is for.
-  - **Why pairing stays:** it is the way to a bot on another computer.
+The seventh pre-release, and all of it comes from the live test of v0.1.5-beta:
+during the tasks the living only lose their microphone, voice changes wait a
+moment where the game is faster than the people, everybody is muted at the same
+time instead of one after the other, the crewmate message follows a map the host
+picks in the lobby, and the settings panel can be read again.
+
+**Update.** Install over v0.1.5-beta, or unpack the new portable zip; the token,
+the settings and the links stay. Two things change by themselves: during the
+tasks the living keep their headphones, and **Bot** now lives behind the gear
+instead of in the title bar. v0.1.5-beta tells you about this version.
+
+**Known limitations.** Unsigned, so Windows warns about an unknown publisher.
+Everything in here passed the automated checks but not a real round: the three
+seconds, the faster muting, the map picture and the new settings panel are what
+the live test (#157) is for. Why a PlayStation player who joined the main
+channel in the lobby was dropped is still not known
+([#160](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/160));
+the bot log now shows what happened around it. With a bot on another computer
+the player badges stay empty. Built and published from the maintainer's PC;
+`SHA256SUMS` lists the hash of every file.
 
 ### Changed
 
@@ -59,6 +65,20 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   - **Log files:** NLog 6 dropped the archive numbering modes. The log of the
     previous start is now `latest_<date>.log` beside `latest.log`, at most 100
     are kept, and **Export diagnostics** still collects them.
+- The settings panel is readable again
+  ([#172](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/172)).
+  - **Before:** the panel was 275 pixels wide, its tab names stood beside the
+    content and were cut off, and a `Viewbox` scaled every setting down to fit
+    the rest of the width. On a 4K screen almost nothing could be read.
+  - **Now:** the panel is 440 pixels wide, the tabs sit on top, the settings are
+    shown at their normal size, and the panel is fully opaque.
+- **Bot** and pairing moved from the title bar into the settings
+  ([#173](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/173)).
+  - **Title bar:** only the gear button is left.
+  - **Settings, first tab Bot:** the button to the setup, and **Pair with the
+    AUVC bot** while the bot does not run on this PC, each with a line saying
+    what it is for.
+  - **Why pairing stays:** it is the way to a bot on another computer.
 
 ### Fixed
 
