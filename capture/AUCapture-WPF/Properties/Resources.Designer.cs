@@ -703,6 +703,15 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bot.
+        /// </summary>
+        public static string SettingsBotTabHeader {
+            get {
+                return ResourceManager.GetString("SettingsBotTabHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Debug.
         /// </summary>
         public static string SettingsDebugTabHeader {

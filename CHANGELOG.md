@@ -6,6 +6,23 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Changed
 
+- The settings panel is readable again
+  ([#172](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/172)).
+  - **Before:** the panel was 275 pixels wide, its tab names stood beside the
+    content and were cut off, and a `Viewbox` scaled every setting down to fit
+    the rest of the width. On a 4K screen almost nothing could be read.
+  - **Now:** the panel is 440 pixels wide, the tabs sit on top, the settings are
+    shown at their normal size, and the panel is fully opaque.
+- **Bot** and pairing moved from the title bar into the settings
+  ([#173](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/173)).
+  - **Title bar:** only the gear button is left.
+  - **Settings, first tab Bot:** the button to the setup, and **Pair with the
+    AUVC bot** while the bot does not run on this PC, each with a line saying
+    what it is for.
+  - **Why pairing stays:** it is the way to a bot on another computer.
+
+### Changed
+
 - The living only lose their microphone during the tasks
   ([#171](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/171)).
   - **Before:** they were muted and deafened, so they heard nothing at all.

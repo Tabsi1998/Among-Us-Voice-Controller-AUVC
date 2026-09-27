@@ -167,6 +167,12 @@ namespace AUCapture_WPF
         public static string SettingsWindowTitle => T("AUVC · Bot-Einstellungen", "AUVC · Bot settings");
         public static string SettingsButton => T("Bot", "Bot");
         public static string SettingsButtonTooltip => T("Token, Server, Kanäle, Spieler und Status des Bots ändern", "Change the bot's token, server, channels, players and status");
+
+        public static string PairOnlyForAnotherPc => T(
+            "Nur nötig, wenn der Bot auf einem anderen Rechner läuft. Führe dort in Discord „/au capture pair“ aus " +
+            "und gib hier die Adresse des Bots und den Code ein.",
+            "Only needed when the bot runs on another computer. Run “/au capture pair” in Discord there, " +
+            "then enter the bot's address and the code here.");
         public static string SectionToken => T("Token", "Token");
         public static string SectionServer => T("Server", "Server");
         public static string SectionChannels => T("Kanäle", "Channels");
