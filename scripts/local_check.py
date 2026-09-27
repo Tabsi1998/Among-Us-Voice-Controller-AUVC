@@ -77,6 +77,12 @@ GOVULNCHECK = "golang.org/x/vuln/cmd/govulncheck@v1.8.0"
 # The CI fails when fewer capture tests run than this, so tests that silently
 # stop being discovered cannot pass as green.
 MIN_CAPTURE_TESTS = 99
+
+# The bot's module path, stripped from the package names of the coverage report.
+BOT_MODULE = "github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/"
+
+# What the Go tests covered, filled by go_tests and shown in the report (#147).
+GO_COVERAGE: list[tuple[str, int, int]] = []
 PAYLOAD_FILES = ("hostfxr.dll", "coreclr.dll", "PresentationFramework.dll")
 LOCAL_VERSION = "v0.0.0-local"
 
@@ -446,6 +452,63 @@ def go_tests(context: Context) -> None:
     if code != 0:
         raise StepFailed("Go tests failed; the failing tests are shown above")
 
+    # The coverage is read here rather than in the report, so a run that stops
+    # before the report still leaves the numbers of the tests that did run.
+    profile = STATE / "go-coverage.out"
+    GO_COVERAGE[:] = coverage_by_package(profile.read_text(encoding="utf-8")) if profile.exists() else []
+    statements = sum(row[2] for row in GO_COVERAGE)
+    if statements:
+        hit = sum(row[1] for row in GO_COVERAGE)
+        return f"{100 * hit / statements:.0f}% of {statements} statements covered"
+    return ""
+
+
+def coverage_by_package(profile: str) -> list[tuple[str, int, int]]:
+    """Covered and total statements per package, read from a Go coverage profile.
+
+    A line is "<file>:<from>,<to> <statements> <count>", and the package is the
+    folder of the file. Counting statements rather than lines is what `go tool
+    cover` does, so the percentages here are the ones Go itself reports.
+    """
+    covered: dict[str, int] = {}
+    total: dict[str, int] = {}
+    for line in profile.splitlines():
+        parts = line.split()
+        if len(parts) != 3 or ":" not in parts[0]:
+            # "mode: set" and anything unexpected.
+            continue
+        file, _, _ = parts[0].partition(":")
+        try:
+            statements, count = int(parts[1]), int(parts[2])
+        except ValueError:
+            continue
+
+        package = file.rsplit("/", 1)[0]
+        if package.startswith(BOT_MODULE):
+            package = package[len(BOT_MODULE):]
+        total[package] = total.get(package, 0) + statements
+        covered[package] = covered.get(package, 0) + (statements if count > 0 else 0)
+
+    return [(package, covered[package], total[package]) for package in sorted(total)]
+
+
+def coverage_report(rows: list[tuple[str, int, int]]) -> list[str]:
+    """The coverage block of the report, least covered package first."""
+    if not rows:
+        return []
+
+    statements = sum(row[2] for row in rows)
+    if statements == 0:
+        return []
+
+    hit = sum(row[1] for row in rows)
+    lines = [f"\nGo coverage: {100 * hit / statements:.0f}% of {statements} statements"]
+    for package, package_hit, package_statements in sorted(
+            rows, key=lambda row: (row[1] / row[2] if row[2] else 1, row[0])):
+        share = 100 * package_hit / package_statements if package_statements else 0
+        lines.append(f"  {package:<40} {share:>5.0f}%  {package_hit}/{package_statements}")
+    return lines
+
 
 def windows_build(context: Context) -> None:
     target = STATE / "build" / "auvc.exe"
@@ -756,6 +819,7 @@ def summary(results: list[Result], seconds: float) -> str:
         if result.detail:
             line += f"  {result.detail}"
         lines.append(line)
+    lines.extend(coverage_report(GO_COVERAGE))
     return "\n".join(lines)
 
 
@@ -795,7 +859,10 @@ def main(argv: list[str] | None = None) -> int:
     seconds = time.monotonic() - started
 
     report = {"groups": sorted(groups), "seconds": round(seconds, 1),
-              "results": [result.__dict__ for result in results]}
+              "results": [result.__dict__ for result in results],
+              "go_coverage": [{"package": package, "covered": covered, "statements": statements,
+                               "percent": round(100 * covered / statements, 1) if statements else 0.0}
+                              for package, covered, statements in GO_COVERAGE]}
     (STATE / "local-check.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(summary(results, seconds))
     print(f"Report: {STATE / 'local-check.json'}")
