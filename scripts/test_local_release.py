@@ -100,5 +100,51 @@ class ResultTests(unittest.TestCase):
                          ["AmongUsVoiceCapture-Setup-win-x64.exe"])
 
 
+
+class OutputFolderTests(unittest.TestCase):
+    """Where the built files land (#187).
+
+    A folder a process is standing in cannot be removed on Windows, and that used
+    to end the release after everything was built.
+    """
+
+    def test_an_empty_folder_is_made_and_an_old_one_is_cleared(self):
+        with tempfile.TemporaryDirectory() as parent:
+            first = release.free_folder(Path(parent), "release-v1.0.0")
+            (first / "leftover.txt").write_text("alt", encoding="utf-8")
+
+            second = release.free_folder(Path(parent), "release-v1.0.0")
+
+            self.assertEqual(first, second)
+            self.assertEqual(list(second.iterdir()), [], "der alte Inhalt ist weg")
+
+    def test_a_busy_folder_moves_the_files_next_door_instead_of_ending_the_release(self):
+        def refuse(_path):
+            raise PermissionError(32, "der Prozess kann nicht zugreifen")
+
+        with tempfile.TemporaryDirectory() as parent:
+            busy = Path(parent) / "release-v1.0.0"
+            busy.mkdir()
+            (busy / "kept.txt").write_text("offen", encoding="utf-8")
+
+            target = release.free_folder(Path(parent), "release-v1.0.0", remove=refuse)
+
+            self.assertEqual(target.name, "release-v1.0.0-2")
+            self.assertTrue((busy / "kept.txt").exists(), "der belegte Ordner wird nicht angefasst")
+
+    def test_a_folder_that_cannot_be_freed_at_all_says_what_to_do(self):
+        def refuse(_path):
+            raise PermissionError(32, "der Prozess kann nicht zugreifen")
+
+        with tempfile.TemporaryDirectory() as parent:
+            for suffix in ("", "-2", "-3"):
+                (Path(parent) / f"release-v1.0.0{suffix}").mkdir()
+
+            with self.assertRaises(release.Refused) as refused:
+                release.free_folder(Path(parent), "release-v1.0.0", remove=refuse, attempts=3)
+
+            self.assertIn("Close whatever is open in it", str(refused.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
