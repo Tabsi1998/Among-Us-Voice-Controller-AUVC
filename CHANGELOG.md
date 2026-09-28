@@ -4,7 +4,7 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
-## v0.1.7-beta — 2026-09-27
+## v0.1.7-beta — 2026-09-28
 
 The eighth pre-release, and a small one: the language the bot writes in for a
 server can now be chosen in the app instead of only with a command in Discord.
