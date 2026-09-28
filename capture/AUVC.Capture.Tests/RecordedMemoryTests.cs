@@ -84,6 +84,23 @@ namespace AUVC.Capture.Tests
         }
 
         /// <summary>
+        /// Among Us stores four-byte pointers, and AUVC is a 64-bit program (#189). Read too
+        /// wide, a pointer takes the field behind it with it - here „is dead“, which sits
+        /// right behind Tasks - and at the last field of the struct it reaches past the
+        /// buffer the reader asked for.
+        /// </summary>
+        [Fact]
+        public void PointersAreReadAsWideAsTheGameStoredThem()
+        {
+            var players = PlayersFrom(LobbyRecording.Build());
+
+            var leon = players[1];
+            Assert.True(leon.GetIsDead(), "das Feld hinter Tasks steht auf eins");
+            Assert.Equal((IntPtr)LobbyRecording.TasksPointer, leon.Tasks);
+            Assert.Equal((IntPtr)LobbyRecording.ObjectPointer, leon._object);
+        }
+
+        /// <summary>
         /// A recording with a hole says so. Answering zeros would look like a player who
         /// left, which is exactly the kind of error a recording is meant to catch.
         /// </summary>

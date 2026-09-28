@@ -44,9 +44,12 @@ namespace AmongUsCapture
                     var buffptr = (IntPtr)ptr;
                     PlayerId = Marshal.ReadByte(buffptr, pOf.PlayerIDOffset);
                     Disconnected = Marshal.ReadByte(buffptr, pOf.DisconnectedOffset) > 0;
-                    Tasks = Marshal.ReadIntPtr(buffptr, pOf.TasksOffset);
+                    // A pointer in the game is as wide as the game. Marshal.ReadIntPtr reads as
+                    // wide as AUVC, which is 64 bit: it took the four bytes after the pointer
+                    // with it, and at the last field those four bytes were past the buffer (#189).
+                    Tasks = ReadPointer(buffptr, pOf.TasksOffset, MemInstance.is64Bit);
                     IsDead = Marshal.ReadByte(buffptr, pOf.IsDeadOffset) > 0;
-                    _object = Marshal.ReadIntPtr(buffptr, pOf.ObjectOffset);
+                    _object = ReadPointer(buffptr, pOf.ObjectOffset, MemInstance.is64Bit);
 
                     // Read from Role
                     RoleType = (uint)MemInstance.Read<int>(baseAddrCopy, pOf.RoleTypeOffset);
@@ -67,6 +70,10 @@ namespace AmongUsCapture
                 }
             }
         }
+        /// <summary>A pointer out of the read struct, as wide as the game stored it.</summary>
+        private static IntPtr ReadPointer(IntPtr buffer, int offset, bool is64Bit) =>
+            is64Bit ? (IntPtr)Marshal.ReadInt64(buffer, offset) : (IntPtr)Marshal.ReadInt32(buffer, offset);
+
         public string GetPlayerName()
         {
             return PlayerName;

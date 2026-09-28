@@ -55,6 +55,15 @@ namespace AUVC.Capture.Tests.Recorded
             },
         };
 
+        /// <summary>
+        /// The two pointers the player struct carries, recorded with recognisable values.
+        /// The field right behind Tasks is „is dead“: a pointer read wider than the game
+        /// stored it takes that byte with it (#189).
+        /// </summary>
+        public const long TasksPointer = 0x0A0B0C0D;
+
+        public const long ObjectPointer = 0x11223344;
+
         /// <summary>One player as the recording holds them.</summary>
         public sealed record Player(byte Id, string Name, int Color, bool Dead = false, bool Disconnected = false,
                                     int RoleTeam = 0);
@@ -105,8 +114,8 @@ namespace AUVC.Capture.Tests.Recorded
                 block.Byte(info.PlayerIDOffset, player.Id);
                 block.Byte(info.DisconnectedOffset, (byte)(player.Disconnected ? 1 : 0));
                 block.Byte(info.IsDeadOffset, (byte)(player.Dead ? 1 : 0));
-                block.Pointer(info.TasksOffset, 0);
-                block.Pointer(info.ObjectOffset, 0);
+                block.Pointer(info.TasksOffset, TasksPointer);
+                block.Pointer(info.ObjectOffset, ObjectPointer);
                 block.Pointer(info.OutfitsOffset[0], outfitHolder);
                 block.Pointer(info.RoleTypeOffset[0], roleAt);
                 memory.Write(structAt, block.Bytes);
