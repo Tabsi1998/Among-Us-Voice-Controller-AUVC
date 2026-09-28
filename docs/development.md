@@ -32,6 +32,15 @@ python scripts/local_check.py
 to `.local-testing/`, which Git ignores: `local-check.json`, `local-check.log`,
 `go-events.jsonl`, `go-coverage.out` and `dotnet/local.trx`.
 
+### Recorded game memory
+
+`capture/AUVC.Capture.Tests/Recorded/` plays a recording of the game's memory into
+the reader (#146). `RecordedMemory` is a `ProcessMemory` that answers from written
+down bytes and says so when a read has none, and `LobbyRecording` holds the lobby
+the reader used to trip over: a player who is still loading, in the offsets of
+v2024.3.5s. `RecordedMemory.ToJson` and `FromJson` are the file form, so a capture
+from a real game can replace the built one without touching the tests.
+
 After the steps the report names the Go coverage: the share of statements the
 tests ran, in total and per package, least covered first. The same numbers are
 in `local-check.json` under `go_coverage`, so a thin package is visible without
