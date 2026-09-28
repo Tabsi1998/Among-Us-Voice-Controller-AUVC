@@ -4,6 +4,25 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+## v0.1.7-beta — 2026-09-27
+
+The eighth pre-release, and a small one: the language the bot writes in for a
+server can now be chosen in the app instead of only with a command in Discord.
+Everything from the live test of v0.1.5-beta is already in v0.1.6-beta.
+
+**Update.** Install over v0.1.6-beta, or unpack the new portable zip; the token,
+the settings and the links stay. Nothing changes by itself: a server keeps the
+language it had. v0.1.6-beta tells you about this version.
+
+**Known limitations.** Unsigned, so Windows warns about an unknown publisher.
+The choice has passed the automated checks but has not been used in a real
+setup yet, and the live test of the last beta (#157) is still open, together
+with the question why a PlayStation player who joined the main channel in the
+lobby was dropped
+([#160](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/160)).
+With a bot on another computer the player badges stay empty. Built and
+published from the maintainer's PC; `SHA256SUMS` lists the hash of every file.
+
 ### Added
 
 - The app chooses the bot's language in the server
