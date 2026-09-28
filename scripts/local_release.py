@@ -183,13 +183,35 @@ def build(tag: str, head: str) -> dict:
     return report
 
 
+def free_folder(parent: Path, name: str, *, remove=shutil.rmtree, attempts: int = 5) -> Path:
+    """An empty folder called name, or the next free name beside it.
+
+    Windows refuses to remove a folder a process is standing in, a terminal or an
+    open Explorer window for instance. That used to end a release after everything
+    was built and every check had passed, which sends whoever reads the error
+    looking at the release instead of at an open window.
+    """
+    parent.mkdir(parents=True, exist_ok=True)
+    for attempt in range(1, attempts + 1):
+        target = parent / (name if attempt == 1 else f"{name}-{attempt}")
+        if target.exists():
+            try:
+                remove(target)
+            except OSError:
+                continue
+        try:
+            target.mkdir(parents=True)
+        except OSError:
+            continue
+        return target
+    raise Refused(f"{parent / name} could not be emptied. Close whatever is open in it, "
+                  "a terminal standing in the folder for example, and run the same command again")
+
+
 def collect(tag: str) -> Path:
     """Keep the files outside the worktree, which is removed afterwards."""
     source = BUILD / ".local-testing" / "release"
-    target = local_check.STATE / f"release-{tag}"
-    if target.exists():
-        shutil.rmtree(target)
-    target.mkdir(parents=True)
+    target = free_folder(local_check.STATE, f"release-{tag}")
     for name in (*ASSETS, "notes.md"):
         if (source / name).is_file():
             shutil.copy2(source / name, target / name)
