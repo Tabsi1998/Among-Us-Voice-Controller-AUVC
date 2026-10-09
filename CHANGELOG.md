@@ -4,6 +4,17 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Security
+
+- The bot is built with Go 1.27.2 instead of 1.27.1
+  ([#195](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/195)).
+  `govulncheck` reported nine advisories in the Go standard library that the bot
+  reaches: five in HTTP/2, two in `net/http`, one in `crypto/tls` and one in
+  `mime/multipart`. All of them are fixed in 1.27.2. The bot talks to Discord
+  over HTTPS and serves the local route the app connects to, so this is the
+  stack it actually uses. The module directive, the CI pin and the development
+  notes move together, as they did when the toolchain was last raised.
+
 ## v0.1.7-beta — 2026-09-28
 
 The eighth pre-release, and a small one: the language the bot writes in for a
