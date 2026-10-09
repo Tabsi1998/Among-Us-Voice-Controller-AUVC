@@ -92,4 +92,5 @@ License: MIT, Copyright (c) 2021 automuteus. No scripts/assets were imported or
 executed, so this is a design reference rather than a third subtree.
 Before any future reuse, preserve the original license and attribution and add
 the copied license/provenance to LICENSES and THIRD_PARTY_NOTICES.
-The installer AUVC ships is described in [installer-decision.md](docs/installer-decision.md).
+The installer AUVC ships is `installer/auvc-capture.iss`. What it does to the
+PC it runs on is described in [guide.md](docs/guide.md).
