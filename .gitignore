@@ -16,6 +16,9 @@
 *.sqlite-shm
 *.sqlite-wal
 
+# Machine-local notes (project knowledge lives in the owner's vault)
+CLAUDE.local.md
+
 # Local tooling, IDE files, and generated output
 /.tools/
 /artifacts/

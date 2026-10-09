@@ -3,8 +3,10 @@
 ; Built by the release workflow with:
 ;   iscc /DAppVersion=1.2.3 /DPayloadDir=..\artifacts\capture\win-x64 auvc-capture.iss
 ;
-; See docs/installer-decision.md for why Inno Setup, what unsigned means for
-; whoever downloads this, and what the uninstaller asks.
+; Inno Setup installs per user without elevation and runs unsigned, which is
+; why it is used here. The SmartScreen warning, the update that keeps
+; settings and the data question of the uninstaller are described in
+; docs/guide.md and docs/anleitung.md.
 
 #ifndef AppVersion
   #define AppVersion "0.0.0-dev"
