@@ -376,7 +376,7 @@ def repository_steps() -> list[Step]:
 def go(context: Context) -> str:
     found = context.tool("go")
     if not found:
-        raise StepFailed("Go is not on PATH. Install Go 1.27.1, or run from the VS Code test setup")
+        raise StepFailed("Go is not on PATH. Install Go 1.27.2, or run from the VS Code test setup")
     return found
 
 

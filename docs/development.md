@@ -6,7 +6,7 @@ How to build, test and release AUVC. For using it, see the [user guide](guide.md
 
 | Tool | Version | Used for |
 | --- | --- | --- |
-| Go | 1.27.1 | The bot in `bot/` |
+| Go | 1.27.2 | The bot in `bot/` |
 | .NET SDK | 10.0.401, pinned in `capture/global.json` | The app in `capture/` |
 | Python | 3.11 or newer | The local check, repository checks and release notes in `scripts/` |
 | A C compiler | gcc, or clang from llvm-mingw on Windows | `go test -race` |
