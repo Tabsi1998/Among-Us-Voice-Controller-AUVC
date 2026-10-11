@@ -344,7 +344,7 @@ language set in Discord.
 | `/au setup reset` | Restore the default settings; links are kept |
 | `/au capture status`, `pair`, `revoke` | The app's connection to the bot. Only needed for a bot on another computer |
 | `/au version` | The bot's version |
-| `/au stats` | How often each player played, won and was impostor; `reset: True` forgets everything (admins only) |
+| `/au stats` | How often each player played, won and was impostor. `board: win_rate` shows the best win rate (from 5 rounds), `board: impostor_rate` the best impostors (from 3 rounds as impostor). Players linked with `/au link` count by their Discord account (🔗), so a new name in the game keeps the rounds. `reset: True` forgets everything (admins only) |
 | `/au settings round` | Whether AUVC posts the winners and impostors in the text channel after a round (`round_results`), on by default |
 
 ## 8. Updating

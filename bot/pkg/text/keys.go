@@ -305,14 +305,21 @@ const (
 
 // /au settings round and /au stats.
 const (
-	DescribeSettingsRound Key = "describe-settings-round"
-	DescribeRoundResults  Key = "describe-round-results"
-	DescribeStats         Key = "describe-stats"
-	DescribeStatsReset    Key = "describe-stats-reset"
-	StatsNone             Key = "stats-none"
-	StatsHeader           Key = "stats-header"
-	StatsLine             Key = "stats-line"
-	StatsReset            Key = "stats-reset"
+	DescribeSettingsRound   Key = "describe-settings-round"
+	DescribeRoundResults    Key = "describe-round-results"
+	DescribeStats           Key = "describe-stats"
+	DescribeStatsReset      Key = "describe-stats-reset"
+	StatsNone               Key = "stats-none"
+	StatsHeader             Key = "stats-header"
+	StatsLine               Key = "stats-line"
+	StatsReset              Key = "stats-reset"
+	DescribeStatsBoard      Key = "describe-stats-board"
+	StatsHeaderWinRate      Key = "stats-header-win-rate"
+	StatsHeaderImpostorRate Key = "stats-header-impostor-rate"
+	StatsLineWinRate        Key = "stats-line-win-rate"
+	StatsLineImpostorRate   Key = "stats-line-impostor-rate"
+	StatsNoneRanked         Key = "stats-none-ranked"
+	StatsNoneRankedImpostor Key = "stats-none-ranked-impostor"
 )
 
 // The round on the crewmate message: map, phase and lobby code.

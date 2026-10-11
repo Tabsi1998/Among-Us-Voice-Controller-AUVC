@@ -7,6 +7,7 @@
 package au
 
 import (
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 	"github.com/bwmarrin/discordgo"
 )
@@ -74,6 +75,7 @@ const (
 	OptionLanguage       = "language"
 	OptionRoundResults   = "round_results"
 	OptionReset          = "reset"
+	OptionBoard          = "board"
 )
 
 // LanguageFromDiscord is the choice for following the server language set in
@@ -309,6 +311,8 @@ func Command() *discordgo.ApplicationCommand {
 			sub(Doctor, text.DescribeDoctor),
 			sub(Version, text.DescribeVersion),
 			sub(Stats, text.DescribeStats,
+				freeText(OptionBoard, text.DescribeStatsBoard, false,
+					sqlite.BoardRounds, sqlite.BoardWinRate, sqlite.BoardImpostorRate),
 				boolean(OptionReset, text.DescribeStatsReset, false),
 			),
 		},

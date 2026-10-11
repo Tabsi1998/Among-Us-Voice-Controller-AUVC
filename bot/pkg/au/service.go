@@ -31,7 +31,7 @@ type Store interface {
 	DeleteLink(guildID, inGameName string) error
 	DeleteLinksForUser(guildID, discordUserID string) error
 	SchemaVersion() (int, error)
-	PlayerStats(guildID string, limit int) ([]sqlite.PlayerStat, error)
+	PlayerStats(guildID, board string, limit int) ([]sqlite.PlayerStat, error)
 	ResetPlayerStats(guildID string) error
 	RecordRound(guildID string, players []sqlite.RoundPlayer) error
 }
@@ -445,18 +445,54 @@ func (s *Service) handleStats(request Request, config sqlite.GuildConfig) (strin
 		return language.Say(text.StatsReset), nil
 	}
 
-	stats, err := s.store.PlayerStats(request.GuildID, MaxStatsLines)
+	board, _ := request.Values.String(OptionBoard)
+	stats, err := s.store.PlayerStats(request.GuildID, board, MaxStatsLines)
 	if err != nil {
 		return "", err
 	}
 	if len(stats) == 0 {
+		switch board {
+		case sqlite.BoardWinRate:
+			return language.Say(text.StatsNoneRanked, sqlite.MinRoundsForRate), nil
+		case sqlite.BoardImpostorRate:
+			return language.Say(text.StatsNoneRankedImpostor, sqlite.MinImpostorForRate), nil
+		}
 		return language.Say(text.StatsNone), nil
 	}
-	lines := []string{language.Say(text.StatsHeader)}
-	for _, stat := range stats {
-		lines = append(lines, language.Say(text.StatsLine, EscapeMarkdown(stat.Name), stat.Rounds, stat.Wins, stat.Impostor))
+
+	header, lines := text.StatsHeader, []string{}
+	switch board {
+	case sqlite.BoardWinRate:
+		header = text.StatsHeaderWinRate
+	case sqlite.BoardImpostorRate:
+		header = text.StatsHeaderImpostorRate
+	}
+	lines = append(lines, language.Say(header))
+	for place, stat := range stats {
+		name := EscapeMarkdown(stat.Name)
+		// A linked player is counted by account, whatever name they play under.
+		if stat.DiscordUserID != "" {
+			name += " 🔗"
+		}
+		var line string
+		switch board {
+		case sqlite.BoardWinRate:
+			line = language.Say(text.StatsLineWinRate, name, percent(stat.Wins, stat.Rounds), stat.Wins, stat.Rounds)
+		case sqlite.BoardImpostorRate:
+			line = language.Say(text.StatsLineImpostorRate, name, percent(stat.ImpostorWins, stat.Impostor), stat.ImpostorWins, stat.Impostor)
+		default:
+			line = language.Say(text.StatsLine, name, stat.Rounds, stat.Wins, stat.Impostor)
+		}
+		lines = append(lines, fmt.Sprintf("%d. %s", place+1, line))
 	}
 	return strings.Join(lines, "\n"), nil
+}
+
+func percent(part, whole int) int {
+	if whole == 0 {
+		return 0
+	}
+	return (part*100 + whole/2) / whole
 }
 
 // EscapeMarkdown keeps a player's name from formatting a message. Among Us

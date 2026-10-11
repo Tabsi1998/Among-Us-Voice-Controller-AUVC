@@ -44,10 +44,10 @@ func TestStatsAreForEveryoneAndTheResetForAdmins(t *testing.T) {
 	if err != nil {
 		t.Fatalf("stats: %v", err)
 	}
-	if want := text.English.Say(text.StatsLine, "Mira", 2, 2, 1); !strings.Contains(reply, want) {
+	if want := "1. " + text.English.Say(text.StatsLine, "mira", 2, 2, 1); !strings.Contains(reply, want) {
 		t.Errorf("stats do not say %q:\n%s", want, reply)
 	}
-	if strings.Index(reply, "Mira") > strings.Index(reply, "Paula") {
+	if strings.Index(reply, "mira") > strings.Index(reply, "Paula") {
 		t.Errorf("most rounds should come first:\n%s", reply)
 	}
 
@@ -60,7 +60,7 @@ func TestStatsAreForEveryoneAndTheResetForAdmins(t *testing.T) {
 	if _, err := service.Handle(owner); err != nil {
 		t.Fatalf("owner reset: %v", err)
 	}
-	if stats, _ := db.PlayerStats("guild", 10); len(stats) != 0 {
+	if stats, _ := db.PlayerStats("guild", "", 10); len(stats) != 0 {
 		t.Errorf("reset left %+v", stats)
 	}
 }

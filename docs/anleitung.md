@@ -356,7 +356,7 @@ Discord eingestellt ist.
 | `/au setup reset` | Standard-Einstellungen wiederherstellen, Verknüpfungen bleiben |
 | `/au capture status`, `pair`, `revoke` | Die Verbindung der App zum Bot. Nur für einen Bot auf einem anderen Rechner nötig |
 | `/au version` | Die Version des Bots |
-| `/au stats` | Wie oft jeder Spieler gespielt, gewonnen und Impostor war; `reset: True` vergisst alles (nur Admins) |
+| `/au stats` | Wie oft jeder Spieler gespielt, gewonnen und Impostor war. `board: win_rate` zeigt die beste Siegquote (ab 5 Runden), `board: impostor_rate` die besten Impostor (ab 3 Runden als Impostor). Mit `/au link` verknüpfte Spieler zählen über ihren Discord-Account (🔗), ein neuer Name im Spiel behält die Runden. `reset: True` vergisst alles (nur Admins) |
 | `/au settings round` | Ob AUVC nach der Runde Sieger und Impostor in den Textkanal schreibt (`round_results`), standardmäßig an |
 
 ## 8. Aktualisieren

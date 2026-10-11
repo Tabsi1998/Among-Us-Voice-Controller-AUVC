@@ -31,8 +31,11 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   Epic or Store build.
 - **`/au stats`** lists how often each player played, won and was impostor in
   the rounds AUVC saw, most rounds first; `reset: True` forgets them (admins
-  only). Players are counted by their in-game name; who left before the end is
-  not counted.
+  only). A player linked with `/au link` counts by their Discord account, so a
+  new name in the game keeps the rounds, and what the name played before the
+  link moves over; anyone else counts by their in-game name. `board: win_rate`
+  and `board: impostor_rate` rank by win rate (from 5 rounds) and by wins as
+  impostor (from 3 rounds as impostor). Who left before the end is not counted.
 - **`/au settings round round_results: False`** switches the result after a
   round off; it is on by default.
 - **The round's result in Discord.** At the end of a round the control channel
