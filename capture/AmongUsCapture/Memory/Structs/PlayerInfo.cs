@@ -34,7 +34,7 @@ namespace AmongUsCapture
                 var baseAddrCopy = baseAddr;
                 int last = MemInstance.OffsetAddress(ref baseAddrCopy, 0, 0);
                 var intPtrSize = MemInstance.is64Bit ? 8 : 4;
-                int size = ((int)Math.Ceiling((decimal)((intPtrSize + CurrentOffsets.PlayerInfoStructOffsets.ObjectOffset) / 8))) * 8; //Find the nearest multiple of 8
+                int size = StructBytes(CurrentOffsets.PlayerInfoStructOffsets.ObjectOffset + intPtrSize);
                 byte[] buffer = MemInstance.Read(baseAddrCopy + last, size);
                 PlayerInfoStructOffsets pOf = CurrentOffsets.PlayerInfoStructOffsets;
                 PlayerOutfitStructOffsets oOf = CurrentOffsets.PlayerOutfitStructOffsets;
@@ -70,6 +70,13 @@ namespace AmongUsCapture
                 }
             }
         }
+        /// <summary>
+        /// Bytes to read so a struct ends behind its last field, rounded up to a multiple of
+        /// eight. The integer division used to round down, and on v18 the last pointer lay
+        /// past the buffer.
+        /// </summary>
+        public static int StructBytes(int end) => (end + 7) / 8 * 8;
+
         /// <summary>A pointer out of the read struct, as wide as the game stored it.</summary>
         private static IntPtr ReadPointer(IntPtr buffer, int offset, bool is64Bit) =>
             is64Bit ? (IntPtr)Marshal.ReadInt64(buffer, offset) : (IntPtr)Marshal.ReadInt32(buffer, offset);

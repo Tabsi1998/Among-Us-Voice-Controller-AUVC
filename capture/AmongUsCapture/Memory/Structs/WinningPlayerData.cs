@@ -25,7 +25,8 @@ namespace AmongUsCapture.Memory.Structs
             {
                 var baseAddrCopy = baseAddr;
                 int last = MemInstance.OffsetAddress(ref baseAddrCopy, 0, 0);
-                int size = ((int)Math.Ceiling((decimal)((8 + CurrentOffsets.WinningPlayerDataStructOffsets.IsDeadOffset) / 8))) * 8; //Find the nearest multiple of 8
+                var flags = CurrentOffsets.WinningPlayerDataStructOffsets;
+                int size = PlayerInfo.StructBytes(Math.Max(flags.IsDeadOffset, Math.Max(flags.IsYouOffset, flags.IsImposterOffset)) + 1);
                 byte[] buffer = MemInstance.Read(baseAddrCopy + last, size);
                 PlayerOutfitStructOffsets oOf = CurrentOffsets.PlayerOutfitStructOffsets;
                 WinningPlayerDataStructOffsets pOf = CurrentOffsets.WinningPlayerDataStructOffsets;

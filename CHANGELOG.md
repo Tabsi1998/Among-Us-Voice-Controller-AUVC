@@ -4,6 +4,34 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- `scripts/offsets_from_il2cpp.py` builds the offset entry for a new Among Us
+  build from Il2CppDumper's `dump.cs` and `script.json`, for 32-bit and for the
+  current 64-bit builds, and can add it to the local index that AUVC reads
+  without a new release. The steps are in `docs/offsets.md`
+  ([#198](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/198)).
+  The offsets for 2026.9.29 themselves are not in this change: they need the
+  game's own files.
+- The diagnostics summary names the game it read: the hash of
+  `GameAssembly.dll`, 32 or 64 bit, and which offsets it found, so an
+  unsupported version is named without the logs.
+
+### Fixed
+
+- The reader took the last pointer of the v18 player struct from past its
+  buffer: the size of the read was rounded down instead of up. The same rounding
+  is fixed for the winners at the end of a round.
+- A string length read through a wrong offset, as with a new game version, no
+  longer asks for gigabytes; anything outside 1 to 1024 characters reads as no
+  string.
+- `scripts/verify_bootstrap.py` asked for four documents deleted in September
+  and compared `HEAD` with the upstream trees. It now checks the import trees at
+  their import commits and today's scaffold, and its tests run in the local check
+  ([#194](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/194)).
+- A forbidden file passed as a Windows path is kept out of a diagnostics export
+  on every system, not only on Windows.
+
 ### Security
 
 - The bot is built with Go 1.27.2 instead of 1.27.1

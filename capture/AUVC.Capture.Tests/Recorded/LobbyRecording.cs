@@ -56,6 +56,72 @@ namespace AUVC.Capture.Tests.Recorded
         };
 
         /// <summary>
+        /// The layout of v18s (build 7238), whose struct ends in a pointer at 0x58. The
+        /// reader rounded its read of the struct down to 88 bytes and took that pointer from
+        /// past the buffer.
+        /// </summary>
+        public static GameOffsets OffsetsV18() => new()
+        {
+            Description = "recorded lobby (offsets of v18s)",
+            AllPlayerPtrOffsets = new[] { 0x0, 0x0 },
+            AllPlayersOffsets = new[] { 0x8 },
+            PlayerCountOffsets = new[] { 0xC },
+            StringOffsets = new[] { 0x8, 0xC },
+            AddPlayerPtr = 0x4,
+            PlayerListPtr = 0x10,
+            PlayerInfoStructOffsets = new PlayerInfoStructOffsets
+            {
+                PlayerIDOffset = 0x28,
+                OutfitsOffset = new[] { 0x40, 0xC, 0x1C },
+                PlayerLevelOffset = 0x44,
+                DisconnectedOffset = 0x48,
+                RoleTypeOffset = new[] { 0x4C, 0x10 },
+                RoleTeamTypeOffset = new[] { 0x4C, 0x50 },
+                TasksOffset = 0x50,
+                IsDeadOffset = 0x54,
+                ObjectOffset = 0x58,
+            },
+            PlayerOutfitStructOffsets = new PlayerOutfitStructOffsets
+            {
+                ColorIDOffset = 0x8,
+                PlayerNameOffset = 0x20,
+            },
+        };
+
+        /// <summary>
+        /// A 64-bit layout (#198): eight-byte pointers, IL2CPP's 64-bit headers for lists,
+        /// arrays, dictionaries and strings, and the player struct as BetterCrewLink reads
+        /// it on the 64-bit V18. Not the offsets of a real build, but the shape of one.
+        /// </summary>
+        public static GameOffsets Offsets64() => new()
+        {
+            Description = "recorded lobby (64-bit layout)",
+            AllPlayerPtrOffsets = new[] { 0x0, 0x0 },
+            AllPlayersOffsets = new[] { 0x10 },
+            PlayerCountOffsets = new[] { 0x18 },
+            StringOffsets = new[] { 0x10, 0x14 },
+            AddPlayerPtr = 0x8,
+            PlayerListPtr = 0x20,
+            PlayerInfoStructOffsets = new PlayerInfoStructOffsets
+            {
+                PlayerIDOffset = 0x38,
+                OutfitsOffset = new[] { 0x58, 0x18, 0x30 },
+                PlayerLevelOffset = 0x60,
+                DisconnectedOffset = 0x64,
+                RoleTypeOffset = new[] { 0x68, 0x20 },
+                RoleTeamTypeOffset = new[] { 0x68, 0x74 },
+                TasksOffset = 0x70,
+                IsDeadOffset = 0x78,
+                ObjectOffset = 0x80,
+            },
+            PlayerOutfitStructOffsets = new PlayerOutfitStructOffsets
+            {
+                ColorIDOffset = 0x10,
+                PlayerNameOffset = 0x40,
+            },
+        };
+
+        /// <summary>
         /// The two pointers the player struct carries, recorded with recognisable values.
         /// The field right behind Tasks is „is dead“: a pointer read wider than the game
         /// stored it takes that byte with it (#189).
@@ -63,6 +129,12 @@ namespace AUVC.Capture.Tests.Recorded
         public const long TasksPointer = 0x0A0B0C0D;
 
         public const long ObjectPointer = 0x11223344;
+
+        /// <summary>
+        /// On 64 bit the same pointers sit above four gigabytes, as they do in a real 64-bit
+        /// process, so a pointer read only four bytes wide loses its upper half and shows.
+        /// </summary>
+        public const long High = 0x7FF6_0000_0000;
 
         /// <summary>One player as the recording holds them.</summary>
         public sealed record Player(byte Id, string Name, int Color, bool Dead = false, bool Disconnected = false,
@@ -82,20 +154,22 @@ namespace AUVC.Capture.Tests.Recorded
         /// The blocks are written whole, because that is how they lie in a real process: the
         /// reader takes the player struct in one read of 56 bytes, not field by field.
         /// </remarks>
-        public static RecordedMemory Build()
+        public static RecordedMemory Build() => Build(Offsets(), is64Bit: false);
+
+        public static RecordedMemory Build(GameOffsets offsets, bool is64Bit)
         {
-            var offsets = Offsets();
             var players = Lobby;
-            var memory = new RecordedMemory();
+            var memory = new RecordedMemory(is64Bit);
+            var pointer = is64Bit ? 8 : 4;
 
             // The chain the reader walks: GameAssembly -> AllPlayerPtr -> AllPlayers, and the count beside it.
             memory.WritePointer(GameAssembly, AllPlayersPtr);
-            var header = new Block(0x20);
+            var header = new Block(0x20, pointer);
             header.Pointer(offsets.AllPlayersOffsets[0], AllPlayers);
             header.Int(offsets.PlayerCountOffsets[0], players.Count);
             memory.Write(AllPlayersPtr, header.Bytes);
 
-            var slots = new Block(players.Count * offsets.AddPlayerPtr + 4);
+            var slots = new Block(players.Count * offsets.AddPlayerPtr + pointer, pointer);
             for (var index = 0; index < players.Count; index++)
             {
                 var player = players[index];
@@ -110,32 +184,32 @@ namespace AUVC.Capture.Tests.Recorded
                 // The slot holds the player's address; PlayerInfo dereferences it once.
                 slots.Pointer(index * offsets.AddPlayerPtr, structAt);
 
-                var block = new Block(0x40);
+                var block = new Block(0x100, pointer);
                 block.Byte(info.PlayerIDOffset, player.Id);
                 block.Byte(info.DisconnectedOffset, (byte)(player.Disconnected ? 1 : 0));
                 block.Byte(info.IsDeadOffset, (byte)(player.Dead ? 1 : 0));
-                block.Pointer(info.TasksOffset, TasksPointer);
-                block.Pointer(info.ObjectOffset, ObjectPointer);
+                block.Pointer(info.TasksOffset, is64Bit ? High | TasksPointer : TasksPointer);
+                block.Pointer(info.ObjectOffset, is64Bit ? High | ObjectPointer : ObjectPointer);
                 block.Pointer(info.OutfitsOffset[0], outfitHolder);
                 block.Pointer(info.RoleTypeOffset[0], roleAt);
                 memory.Write(structAt, block.Bytes);
 
                 // The role says which team the player is on.
-                var role = new Block(0x40);
+                var role = new Block(0x100, pointer);
                 role.Int(info.RoleTypeOffset[1], 0);
                 role.Int(info.RoleTeamTypeOffset[1], player.RoleTeam);
                 memory.Write(roleAt, role.Bytes);
 
                 // The outfit sits behind two more pointers; the name behind one more.
-                var holder = new Block(0x20);
+                var holder = new Block(0x40, pointer);
                 holder.Pointer(info.OutfitsOffset[1], outfitCarrier);
                 memory.Write(outfitHolder, holder.Bytes);
 
-                var carrier = new Block(0x40);
+                var carrier = new Block(0x40, pointer);
                 carrier.Pointer(info.OutfitsOffset[2], outfit);
                 memory.Write(outfitCarrier, carrier.Bytes);
 
-                var clothes = new Block(0x40);
+                var clothes = new Block(0x80, pointer);
                 clothes.Int(offsets.PlayerOutfitStructOffsets.ColorIDOffset, player.Color);
                 clothes.Pointer(offsets.PlayerOutfitStructOffsets.PlayerNameOffset, nameAt);
                 memory.Write(outfit, clothes.Bytes);
@@ -149,7 +223,13 @@ namespace AUVC.Capture.Tests.Recorded
         /// <summary>A block of memory being written, field by field.</summary>
         private sealed class Block
         {
-            public Block(int size) => Bytes = new byte[size];
+            private readonly int pointer;
+
+            public Block(int size, int pointer)
+            {
+                Bytes = new byte[size];
+                this.pointer = pointer;
+            }
 
             public byte[] Bytes { get; }
 
@@ -157,11 +237,14 @@ namespace AUVC.Capture.Tests.Recorded
 
             public void Int(int at, int value) => BitConverter.GetBytes(value).CopyTo(Bytes, at);
 
-            /// <summary>A four-byte pointer, as the recorded 32-bit process stored it.</summary>
-            public void Pointer(int at, long target) => BitConverter.GetBytes((int)target).CopyTo(Bytes, at);
+            /// <summary>A pointer as wide as the recorded process stored it.</summary>
+            public void Pointer(int at, long target) =>
+                (pointer == 8 ? BitConverter.GetBytes(target) : BitConverter.GetBytes((int)target)).CopyTo(Bytes, at);
         }
 
         /// <summary>Where the player slots start, as the reader computes it.</summary>
-        public static long FirstSlot() => AllPlayers + Offsets().PlayerListPtr;
+        public static long FirstSlot() => FirstSlot(Offsets());
+
+        public static long FirstSlot(GameOffsets offsets) => AllPlayers + offsets.PlayerListPtr;
     }
 }

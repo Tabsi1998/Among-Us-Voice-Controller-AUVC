@@ -18,11 +18,12 @@ namespace AUVC.Capture.Tests
     public class RecordedMemoryTests
     {
         /// <summary>The expression the reader uses in GetPlayers, on a given memory.</summary>
-        private static List<PlayerInfo> PlayersFrom(ProcessMemory memory)
+        private static List<PlayerInfo> PlayersFrom(ProcessMemory memory) => PlayersFrom(memory, LobbyRecording.Offsets());
+
+        private static List<PlayerInfo> PlayersFrom(ProcessMemory memory, AUOffsetManager.GameOffsets offsets)
         {
-            var offsets = LobbyRecording.Offsets();
             var count = memory.Read<int>((IntPtr)LobbyRecording.AllPlayersPtr, offsets.PlayerCountOffsets);
-            return PlayerSlots.Read(count, (IntPtr)LobbyRecording.FirstSlot(), offsets.AddPlayerPtr,
+            return PlayerSlots.Read(count, (IntPtr)LobbyRecording.FirstSlot(offsets), offsets.AddPlayerPtr,
                 address => new PlayerInfo(address, memory, offsets),
                 player => !string.IsNullOrEmpty(player.GetPlayerName()) &&
                           Enum.IsDefined(typeof(PlayerColor), player.GetPlayerColor()));
@@ -98,6 +99,40 @@ namespace AUVC.Capture.Tests
             Assert.True(leon.GetIsDead(), "das Feld hinter Tasks steht auf eins");
             Assert.Equal((IntPtr)LobbyRecording.TasksPointer, leon.Tasks);
             Assert.Equal((IntPtr)LobbyRecording.ObjectPointer, leon._object);
+        }
+
+        /// <summary>
+        /// On v18 the player struct ends in a pointer at 0x58. Rounded down, the read of the
+        /// struct stopped at 88 bytes and the last pointer came from past the buffer.
+        /// </summary>
+        [Fact]
+        public void TheLastPointerOfTheV18StructIsInsideTheRead()
+        {
+            var offsets = LobbyRecording.OffsetsV18();
+            var players = PlayersFrom(LobbyRecording.Build(offsets, is64Bit: false), offsets);
+
+            Assert.Equal(new[] { "Paula", "Leon", "Mira" }, players.Select(player => player.GetPlayerName()));
+            Assert.All(players, player => Assert.Equal((IntPtr)LobbyRecording.ObjectPointer, player._object));
+            Assert.Equal(96, PlayerInfo.StructBytes(0x58 + 4));
+        }
+
+        /// <summary>
+        /// The current Among Us is a 64-bit program (#198). With a 64-bit layout the same
+        /// reader finds the same lobby: eight-byte pointers in every chain, IL2CPP's 64-bit
+        /// list, array and string headers, and the outfit behind the dictionary.
+        /// </summary>
+        [Fact]
+        public void A64BitGameIsReadWithTheSameReader()
+        {
+            var offsets = LobbyRecording.Offsets64();
+            var players = PlayersFrom(LobbyRecording.Build(offsets, is64Bit: true), offsets);
+
+            Assert.Equal(new[] { "Paula", "Leon", "Mira" }, players.Select(player => player.GetPlayerName()));
+            Assert.Equal(PlayerColor.White, players[2].GetPlayerColor());
+            Assert.True(players[1].GetIsDead());
+            Assert.True(players[2].GetIsImposter());
+            Assert.Equal((IntPtr)(LobbyRecording.High | LobbyRecording.TasksPointer), players[1].Tasks);
+            Assert.Equal((IntPtr)(LobbyRecording.High | LobbyRecording.ObjectPointer), players[1]._object);
         }
 
         /// <summary>

@@ -168,5 +168,18 @@ namespace AUVC.Capture.Tests
 
             Assert.Contains("could not be asked", summary);
         }
+
+        /// <summary>An unsupported game is named by its hash, so the export alone says which build it is (#198).</summary>
+        [Fact]
+        public void TheSummaryNamesTheGameItRead()
+        {
+            var game = "GameAssembly.dll 615A95C9E09B6FFD45570883CB8459311C2B457533A38B37ED1704D6205AEDF9, 64-bit, no offsets for this version";
+
+            var summary = DiagnosticsBundle.Summary("0.1.7-beta", "v0.1.7-beta", "Windows 11", "10.0.1", [], DateTimeOffset.UnixEpoch, game);
+
+            Assert.Contains("Among Us: " + game, summary);
+            Assert.DoesNotContain("Among Us:", DiagnosticsBundle.Summary("0.1.7-beta", "v0.1.7-beta", "Windows 11", "10.0.1", [], DateTimeOffset.UnixEpoch));
+        }
+
     }
 }

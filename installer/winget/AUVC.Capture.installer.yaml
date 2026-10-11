@@ -1,0 +1,18 @@
+# Draft for #131. InstallerSha256 comes from SHA256SUMS of the release.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+PackageIdentifier: AUVC.Capture
+PackageVersion: 1.0.0
+MinimumOSVersion: 10.0.17763.0
+InstallerType: inno
+Scope: user
+InstallModes:
+  - interactive
+  - silent
+UpgradeBehavior: install
+ProductCode: '{9C3F2A41-6E5B-4E77-9C2E-7A1D5B8F0C36}_is1'
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases/download/v1.0.0/AmongUsVoiceCapture-Setup-win-x64.exe
+    InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
+ManifestType: installer
+ManifestVersion: 1.6.0

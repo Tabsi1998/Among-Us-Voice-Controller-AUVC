@@ -1,0 +1,26 @@
+# Draft for #131.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+PackageIdentifier: AUVC.Capture
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: AUVC
+PublisherUrl: https://github.com/Tabsi1998
+PublisherSupportUrl: https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues
+PackageName: AUVC
+PackageUrl: https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC
+License: MIT
+LicenseUrl: https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/blob/main/LICENSE
+Copyright: Copyright (c) 2026 IT-Tabelander
+ShortDescription: Mutes, deafens and moves players in Discord to match an Among Us round.
+Description: |-
+  AUVC reads the Among Us round on the PC that plays it and mutes, deafens and moves
+  the players in Discord to match. Its Discord bot runs inside the app, so nobody
+  else installs anything. An independent community rework of AmongUsCapture and
+  AutoMuteUs; not an official AutoMuteUs project.
+Tags:
+  - among-us
+  - discord
+  - voice
+ReleaseNotesUrl: https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/releases/tag/v1.0.0
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

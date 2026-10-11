@@ -71,7 +71,9 @@ public static class DiagnosticsBundle
 
     public static bool MayInclude(string path)
     {
-        var name = Path.GetFileName(path);
+        // Split on both separators: a Windows path handed over on another system is
+        // still a Windows path, and the forbidden name must not slip through.
+        var name = path.Split('\\', '/')[^1];
         return !Forbidden.Contains(name, StringComparer.OrdinalIgnoreCase)
                && !name.StartsWith("amongus.db", StringComparison.OrdinalIgnoreCase);
     }
@@ -98,7 +100,7 @@ public static class DiagnosticsBundle
     /// <summary>The first file of an export: what runs, and what the bot's checks say.</summary>
     public static string Summary(
         string appVersion, string botVersion, string windows, string runtime,
-        IReadOnlyList<LocalCheck> checks, DateTimeOffset created)
+        IReadOnlyList<LocalCheck> checks, DateTimeOffset created, string? game = null)
     {
         var text = new StringBuilder()
             .AppendLine("AUVC diagnostics")
@@ -106,8 +108,13 @@ public static class DiagnosticsBundle
             .AppendLine($"App: {appVersion}")
             .AppendLine($"Bot: {botVersion}")
             .AppendLine($"Windows: {windows}")
-            .AppendLine($".NET: {runtime}")
-            .AppendLine();
+            .AppendLine($".NET: {runtime}");
+        // Which Among Us runs, so an unsupported version can be named without the logs (#198).
+        if (!string.IsNullOrEmpty(game))
+        {
+            text.AppendLine($"Among Us: {game}");
+        }
+        text.AppendLine();
 
         if (checks.Count == 0)
         {

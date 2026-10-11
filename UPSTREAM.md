@@ -79,10 +79,11 @@ historical 2020 export from current model classes, adds 11 regression tests, pin
 the baseline SDK/NuGet resolution and introduces root build CI. Memory algorithms
 and bundled offset values are not changed.
 
-The current-tree pristine check remains in `scripts/verify_bootstrap.py` for
-historical phase 1 checkouts. Current CI uses `scripts/verify_repository.py` to
-verify original import ancestry/tree IDs and license bytes alongside application
-tests. Preserve that ancestry with normal merge commits for the initial PRs.
+`scripts/verify_bootstrap.py` checks the import trees at their import commits
+through `scripts/verify_repository.py`, plus the scaffold of today's repository
+(#194); its own tests run in the local check. Current CI uses
+`scripts/verify_repository.py` to verify original import ancestry/tree IDs and
+license bytes alongside application tests. Preserve that ancestry with normal merge commits for the initial PRs.
 
 ## Installer reference (not imported)
 

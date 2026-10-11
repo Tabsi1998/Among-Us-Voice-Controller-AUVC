@@ -43,13 +43,23 @@ namespace AUCapture_WPF
 
             files.Add(new DiagnosticsFile("summary.txt", DiagnosticsBundle.Summary(
                 ReleaseCheck.Current?.ToString() ?? "unknown", botVersion, Environment.OSVersion.VersionString,
-                Environment.Version.ToString(), checks, DateTimeOffset.Now)));
+                Environment.Version.ToString(), checks, DateTimeOffset.Now, GameLine())));
 
             AddNewest(files, App.LogFolder, "*.log", 5, "app-logs/");
             AddNewest(files, Path.Combine(Local, "AUVC", "logs"), "*.*", 3, "bot-logs/");
             AddFile(files, Path.Combine(Roaming, "AmongUsCapture", "AmongUsGUI", "Settings.json"), "settings/app-settings.json");
             AddFile(files, Path.Combine(Roaming, "AmongUsCapture", "Settings.json"), "settings/capture-settings.json");
             return files;
+        }
+
+        // The hash AUVC looks offsets up by, and what it found for it.
+        private static string GameLine()
+        {
+            var reader = AmongUsCapture.GameMemReader.getInstance();
+            if (string.IsNullOrEmpty(reader.GameHash)) return "not found yet";
+            var bits = AmongUsCapture.ProcessMemory.getInstance().is64Bit ? "64-bit" : "32-bit";
+            var offsets = reader.CurrentOffsets?.Description ?? "no offsets for this version";
+            return $"GameAssembly.dll {reader.GameHash}, {bits}, {offsets}";
         }
 
         private static void AddNewest(List<DiagnosticsFile> files, string folder, string pattern, int count, string prefix)

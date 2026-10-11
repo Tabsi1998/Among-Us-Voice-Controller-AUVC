@@ -31,6 +31,10 @@ namespace AmongUsCapture
             return instance;
         }
         public bool is64Bit;
+
+        /// <summary>The longest string the reader takes from the game, in characters.</summary>
+        public const int MaxStringLength = 1024;
+
         public Process process;
         public List<Module> modules;
         public bool IsHooked { get; protected set; }

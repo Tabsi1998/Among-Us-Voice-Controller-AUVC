@@ -399,7 +399,7 @@ Taskleiste angeheftet hast, zeigt noch auf die alte Datei: Hefte AUVC neu an.
 | Problem | Was zu tun ist |
 | --- | --- |
 | *Warte auf Among Us* verschwindet nicht | Läuft Among Us auf diesem PC und unter demselben Windows-Konto? |
-| Die Statuszeile sagt *AUVC kann diese Among-Us-Version nicht lesen* | Among Us wurde aktualisiert, und dieses AUVC kennt die neue Version noch nicht. Installiere die neueste AUVC-Version; eine Zeile oben im Fenster verlinkt sie, sobald es eine gibt |
+| Die Statuszeile sagt *AUVC kann diese Among-Us-Version nicht lesen* | Among Us wurde aktualisiert, und dieses AUVC kennt die neue Version noch nicht. Installiere die neueste AUVC-Version; eine Zeile oben im Fenster verlinkt sie, sobald es eine gibt. Wer die Werte selbst ermitteln will: [offsets.md](offsets.md) |
 | Die Statuszeile sagt *Der Bot meldet ein Problem* | Die Zeile darunter nennt, was fehlt und was zu tun ist, zum Beispiel eine fehlende Berechtigung. **Bot → Status** zeigt alle Prüfungen |
 
 ### Log-Dateien

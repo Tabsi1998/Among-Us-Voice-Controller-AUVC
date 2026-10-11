@@ -97,6 +97,10 @@ namespace AmongUsCapture
             if (process == null || address == IntPtr.Zero)
                 return default;
             int stringLength = Read<int>(address + lengthOffset);
+            // A wrong offset, as with a new game version, points at any number. Names,
+            // codes and regions are short; a length out of range is no string at all.
+            if (stringLength <= 0 || stringLength > MaxStringLength)
+                return string.Empty;
             byte[] rawString = Read(address + rawOffset, stringLength << 1);
             return System.Text.Encoding.Unicode.GetString(rawString);
         }

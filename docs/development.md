@@ -39,7 +39,16 @@ the reader (#146). `RecordedMemory` is a `ProcessMemory` that answers from writt
 down bytes and says so when a read has none, and `LobbyRecording` holds the lobby
 the reader used to trip over: a player who is still loading, in the offsets of
 v2024.3.5s. `RecordedMemory.ToJson` and `FromJson` are the file form, so a capture
-from a real game can replace the built one without touching the tests.
+from a real game can replace the built one without touching the tests. The same
+lobby is also written in the layout of v18s and in a 64-bit layout (#198), so
+the reader is held to eight-byte pointers and to the end of the v18 struct.
+
+### Offsets for a new Among Us build
+
+`scripts/offsets_from_il2cpp.py` turns Il2CppDumper's `dump.cs` and
+`script.json` into the entry AUVC looks up by the hash of `GameAssembly.dll`, for
+32-bit and 64-bit builds. The steps, and how to try an entry without a new
+build, are in [offsets.md](offsets.md).
 
 After the steps the report names the Go coverage: the share of statements the
 tests ran, in total and per package, least covered first. The same numbers are

@@ -386,7 +386,7 @@ still points at the old file: pin AUVC again.
 | Problem | What to do |
 | --- | --- |
 | *Waiting for Among Us* does not go away | Make sure Among Us is running, on this PC and under the same Windows account |
-| The status line says *AUVC cannot read this Among Us version* | Among Us was updated and this AUVC does not know the new version yet. Install the newest AUVC version; a line at the top of the window links to it as soon as one is out |
+| The status line says *AUVC cannot read this Among Us version* | Among Us was updated and this AUVC does not know the new version yet. Install the newest AUVC version; a line at the top of the window links to it as soon as one is out. To work the values out yourself: [offsets.md](offsets.md) (German) |
 | The status line says *The bot reports a problem* | The line below it names what is wrong and what to do, for example a permission the bot is missing. **Bot → Status** lists every check |
 
 ### Log files

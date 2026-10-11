@@ -1,29 +1,34 @@
 #!/usr/bin/env python3
-"""Check the pristine phase-1 import contract using only Python 3.11+ and Git."""
+"""Check the import contract and the scaffold of today's repository (#194).
+
+The phase-1 version compared HEAD:bot and HEAD:capture with the upstream trees,
+which stopped being true with the first AUVC commit in either folder, and asked
+for four documents deleted on 2026-09-14. The import trees are now checked at
+their import commits, as scripts/verify_repository.py does, and the scaffold
+list holds what the repository has today. On top of verify_repository.py this
+checks that the scaffold is complete and that every new file is UTF-8 text.
+"""
 
 from pathlib import Path
-import re
 import subprocess
 import sys
-import tomllib
 
-ROOT = Path(__file__).resolve().parents[1]
-BASELINES = (
-    ("bot", "AutoMuteUs", "d9ae52ffc0e804e0211154ace579425fc5ef9f4f"),
-    ("capture", "AmongUsCapture", "d05d7cd8f300b4368d3872337d2a9f5059c76ee6"),
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import verify_repository  # noqa: E402
+
+ROOT = verify_repository.ROOT
 REQUIRED = (
     ".github/workflows/README.md",
     ".github/ISSUE_TEMPLATE/bug_report.yml",
     ".github/ISSUE_TEMPLATE/feature_request.yml",
     ".github/PULL_REQUEST_TEMPLATE.md",
     "protocol/README.md",
-    "deploy/README.md",
+    "docs/acceptance.md",
     "docs/architecture.md",
     "docs/development.md",
-    "docs/requirements.md",
-    "docs/roadmap.md",
-    "docs/bootstrap-validation.md",
+    "docs/guide.md",
+    "docs/anleitung.md",
+    "docs/privacy.md",
     ".editorconfig",
     ".gitattributes",
     ".gitignore",
@@ -37,55 +42,13 @@ REQUIRED = (
 )
 
 
-def git(*args: str) -> bytes:
-    return subprocess.check_output(
-        ["git", "-C", str(ROOT), *args], stderr=subprocess.PIPE
-    )
-
-
 def check() -> list[str]:
-    failures = []
-    for prefix, name, tree in BASELINES:
-        actual = git("rev-parse", f"HEAD:{prefix}").decode().strip()
-        if actual != tree:
-            failures.append(f"{prefix}: committed tree differs from pinned upstream")
-        original = git("show", f"HEAD:{prefix}/LICENSE")
-        for path in (f"{prefix}/LICENSE", f"LICENSES/{name}-MIT.txt"):
-            if not (ROOT / path).is_file() or (ROOT / path).read_bytes() != original:
-                failures.append(f"{path}: differs from original license bytes")
-        if b"Copyright (c) 2020 Denver Quane" not in original:
-            failures.append(f"{prefix}: expected original copyright missing")
-
-    for args in (("diff", "--exit-code"), ("diff", "--cached", "--exit-code")):
-        result = subprocess.run(
-            ["git", "-C", str(ROOT), *args, "--", "bot", "capture"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
-        if result.returncode:
-            failures.append("Imported source has working-tree/index changes")
-            break
-
+    failures = list(verify_repository.check())
     for path in REQUIRED:
         if not (ROOT / path).is_file():
             failures.append(f"Missing required file: {path}")
 
-    root_license = (ROOT / "LICENSE").read_text(encoding="utf-8")
-    if "Copyright (c) 2026 IT-Tabelander" not in root_license:
-        failures.append("Root AUVC copyright missing")
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if "## Upstream and Credits" not in readme:
-        failures.append("README credits section missing")
-    if "not an official AutoMuteUs project" not in readme:
-        failures.append("README independent-project statement missing")
-
-    config = tomllib.loads((ROOT / ".gitleaks.toml").read_text(encoding="utf-8"))
-    if config.get("extend", {}).get("useDefault") is not True:
-        failures.append("Gitleaks default detectors must remain enabled")
-
-    # Include new files so checks work before the first scaffold commit too.
-    paths = git("ls-files", "-z", "--cached", "--others", "--exclude-standard")
+    paths = verify_repository.git("ls-files", "-z", "--cached", "--others", "--exclude-standard")
     for raw in sorted(set(paths.split(b"\0")) - {b""}):
         relative = raw.decode("utf-8")
         if relative.startswith(("bot/", "capture/", "LICENSES/")):
@@ -94,29 +57,10 @@ def check() -> list[str]:
         if not path.is_file():
             failures.append(f"Missing tracked file: {relative}")
             continue
-        if path.name.startswith(".env") and path.name not in (
-            ".env.example", ".env.sample"
-        ):
-            failures.append(f"Environment file must not be tracked: {relative}")
-        if path.suffix.lower() in {".pem", ".key", ".pfx", ".p12", ".db", ".sqlite"}:
-            failures.append(f"Credential/runtime file must not be tracked: {relative}")
-        data = path.read_bytes()
         try:
-            content = data.decode("utf-8")
+            path.read_bytes().decode("utf-8")
         except UnicodeDecodeError:
-            failures.append(f"New bootstrap file is not UTF-8 text: {relative}")
-            continue
-        if b"\r" in data or (data and not data.endswith(b"\n")):
-            failures.append(f"Expected LF with final newline: {relative}")
-        if any(line.rstrip(" \t") != line for line in content.splitlines()):
-            failures.append(f"Trailing whitespace: {relative}")
-        if path.suffix == ".md":
-            for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", content):
-                if "://" in target or target.startswith("#"):
-                    continue
-                target = target.split("#", 1)[0]
-                if target and not (path.parent / target).exists():
-                    failures.append(f"Broken local link in {relative}: {target}")
+            failures.append(f"Not UTF-8 text: {relative}")
     return failures
 
 
@@ -130,7 +74,7 @@ def main() -> int:
         print(f"FAIL: {failure}")
     if failures:
         return 1
-    print("PASS: pristine upstream trees, licenses, scaffold, links and text format")
+    print("PASS: import trees at their import commits, licences, scaffold, links and text format")
     print("Run Gitleaks separately; this verifier is not an application test suite.")
     return 0
 
