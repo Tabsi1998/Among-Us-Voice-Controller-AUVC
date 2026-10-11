@@ -18,3 +18,9 @@ Repo Tabsi1998/Among-Us-Voice-Controller-AUVC analysieren und weiterbauen (Owner
 - Live-Test mit 64-Bit-Build (docs/live-tests.md)
 - MeetingStates-Verschiebung (Results=4) prüfen
 - Kosmetik-Bilder (Originale aus Spieldateien?)
+
+## Runde 3 (Okt 2026)
+- Meeting-Timing: MeetingProceedingState pro Eintrag (5 für 2026.9.29), GameMemReader.RoundState
+- Epic/Store: Signatursuche (scripts/signatures_from_build.py, capture/AUOffsetManager/Signatures.json, SignatureIndex) – gegen echte Steam-DLL geprüft
+- Rundenstatistik: game_ended.result (Protokoll), Bot postet Sieger/Grund/Impostor in Steuerkanal (bot/round_result.go)
+- Offen: Kosmetik-Bilder (braucht StreamingAssets/aa-Bundles + Unity-Bundle-Leser), Live-Tests

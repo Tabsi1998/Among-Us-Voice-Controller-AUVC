@@ -129,10 +129,10 @@ public sealed class CaptureSession
         return new PlayerDied { Session = _session, Seq = Next(), Player = player };
     }
 
-    public GameEnded GameEnded()
+    public GameEnded GameEnded(RoundResult? result = null)
     {
         RequireEvent();
-        return new GameEnded { Session = _session, Seq = Next() };
+        return new GameEnded { Session = _session, Seq = Next(), Result = result };
     }
 
     private ulong Next() => ++_seq;

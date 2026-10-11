@@ -1,0 +1,40 @@
+{
+  "x64": {
+    "template": "615A95C9E09B6FFD45570883CB8459311C2B457533A38B37ED1704D6205AEDF9",
+    "description": "v2026.9.29s x64 (Steam build 25134893)",
+    "classes": {
+      "AmongUsClientOffset": {
+        "sig": "48 8B 05 ? ? ? ? 48 8B 88 B8 00 00 00 48 8B 09 48 85 C9 0F 84 ? ? ? ? 33 D2 E8 ? ? ? ? 84 C0 0F 85 ? ? ? ? 8B 46 18",
+        "displacement": 3
+      },
+      "GameDataOffset": {
+        "sig": "48 8D 0D ? ? ? ? E8 ? ? ? ? C6 05 ? ? ? ? 01 83 BB E8 ? ? ? ? 0F 85 ? ? ? ? 48 8B 0D ?",
+        "displacement": 3
+      },
+      "MeetingHudOffset": {
+        "sig": "48 8B 0D ? ? ? ? 48 8B 91 B8 00 00 00 48 8B 0A 48 85 C9 0F 84 ? ? ? ? 33 D2 E8 ? ? ? ? 4D 85 FF",
+        "displacement": 3
+      },
+      "GameStartManagerOffset": {
+        "sig": "48 8B 0D ? ? ? ? E8 ? ? ? ? ? ? C0 74 61 45 33 C0",
+        "displacement": 3
+      },
+      "HudManagerOffset": {
+        "sig": "48 8B 0D ? ? ? ? E8 ? ? ? ? 48 85 C0 0F 84 ? ? ? ? ? ? 98 58 01 00 00",
+        "displacement": 3
+      },
+      "ServerManagerOffset": {
+        "sig": "48 8B 0D ? ? ? ? 48 89 6C 24 50 48 89 74 24 58 48 89 7C 24 38 4C 89",
+        "displacement": 3
+      },
+      "TempDataOffset": {
+        "sig": "48 8B 05 ? ? ? ? 48 8B 80 B8 00 00 00 48 8B 48 08 48 85 C9 74 2A 80",
+        "displacement": 3
+      },
+      "GameOptionsOffset": {
+        "sig": "48 8B 05 ? ? ? ? 48 8B 88 B8 00 00 00 48 8B 09 48 85 C9 74 7D 33 D2",
+        "displacement": 3
+      }
+    }
+  }
+}

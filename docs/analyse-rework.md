@@ -249,14 +249,23 @@ Mit deiner `GameAssembly.dll` und `global-metadata.dat` von 2026.9.29:
   Originale kämen nur aus den Spieldateien (Addressables), was eine eigene
   Entscheidung wäre.
 
-### Gefunden, nicht geändert
+### Gefunden
 
-- **Meeting-Zustände haben sich verschoben.** Im aktuellen Spiel ist
-  `MeetingHud.MeetingStates` *Animating 0, Discussion 1, NotVoted 2, Voted 3,
-  Results 4, Proceeding 5*. Der Leser wertet `< 4` als Meeting, also zählt die
-  Ergebnisanzeige schon als Aufgaben-Phase. So lief es auch in deinen
-  bisherigen Live-Tests (die Enum-Reihe gibt es schon länger), deshalb ist es
-  unverändert. Wenn sich Spieler beim Ergebnis zu früh stummgeschaltet fühlen,
-  ist das die Stelle (`GameMemReader.GetGameState`).
 - `GameOverReason` hat neue Namen (CrewmatesByVote …) und zwei neue Werte für
   Hide and Seek (7, 8); die Reihenfolge 0–6 ist gleich geblieben.
+
+## Nachtrag: Runde 3
+
+- **Meeting-Timing:** Die Ergebnisanzeige zählt jetzt zum Meeting; stumm wird
+  erst bei *Proceeding*. Die Zahl steht pro Eintrag (`MeetingProceedingState`,
+  5 für 2026.9.29, 4 für alle älteren, wie live getestet).
+- **Epic und Microsoft Store:** Signatursuche über die acht Klassenadressen
+  (`Signatures.json`, `SignatureIndex`). Gegen die echte Steam-DLL geprüft:
+  findet genau ihre Adressen. Ein Epic- oder Store-Build lag nicht vor.
+- **Rundenstatistik:** `game_ended` trägt optional `result`; der Bot postet
+  Sieger, Art des Siegs und die Impostor in den Steuerkanal.
+- **Kosmetik-Bilder: nicht umgesetzt.** Die Bilder liegen in den
+  Addressables-Bundles des Spiels (`Among Us_Data\StreamingAssets\aa`). AUVC
+  bräuchte einen Unity-Bundle-Leser und Textur-Decoder und eine Zuordnung von
+  `hat_police` zum Sprite. Ohne diese Dateien hier lässt sich das weder bauen
+  noch prüfen.

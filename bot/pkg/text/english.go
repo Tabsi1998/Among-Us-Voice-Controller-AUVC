@@ -251,6 +251,17 @@ var english = map[Key]string{
 	NoticeResumesOnItsOwn: "The session is paused and resumes on its own when capture comes back.",
 	NoticeCaptureBack:     "✅ The capture app is back. AUVC is following the game again.",
 
+	RoundWonCrewmates:  "🏁 Round over: the crewmates win.",
+	RoundWonImpostors:  "🏁 Round over: the impostors win.",
+	RoundByVote:        "By vote.",
+	RoundByTasks:       "All tasks are done.",
+	RoundByKill:        "Enough crewmates were killed.",
+	RoundBySabotage:    "By sabotage.",
+	RoundByDisconnect:  "The other side left the game.",
+	RoundByTimer:       "The time ran out.",
+	RoundImpostors:     "Impostors: %s",
+	RoundImpostorsNone: "The impostors could not be read.",
+
 	BoardMap:   "Map",
 	BoardPhase: "Phase",
 	BoardCode:  "Lobby code",

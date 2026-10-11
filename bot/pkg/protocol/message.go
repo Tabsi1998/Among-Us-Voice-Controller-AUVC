@@ -231,10 +231,40 @@ type PlayerDied struct {
 	Player Player `json:"player"`
 }
 
-// GameEnded reports that the round is over.
+// GameEnded reports that the round is over. Result is optional: a capture from
+// before it, or one that could not read the end of the round, leaves it out.
 type GameEnded struct {
 	Header
+	Result *RoundResult `json:"result,omitempty"`
 }
+
+// The teams that can win a round.
+const (
+	WinnerCrewmates = "crewmates"
+	WinnerImpostors = "impostors"
+)
+
+// The ways a round can end. A reason this build does not know is not refused,
+// only not named, so a newer capture keeps working with an older bot.
+const (
+	ReasonVote       = "vote"
+	ReasonTasks      = "tasks"
+	ReasonKill       = "kill"
+	ReasonSabotage   = "sabotage"
+	ReasonDisconnect = "disconnect"
+	ReasonTimer      = "timer"
+)
+
+// RoundResult is who won a round, how, and who the impostors were. It is posted
+// in the control channel once the round is over, never earlier.
+type RoundResult struct {
+	Winner    string   `json:"winner"`
+	Reason    string   `json:"reason,omitempty"`
+	Impostors []string `json:"impostors,omitempty"`
+}
+
+// MaxImpostors is more than any lobby can have; a longer list is not a round.
+const MaxImpostors = 15
 
 // Error reports a refusal. Code is stable and machine-readable; Message is
 // written for a person reading a log or a Discord warning.

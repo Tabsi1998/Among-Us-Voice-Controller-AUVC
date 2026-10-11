@@ -210,9 +210,31 @@ func validatePayload(message Message) *Error {
 		return validatePlayer(typed.Player, refuse)
 	case *PlayerDied:
 		return validatePlayer(typed.Player, refuse)
+	case *GameEnded:
+		return validateResult(typed.Result, refuse)
 	case *Error:
 		if typed.Code == "" {
 			return refuse("error carries no code")
+		}
+	}
+	return nil
+}
+
+// validateResult checks the end of a round. The names end up in a Discord
+// channel, so a list that is not a lobby's is refused rather than posted.
+func validateResult(result *RoundResult, refuse func(string) *Error) *Error {
+	if result == nil {
+		return nil
+	}
+	if result.Winner != WinnerCrewmates && result.Winner != WinnerImpostors {
+		return refuse(fmt.Sprintf("unknown winner %q", result.Winner))
+	}
+	if len(result.Impostors) > MaxImpostors {
+		return refuse("the result names more impostors than a lobby has players")
+	}
+	for _, name := range result.Impostors {
+		if name == "" {
+			return refuse("the result names an impostor with no name")
 		}
 	}
 	return nil

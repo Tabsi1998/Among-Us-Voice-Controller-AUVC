@@ -109,6 +109,15 @@ public class MeetingHud : DestroyableSingleton<MeetingHud> // TypeDefIndex: 10
 }
 
 // Namespace:
+public enum MeetingHud.MeetingStates // TypeDefIndex: 21
+{
+	public int value__; // 0x0
+	public const MeetingHud.MeetingStates Animating = 0;
+	public const MeetingHud.MeetingStates Results = 4;
+	public const MeetingHud.MeetingStates Proceeding = 5;
+}
+
+// Namespace:
 public class GameStartManager : DestroyableSingleton<GameStartManager> // TypeDefIndex: 11
 {
 \t// Fields
@@ -215,7 +224,8 @@ def pe(machine: int) -> bytes:
 
 class OffsetsFromIl2CppTests(unittest.TestCase):
     def entry(self, dump: str = DUMP, layout=tool.X64):
-        return tool.build_entry(tool.parse_dump(dump), tool.parse_script(json.dumps(SCRIPT)), layout, "test x64")
+        return tool.build_entry(tool.parse_dump(dump), tool.parse_script(json.dumps(SCRIPT)), layout, "test x64",
+                                tool.meeting_proceeding(dump))
 
     def test_a_64_bit_entry_has_every_chain_with_64_bit_steps(self):
         entry, missing = self.entry()
@@ -231,6 +241,12 @@ class OffsetsFromIl2CppTests(unittest.TestCase):
         self.assertEqual(entry["ExiledPlayerIdOffsets"], [0x3A00030, 0xB8, 0x0, 0xD8, 0x38])
         self.assertEqual(entry["StringOffsets"], [0x10, 0x14])
         self.assertEqual((entry["AddPlayerPtr"], entry["PlayerListPtr"]), (8, 0x20))
+
+    def test_the_meeting_ends_with_proceeding_as_the_game_counts_it(self):
+        entry, _ = self.entry()
+
+        self.assertEqual(entry["MeetingProceedingState"], 5)
+        self.assertIsNone(tool.meeting_proceeding("public enum Other {}"))
 
     def test_singletons_without_their_own_instance_use_destroyable_singleton(self):
         entry, _ = self.entry()

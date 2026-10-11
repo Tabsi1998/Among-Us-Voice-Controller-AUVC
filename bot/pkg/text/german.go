@@ -251,6 +251,17 @@ var german = map[Key]string{
 	NoticeResumesOnItsOwn: "Die Sitzung ist pausiert und läuft von selbst weiter, sobald die App wieder da ist.",
 	NoticeCaptureBack:     "✅ Die AUVC-App ist wieder da. AUVC verfolgt das Spiel wieder.",
 
+	RoundWonCrewmates:  "🏁 Runde vorbei: Die Crewmates gewinnen.",
+	RoundWonImpostors:  "🏁 Runde vorbei: Die Impostor gewinnen.",
+	RoundByVote:        "Durch Abstimmung.",
+	RoundByTasks:       "Alle Aufgaben sind erledigt.",
+	RoundByKill:        "Es wurden genug Crewmates getötet.",
+	RoundBySabotage:    "Durch Sabotage.",
+	RoundByDisconnect:  "Die andere Seite hat das Spiel verlassen.",
+	RoundByTimer:       "Die Zeit ist abgelaufen.",
+	RoundImpostors:     "Impostor: %s",
+	RoundImpostorsNone: "Die Impostor ließen sich nicht auslesen.",
+
 	BoardMap:   "Karte",
 	BoardPhase: "Phase",
 	BoardCode:  "Lobby-Code",

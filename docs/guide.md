@@ -226,8 +226,11 @@ From then on AUVC follows the game on its own:
 | Lobby | Main channel, can talk | Main channel, can talk |
 | Tasks, death not yet announced | Main channel, muted | Stay where they are, muted |
 | Tasks, death announced | Main channel, muted | Ghost channel, can talk |
-| Meeting and voting | Main channel, can talk | Ghost channel, can talk |
+| Meeting, voting and result | Main channel, can talk | Ghost channel, can talk |
 | Round over | Main channel, can talk | Main channel, can talk |
+
+Once the round is over, AUVC writes in the text channel who won, how, and who
+the impostors were – then, never earlier.
 
 With **Also deafen living players during the tasks** switched on, the living
 also hear nothing while the tasks run. It is off by default: muting the

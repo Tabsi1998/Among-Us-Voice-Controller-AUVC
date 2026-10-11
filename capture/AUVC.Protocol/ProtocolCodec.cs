@@ -131,6 +131,7 @@ public static class MessageValidator
             PlayerLeft left => PlayerRefusal(left.Player),
             PlayerChanged changed => PlayerRefusal(changed.Player),
             PlayerDied died => PlayerRefusal(died.Player),
+            GameEnded ended => ResultRefusal(ended.Result),
             ProtocolError error when string.IsNullOrEmpty(error.Code) =>
                 "error carries no code",
             _ => null,
@@ -158,6 +159,19 @@ public static class MessageValidator
         lobby is not null && lobby.Code != "" && !ProtocolContract.IsLobbyCode(lobby.Code)
             ? "the lobby code is not one the game uses"
             : null;
+
+    // The names end up in a Discord channel, so a list that is not a lobby's is
+    // refused rather than posted.
+    private static string? ResultRefusal(RoundResult? result)
+    {
+        if (result is null) return null;
+        if (result.Winner is not (RoundResult.Crewmates or RoundResult.Impostors))
+            return $"unknown winner '{result.Winner}'";
+        var names = result.ImpostorNames ?? [];
+        if (names.Count > RoundResult.MaxImpostors)
+            return "the result names more impostors than a lobby has players";
+        return names.Any(string.IsNullOrEmpty) ? "the result names an impostor with no name" : null;
+    }
 
     // The name is what links a player to a Discord account, so an event without
     // one cannot be acted on at all.

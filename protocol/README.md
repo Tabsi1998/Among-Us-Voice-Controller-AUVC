@@ -65,7 +65,7 @@ connection, and it is what makes a reconnect testable by replaying messages.
 | `player_left` | `player` | A player left. |
 | `player_changed` | `player` | A change that is neither death nor departure. |
 | `player_died` | `player` | A death. The event the voice policy reacts to. |
-| `game_ended` | — | The round is over. |
+| `game_ended` | `result` (optional) | The round is over, and who won it. |
 | `error` | `code`, `message` | A refusal, in both directions. |
 
 `phase` is one of `lobby`, `tasks`, `discussion`, `menu`, `ended`. Meetings and
@@ -90,6 +90,21 @@ is what the crewmate board shows about the lobby; voice does not depend on it.
   to the menu leaves it out.
 - `lobby` is optional, so a capture or bot from before it keeps working with one
   that sends it.
+
+`game_ended` may carry the `result` of the round, which the bot posts in the
+control channel once the round is over:
+
+```json
+"result": { "winner": "impostors", "reason": "kill", "impostors": ["Mira", "Leon"] }
+```
+
+- `winner` is `crewmates` or `impostors`; anything else is refused.
+- `reason` is one of `vote`, `tasks`, `kill`, `sabotage`, `disconnect`, `timer`.
+  One the receiver does not know is not refused, only not named.
+- `impostors` holds at most 15 names, none of them empty, because they are
+  posted in a Discord channel. It may be empty when capture could not read them.
+- `result` is optional, like `lobby`: capture leaves it out when it could not
+  read the end of the round, and older builds on either side keep working.
 
 ## Order
 

@@ -201,6 +201,18 @@ namespace AUOffsetManager
             return OffsetIndex.ContainsKey(sha256Hash);
         }
 
+        /// <summary>
+        /// An entry for a 64-bit build without one, found by signature in the game's
+        /// image (SignatureIndex). Kept for the hash, so it is searched once per build.
+        /// </summary>
+        public GameOffsets Derive(string sha256Hash, byte[] image)
+        {
+            if (!SignatureIndex.LoadBundled().TryGetValue("x64", out var set)) return null;
+            var derived = SignatureIndex.Derive(image, OffsetIndex, set);
+            if (derived is not null && !string.IsNullOrEmpty(sha256Hash)) OffsetIndex[sha256Hash] = derived;
+            return derived;
+        }
+
         /// <summary>An entry the reader can work with: without these it reads nothing or crashes.</summary>
         public static bool IsUsable(GameOffsets offsets) =>
             offsets is not null
@@ -288,6 +300,13 @@ namespace AUOffsetManager
         public int[] StringOffsets { get; set; }
         public int AddPlayerPtr { get; set; }
         public int PlayerListPtr { get; set; }
+
+        /// <summary>
+        /// MeetingHud's "Proceeding": from it on the meeting is over. 4 in the entries up to
+        /// v18, whose reading was tested live that way; 5 where the index names it, as
+        /// the game counts Animating 0 … Results 4, Proceeding 5.
+        /// </summary>
+        public int MeetingProceedingState { get; set; } = 4;
 
         public PlayerInfoStructOffsets PlayerInfoStructOffsets { get; set; }
         public WinningPlayerDataStructOffsets WinningPlayerDataStructOffsets { get; set; }

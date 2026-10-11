@@ -13,6 +13,9 @@ namespace AmongUsCapture.Memory.Structs
         ImpostorBySabotage,
         ImpostorDisconnect,
         HumansDisconnect,
+        // Hide and Seek, since 2022.
+        HideAndSeekCrewmatesByTimer,
+        HideAndSeekImpostorsByKills,
         Unknown
     }
 }

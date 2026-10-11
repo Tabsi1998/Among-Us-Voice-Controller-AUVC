@@ -53,7 +53,7 @@ public interface IRoundReporter
 
     void ReportPlayerDied(Player player);
 
-    void ReportGameEnded();
+    void ReportGameEnded(RoundResult? result = null);
 
     /// <summary>The lobby's code and map, read after the phase changed into it.</summary>
     void ReportLobby(Lobby lobby);
@@ -215,8 +215,8 @@ public sealed class CaptureLink : IRoundReporter, IAsyncDisposable
     public void ReportPlayerDied(Player player) =>
         Report(round => round.Die(player), session => session.PlayerDied(player with { Dead = true }));
 
-    public void ReportGameEnded() =>
-        Report(round => round.End(), session => session.GameEnded());
+    public void ReportGameEnded(RoundResult? result = null) =>
+        Report(round => round.End(), session => session.GameEnded(result));
 
     /// <summary>
     /// Records the lobby and tells the bot with a change into the phase capture is

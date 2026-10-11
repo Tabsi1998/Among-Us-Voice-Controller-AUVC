@@ -123,6 +123,10 @@ class Missing(Exception):
     pass
 
 
+def absent(what: str):
+    raise Missing(what)
+
+
 class Reader:
     def __init__(self, classes: dict[str, Klass], type_infos: dict[str, int], layout: Layout):
         self.classes, self.type_infos, self.layout = classes, type_infos, layout
@@ -185,8 +189,17 @@ class Reader:
             return fallback
 
 
+PROCEEDING = re.compile(r"public const MeetingHud\.(?:MeetingStates|VoteStates) Proceeding = (\d+);")
+
+
+def meeting_proceeding(dump: str) -> int | None:
+    """The number of MeetingHud's "Proceeding": from it on the meeting is over."""
+    match = PROCEEDING.search(dump)
+    return int(match.group(1)) if match else None
+
+
 def build_entry(classes: dict[str, Klass], type_infos: dict[str, int], layout: Layout,
-                description: str) -> tuple[dict, list[str]]:
+                description: str, proceeding: int | None = None) -> tuple[dict, list[str]]:
     r = Reader(classes, type_infos, layout)
     L = layout
     take = r.take
@@ -222,6 +235,8 @@ def build_entry(classes: dict[str, Klass], type_infos: dict[str, int], layout: L
         "MeetingHudPtr": [meeting, *meeting_steps],
         "MeetingHudCachePtrOffsets": [L.object_header],
         "MeetingHudStateOffsets": [take(lambda: r.field(("MeetingHud",), ("state",)))],
+        "MeetingProceedingState": proceeding if proceeding is not None else
+        take(lambda: absent("enum MeetingHud.MeetingStates.Proceeding")),
         "GameStateOffsets": [client, *client_steps,
                              take(lambda: r.field(("AmongUsClient", "InnerNetClient"), ("GameState", "gameState")))],
         "AllPlayerPtrOffsets": [data, *data_steps, take(lambda: r.field(("GameData",), ("AllPlayers",)))],
@@ -333,9 +348,9 @@ def main(argv: list[str] | None = None) -> int:
     else:
         parser.error("give --game-assembly, or --hash with --arch")
 
-    classes = parse_dump(args.dump.read_text(encoding="utf-8", errors="replace"))
+    dump = args.dump.read_text(encoding="utf-8", errors="replace")
     type_infos = parse_script(args.script.read_text(encoding="utf-8"))
-    entry, missing = build_entry(classes, type_infos, layout, args.description)
+    entry, missing = build_entry(parse_dump(dump), type_infos, layout, args.description, meeting_proceeding(dump))
     if missing:
         for item in missing:
             print(f"MISSING: {item}", file=sys.stderr)

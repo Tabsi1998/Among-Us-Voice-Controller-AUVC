@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AmongUsCapture;
+using AmongUsCapture.Memory.Structs;
 using AUVC.Protocol;
 using AUVC.Transport;
 using Xunit;
@@ -27,7 +28,13 @@ namespace AUVC.Capture.Tests
 
             public void ReportPlayerDied(Player player) => Reports.Add(("died", player, null));
 
-            public void ReportGameEnded() => Reports.Add(("ended", null, null));
+            public RoundResult? Result;
+
+            public void ReportGameEnded(RoundResult? result = null)
+            {
+                Result = result;
+                Reports.Add(("ended", null, null));
+            }
 
             public void ReportLobby(Lobby lobby) => Reports.Add(("lobby", null, lobby.Code + "@" + lobby.Map));
         }
@@ -136,5 +143,45 @@ namespace AUVC.Capture.Tests
                 Assert.True(recorder.Reports.Count == 1, $"{action} is not forwarded");
             }
         }
+
+        /// <summary>The end of the round names the winning side, how, and the impostors, for Discord.</summary>
+        [Theory]
+        [InlineData(GameOverReason.HumansByVote, "crewmates", "vote")]
+        [InlineData(GameOverReason.HumansByTask, "crewmates", "tasks")]
+        [InlineData(GameOverReason.ImpostorByVote, "impostors", "vote")]
+        [InlineData(GameOverReason.ImpostorByKill, "impostors", "kill")]
+        [InlineData(GameOverReason.ImpostorBySabotage, "impostors", "sabotage")]
+        [InlineData(GameOverReason.ImpostorDisconnect, "crewmates", "disconnect")]
+        [InlineData(GameOverReason.HumansDisconnect, "impostors", "disconnect")]
+        [InlineData(GameOverReason.HideAndSeekCrewmatesByTimer, "crewmates", "timer")]
+        [InlineData(GameOverReason.HideAndSeekImpostorsByKills, "impostors", "kill")]
+        public void TheResultNamesTheWinningSide(GameOverReason reason, string winner, string how)
+        {
+            var result = CaptureBridge.ResultFor(new GameOverEventArgs { GameOverReason = reason, PlayerInfos = [] });
+
+            Assert.Equal((winner, how), (result.Winner, result.Reason));
+        }
+
+        [Fact]
+        public void TheImpostorsAreNamedInOrder()
+        {
+            var result = CaptureBridge.ResultFor(new GameOverEventArgs
+            {
+                GameOverReason = GameOverReason.ImpostorByKill,
+                PlayerInfos =
+                [
+                    new ImmutablePlayer { Name = "Paula", IsImpostor = false },
+                    new ImmutablePlayer { Name = "mira", IsImpostor = true },
+                    new ImmutablePlayer { Name = "Leon", IsImpostor = true },
+                ],
+            });
+
+            Assert.Equal(new[] { "Leon", "mira" }, result.ImpostorNames);
+        }
+
+        /// <summary>A reason the game reports and AUVC does not know is no result rather than a wrong one.</summary>
+        [Fact]
+        public void AnUnknownReasonIsNoResult() =>
+            Assert.Null(CaptureBridge.ResultFor(new GameOverEventArgs { GameOverReason = GameOverReason.Unknown }));
     }
 }

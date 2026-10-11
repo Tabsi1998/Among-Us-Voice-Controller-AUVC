@@ -21,6 +21,18 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   app loads `capture/Offsets.json` from this repository and takes the versions
   it does not know yet; known ones are never replaced from the network. The
   setting **Load offsets for new Among Us versions** turns it off.
+- **Epic and Microsoft Store builds** of a known 64-bit version are found by
+  signature: their classes lie elsewhere, but the code that loads them reads the
+  same. For a 64-bit game without an entry AUVC searches its `GameAssembly.dll`
+  in memory for the patterns in `capture/AUOffsetManager/Signatures.json`
+  (written by `scripts/signatures_from_build.py`) and, if every class is found
+  exactly once, uses the Steam entry with the addresses found. Checked against
+  the real Steam build, where they find its own addresses; not yet against an
+  Epic or Store build.
+- **The round's result in Discord.** At the end of a round the control channel
+  reads who won, how, and who the impostors were. `game_ended` carries an
+  optional `result` for it (`protocol/README.md`); names are escaped and mention
+  nobody.
 - **Cosmetics are back**
   ([#155](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/155)):
   the reader takes hat, skin, pet and visor as the game's string ids, and the
@@ -32,6 +44,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   unsupported version is named without the logs.
 
 ### Fixed
+
+- The meeting lasted only until the results: Among Us counts *Animating 0 …
+  Results 4, Proceeding 5*, and the reader took everything from 4 as tasks, so
+  everyone was muted while the votes were still on screen. Entries now say which
+  number proceeds (`MeetingProceedingState`, 5 for 2026.9.29); the older
+  entries keep the 4 they were tested with.
 
 - The reader took the last pointer of the v18 player struct from past its
   buffer: the size of the read was rounded down instead of up. The same rounding

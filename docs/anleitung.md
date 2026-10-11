@@ -238,8 +238,11 @@ Ab dann folgt AUVC dem Spiel von selbst:
 | Lobby | Hauptkanal, können reden | Hauptkanal, können reden |
 | Aufgaben, Tod noch nicht bekannt | Hauptkanal, stumm | Bleiben, wo sie sind, stumm |
 | Aufgaben, Tod bekannt | Hauptkanal, stumm | Geisterkanal, können reden |
-| Meeting und Abstimmung | Hauptkanal, können reden | Geisterkanal, können reden |
+| Meeting, Abstimmung und Ergebnis | Hauptkanal, können reden | Geisterkanal, können reden |
 | Runde vorbei | Hauptkanal, können reden | Hauptkanal, können reden |
+
+Ist die Runde vorbei, schreibt AUVC in den Textkanal, wer gewonnen hat, wie, und
+wer Impostor war – erst dann, vorher nie.
 
 Ist **Lebende während der Aufgaben auch taub schalten** eingeschaltet, hören die
 Lebenden während der Aufgaben ebenfalls nichts. Standardmäßig ist es aus: Für das

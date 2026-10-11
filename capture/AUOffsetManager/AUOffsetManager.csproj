@@ -20,6 +20,7 @@
     <!-- Ships the offset index inside the assembly so capture can read the game
          without contacting any third-party host. -->
     <EmbeddedResource Include="../Offsets.json" LogicalName="AUOffsetManager.Offsets.json" />
+    <EmbeddedResource Include="Signatures.json" LogicalName="AUOffsetManager.Signatures.json" />
   </ItemGroup>
 
 </Project>

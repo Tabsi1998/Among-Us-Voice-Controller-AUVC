@@ -67,41 +67,33 @@ namespace AmongUsCapture
         public event EventHandler<PlayerCosmeticChangedEventArgs> PlayerCosmeticChanged;
         private GameState GetGameState(ProcessMemory memInstance)
         {
-            GameState state;
             var meetingHud = memInstance.Read<IntPtr>(GameAssemblyPtr, CurrentOffsets.MeetingHudPtr);
-            var meetingHud_cachePtr = meetingHud == IntPtr.Zero ? 0 : memInstance.Read<uint>(meetingHud, CurrentOffsets.MeetingHudCachePtrOffsets);
-            var meetingHudState = meetingHud_cachePtr == 0 ? 4 : memInstance.ReadWithDefault(meetingHud, 4, CurrentOffsets.MeetingHudStateOffsets); // 0 = Discussion, 1 = NotVoted, 2 = Voted, 3 = Results, 4 = Proceeding
+            var hudAlive = meetingHud != IntPtr.Zero && memInstance.Read<IntPtr>(meetingHud, CurrentOffsets.MeetingHudCachePtrOffsets) != IntPtr.Zero;
+            var proceeding = CurrentOffsets.MeetingProceedingState;
+            var meetingHudState = hudAlive ? memInstance.ReadWithDefault(meetingHud, proceeding, CurrentOffsets.MeetingHudStateOffsets) : proceeding;
             var gameState = memInstance.Read<int>(GameAssemblyPtr, CurrentOffsets.GameStateOffsets); // 0 = NotJoined, 1 = Joined, 2 = Started, 3 = ENDED (during "defeat" or "victory" screen only)
 
-            switch (gameState)
-            {
-                case 0:
-                    state = GameState.MENU;
-                    exileCausesEnd = false;
-                    break;
-                case 1:
-                    state = GameState.LOBBY;
-                    exileCausesEnd = false;
-                    break;
-                case 3:
-                    state = GameState.ENDED;
-                    exileCausesEnd = false;
-                    break;
-                default:
-                    {
-                        if (exileCausesEnd)
-                            state = GameState.LOBBY;
-                        else if (meetingHudState < 4)
-                            state = GameState.DISCUSSION;
-                        else
-                            state = GameState.TASKS;
-
-                        break;
-                    }
-            }
-
-            return state;
+            if (gameState != 2) exileCausesEnd = false;
+            return RoundState(gameState, meetingHudState, proceeding, exileCausesEnd);
         }
+
+        /// <summary>
+        /// The phase of the round from what the game says. A meeting lasts until the game
+        /// proceeds to the exile: the results with the votes are still the meeting. Which
+        /// number "proceeding" is depends on the build; since Among Us counts "animating"
+        /// first it is 5, and the index says so per version (MeetingProceedingState).
+        /// </summary>
+        public static GameState RoundState(int gameState, int meetingState, int proceedingState, bool exileCausesEnd) =>
+            gameState switch
+            {
+                0 => GameState.MENU,
+                1 => GameState.LOBBY,
+                3 => GameState.ENDED,
+                _ when exileCausesEnd => GameState.LOBBY,
+                _ when meetingState < proceedingState => GameState.DISCUSSION,
+                _ => GameState.TASKS,
+            };
+
         private int GetPlayerCount(ProcessMemory memInstance)
         {
             var allPlayersPtr = memInstance.Read<IntPtr>(GameAssemblyPtr, CurrentOffsets.AllPlayerPtrOffsets);
@@ -286,6 +278,19 @@ namespace AmongUsCapture
             };
         }
 
+        /// <summary>The game's GameAssembly.dll as it lies in memory, read in pieces; a piece that cannot be read stays zero.</summary>
+        private static byte[] ReadImage(ProcessMemory memory, ProcessMemory.Module module)
+        {
+            const int piece = 1 << 20;
+            var image = new byte[module.MemorySize];
+            for (long at = 0; at < image.Length; at += piece)
+            {
+                var length = (int)Math.Min(piece, image.Length - at);
+                Array.Copy(memory.Read(module.BaseAddress + (nint)at, length), 0, image, at, length);
+            }
+            return image;
+        }
+
         private string GetSha256Hash(string path)
         {
             using var sha256 = new SHA256Managed();
@@ -342,6 +347,12 @@ namespace AmongUsCapture
                                 }
 
                                 CurrentOffsets = offMan.FetchForHash(GameHash);
+                                // Epic, the Microsoft Store and other builds of a known version: same code, other addresses.
+                                if (CurrentOffsets is null && ProcessMemory.getInstance().is64Bit)
+                                {
+                                    CurrentOffsets = offMan.Derive(GameHash, ReadImage(ProcessMemory.getInstance(), module));
+                                    if (CurrentOffsets is not null) Logger.Info("No offsets for {GameHash}; using {offsetDescription}", GameHash, CurrentOffsets.Description);
+                                }
                                 if (CurrentOffsets is not null)
                                 {
                                     Logger.Info("Loaded offsets: {offsetDescription}", CurrentOffsets.Description);

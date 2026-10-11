@@ -222,10 +222,46 @@ public sealed record PlayerDied : Message
     [JsonPropertyName("player")] public Player Player { get; init; } = new();
 }
 
-/// <summary>Reports that the round is over.</summary>
+/// <summary>
+/// Reports that the round is over. The result is left out when capture could not
+/// read it, and by every capture from before it.
+/// </summary>
 public sealed record GameEnded : Message
 {
     public GameEnded() => Type = ProtocolContract.TypeGameEnded;
+
+    [JsonPropertyName("result")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RoundResult? Result { get; init; }
+}
+
+/// <summary>Who won a round, how, and who the impostors were.</summary>
+public sealed record RoundResult
+{
+    public const string Crewmates = "crewmates";
+    public const string Impostors = "impostors";
+
+    public const string ByVote = "vote";
+    public const string ByTasks = "tasks";
+    public const string ByKill = "kill";
+    public const string BySabotage = "sabotage";
+    public const string ByDisconnect = "disconnect";
+    public const string ByTimer = "timer";
+
+    /// <summary>More than any lobby can have; a longer list is not a round.</summary>
+    public const int MaxImpostors = 15;
+
+    /// <summary><see cref="Crewmates"/> or <see cref="Impostors"/>.</summary>
+    [JsonPropertyName("winner")] public string Winner { get; init; } = "";
+
+    /// <summary>How the round ended; a reason the bot does not know is only not named.</summary>
+    [JsonPropertyName("reason")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Reason { get; init; }
+
+    [JsonPropertyName("impostors")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<string>? ImpostorNames { get; init; }
 }
 
 /// <summary>

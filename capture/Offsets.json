@@ -3439,6 +3439,7 @@
     "MeetingHudPtr": [0x3409CF8, 0xB8, 0x0],
     "MeetingHudCachePtrOffsets": [0x10],
     "MeetingHudStateOffsets": [0xE0],
+    "MeetingProceedingState": 0x5,
     "GameStateOffsets": [0x34078C0, 0xB8, 0x0, 0xAC],
     "AllPlayerPtrOffsets": [0x344AF48, 0xB8, 0x0, 0x20],
     "AllPlayersOffsets": [0x10],

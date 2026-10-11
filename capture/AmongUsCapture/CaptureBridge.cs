@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using AmongUsCapture.Memory.Structs;
 using AUVC.Protocol;
 using AUVC.Transport;
 
@@ -17,8 +20,37 @@ namespace AmongUsCapture
         {
             reader.GameStateChanged += (_, e) => Forward(report, e);
             reader.PlayerChanged += (_, e) => Forward(report, e);
-            reader.GameOver += (_, _) => report.ReportGameEnded();
+            reader.GameOver += (_, e) => report.ReportGameEnded(ResultFor(e));
             reader.JoinedLobby += (_, e) => Forward(report, e);
+        }
+
+        /// <summary>
+        /// Who won the round and who the impostors were, for the post in Discord. The
+        /// game's reasons name the winning side; the hide-and-seek ones too.
+        /// </summary>
+        public static RoundResult ResultFor(GameOverEventArgs e)
+        {
+            var (winner, reason) = e.GameOverReason switch
+            {
+                GameOverReason.HumansByVote => (RoundResult.Crewmates, RoundResult.ByVote),
+                GameOverReason.HumansByTask => (RoundResult.Crewmates, RoundResult.ByTasks),
+                GameOverReason.ImpostorByVote => (RoundResult.Impostors, RoundResult.ByVote),
+                GameOverReason.ImpostorByKill => (RoundResult.Impostors, RoundResult.ByKill),
+                GameOverReason.ImpostorBySabotage => (RoundResult.Impostors, RoundResult.BySabotage),
+                GameOverReason.ImpostorDisconnect => (RoundResult.Crewmates, RoundResult.ByDisconnect),
+                GameOverReason.HumansDisconnect => (RoundResult.Impostors, RoundResult.ByDisconnect),
+                GameOverReason.HideAndSeekCrewmatesByTimer => (RoundResult.Crewmates, RoundResult.ByTimer),
+                GameOverReason.HideAndSeekImpostorsByKills => (RoundResult.Impostors, RoundResult.ByKill),
+                _ => (null, null),
+            };
+            if (winner is null) return null;
+            var impostors = (e.PlayerInfos ?? [])
+                .Where(player => player.IsImpostor && !string.IsNullOrEmpty(player.Name))
+                .Select(player => player.Name)
+                .OrderBy(name => name, StringComparer.CurrentCultureIgnoreCase)
+                .Take(RoundResult.MaxImpostors)
+                .ToList();
+            return new RoundResult { Winner = winner, Reason = reason, ImpostorNames = impostors };
         }
 
         /// <summary>

@@ -218,6 +218,13 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 		return err
 	}
 
+	// The result is a post, not voice: it goes out whether or not voice is
+	// managed, and on its own goroutine so the end of the round is not held up
+	// by Discord answering a message.
+	if ended, ok := message.(*protocol.GameEnded); ok && ended.Result != nil {
+		go bot.postRoundResult(guildID, *ended.Result)
+	}
+
 	// The board follows the lobby whether or not voice is being managed:
 	// players choose their crewmate before anybody starts a session.
 	bot.RefreshCrewmates(guildID)

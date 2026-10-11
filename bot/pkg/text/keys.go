@@ -289,6 +289,20 @@ const (
 	NoticeCaptureBack     Key = "notice-capture-back"
 )
 
+// The end of a round, posted in the text channel once it is over.
+const (
+	RoundWonCrewmates  Key = "round-won-crewmates"
+	RoundWonImpostors  Key = "round-won-impostors"
+	RoundByVote        Key = "round-by-vote"
+	RoundByTasks       Key = "round-by-tasks"
+	RoundByKill        Key = "round-by-kill"
+	RoundBySabotage    Key = "round-by-sabotage"
+	RoundByDisconnect  Key = "round-by-disconnect"
+	RoundByTimer       Key = "round-by-timer"
+	RoundImpostors     Key = "round-impostors"
+	RoundImpostorsNone Key = "round-impostors-none"
+)
+
 // The round on the crewmate message: map, phase and lobby code.
 const (
 	BoardMap   Key = "board-map"

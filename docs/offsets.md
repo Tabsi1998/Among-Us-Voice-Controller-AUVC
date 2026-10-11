@@ -42,6 +42,24 @@ MethodInfo von `get_Instance`; die Kette geht dann über `klass`:
 Der Rest – wo die Klassen in `GameAssembly.dll` liegen und an welcher Stelle
 ihre Felder stehen – kommt aus dem Spiel selbst.
 
+## Epic und Microsoft Store
+
+Dieselbe Version auf Epic oder im Microsoft Store ist derselbe C#-Code in einer
+eigenen `GameAssembly.dll`: andere Prüfsumme, andere Klassenadressen, gleiche
+Felder. Für ein 64-Bit-Spiel ohne Eintrag sucht AUVC deshalb im Speicher nach
+dem Code, der die acht Klassen lädt (`capture/AUOffsetManager/Signatures.json`),
+und nimmt den Steam-Eintrag mit den gefundenen Adressen, wenn jede Klasse genau
+einmal gefunden wird. Im Log steht dann *found by signature*.
+
+Für den Store gibt es ohnehin keine Prüfsumme: AUVC darf die Datei im
+Ordner `WindowsApps` nicht lesen, den Speicher aber schon.
+
+Nach einer neuen Steam-Version die Signaturen neu schreiben:
+
+```powershell
+python scripts/signatures_from_build.py --game-assembly "…\GameAssembly.dll" --hash <Prüfsumme des neuen Eintrags>
+```
+
 ## Werte ermitteln
 
 Du brauchst den PC mit Among Us, Python 3.11 und
@@ -101,6 +119,7 @@ App und Installer neu bauen.
 | Kein Lobby-Code | `GameCodeOffsets`: `GameRoomNameCode` und `TMP_Text.m_text` |
 | Falsche Region | `PlayRegionOffsets` (liest die Länge des Regionsnamens) |
 | Meeting wird nicht erkannt | `MeetingHudPtr`, `MeetingHudStateOffsets` |
+| Stumm schon bei der Ergebnisanzeige | `MeetingProceedingState` (Zahl von *Proceeding* in `MeetingHud.MeetingStates`) |
 | Rauswurf ohne Folgen | `ExiledPlayerIdOffsets` |
 | Sieger falsch | `RawGameOverReasonOffsets`, `WinningPlayerDataStructOffsets` |
 
