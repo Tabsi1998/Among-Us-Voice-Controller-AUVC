@@ -45,3 +45,6 @@ Thumbs.db
 /*.code-workspace
 /go.work
 /go.work.sum
+*.env
+credentials.json
+.credentials
