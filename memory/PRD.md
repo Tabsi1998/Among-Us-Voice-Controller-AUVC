@@ -24,3 +24,9 @@ Repo Tabsi1998/Among-Us-Voice-Controller-AUVC analysieren und weiterbauen (Owner
 - Epic/Store: Signatursuche (scripts/signatures_from_build.py, capture/AUOffsetManager/Signatures.json, SignatureIndex) – gegen echte Steam-DLL geprüft
 - Rundenstatistik: game_ended.result (Protokoll), Bot postet Sieger/Grund/Impostor in Steuerkanal (bot/round_result.go)
 - Offen: Kosmetik-Bilder (braucht StreamingAssets/aa-Bundles + Unity-Bundle-Leser), Live-Tests
+
+## Runde 4 (Okt 2026)
+- /au settings round (round_results, Standard an), /au stats (+ reset für Admins), Migration 0007 (player_stats)
+- scripts/cosmetics_inventory.py: kleine JSON-Übersicht des aa-Ordners zum Hochladen
+- Test-Lockfile ohne AUOffsetHelper neu erzeugt (sonst schlägt --locked-mode im Release fehl)
+- EXE: Owner pusht per Save to GitHub, dann Actions → Release → Run workflow → Artefakt capture-payload

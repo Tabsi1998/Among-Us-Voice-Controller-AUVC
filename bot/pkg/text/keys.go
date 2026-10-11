@@ -303,6 +303,18 @@ const (
 	RoundImpostorsNone Key = "round-impostors-none"
 )
 
+// /au settings round and /au stats.
+const (
+	DescribeSettingsRound Key = "describe-settings-round"
+	DescribeRoundResults  Key = "describe-round-results"
+	DescribeStats         Key = "describe-stats"
+	DescribeStatsReset    Key = "describe-stats-reset"
+	StatsNone             Key = "stats-none"
+	StatsHeader           Key = "stats-header"
+	StatsLine             Key = "stats-line"
+	StatsReset            Key = "stats-reset"
+)
+
 // The round on the crewmate message: map, phase and lobby code.
 const (
 	BoardMap   Key = "board-map"

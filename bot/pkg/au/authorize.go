@@ -57,7 +57,7 @@ func ScopeFor(group, subcommand string) Scope {
 
 	case "":
 		switch subcommand {
-		case Version, Link, Unlink:
+		case Version, Link, Unlink, Stats:
 			return ScopeEveryone
 		case Doctor:
 			return ScopeAdmin

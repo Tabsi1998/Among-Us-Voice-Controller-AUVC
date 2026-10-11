@@ -209,6 +209,10 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 		return nil
 	}
 	before := guild.live.Phase()
+	var finished []session.GamePlayer
+	if ended, ok := message.(*protocol.GameEnded); ok && ended.Result != nil {
+		finished = guild.live.Players()
+	}
 	changed, err := applyCaptureMessage(guild.live, message)
 	after := guild.live.Phase()
 	mode := guild.mode
@@ -222,7 +226,7 @@ func (bot *Bot) HandleCapture(guildID string, message protocol.Message) error {
 	// managed, and on its own goroutine so the end of the round is not held up
 	// by Discord answering a message.
 	if ended, ok := message.(*protocol.GameEnded); ok && ended.Result != nil {
-		go bot.postRoundResult(guildID, *ended.Result)
+		go bot.finishRound(guildID, *ended.Result, finished)
 	}
 
 	// The board follows the lobby whether or not voice is being managed:

@@ -35,6 +35,7 @@ const (
 	SettingsExport = "export"
 
 	SettingsLanguage = "language"
+	SettingsRound    = "round"
 
 	CapturePair   = "pair"
 	CaptureStatus = "status"
@@ -50,6 +51,7 @@ const (
 	Unlink  = "unlink"
 	Doctor  = "doctor"
 	Version = "version"
+	Stats   = "stats"
 )
 
 // Option names used by more than one subcommand.
@@ -70,6 +72,8 @@ const (
 	OptionUser           = "user"
 	OptionConfirm        = "confirm"
 	OptionLanguage       = "language"
+	OptionRoundResults   = "round_results"
+	OptionReset          = "reset"
 )
 
 // LanguageFromDiscord is the choice for following the server language set in
@@ -273,6 +277,9 @@ func Command() *discordgo.ApplicationCommand {
 				sub(SettingsLanguage, text.DescribeSettingsLanguage,
 					languageOption(),
 				),
+				sub(SettingsRound, text.DescribeSettingsRound,
+					boolean(OptionRoundResults, text.DescribeRoundResults, true),
+				),
 				sub(SettingsExport, text.DescribeSettingsExport),
 			),
 
@@ -301,6 +308,9 @@ func Command() *discordgo.ApplicationCommand {
 			),
 			sub(Doctor, text.DescribeDoctor),
 			sub(Version, text.DescribeVersion),
+			sub(Stats, text.DescribeStats,
+				boolean(OptionReset, text.DescribeStatsReset, false),
+			),
 		},
 	}
 }

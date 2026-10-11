@@ -29,6 +29,12 @@ All notable AUVC changes will be documented here using Semantic Versioning.
   exactly once, uses the Steam entry with the addresses found. Checked against
   the real Steam build, where they find its own addresses; not yet against an
   Epic or Store build.
+- **`/au stats`** lists how often each player played, won and was impostor in
+  the rounds AUVC saw, most rounds first; `reset: True` forgets them (admins
+  only). Players are counted by their in-game name; who left before the end is
+  not counted.
+- **`/au settings round round_results: False`** switches the result after a
+  round off; it is on by default.
 - **The round's result in Discord.** At the end of a round the control channel
   reads who won, how, and who the impostors were. `game_ended` carries an
   optional `result` for it (`protocol/README.md`); names are escaped and mention

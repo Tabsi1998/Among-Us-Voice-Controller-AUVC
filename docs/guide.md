@@ -230,7 +230,7 @@ From then on AUVC follows the game on its own:
 | Round over | Main channel, can talk | Main channel, can talk |
 
 Once the round is over, AUVC writes in the text channel who won, how, and who
-the impostors were – then, never earlier.
+the impostors were – then, never earlier. Switch it off with `/au settings round`.
 
 With **Also deafen living players during the tasks** switched on, the living
 also hear nothing while the tasks run. It is off by default: muting the
@@ -344,6 +344,8 @@ language set in Discord.
 | `/au setup reset` | Restore the default settings; links are kept |
 | `/au capture status`, `pair`, `revoke` | The app's connection to the bot. Only needed for a bot on another computer |
 | `/au version` | The bot's version |
+| `/au stats` | How often each player played, won and was impostor; `reset: True` forgets everything (admins only) |
+| `/au settings round` | Whether AUVC posts the winners and impostors in the text channel after a round (`round_results`), on by default |
 
 ## 8. Updating
 

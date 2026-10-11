@@ -31,6 +31,9 @@ type Store interface {
 	DeleteLink(guildID, inGameName string) error
 	DeleteLinksForUser(guildID, discordUserID string) error
 	SchemaVersion() (int, error)
+	PlayerStats(guildID string, limit int) ([]sqlite.PlayerStat, error)
+	ResetPlayerStats(guildID string) error
+	RecordRound(guildID string, players []sqlite.RoundPlayer) error
 }
 
 // Diagnostician answers /au doctor. Like SessionController it returns a
@@ -102,6 +105,16 @@ func (s *Service) AttachDoctor(diagnostician Diagnostician) {
 // reading between those two halves would hand out a configuration that is about
 // to change - which for the voice path means acting on channels an
 // administrator has just replaced.
+// RecordRound counts a finished round for /au stats.
+func (s *Service) RecordRound(guildID string, players []sqlite.RoundPlayer) error {
+	if s == nil || s.store == nil {
+		return errors.New("AUVC configuration store is unavailable")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.store.RecordRound(guildID, players)
+}
+
 func (s *Service) GuildConfig(guildID string) (sqlite.GuildConfig, error) {
 	if s == nil || s.store == nil {
 		return sqlite.GuildConfig{}, errors.New("AUVC configuration store is unavailable")
@@ -297,6 +310,11 @@ func (s *Service) handleSettings(request Request, config sqlite.GuildConfig) (st
 			config.AutoStart = autoStart
 		}
 
+	case SettingsRound:
+		if post, ok := request.Values.Bool(OptionRoundResults); ok {
+			config.PostRoundResults = post
+		}
+
 	case SettingsLanguage:
 		chosen, ok := request.Values.String(OptionLanguage)
 		if !ok || chosen == "" {
@@ -345,6 +363,9 @@ func (s *Service) handleDirect(request Request, config sqlite.GuildConfig) (stri
 			return "", fmt.Errorf("remove player link: %w", err)
 		}
 		return language.Say(text.Unlinked, userID), nil
+
+	case Stats:
+		return s.handleStats(request, config)
 
 	case Doctor:
 		if s.doctor != nil {
@@ -403,7 +424,52 @@ func formatSettings(config sqlite.GuildConfig, language text.Language) string {
 		yesNo(config.AutoMoveGhosts, language), yesNo(config.EnforceChannels, language),
 		yesNo(config.DeafenDuringTasks, language),
 		config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
-		yesNo(config.AutoStart, language), serverLanguage(config, language), config.ConfigVersion)
+		yesNo(config.AutoStart, language), yesNo(config.PostRoundResults, language),
+		serverLanguage(config, language), config.ConfigVersion)
+}
+
+// MaxStatsLines keeps /au stats inside one Discord message.
+const MaxStatsLines = 20
+
+// handleStats lists what the players of this server did in the rounds AUVC saw.
+// Anyone may read it; only an admin may reset it, the scope is raised for that.
+func (s *Service) handleStats(request Request, config sqlite.GuildConfig) (string, error) {
+	language := request.Language
+	if reset, _ := request.Values.Bool(OptionReset); reset {
+		if !Authorized(request.Invoker, config.AdminRoleID, ScopeAdmin) {
+			return "", ErrUnauthorized
+		}
+		if err := s.store.ResetPlayerStats(request.GuildID); err != nil {
+			return "", err
+		}
+		return language.Say(text.StatsReset), nil
+	}
+
+	stats, err := s.store.PlayerStats(request.GuildID, MaxStatsLines)
+	if err != nil {
+		return "", err
+	}
+	if len(stats) == 0 {
+		return language.Say(text.StatsNone), nil
+	}
+	lines := []string{language.Say(text.StatsHeader)}
+	for _, stat := range stats {
+		lines = append(lines, language.Say(text.StatsLine, EscapeMarkdown(stat.Name), stat.Rounds, stat.Wins, stat.Impostor))
+	}
+	return strings.Join(lines, "\n"), nil
+}
+
+// EscapeMarkdown keeps a player's name from formatting a message. Among Us
+// allows most characters in a name, Discord reads several of them as markup.
+func EscapeMarkdown(name string) string {
+	var escaped strings.Builder
+	for _, r := range name {
+		if strings.ContainsRune("\\*_~`|>#[]()-@", r) {
+			escaped.WriteRune('\\')
+		}
+		escaped.WriteRune(r)
+	}
+	return escaped.String()
 }
 
 // serverLanguage names the language a server picked, or says it follows Discord.

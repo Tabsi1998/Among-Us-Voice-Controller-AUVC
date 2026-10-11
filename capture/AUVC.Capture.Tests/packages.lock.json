@@ -172,12 +172,6 @@
           "WebSocketSharp": "[1.0.3-rc11, )"
         }
       },
-      "auoffsethelper": {
-        "type": "Project",
-        "dependencies": {
-          "Newtonsoft.Json": "[13.0.4, )"
-        }
-      },
       "auoffsetmanager": {
         "type": "Project",
         "dependencies": {

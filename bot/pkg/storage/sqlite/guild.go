@@ -35,6 +35,10 @@ type GuildConfig struct {
 
 	AutoStart bool `json:"auto_start"`
 
+	// PostRoundResults posts who won and who the impostors were in the control
+	// channel once a round is over.
+	PostRoundResults bool `json:"post_round_results"`
+
 	// Language is what AUVC writes in for everybody in the server, such as
 	// "de". Empty follows the server language set in Discord.
 	Language string `json:"language"`
@@ -60,6 +64,7 @@ func DefaultGuildConfig(guildID string) GuildConfig {
 		CaptureTimeoutSeconds: 60,
 		CaptureTimeoutAction:  "fail-open",
 		AutoStart:             false,
+		PostRoundResults:      true,
 		Language:              "",
 		ConfigVersion:         CurrentConfigVersion,
 	}
@@ -68,7 +73,7 @@ func DefaultGuildConfig(guildID string) GuildConfig {
 const guildColumns = `guild_id, enabled, main_voice_channel_id, ghost_voice_channel_id,
 	control_text_channel_id, admin_role_id, voice_policy, auto_move_ghosts,
 	enforce_channels, deafen_during_tasks, capture_timeout_seconds, capture_timeout_action, auto_start,
-	language, config_version, created_at, updated_at`
+	post_round_results, language, config_version, created_at, updated_at`
 
 // GuildConfig returns the stored configuration for a guild, or ErrNotFound.
 func (d *DB) GuildConfig(guildID string) (GuildConfig, error) {
@@ -116,7 +121,7 @@ func (d *DB) SaveGuildConfig(config GuildConfig) error {
 
 	_, err := d.db.Exec(`
 		INSERT INTO guild_config (`+guildColumns+`)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch(), unixepoch())
 		ON CONFLICT(guild_id) DO UPDATE SET
 			enabled                 = excluded.enabled,
 			main_voice_channel_id   = excluded.main_voice_channel_id,
@@ -130,13 +135,14 @@ func (d *DB) SaveGuildConfig(config GuildConfig) error {
 			capture_timeout_seconds = excluded.capture_timeout_seconds,
 			capture_timeout_action  = excluded.capture_timeout_action,
 			auto_start              = excluded.auto_start,
+			post_round_results      = excluded.post_round_results,
 			language                = excluded.language,
 			config_version          = excluded.config_version,
 			updated_at              = unixepoch()`,
 		config.GuildID, config.Enabled, config.MainVoiceChannelID, config.GhostVoiceChannelID,
 		config.ControlTextChannelID, config.AdminRoleID, config.VoicePolicy, config.AutoMoveGhosts,
 		config.EnforceChannels, config.DeafenDuringTasks, config.CaptureTimeoutSeconds, config.CaptureTimeoutAction,
-		config.AutoStart, config.Language, config.ConfigVersion)
+		config.AutoStart, config.PostRoundResults, config.Language, config.ConfigVersion)
 	if err != nil {
 		return fmt.Errorf("save guild %s: %w", config.GuildID, err)
 	}
@@ -153,6 +159,6 @@ func scanGuildConfig(row scanner) (GuildConfig, error) {
 		&c.GuildID, &c.Enabled, &c.MainVoiceChannelID, &c.GhostVoiceChannelID,
 		&c.ControlTextChannelID, &c.AdminRoleID, &c.VoicePolicy, &c.AutoMoveGhosts,
 		&c.EnforceChannels, &c.DeafenDuringTasks, &c.CaptureTimeoutSeconds, &c.CaptureTimeoutAction,
-		&c.AutoStart, &c.Language, &c.ConfigVersion, &c.CreatedAt, &c.UpdatedAt)
+		&c.AutoStart, &c.PostRoundResults, &c.Language, &c.ConfigVersion, &c.CreatedAt, &c.UpdatedAt)
 	return c, err
 }

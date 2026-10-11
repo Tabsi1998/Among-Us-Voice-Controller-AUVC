@@ -1,10 +1,13 @@
 package bot
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/protocol"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/session"
+	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/storage/sqlite"
 	"github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/bot/pkg/text"
 )
 
@@ -54,8 +57,24 @@ func TestANameCannotFormatThePost(t *testing.T) {
 	}
 }
 
+// Who won follows from the side and the impostors; who left is not counted.
+func TestEveryPlayerOfTheRoundIsCounted(t *testing.T) {
+	result := protocol.RoundResult{Winner: protocol.WinnerImpostors, Impostors: []string{"mira"}}
+	players := []session.GamePlayer{{Name: "Mira"}, {Name: "Paula"}, {Name: "Leon", Disconnected: true}}
+
+	got := roundStats(result, players)
+
+	want := []sqlite.RoundPlayer{{Name: "Mira", Impostor: true, Won: true}, {Name: "Paula", Impostor: false, Won: false}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("counted %+v, want %+v", got, want)
+	}
+	if crew := roundStats(protocol.RoundResult{Winner: protocol.WinnerCrewmates, Impostors: []string{"Mira"}}, players); !crew[1].Won || crew[0].Won {
+		t.Errorf("crewmates winning: %+v", crew)
+	}
+}
+
 // Without a control channel, or before Discord is up, nothing is posted and
 // nothing breaks.
 func TestNoChannelNoPost(t *testing.T) {
-	(&Bot{}).postRoundResult("guild", protocol.RoundResult{Winner: protocol.WinnerCrewmates})
+	(&Bot{}).finishRound("guild", protocol.RoundResult{Winner: protocol.WinnerCrewmates}, nil)
 }

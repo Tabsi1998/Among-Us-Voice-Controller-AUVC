@@ -22,6 +22,7 @@ var contract = []string{
 	"/au settings safety",
 	"/au settings export",
 	"/au settings language",
+	"/au settings round",
 	"/au capture pair",
 	"/au capture status",
 	"/au capture revoke",
@@ -34,6 +35,7 @@ var contract = []string{
 	"/au unlink",
 	"/au doctor",
 	"/au version",
+	"/au stats",
 }
 
 // flatten walks the tree and returns every invocable command path.

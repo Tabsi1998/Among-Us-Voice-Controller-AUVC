@@ -242,7 +242,7 @@ Ab dann folgt AUVC dem Spiel von selbst:
 | Runde vorbei | Hauptkanal, können reden | Hauptkanal, können reden |
 
 Ist die Runde vorbei, schreibt AUVC in den Textkanal, wer gewonnen hat, wie, und
-wer Impostor war – erst dann, vorher nie.
+wer Impostor war – erst dann, vorher nie. Abschalten mit `/au settings round`.
 
 Ist **Lebende während der Aufgaben auch taub schalten** eingeschaltet, hören die
 Lebenden während der Aufgaben ebenfalls nichts. Standardmäßig ist es aus: Für das
@@ -356,6 +356,8 @@ Discord eingestellt ist.
 | `/au setup reset` | Standard-Einstellungen wiederherstellen, Verknüpfungen bleiben |
 | `/au capture status`, `pair`, `revoke` | Die Verbindung der App zum Bot. Nur für einen Bot auf einem anderen Rechner nötig |
 | `/au version` | Die Version des Bots |
+| `/au stats` | Wie oft jeder Spieler gespielt, gewonnen und Impostor war; `reset: True` vergisst alles (nur Admins) |
+| `/au settings round` | Ob AUVC nach der Runde Sieger und Impostor in den Textkanal schreibt (`round_results`), standardmäßig an |
 
 ## 8. Aktualisieren
 
