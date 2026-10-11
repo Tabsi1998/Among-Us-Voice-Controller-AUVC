@@ -13,6 +13,15 @@ of AUVC releases on every start, unless **Check for new versions** is switched
 off in its settings. The request carries nothing about you, your server or your
 game. GitHub sees the PC's IP address, as with any visit to a web page.
 
+When Among Us runs in a version this AUVC does not know, the app asks GitHub
+for the offset index in the AUVC repository (`capture/Offsets.json`), unless
+**Load offsets for new Among Us versions** is switched off. It sends nothing
+about you or the game; the hash of the game is looked up on the PC. Versions
+already known are never replaced from the network.
+
+The optional **API server** for overlays listens on this PC only
+(`127.0.0.1:42069`), never on the network.
+
 Opening **Contributors** under **Settings → About** asks GitHub for the
 contributors of the two upstream projects, `automuteus/automuteus` and
 `automuteus/amonguscapture`, and shows their profile pictures from GitHub. That

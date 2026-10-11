@@ -134,6 +134,9 @@
   <data name="SettingsGeneralTabCheckForUpdate" xml:space="preserve">
     <value>Nach neuen Versionen suchen</value>
   </data>
+  <data name="SettingsGeneralTabLoadOffsets" xml:space="preserve">
+    <value>Offsets für neue Among-Us-Versionen laden</value>
+  </data>
   <data name="SettingsBotTabHeader" xml:space="preserve">
     <value>Bot</value>
   </data>
@@ -424,6 +427,18 @@ Das lässt sich nicht rückgängig machen.</value>
   </data>
   <data name="BadgeDeafened" xml:space="preserve">
     <value>taub</value>
+  </data>
+  <data name="CosmeticHat" xml:space="preserve">
+    <value>Hut</value>
+  </data>
+  <data name="CosmeticSkin" xml:space="preserve">
+    <value>Skin</value>
+  </data>
+  <data name="CosmeticPet" xml:space="preserve">
+    <value>Haustier</value>
+  </data>
+  <data name="CosmeticVisor" xml:space="preserve">
+    <value>Visier</value>
   </data>
   <data name="UpdateChecking" xml:space="preserve">
     <value>Wird geprüft …</value>

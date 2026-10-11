@@ -8,9 +8,15 @@ dieser Datei in `capture/Offsets.json`. Fehlt die Version, zeigt die Statuszeile
 
 Seit 2026 ist Among Us auf Steam ein **64-Bit-Programm**
 ([#198](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/198)).
-Der Leser kann das schon: Zeiger sind so breit wie das Spiel, und ein Test liest
-eine Lobby im 64-Bit-Layout (`RecordedMemoryTests.A64BitGameIsReadWithTheSameReader`).
-Was fehlt, sind die Zahlen für den Build.
+Der Eintrag für 2026.9.29 (Steam-Build 25134893, `GameAssembly.dll`
+`615A95C9…AEDF9`) steht in `capture/Offsets.json`, mit diesem Ablauf aus den
+Dateien des Spiels ermittelt. Diese Seite ist für die nächste Version.
+
+**Ohne neues Release:** Kennt AUVC das laufende Spiel nicht, lädt es
+`capture/Offsets.json` aus diesem Repository (Einstellung *Offsets für neue
+Among-Us-Versionen laden*, standardmäßig an). Ein neuer Eintrag auf `main`
+reicht also, damit alle installierten AUVC ab dieser Version ihn finden.
+Vorhandene Einträge werden dabei nie überschrieben.
 
 ## Was sich mit 64 Bit ändert
 
@@ -26,6 +32,12 @@ setzt das Skript abhängig von der Architektur ein:
 | Länge / Zeichen eines Strings (`StringOffsets`) | `0x8` / `0xC` | `0x10` / `0x14` |
 | `m_CachedPtr` eines Unity-Objekts | `0x8` | `0x10` |
 | Outfit hinter dem Dictionary | `[…, 0xC, 0x1C]` | `[…, 0x18, 0x30]` |
+| `MethodInfo::klass` (Weg zu `DestroyableSingleton<T>`) | `0x10` | `0x20` |
+
+`GameStartManager`, `HudManager` und `ServerManager` halten ihre Instanz in
+`DestroyableSingleton<T>`. Dafür hat `script.json` keine TypeInfo, aber die
+MethodInfo von `get_Instance`; die Kette geht dann über `klass`:
+`[MethodInfo, 0x20, 0xB8, 0x0, …]`.
 
 Der Rest – wo die Klassen in `GameAssembly.dll` liegen und an welcher Stelle
 ihre Felder stehen – kommt aus dem Spiel selbst.
@@ -96,10 +108,11 @@ Die Diagnose-Zip (Zahnrad → **Fehlersuche** → **Diagnose exportieren**) nenn
 Prüfsumme, 32 oder 64 Bit und welche Offsets geladen sind. Sie enthält aber
 Spielernamen: nicht ins öffentliche Repository hochladen.
 
-## Später: Offsets ohne neues Release
+## Eintrag veröffentlichen
 
-Heute kommt jede neue Spielversion nur mit einem neuen AUVC. Zwei Wege, die das
-lösen würden, stehen in [analyse-rework.md](analyse-rework.md#vorschläge):
-ein eigener, abgesicherter Offset-Index aus diesem Repository (die Einstellung
-`IndexURL` gibt es schon, sie ist leer) und Signatursuche im Speicher, wie sie
-BetterCrewLink für die Klassenadressen nutzt.
+1. Eintrag aus der Ausgabe des Skripts nach `capture/Offsets.json` (am Ende,
+   Beschreibung im Stil der anderen).
+2. Lokale Prüfung, Pull Request, Merge nach `main`.
+3. Ab dann finden ihn alle AUVC ab dieser Version von selbst, sobald das Spiel
+   unbekannt ist; ein neues Release braucht es nur für Nutzer, die das Laden
+   ausgeschaltet haben.

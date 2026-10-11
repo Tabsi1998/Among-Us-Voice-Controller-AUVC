@@ -113,6 +113,7 @@ namespace AUCapture_WPF
             GameMemReader.getInstance().ProcessHook += OnProcessHook;
             GameMemReader.getInstance().UnsupportedGame += OnUnsupportedGame;
             GameMemReader.getInstance().PlayerChanged += UserForm_PlayerChanged;
+            GameMemReader.getInstance().PlayerCosmeticChanged += OnPlayerCosmeticChanged;
             GameMemReader.getInstance().CrackDetected += OnCrackDetected;
             GameMemReader.getInstance().JoinedLobby += OnJoinedLobby;
             GameMemReader.getInstance().GameOver += OnGameOver;
@@ -520,6 +521,17 @@ namespace AUCapture_WPF
         {
             gameNotSupported = true;
             Dispatcher.InvokeAsync(UpdateStatus);
+            if (context.Settings.loadOffsetsFromGitHub) _ = LoadMissingOffsetsAsync();
+        }
+
+        // A new Among Us version needs only an entry in the repository's index, not a
+        // new AUVC. What is fetched only adds versions this AUVC does not know.
+        private async Task LoadMissingOffsetsAsync()
+        {
+            var reader = GameMemReader.getInstance();
+            if (!await reader.offMan.FetchMissingAsync(reader.GameHash)) return;
+            Logger.Info("Loaded offsets for {GameHash} from the repository", reader.GameHash);
+            await Dispatcher.InvokeAsync(ApplyOffsets);
         }
 
         // Only while that game still runs. Nothing turns Exited events on for the
@@ -607,6 +619,17 @@ namespace AUCapture_WPF
 
 
 
+
+        // The reader names what a player wears when they join and whenever it changes.
+        private void OnPlayerCosmeticChanged(object sender, PlayerCosmeticChangedEventArgs e)
+        {
+            var text = PlayerCosmeticText.For(new PlayerOutfit(e.HatId, e.SkinId, e.PetId, e.VisorId));
+            Dispatcher.Invoke(() =>
+            {
+                var player = context.Players.FirstOrDefault(x => string.Equals(x.Name, e.Name, StringComparison.CurrentCultureIgnoreCase));
+                if (player is not null) player.Cosmetics = text;
+            });
+        }
 
         private void OnJoinedLobby(object sender, LobbyEventArgs e)
         {
@@ -821,6 +844,11 @@ namespace AUCapture_WPF
         {
             GameMemReader.getInstance().offMan.refreshLocal();
             await GameMemReader.getInstance().offMan.RefreshIndex();
+            ApplyOffsets();
+        }
+
+        private void ApplyOffsets()
+        {
             GameMemReader.getInstance().CurrentOffsets = GameMemReader.getInstance().offMan
                 .FetchForHash(GameMemReader.getInstance().GameHash);
             if (GameMemReader.getInstance().CurrentOffsets is not null && gameNotSupported)

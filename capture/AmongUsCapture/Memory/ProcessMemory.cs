@@ -45,7 +45,6 @@ namespace AmongUsCapture
         public abstract T ReadWithDefault<T>(IntPtr address, T defaultparam, params int[] offsets) where T : unmanaged;
 
         public abstract string ReadString(IntPtr address, int lengthOffset = 0x8, int rawOffset = 0xC);
-        public abstract IntPtr[] ReadArray(IntPtr address, int size);
         public abstract int OffsetAddress(ref IntPtr address, params int[] offsets);
 
         public class Module

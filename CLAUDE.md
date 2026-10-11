@@ -100,9 +100,13 @@ editor started before a PATH change does not see new tools until it restarts.
 - `-p:Version` stamps the version in `local_check.publish_command` and
   `release.yml`; the csproj default is `0.0.0-dev`. `ReleaseFeed`: a pre-release
   hears about newer pre-releases and releases, a release only about releases.
-- The memory reader sets hat, pet and skin ids to 0, because Among Us now uses
-  string ids (#155).
+- The memory reader reads hat, pet, skin and visor as the game's string ids
+  (#155); `PlayerCosmetics` turns them into the words under a player. The
+  game's pictures for them are not part of AUVC.
 - The app reaches the network only for Discord's token check and invite, the
-  GitHub release list, and the GitHub contributors list when **Contributors** is
-  opened. The offset index loads nothing by default (`IndexURL` is empty). All
-  of it is documented in `docs/privacy.md`.
+  GitHub release list, the GitHub contributors list when **Contributors** is
+  opened, and the repository's `capture/Offsets.json` when the running game is
+  unknown (`OffsetManager.FetchMissingAsync`, setting `loadOffsetsFromGitHub`).
+  That fetch only adds unknown versions. `IndexURL` stays empty. All of it is
+  documented in `docs/privacy.md`.
+- The API server for overlays binds to loopback only (`ServerSocket.CreateServer`).

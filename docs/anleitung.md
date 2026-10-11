@@ -296,13 +296,14 @@ eine andere; **Wie Windows** stellt das wieder zurück.
 | Allgemein | Sprache | **Wie Windows**, **Deutsch** oder **English** |
 | Allgemein | Lobby-Code immer kopieren | Kopiert den Lobby-Code in die Zwischenablage, sobald du einer Lobby beitrittst |
 | Allgemein | Fenster beim Koppeln nach vorn holen | Holt das Fenster nach vorn, wenn ein Kopplungslink AUVC öffnet |
-| Allgemein | API-Server | Startet eine lokale Schnittstelle für Overlay-Programme. Lass sie aus, solange kein Programm sie braucht |
+| Allgemein | API-Server | Startet eine Schnittstelle für Overlay-Programme, nur auf diesem PC erreichbar. Lass sie aus, solange kein Programm sie braucht |
 | Allgemein | Immer im Vordergrund | Hält das AUVC-Fenster über anderen Fenstern |
 | Allgemein | Nach neuen Versionen suchen | Fragt beim Start bei GitHub die Liste der AUVC-Releases ab. Gibt es eine neuere Version, zeigt eine Zeile oben einen Link zur Release-Seite. Es wird nichts heruntergeladen oder installiert. Standardmäßig an |
+| Allgemein | Offsets für neue Among-Us-Versionen laden | Kennt AUVC das laufende Among Us nicht, lädt es die Offsets dafür aus dem AUVC-Repository auf GitHub, ohne neue AUVC-Version. Übernommen werden nur Versionen, die dieses AUVC noch nicht kennt. Standardmäßig an |
 | Fehlersuche | Debug-Modus | Öffnet beim nächsten Start ein zusätzliches Konsolenfenster mit technischen Ausgaben |
 | Fehlersuche | Log-Ordner öffnen | Öffnet den Ordner mit den Log-Dateien |
 | Fehlersuche | Diagnose exportieren | Speichert eine Zip-Datei für alle, die dir helfen: Logs von App und Bot, Einstellungen, Versionen und die Prüfungen des Bots. Tokens, Zugangsdaten, Kopplungscodes und dein Windows-Benutzername in Pfaden sind geschwärzt; Spielernamen und Discord-IDs bleiben. Es wird nichts verschickt |
-| Fehlersuche | Offsets neu laden | Liest die Speicher-Offsets neu ein, auch eine `index.json` in `%AppData%\AmongUsCapture`. Offsets für eine neue Among-Us-Version kommen meist mit einer neueren AUVC-Version |
+| Fehlersuche | Offsets neu laden | Liest die Speicher-Offsets neu ein, auch eine `index.json` in `%AppData%\AmongUsCapture`. Offsets für eine neue Among-Us-Version kommen aus dem Repository oder mit einer neueren AUVC-Version |
 | Fehlersuche | Einstellungen zurücksetzen | Löscht die App-Einstellungen und bietet einen Neustart an. Der Bot-Token bleibt gespeichert. Danach **Einrichten** erneut durchgehen |
 | Info | App-Version | Die installierte AUVC-Version, zum Beispiel `0.1.4-beta` |
 | Info | Neueste Version | Eine neuere AUVC-Version, *Aktuell* oder warum nicht geprüft wurde. Mit einer Vorabversion erfährst du von neueren Vorabversionen und Releases, mit einem Release nur von Releases |

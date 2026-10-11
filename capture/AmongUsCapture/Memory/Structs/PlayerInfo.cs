@@ -11,9 +11,11 @@ namespace AmongUsCapture
 
         public string PlayerName;
         public PlayerColor ColorId;
-        public uint HatId;
-        public uint PetId;
-        public uint SkinId;
+        // Among Us names cosmetics by string, such as "hat_police" (#155).
+        public string HatId;
+        public string PetId;
+        public string SkinId;
+        public string VisorId;
 
         public uint PlayerLevel;
         public bool Disconnected;
@@ -59,17 +61,22 @@ namespace AmongUsCapture
                     // Read from PlayerOutfit
                     PlayerName = MemInstance.ReadString(MemInstance.Read<IntPtr>(outfit, oOf.PlayerNameOffset), CurrentOffsets.StringOffsets[0], CurrentOffsets.StringOffsets[1]);
                     ColorId = (PlayerColor)(uint)MemInstance.Read<int>(outfit, oOf.ColorIDOffset);
-                    // TODO: Since IDs are changed from enum to string like "hat_police", renaming or mapping existing svgs to string is required
-                    // TODO: As a workaround just fill with 0 as IDs
-                    //HatId = MemInstance.ReadString(MemInstance.Read<IntPtr>(outfit, oOf.HatIDOffset), CurrentOffsets.StringOffsets[0], CurrentOffsets.StringOffsets[1]);
-                    //PetId = MemInstance.ReadString(MemInstance.Read<IntPtr>(outfit, oOf.PetIDOffset), CurrentOffsets.StringOffsets[0], CurrentOffsets.StringOffsets[1]);
-                    //SkinId = MemInstance.ReadString(MemInstance.Read<IntPtr>(outfit, oOf.SkinIDOffset), CurrentOffsets.StringOffsets[0], CurrentOffsets.StringOffsets[1]);
-                    HatId = 0;
-                    PetId = 0;
-                    SkinId = 0;
+                    HatId = ReadId(MemInstance, outfit, oOf.HatIDOffset, CurrentOffsets);
+                    PetId = ReadId(MemInstance, outfit, oOf.PetIDOffset, CurrentOffsets);
+                    SkinId = ReadId(MemInstance, outfit, oOf.SkinIDOffset, CurrentOffsets);
+                    VisorId = ReadId(MemInstance, outfit, oOf.VisorIDOffset, CurrentOffsets);
                 }
             }
         }
+        /// <summary>
+        /// A cosmetic's id out of the outfit. An offset of 0 is one the index does not know:
+        /// there sits the object's class, not a string.
+        /// </summary>
+        private static string ReadId(ProcessMemory memory, IntPtr outfit, int offset, GameOffsets offsets) =>
+            offset == 0 || outfit == IntPtr.Zero
+                ? ""
+                : memory.ReadString(memory.Read<IntPtr>(outfit, offset), offsets.StringOffsets[0], offsets.StringOffsets[1]) ?? "";
+
         /// <summary>
         /// Bytes to read so a struct ends behind its last field, rounded up to a multiple of
         /// eight. The integer division used to round down, and on v18 the last pointer lay

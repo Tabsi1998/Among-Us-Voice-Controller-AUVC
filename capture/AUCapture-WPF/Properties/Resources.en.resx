@@ -134,6 +134,9 @@
   <data name="SettingsGeneralTabCheckForUpdate" xml:space="preserve">
     <value>Check for new versions</value>
   </data>
+  <data name="SettingsGeneralTabLoadOffsets" xml:space="preserve">
+    <value>Load offsets for new Among Us versions</value>
+  </data>
   <data name="SettingsBotTabHeader" xml:space="preserve">
     <value>Bot</value>
   </data>
@@ -424,6 +427,18 @@ This cannot be undone.</value>
   </data>
   <data name="BadgeDeafened" xml:space="preserve">
     <value>deafened</value>
+  </data>
+  <data name="CosmeticHat" xml:space="preserve">
+    <value>Hat</value>
+  </data>
+  <data name="CosmeticSkin" xml:space="preserve">
+    <value>Skin</value>
+  </data>
+  <data name="CosmeticPet" xml:space="preserve">
+    <value>Pet</value>
+  </data>
+  <data name="CosmeticVisor" xml:space="preserve">
+    <value>Visor</value>
   </data>
   <data name="UpdateChecking" xml:space="preserve">
     <value>Checking …</value>

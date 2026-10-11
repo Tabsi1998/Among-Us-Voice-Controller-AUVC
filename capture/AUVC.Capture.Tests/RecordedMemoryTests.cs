@@ -135,6 +135,29 @@ namespace AUVC.Capture.Tests
             Assert.Equal((IntPtr)(LobbyRecording.High | LobbyRecording.ObjectPointer), players[1]._object);
         }
 
+        /// <summary>What a player wears is read as the game names it, a string per cosmetic (#155).</summary>
+        [Fact]
+        public void CosmeticsAreReadAsTheGameNamesThem()
+        {
+            var offsets = LobbyRecording.Offsets64();
+            var mira = PlayersFrom(LobbyRecording.Build(offsets, is64Bit: true), offsets)[2];
+
+            Assert.Equal("hat_police", mira.HatId);
+            Assert.Equal("skin_Mech", mira.SkinId);
+            Assert.Equal("pet_EmptyPet", mira.PetId);
+            Assert.Equal("visor_EmptyVisor", mira.VisorId);
+        }
+
+        /// <summary>A layout without cosmetic offsets reads nothing, not the object's class as a string.</summary>
+        [Fact]
+        public void WithoutCosmeticOffsetsNothingIsRead()
+        {
+            var paula = PlayersFrom(LobbyRecording.Build())[0];
+
+            Assert.Equal("", paula.HatId);
+            Assert.Equal("", paula.SkinId);
+        }
+
         /// <summary>
         /// A recording with a hole says so. Answering zeros would look like a player who
         /// left, which is exactly the kind of error a recording is meant to catch.

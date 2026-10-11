@@ -191,11 +191,15 @@ SCRIPT = {
         {"Address": 0x3A00030, "Name": "MeetingHud_TypeInfo", "Signature": "MeetingHud_c*"},
         {"Address": 0x3A00040, "Name": "DestroyableSingleton<GameStartManager>_TypeInfo", "Signature": ""},
         {"Address": 0x3A00050, "Name": "DestroyableSingleton<HudManager>_TypeInfo", "Signature": ""},
-        {"Address": 0x3A00060, "Name": "DestroyableSingleton<ServerManager>_TypeInfo", "Signature": ""},
         {"Address": 0x3A00070, "Name": "GameOptionsManager_TypeInfo", "Signature": ""},
         {"Address": 0x3A00080, "Name": "EndGameResult_TypeInfo", "Signature": ""},
         {"Address": 0x3A00090, "Name": "TMPro.TMP_Text_TypeInfo", "Signature": ""},
         {"Address": 0x3A000A0, "Name": "System.Collections.Generic.List<string>_TypeInfo", "Signature": ""},
+    ],
+    # As in Among Us 2026.9.29: a DestroyableSingleton<T> has no TypeInfo of its own,
+    # only the MethodInfo of its get_Instance.
+    "ScriptMetadataMethod": [
+        {"Address": 0x3A00060, "Name": "Method$DestroyableSingleton<ServerManager>.get_Instance()", "MethodAddress": 0},
     ],
 }
 
@@ -233,8 +237,15 @@ class OffsetsFromIl2CppTests(unittest.TestCase):
 
         self.assertEqual(entry["GameStartManagerOffset"], 0x3A00040)
         self.assertEqual(entry["GameCodeOffsets"], [0x3A00040, 0xB8, 0x0, 0x70, 0xD8])
-        self.assertEqual(entry["PlayRegionOffsets"], [0x3A00060, 0xB8, 0x0, 0x28, 0x10, 0x10])
+        self.assertEqual(entry["PlayRegionOffsets"], [0x3A00060, 0x20, 0xB8, 0x0, 0x28, 0x10, 0x10])
         self.assertEqual(entry["HudManagerOffset"], 0x3A00050)
+
+    def test_a_singleton_without_type_info_is_reached_through_get_instance(self):
+        entry, missing = self.entry()
+
+        self.assertEqual(missing, [])
+        self.assertEqual(entry["ServerManagerOffset"], 0x3A00060)
+        self.assertEqual(entry["PlayRegionOffsets"][:4], [0x3A00060, 0x20, 0xB8, 0x0])
 
     def test_the_newest_game_options_class_gives_the_map(self):
         entry, _ = self.entry()

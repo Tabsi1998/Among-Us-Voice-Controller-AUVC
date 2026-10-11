@@ -42,6 +42,10 @@ namespace AUCapture_WPF
         [Option(DefaultValue = true)]
         bool checkForUpdate { get; set; }
 
+        // Asks the repository's offset index when the running Among Us is unknown.
+        [Option(DefaultValue = true)]
+        bool loadOffsetsFromGitHub { get; set; }
+
         // The address of the AUVC bot. The pairing code is deliberately not a
         // setting: it works once, and a used code has no business on disk.
         [Option(DefaultValue = BotAddress.Default)]

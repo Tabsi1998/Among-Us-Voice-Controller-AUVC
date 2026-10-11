@@ -19,13 +19,31 @@ namespace AUOffsetManager
         private Dictionary<string, GameOffsets> OffsetIndex = new Dictionary<string, GameOffsets>();
         private Dictionary<string, GameOffsets> LocalOffsetIndex = new Dictionary<string, GameOffsets>();
         public string indexURL;
-        private string StorageLocation = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "\\AmongUsCapture\\index.json");
-        private string StorageLocationCache = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "\\AmongUsCapture\\indexCache.json");
+        private readonly string StorageLocation;
+        private readonly string StorageLocationCache;
+
+        /// <summary>
+        /// The offset index in AUVC's own repository. A new Among Us version needs only an
+        /// entry there, not a new release of the app.
+        /// </summary>
+        public const string RepositoryIndexUrl =
+            "https://raw.githubusercontent.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/main/capture/Offsets.json";
 
         public Task indexTask;
-        public OffsetManager(string indexURL = "")
+        public OffsetManager(string indexURL = "") : this(indexURL, null)
+        {
+        }
+
+        /// <param name="storageFolder">Where the local index and the cache live; %AppData%\AmongUsCapture when null.</param>
+        public OffsetManager(string indexURL, string storageFolder)
         {
             this.indexURL = indexURL;
+            StorageLocation = storageFolder is null
+                ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "\\AmongUsCapture\\index.json")
+                : Path.Combine(storageFolder, "index.json");
+            StorageLocationCache = storageFolder is null
+                ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "\\AmongUsCapture\\indexCache.json")
+                : Path.Combine(storageFolder, "indexCache.json");
             OffsetIndex = LoadBundledIndex();
 
             if (File.Exists(StorageLocation))
@@ -135,6 +153,66 @@ namespace AUOffsetManager
             }
         }
 
+        /// <summary>
+        /// Asks the repository's index for a game version this AUVC does not know. Only
+        /// versions that are missing here are taken, and only entries that can be read:
+        /// the bundled and the local index are never overwritten from the network.
+        /// </summary>
+        /// <returns>Whether the version is known now.</returns>
+        public async Task<bool> FetchMissingAsync(string sha256Hash, string url = RepositoryIndexUrl,
+                                                  HttpMessageHandler handler = null)
+        {
+            await indexTask;
+            if (string.IsNullOrEmpty(sha256Hash) || OffsetIndex.ContainsKey(sha256Hash) || LocalOffsetIndex.ContainsKey(sha256Hash))
+            {
+                return OffsetIndex.ContainsKey(sha256Hash ?? "") || LocalOffsetIndex.ContainsKey(sha256Hash ?? "");
+            }
+
+            Dictionary<string, GameOffsets> fetched;
+            try
+            {
+                using var client = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: false);
+                client.Timeout = TimeSpan.FromSeconds(15);
+                fetched = JsonConvert.DeserializeObject<Dictionary<string, GameOffsets>>(await client.GetStringAsync(url));
+            }
+            catch (Exception e) when (e is HttpRequestException or TaskCanceledException or JsonException)
+            {
+                Console.WriteLine("Could not load offsets from " + url + ". " + e.Message);
+                return false;
+            }
+
+            var added = new Dictionary<string, GameOffsets>();
+            foreach (var entry in fetched ?? new Dictionary<string, GameOffsets>())
+            {
+                if (!OffsetIndex.ContainsKey(entry.Key) && IsUsable(entry.Value))
+                {
+                    added[entry.Key] = entry.Value;
+                }
+            }
+            if (added.Count == 0)
+            {
+                return false;
+            }
+
+            MergeOver(added);
+            var cache = ReadCache() ?? new Dictionary<string, GameOffsets>();
+            foreach (var entry in added) cache[entry.Key] = entry.Value;
+            WriteCache(cache);
+            return OffsetIndex.ContainsKey(sha256Hash);
+        }
+
+        /// <summary>An entry the reader can work with: without these it reads nothing or crashes.</summary>
+        public static bool IsUsable(GameOffsets offsets) =>
+            offsets is not null
+            && offsets.AmongUsClientOffset != 0 && offsets.GameDataOffset != 0
+            && offsets.GameStateOffsets is { Length: > 1 } && offsets.AllPlayerPtrOffsets is { Length: > 1 }
+            && offsets.MeetingHudPtr is { Length: > 0 } && offsets.StringOffsets is { Length: 2 }
+            && offsets.AllPlayersOffsets is { Length: > 0 } && offsets.PlayerCountOffsets is { Length: > 0 }
+            && offsets.PlayerInfoStructOffsets?.OutfitsOffset is { Length: > 0 }
+            && offsets.PlayerInfoStructOffsets.RoleTypeOffset is { Length: > 0 }
+            && offsets.PlayerInfoStructOffsets.RoleTeamTypeOffset is { Length: > 0 }
+            && offsets.PlayerOutfitStructOffsets is not null && offsets.AddPlayerPtr > 0;
+
         public GameOffsets FetchForHash(string sha256Hash)
         {
             indexTask.Wait();
@@ -208,7 +286,6 @@ namespace AUOffsetManager
         public int[] PlayRegionOffsets { get; set; }
         public int[] PlayMapOffsets { get; set; }
         public int[] StringOffsets { get; set; }
-        public bool isEpic { get; set; }
         public int AddPlayerPtr { get; set; }
         public int PlayerListPtr { get; set; }
 

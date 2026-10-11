@@ -117,6 +117,10 @@ namespace AUVC.Capture.Tests.Recorded
             PlayerOutfitStructOffsets = new PlayerOutfitStructOffsets
             {
                 ColorIDOffset = 0x10,
+                HatIDOffset = 0x18,
+                PetIDOffset = 0x20,
+                SkinIDOffset = 0x28,
+                VisorIDOffset = 0x30,
                 PlayerNameOffset = 0x40,
             },
         };
@@ -138,7 +142,7 @@ namespace AUVC.Capture.Tests.Recorded
 
         /// <summary>One player as the recording holds them.</summary>
         public sealed record Player(byte Id, string Name, int Color, bool Dead = false, bool Disconnected = false,
-                                    int RoleTeam = 0);
+                                    int RoleTeam = 0, string Hat = "", string Pet = "", string Skin = "", string Visor = "");
 
         /// <summary>The lobby in the recording: three players, and one still loading.</summary>
         public static IReadOnlyList<Player> Lobby => new[]
@@ -146,7 +150,7 @@ namespace AUVC.Capture.Tests.Recorded
             new Player(1, "Paula", 0),
             new Player(2, "", 0),                       // still loading: no name yet
             new Player(3, "Leon", 3, Dead: true),
-            new Player(4, "Mira", 7, RoleTeam: 1),
+            new Player(4, "Mira", 7, RoleTeam: 1, Hat: "hat_police", Pet: "pet_EmptyPet", Skin: "skin_Mech", Visor: "visor_EmptyVisor"),
         };
 
         /// <summary>Writes the lobby into a fresh recording.</summary>
@@ -212,9 +216,21 @@ namespace AUVC.Capture.Tests.Recorded
                 var clothes = new Block(0x80, pointer);
                 clothes.Int(offsets.PlayerOutfitStructOffsets.ColorIDOffset, player.Color);
                 clothes.Pointer(offsets.PlayerOutfitStructOffsets.PlayerNameOffset, nameAt);
-                memory.Write(outfit, clothes.Bytes);
 
                 memory.WriteString(nameAt, player.Name, offsets.StringOffsets[0], offsets.StringOffsets[1]);
+
+                // Cosmetics are strings too, each behind its own pointer in the outfit (#155).
+                var cosmetics = offsets.PlayerOutfitStructOffsets;
+                var cosmeticAt = structAt + 0x800;
+                foreach (var (offset, id) in new[] { (cosmetics.HatIDOffset, player.Hat), (cosmetics.PetIDOffset, player.Pet),
+                                                     (cosmetics.SkinIDOffset, player.Skin), (cosmetics.VisorIDOffset, player.Visor) })
+                {
+                    if (offset == 0) continue;
+                    clothes.Pointer(offset, cosmeticAt);
+                    memory.WriteString(cosmeticAt, id, offsets.StringOffsets[0], offsets.StringOffsets[1]);
+                    cosmeticAt += 0x100;
+                }
+                memory.Write(outfit, clothes.Bytes);
             }
             memory.Write(AllPlayers + offsets.PlayerListPtr, slots.Bytes);
             return memory;

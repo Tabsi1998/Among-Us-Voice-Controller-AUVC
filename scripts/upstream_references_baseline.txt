@@ -4,4 +4,3 @@
 # Each entry is a reference AUVC still makes to a host the AutoMuteUs
 # project controls. They are tracked by issues #33 and #44. The list may
 # only ever shrink: adding a new reference fails the build.
-capture/.all-contributorsrc	automute.us

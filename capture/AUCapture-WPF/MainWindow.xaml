@@ -197,6 +197,11 @@
                                             IsOn="{Binding Settings.checkForUpdate, Mode=TwoWay}"
                                             OffContent="{l:Static properties:Resources.OffText}"
                                             OnContent="{l:Static properties:Resources.OnText}" />
+                                        <mah:ToggleSwitch
+                                            Header="{l:Static properties:Resources.SettingsGeneralTabLoadOffsets}"
+                                            IsOn="{Binding Settings.loadOffsetsFromGitHub, Mode=TwoWay}"
+                                            OffContent="{l:Static properties:Resources.OffText}"
+                                            OnContent="{l:Static properties:Resources.OnText}" />
     </StackPanel>
                                 </mah:MetroTabItem>
                                 <mah:MetroTabItem x:Name="DebugTab" Header="{l:Static properties:Resources.SettingsDebugTabHeader}">
@@ -570,6 +575,26 @@
                                         <Style TargetType="hc:OutlineText">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding Badges}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </hc:OutlineText.Style>
+                                </hc:OutlineText>
+                                <!--  What the player wears in the game (PlayerCosmetics).  -->
+                                <hc:OutlineText
+                                    Margin="20,-12,20,20"
+                                    HorizontalAlignment="Center"
+                                    Fill="White"
+                                    FontSize="22"
+                                    Stroke="Black"
+                                    StrokePosition="Outside"
+                                    StrokeThickness="2"
+                                    Text="{Binding Cosmetics}">
+                                    <hc:OutlineText.Style>
+                                        <Style TargetType="hc:OutlineText">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Cosmetics}" Value="">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                 </DataTrigger>
                                             </Style.Triggers>

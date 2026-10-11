@@ -112,11 +112,6 @@ namespace AUVC.Capture.Tests.Recorded
             return Encoding.Unicode.GetString(Read(address + rawOffset, length << 1));
         }
 
-        public override IntPtr[] ReadArray(IntPtr address, int size)
-        {
-            var bytes = Read(address, size * 4);
-            return Enumerable.Range(0, size).Select(index => (IntPtr)BitConverter.ToUInt32(bytes, index * 4)).ToArray();
-        }
 
         public override int OffsetAddress(ref IntPtr address, params int[] offsets)
         {

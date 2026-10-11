@@ -72,16 +72,25 @@ namespace AmongUsCapture
         private WebSocketServer _wssv;
 
 
+        public const int Port = 42069;
+
+        /// <summary>
+        /// The API server for overlays on this PC. Bound to loopback: it answers without
+        /// a login and hands out game state and player names, so nobody else on the
+        /// network may reach it. websocket-sharp binds a bare port to every interface.
+        /// </summary>
+        public static WebSocketServer CreateServer() => new(System.Net.IPAddress.Loopback, Port, false);
+
         public void Start()
         {
-            _wssv ??= new WebSocketServer(42069);
+            _wssv ??= CreateServer();
             _wssv.AddWebSocketService<Regrets>("/api");
             _wssv.Start();
         }
 
         public void Stop()
         {
-            _wssv ??= new WebSocketServer(42069);
+            _wssv ??= CreateServer();
             _wssv.RemoveWebSocketService("/api");
             _wssv.Stop();
         }

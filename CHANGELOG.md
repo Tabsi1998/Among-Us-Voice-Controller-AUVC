@@ -6,13 +6,27 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 
 ### Added
 
-- `scripts/offsets_from_il2cpp.py` builds the offset entry for a new Among Us
-  build from Il2CppDumper's `dump.cs` and `script.json`, for 32-bit and for the
-  current 64-bit builds, and can add it to the local index that AUVC reads
-  without a new release. The steps are in `docs/offsets.md`
+- Among Us 2026.9.29 on Steam, the first 64-bit build, is read again
   ([#198](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/198)).
-  The offsets for 2026.9.29 themselves are not in this change: they need the
-  game's own files.
+  The offsets come from the game's own `GameAssembly.dll` and
+  `global-metadata.dat` through Il2CppDumper; five class addresses were also
+  found independently by signature search and match. Not yet tried in a live
+  round.
+- `scripts/offsets_from_il2cpp.py` builds the offset entry for a new Among Us
+  build from Il2CppDumper's `dump.cs` and `script.json`, for 32-bit and 64-bit
+  builds, and can add it to the local index that AUVC reads without a new
+  release. A `DestroyableSingleton<T>` without a TypeInfo of its own is reached
+  through the MethodInfo of its `get_Instance`. The steps are in `docs/offsets.md`.
+- **Offsets without a new release.** When the running Among Us is unknown, the
+  app loads `capture/Offsets.json` from this repository and takes the versions
+  it does not know yet; known ones are never replaced from the network. The
+  setting **Load offsets for new Among Us versions** turns it off.
+- **Cosmetics are back**
+  ([#155](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/155)):
+  the reader takes hat, skin, pet and visor as the game's string ids, and the
+  main window names them under each player, such as *Hat Police · Pet Ellie*.
+  The game's pictures for them are not part of AUVC, so they are named, not
+  drawn.
 - The diagnostics summary names the game it read: the hash of
   `GameAssembly.dll`, 32 or 64 bit, and which offsets it found, so an
   unsupported version is named without the logs.
@@ -25,15 +39,28 @@ All notable AUVC changes will be documented here using Semantic Versioning.
 - A string length read through a wrong offset, as with a new game version, no
   longer asks for gigabytes; anything outside 1 to 1024 characters reads as no
   string.
-- `scripts/verify_bootstrap.py` asked for four documents deleted in September
-  and compared `HEAD` with the upstream trees. It now checks the import trees at
-  their import commits and today's scaffold, and its tests run in the local check
-  ([#194](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/194)).
 - A forbidden file passed as a Windows path is kept out of a diagnostics export
   on every system, not only on Windows.
 
+### Removed
+
+- Leftovers from upstream that nothing used: `capture/.vs/`, `.goreleaser.yml`,
+  `.all-contributorsrc`, a 15 MB video and a resource zip in the app, the bot's
+  unused banner and profile pictures, four unused upstream translations of the
+  reader, `UserForm.resx`, a second publish profile, `bot/renovate.json`, the
+  2020 offset defaults in the reader's settings, `GameOffsetsHelper`,
+  `ProcessMemory.ReadArray` and `isEpic`.
+- `AUOffsetHelper`, which only exported the 2020 layout, with its tests and
+  fixture; `scripts/offsets_from_il2cpp.py` replaces it.
+- `scripts/verify_bootstrap.py`
+  ([#194](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/194)):
+  `scripts/verify_repository.py` checks the same imports in every run.
+
 ### Security
 
+- The API server for overlays listens on this PC only (`127.0.0.1:42069`).
+  It answers without a login with game state and player names, and it was bound
+  to every network interface.
 - The bot is built with Go 1.27.2 instead of 1.27.1
   ([#195](https://github.com/Tabsi1998/Among-Us-Voice-Controller-AUVC/issues/195)).
   `govulncheck` reported nine advisories in the Go standard library that the bot

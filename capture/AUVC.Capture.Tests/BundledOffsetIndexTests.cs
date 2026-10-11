@@ -63,5 +63,22 @@ namespace AUVC.Capture.Tests
             Assert.NotNull(offsets);
             Assert.Equal(expected.Value.AmongUsClientOffset, offsets!.AmongUsClientOffset);
         }
+
+        /// <summary>
+        /// Among Us 2026.9.29 on Steam, the first 64-bit build (#198), worked out from the
+        /// game's own GameAssembly.dll and global-metadata.dat with Il2CppDumper.
+        /// </summary>
+        [Fact]
+        public void TheFirst64BitSteamBuildIsKnown()
+        {
+            var offsets = OffsetManager.LoadBundledIndex()["615A95C9E09B6FFD45570883CB8459311C2B457533A38B37ED1704D6205AEDF9"];
+
+            Assert.True(OffsetManager.IsUsable(offsets));
+            Assert.Equal(new[] { 0x34078C0, 0xB8, 0x0, 0xAC }, offsets.GameStateOffsets);
+            Assert.Equal(new[] { 0x10, 0x14 }, offsets.StringOffsets);
+            Assert.Equal((8, 0x20), (offsets.AddPlayerPtr, offsets.PlayerListPtr));
+            // GameStartManager keeps Instance in DestroyableSingleton<T>: MethodInfo, klass, statics.
+            Assert.Equal(new[] { 0x340B9A8, 0x20, 0xB8, 0x0, 0x70, 0xE0 }, offsets.GameCodeOffsets);
+        }
     }
 }

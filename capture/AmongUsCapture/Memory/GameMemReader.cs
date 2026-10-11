@@ -155,7 +155,6 @@ namespace AmongUsCapture
             for (var i = 0; i < winningPlayerCount; i++)
             {
                 var wpi = new WinningPlayerData(winnerAddrPtr, memInstance, CurrentOffsets);
-                //var wpi = CurrentOffsets.isEpic ? (WinningPlayerData) memInstance.Read<EpicWinningPlayerData>(winnerAddrPtr, 0, 0) : memInstance.Read<SteamWinningPlayerData>(winnerAddrPtr, 0, 0);
                 winnerAddrPtr += CurrentOffsets.AddPlayerPtr;
                 try
                 {
@@ -190,7 +189,8 @@ namespace AmongUsCapture
                         Name = player.GetPlayerName(),
                         HatId = player.HatId,
                         SkinId = player.SkinId,
-                        PetId = player.PetId
+                        PetId = player.PetId,
+                        VisorId = player.VisorId
                     });
                 }
                 else
@@ -227,13 +227,14 @@ namespace AmongUsCapture
                             Color = player.GetPlayerColor()
                         });
 
-                    if (oldPlayerInfo.HatId != player.HatId || oldPlayerInfo.SkinId != player.SkinId || oldPlayerInfo.PetId != player.PetId)
+                    if (oldPlayerInfo.HatId != player.HatId || oldPlayerInfo.SkinId != player.SkinId || oldPlayerInfo.PetId != player.PetId || oldPlayerInfo.VisorId != player.VisorId)
                         PlayerCosmeticChanged?.Invoke(this, new PlayerCosmeticChangedEventArgs
                         {
                             Name = player.GetPlayerName(),
                             HatId = player.HatId,
                             SkinId = player.SkinId,
-                            PetId = player.PetId
+                            PetId = player.PetId,
+                            VisorId = player.VisorId
                         });
                 }
 
@@ -619,9 +620,10 @@ namespace AmongUsCapture
     public class PlayerCosmeticChangedEventArgs : EventArgs
     {
         public string Name { get; set; }
-        public uint HatId { get; set; }
-        public uint SkinId { get; set; }
-        public uint PetId { get; set; }
+        public string HatId { get; set; }
+        public string SkinId { get; set; }
+        public string PetId { get; set; }
+        public string VisorId { get; set; }
     }
 
     public class PlayerChangedEventArgs : EventArgs

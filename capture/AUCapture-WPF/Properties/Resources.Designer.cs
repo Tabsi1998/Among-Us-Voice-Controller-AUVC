@@ -70,6 +70,42 @@ namespace AUCapture_WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hat.
+        /// </summary>
+        public static string CosmeticHat {
+            get {
+                return ResourceManager.GetString("CosmeticHat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Skin.
+        /// </summary>
+        public static string CosmeticSkin {
+            get {
+                return ResourceManager.GetString("CosmeticSkin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pet.
+        /// </summary>
+        public static string CosmeticPet {
+            get {
+                return ResourceManager.GetString("CosmeticPet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visor.
+        /// </summary>
+        public static string CosmeticVisor {
+            get {
+                return ResourceManager.GetString("CosmeticVisor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ghost channel.
         /// </summary>
         public static string BadgeInGhostChannel {
@@ -771,6 +807,15 @@ namespace AUCapture_WPF.Properties {
         public static string SettingsGeneralTabCheckForUpdate {
             get {
                 return ResourceManager.GetString("SettingsGeneralTabCheckForUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Load offsets for new Among Us versions.
+        /// </summary>
+        public static string SettingsGeneralTabLoadOffsets {
+            get {
+                return ResourceManager.GetString("SettingsGeneralTabLoadOffsets", resourceCulture);
             }
         }
         

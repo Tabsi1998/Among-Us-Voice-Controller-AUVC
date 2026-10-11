@@ -11,9 +11,6 @@ namespace AmongUsCapture.Memory.Structs
     {
         public string Name { get; }
         public int ColorId { get; }
-        public uint HatId { get; }
-        public uint PetId { get; }
-        public uint SkinId { get; }
 
         public bool IsYou { get; }
         public bool IsImpostor { get; }
@@ -35,11 +32,6 @@ namespace AmongUsCapture.Memory.Structs
                     var buffptr = (IntPtr)ptr;
                     Name = MemInstance.ReadString(MemInstance.Read<IntPtr>(baseAddrCopy, pOf.PlayerNameOffset), CurrentOffsets.StringOffsets[0], CurrentOffsets.StringOffsets[1]);
                     ColorId = MemInstance.Read<int>(MemInstance.Read<IntPtr>(baseAddrCopy, pOf.OutfitOffset), oOf.ColorIDOffset);
-                    // TODO: Since IDs are changed from enum to string like "hat_police", renaming or mapping existing svgs to string is required
-                    // TODO: As a workaround just fill with 0 as IDs
-                    HatId = 0;
-                    PetId = 0;
-                    SkinId = 0;
                     IsImpostor = Marshal.ReadByte(buffptr, pOf.IsImposterOffset) == 1;
                     IsDead = Marshal.ReadByte(buffptr, pOf.IsDeadOffset) > 0;
                     IsYou = Marshal.ReadByte(buffptr, pOf.IsYouOffset) == 1;

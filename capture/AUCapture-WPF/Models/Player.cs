@@ -45,6 +45,19 @@ namespace AUCapture_WPF.Models
             }
         }
 
+        private string _cosmetics = "";
+
+        /// <summary>What the player wears in the game, or empty when nothing is known.</summary>
+        public string Cosmetics
+        {
+            get => _cosmetics;
+            set
+            {
+                _cosmetics = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _name;
 
         public string Name

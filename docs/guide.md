@@ -284,13 +284,14 @@ Windows** goes back.
 | General | Language | **Same as Windows**, **Deutsch** or **English** |
 | General | Always copy game code | Copies the lobby code to the clipboard whenever you join a lobby |
 | General | Focus window on connect | Brings the window to the front when a pairing link opens AUVC |
-| General | API Server | Starts a local interface for overlay tools. Leave it off unless a tool asks for it |
+| General | API Server | Starts an interface for overlay tools, reachable from this PC only. Leave it off unless a tool asks for it |
 | General | Always on top | Keeps the AUVC window above other windows |
 | General | Check for new versions | On start, asks GitHub for the list of AUVC releases. When a newer version exists, a line at the top links to the release page. Nothing is downloaded or installed. On by default |
+| General | Load offsets for new Among Us versions | When AUVC does not know the running Among Us, it loads the offsets for it from the AUVC repository on GitHub, without a new AUVC version. Only versions this AUVC does not know yet are taken. On by default |
 | Debug | Debug mode | Opens an extra console window with technical output on the next start |
 | Debug | Open log folder | Opens the folder with AUVC's log files |
 | Debug | Export diagnostics | Saves a zip for whoever helps you: the app's and the bot's logs, the settings, the versions and the bot's checks. Tokens, credentials, pairing codes and your Windows user name in paths are blacked out; in-game names and Discord IDs stay. Nothing is sent anywhere |
-| Debug | Reload offsets | Reads the memory offsets again, including an `index.json` placed in `%AppData%\AmongUsCapture`. Offsets for a new Among Us version usually come with a newer AUVC version |
+| Debug | Reload offsets | Reads the memory offsets again, including an `index.json` placed in `%AppData%\AmongUsCapture`. Offsets for a new Among Us version come from the repository or with a newer AUVC version |
 | Debug | Reset Config | Deletes the app's settings and offers to restart. The bot token stays stored; run **Set up** again afterwards |
 | About | App version | The installed AUVC version, for example `0.1.4-beta` |
 | About | Latest version | A newer AUVC version, *Up to date*, or why it was not checked. On a pre-release you hear of newer pre-releases and releases; on a release, only of releases |

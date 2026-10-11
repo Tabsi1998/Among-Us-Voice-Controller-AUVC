@@ -3424,5 +3424,62 @@
       "NamePlateIDOffset": 0x38,
       "PlayerNameOffset": 0x40,
     }
+  },
+  "615A95C9E09B6FFD45570883CB8459311C2B457533A38B37ED1704D6205AEDF9": {
+    "Description": "v2026.9.29s x64 (Steam build 25134893)",
+    "AmongUsClientOffset": 0x34078C0,
+    "GameDataOffset": 0x344AF48,
+    "MeetingHudOffset": 0x3409CF8,
+    "GameStartManagerOffset": 0x340B9A8,
+    "HudManagerOffset": 0x340C100,
+    "ServerManagerOffset": 0x340DC18,
+    "TempDataOffset": 0x343EB90,
+    "GameOptionsOffset": 0x344BEF8,
+
+    "MeetingHudPtr": [0x3409CF8, 0xB8, 0x0],
+    "MeetingHudCachePtrOffsets": [0x10],
+    "MeetingHudStateOffsets": [0xE0],
+    "GameStateOffsets": [0x34078C0, 0xB8, 0x0, 0xAC],
+    "AllPlayerPtrOffsets": [0x344AF48, 0xB8, 0x0, 0x20],
+    "AllPlayersOffsets": [0x10],
+    "PlayerCountOffsets": [0x18],
+    "ExiledPlayerIdOffsets": [0x3409CF8, 0xB8, 0x0, 0xF8, 0x38],
+    "RawGameOverReasonOffsets": [0x343EB90, 0xB8, 0x10],
+    "WinningPlayersPtrOffsets": [0x343EB90, 0xB8, 0x0],
+    "WinningPlayersOffsets": [0x10],
+    "WinningPlayerCountOffsets": [0x18],
+    "GameCodeOffsets": [0x340B9A8, 0x20, 0xB8, 0x0, 0x70, 0xE0],
+    "PlayRegionOffsets": [0x340DC18, 0x20, 0xB8, 0x0, 0x28, 0x10, 0x10],
+    "PlayMapOffsets": [0x344BEF8, 0xB8, 0x0, 0x28, 0x1C],
+    "StringOffsets": [0x10, 0x14],
+    "AddPlayerPtr": 0x8,
+    "PlayerListPtr": 0x20,
+    "PlayerInfoStructOffsets": {
+      "PlayerIDOffset": 0x38,
+      "OutfitsOffset": [0x58, 0x18, 0x30],
+      "PlayerLevelOffset": 0x60,
+      "DisconnectedOffset": 0x64,
+      "RoleTypeOffset": [0x68, 0x20],
+      "RoleTeamTypeOffset": [0x68, 0x74],
+      "TasksOffset": 0x70,
+      "IsDeadOffset": 0x78,
+      "ObjectOffset": 0x80
+    },
+    "WinningPlayerDataStructOffsets": {
+      "PlayerNameOffset": 0x10,
+      "OutfitOffset": 0x18,
+      "IsYouOffset": 0x20,
+      "IsImposterOffset": 0x21,
+      "IsDeadOffset": 0x22
+    },
+    "PlayerOutfitStructOffsets": {
+      "ColorIDOffset": 0x10,
+      "HatIDOffset": 0x18,
+      "PetIDOffset": 0x20,
+      "SkinIDOffset": 0x28,
+      "VisorIDOffset": 0x30,
+      "NamePlateIDOffset": 0x38,
+      "PlayerNameOffset": 0x40
+    }
   }
 }

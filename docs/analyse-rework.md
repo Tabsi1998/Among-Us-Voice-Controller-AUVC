@@ -1,9 +1,10 @@
 # AUVC – Analyse, Rework- und Erweiterungsvorschläge
 
 Stand: Oktober 2026, `main` bei `08fab77` (#197). Ein Blick von außen auf das
-ganze Repository, mit dem, was in dieser Runde geändert wurde, und dem, was ich
-als Nächstes tun würde. Nichts in der Liste der Altlasten ist gelöscht; das
-entscheidest du.
+ganze Repository, mit dem, was geändert wurde, und dem, was ich als Nächstes tun
+würde. Die Altlasten unten sind nach deiner Freigabe in Runde 2 entfernt; was
+Runde 2 sonst gebracht hat, steht am Ende unter
+[Nachtrag: Runde 2](#nachtrag-runde-2).
 
 ## Kurz
 
@@ -97,7 +98,7 @@ laufenden Among Us, Discord, der Installer (Inno Setup).
 7. **Ein Mensch für alle Live-Tests.** Jede Änderung am Leser oder an den
    Discord-Abläufen wartet auf einen Abend mit voller Lobby.
 
-## Altlasten (nur aufgelistet)
+## Altlasten (in Runde 2 entfernt)
 
 | Was | Wo | Warum es weg könnte | Risiko beim Löschen |
 | --- | --- | --- | --- |
@@ -116,7 +117,7 @@ laufenden Among Us, Discord, der Installer (Inno Setup).
 | `isEpic` | `GameOffsets` | nirgends ausgewertet | keins |
 | Bootstrap-Prüfung | `scripts/verify_bootstrap.py` | jetzt repariert, aber `verify_repository.py` deckt fast alles ab | keins; Zeile in `UPSTREAM.md` mit ändern |
 | Renovate-Konfiguration | `bot/renovate.json` | Updates kommen über Dependabot | keins |
-| Planungsordner dieser Runde | `plan/` | nur für diese Sitzung | keins |
+| Planungsordner der ersten Runde | `plan/` | nur für diese Sitzung | keins |
 
 ## Among Us 2026.9.29, 64 Bit (#198)
 
@@ -219,3 +220,43 @@ Diagnose-Zip oben die Prüfsumme, 32/64 Bit und die geladenen Offsets nennt.
     Lautstärke pro Hörer); nicht verfolgen.
 14. **Tray und Autostart**, nur nach ausdrücklicher Wahl (steht schon in #21).
 15. **winget, dann Store** nach [release-checklist.md](release-checklist.md).
+
+## Nachtrag: Runde 2
+
+Mit deiner `GameAssembly.dll` und `global-metadata.dat` von 2026.9.29:
+
+- **#198 erledigt bis auf den Live-Test.** Il2CppDumper (v31-Metadaten) lief
+  hier, `scripts/offsets_from_il2cpp.py` hat daraus den Eintrag gebaut, und er
+  steht jetzt in `capture/Offsets.json`. Gegenprobe: Die BetterCrewLink-Signaturen
+  für V18 finden in derselben DLL genau dieselben fünf Klassenadressen
+  (AmongUsClient `0x34078C0`, GameData `0x344AF48`, MeetingHud `0x3409CF8`,
+  GameOptionsManager `0x344BEF8`, ServerManager-Klasse `0x3455ED0`). Jedes
+  Feld ist im Dump nachgeschlagen.
+- **Neu im Skript:** `GameStartManager`, `HudManager` und `ServerManager`
+  halten ihre Instanz in `DestroyableSingleton<T>`, für das es in v31 keine
+  TypeInfo gibt. Die Kette geht über die MethodInfo von `get_Instance` und ihr
+  `klass` (`[MethodInfo, 0x20, 0xB8, 0x0, …]`).
+- **Offsets ohne Release:** Bei unbekanntem Spiel lädt die App
+  `capture/Offsets.json` von `main` und übernimmt nur unbekannte Versionen
+  (`OffsetManager.FetchMissingAsync`, sechs Tests). Einstellung *Offsets für
+  neue Among-Us-Versionen laden*, standardmäßig an; in `docs/privacy.md` und in
+  beiden Anleitungen beschrieben.
+- **API-Server** nur noch auf `127.0.0.1` (Test mit Mutationsprobe).
+- **Kosmetik:** Hut, Skin, Haustier und Visier werden als Strings gelesen und
+  unter dem Spieler als Text angezeigt (*Hut Police · Haustier Ellie*). Bilder
+  dazu gibt es nicht: die alten Zahlenbilder aus 2021 passen nicht zu den
+  heutigen Namen, und Among-Us-Bilder dürfen nicht nachgebaut werden. Die
+  Originale kämen nur aus den Spieldateien (Addressables), was eine eigene
+  Entscheidung wäre.
+
+### Gefunden, nicht geändert
+
+- **Meeting-Zustände haben sich verschoben.** Im aktuellen Spiel ist
+  `MeetingHud.MeetingStates` *Animating 0, Discussion 1, NotVoted 2, Voted 3,
+  Results 4, Proceeding 5*. Der Leser wertet `< 4` als Meeting, also zählt die
+  Ergebnisanzeige schon als Aufgaben-Phase. So lief es auch in deinen
+  bisherigen Live-Tests (die Enum-Reihe gibt es schon länger), deshalb ist es
+  unverändert. Wenn sich Spieler beim Ergebnis zu früh stummgeschaltet fühlen,
+  ist das die Stelle (`GameMemReader.GetGameState`).
+- `GameOverReason` hat neue Namen (CrewmatesByVote …) und zwei neue Werte für
+  Hide and Seek (7, 8); die Reihenfolge 0–6 ist gleich geblieben.

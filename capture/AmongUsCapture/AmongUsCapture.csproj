@@ -24,7 +24,6 @@
 
 
   <ItemGroup>
-    <EmbeddedResource Remove="UserForm.resx" />
   </ItemGroup>
 
   <ItemGroup>

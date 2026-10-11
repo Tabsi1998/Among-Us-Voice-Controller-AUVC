@@ -40,10 +40,11 @@ class Layout:
     string_chars: int
     dictionary_entries: int  # Dictionary<TKey, TValue>._entries
     first_entry_value: int   # value of _entries[0] for an int-sized key, from the array start
+    method_klass: int        # MethodInfo::klass
 
 
-X86 = Layout(4, 0x5C, 0x8, 0x8, 0xC, 0x10, 0x8, 0xC, 0xC, 0x1C)
-X64 = Layout(8, 0xB8, 0x10, 0x10, 0x18, 0x20, 0x10, 0x14, 0x18, 0x30)
+X86 = Layout(4, 0x5C, 0x8, 0x8, 0xC, 0x10, 0x8, 0xC, 0xC, 0x1C, 0x10)
+X64 = Layout(8, 0xB8, 0x10, 0x10, 0x18, 0x20, 0x10, 0x14, 0x18, 0x30, 0x20)
 
 # Class and field names as Among Us has used them; the first one present wins.
 PLAYER_INFO = ("NetworkedPlayerInfo", "GameData.PlayerInfo", "PlayerInfo")
@@ -98,9 +99,14 @@ def parse_dump(text: str) -> dict[str, Klass]:
 
 
 def parse_script(text: str) -> dict[str, int]:
-    """TypeInfo addresses by class name, relative to GameAssembly.dll."""
+    """TypeInfo addresses by class name, and MethodInfo addresses as "Method$…",
+    relative to GameAssembly.dll."""
     data = json.loads(text)
     found = {}
+    for item in data.get("ScriptMetadataMethod", []):
+        name = item.get("Name", "")
+        if name.endswith(".get_Instance()"):
+            found[name] = int(item["Address"])
     for item in data.get("ScriptMetadata", []):
         name = item.get("Name", "")
         if name.endswith("_TypeInfo"):
@@ -149,17 +155,26 @@ class Reader:
                         return self.type_infos[name], klass.statics[wanted]
         raise Missing(f"static {' / '.join(fields)} of {names[0]}")
 
-    def instance(self, name: str) -> tuple[int, int]:
-        """Where a singleton's Instance is: its own static, or DestroyableSingleton<T>'s."""
+    def instance(self, name: str) -> tuple[int, list[int]]:
+        """Where a singleton's Instance is, as an address and the steps to it.
+
+        A class with its own static Instance is reached through its TypeInfo. A
+        DestroyableSingleton<T> keeps Instance in the generic class, which has no
+        TypeInfo of its own in script.json; its get_Instance MethodInfo leads to it.
+        """
+        statics = self.layout.static_fields
         try:
-            return self.static((name,), ("Instance", "_instance"))
+            address, offset = self.static((name,), ("Instance", "_instance", "<Instance>k__BackingField"))
+            return address, [statics, offset]
         except Missing:
-            generic = f"DestroyableSingleton<{name}>"
             template = self.classes.get("DestroyableSingleton<T>")
-            if generic in self.type_infos and template and "_instance" in template.statics:
-                return self.type_infos[generic], template.statics["_instance"]
-            if generic in self.type_infos and template and "Instance" in template.statics:
-                return self.type_infos[generic], template.statics["Instance"]
+            offset = next((template.statics[f] for f in ("_instance", "Instance") if template and f in template.statics), None)
+            generic = f"DestroyableSingleton<{name}>"
+            if offset is not None and generic in self.type_infos:
+                return self.type_infos[generic], [statics, offset]
+            method = f"Method${generic}.get_Instance()"
+            if offset is not None and method in self.type_infos:
+                return self.type_infos[method], [self.layout.method_klass, statics, offset]
             raise Missing(f"Instance of {name}")
 
     def take(self, what, fallback=0):
@@ -176,13 +191,13 @@ def build_entry(classes: dict[str, Klass], type_infos: dict[str, int], layout: L
     L = layout
     take = r.take
 
-    client, client_static = take(lambda: r.instance("AmongUsClient"), (0, 0))
-    data, data_static = take(lambda: r.instance("GameData"), (0, 0))
-    meeting, meeting_static = take(lambda: r.instance("MeetingHud"), (0, 0))
-    start, start_static = take(lambda: r.instance("GameStartManager"), (0, 0))
-    hud, _ = take(lambda: r.instance("HudManager"), (0, 0))
-    server, server_static = take(lambda: r.instance("ServerManager"), (0, 0))
-    options, options_static = take(lambda: r.instance("GameOptionsManager"), (0, 0))
+    client, client_steps = take(lambda: r.instance("AmongUsClient"), (0, [0, 0]))
+    data, data_steps = take(lambda: r.instance("GameData"), (0, [0, 0]))
+    meeting, meeting_steps = take(lambda: r.instance("MeetingHud"), (0, [0, 0]))
+    start, start_steps = take(lambda: r.instance("GameStartManager"), (0, [0, 0]))
+    hud, _ = take(lambda: r.instance("HudManager"), (0, [0, 0]))
+    server, server_steps = take(lambda: r.instance("ServerManager"), (0, [0, 0]))
+    options, options_steps = take(lambda: r.instance("GameOptionsManager"), (0, [0, 0]))
     result, reason_static = take(lambda: r.static(END_RESULT, ("CachedGameOverReason", "EndReason")), (0, 0))
     _, winners_static = take(lambda: r.static(END_RESULT, ("CachedWinners", "winners")), (0, 0))
 
@@ -190,7 +205,7 @@ def build_entry(classes: dict[str, Klass], type_infos: dict[str, int], layout: L
     outfit = lambda *names: take(lambda: r.field(OUTFIT, names))
     winner = lambda *names: take(lambda: r.field(WINNER, names))
     role = take(lambda: r.field(PLAYER_INFO, ("Role", "_role")))
-    map_id = take(lambda: r.field((newest_options(classes) or "NormalGameOptionsV*",), ("MapId", "mapId")))
+    map_id = take(lambda: r.field((newest_options(classes) or "NormalGameOptionsV*",), ("MapId", "mapId", "<MapId>k__BackingField")))
     region_name = take(lambda: r.field(REGION, ("<Name>k__BackingField", "name", "Name")), L.object_header)
     statics = L.static_fields
 
@@ -204,28 +219,28 @@ def build_entry(classes: dict[str, Klass], type_infos: dict[str, int], layout: L
         "ServerManagerOffset": server,
         "TempDataOffset": result,
         "GameOptionsOffset": options,
-        "MeetingHudPtr": [meeting, statics, meeting_static],
+        "MeetingHudPtr": [meeting, *meeting_steps],
         "MeetingHudCachePtrOffsets": [L.object_header],
         "MeetingHudStateOffsets": [take(lambda: r.field(("MeetingHud",), ("state",)))],
-        "GameStateOffsets": [client, statics, client_static,
+        "GameStateOffsets": [client, *client_steps,
                              take(lambda: r.field(("AmongUsClient", "InnerNetClient"), ("GameState", "gameState")))],
-        "AllPlayerPtrOffsets": [data, statics, data_static, take(lambda: r.field(("GameData",), ("AllPlayers",)))],
+        "AllPlayerPtrOffsets": [data, *data_steps, take(lambda: r.field(("GameData",), ("AllPlayers",)))],
         "AllPlayersOffsets": [L.list_items],
         "PlayerCountOffsets": [L.list_size],
-        "ExiledPlayerIdOffsets": [meeting, statics, meeting_static,
+        "ExiledPlayerIdOffsets": [meeting, *meeting_steps,
                                   take(lambda: r.field(("MeetingHud",), ("exiledPlayer",))), player("PlayerId")],
         "RawGameOverReasonOffsets": [result, statics, reason_static],
         "WinningPlayersPtrOffsets": [result, statics, winners_static],
         "WinningPlayersOffsets": [L.list_items],
         "WinningPlayerCountOffsets": [L.list_size],
-        "GameCodeOffsets": [start, statics, start_static,
+        "GameCodeOffsets": [start, *start_steps,
                             take(lambda: r.field(("GameStartManager",), ("GameRoomNameCode",))),
                             take(lambda: r.field(TEXT, ("m_text",)))],
-        "PlayRegionOffsets": [server, statics, server_static,
+        "PlayRegionOffsets": [server, *server_steps,
                               take(lambda: r.field(("ServerManager",), ("CurrentRegion", "currentRegion",
                                                                        "<CurrentRegion>k__BackingField"))),
                               region_name, L.string_length],
-        "PlayMapOffsets": [options, statics, options_static,
+        "PlayMapOffsets": [options, *options_steps,
                            take(lambda: r.field(("GameOptionsManager",), ("currentGameOptions",
                                                                          "<CurrentGameOptions>k__BackingField"))),
                            map_id],
@@ -266,7 +281,7 @@ def build_entry(classes: dict[str, Klass], type_infos: dict[str, int], layout: L
 def newest_options(classes: dict[str, Klass]) -> str | None:
     versions = [(int(m.group(1)), name) for name in classes
                 if (m := re.fullmatch(r"NormalGameOptionsV(\d+)", name)) and
-                ("MapId" in classes[name].fields or "mapId" in classes[name].fields)]
+                any(f in classes[name].fields for f in ("MapId", "mapId", "<MapId>k__BackingField"))]
     return max(versions)[1] if versions else None
 
 

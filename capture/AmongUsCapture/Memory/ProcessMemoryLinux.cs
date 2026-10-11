@@ -167,17 +167,6 @@ namespace AmongUsCapture
             return Encoding.Unicode.GetString(rawString);
         }
 
-        public override IntPtr[] ReadArray(IntPtr address, int size)
-        {
-            byte[] bytes = Read(address, size * 4);
-            IntPtr[] ints = new IntPtr[size];
-            for (int i = 0; i < size; i++)
-            {
-                ints[i] = (IntPtr)BitConverter.ToUInt32(bytes, i * 4);
-            }
-
-            return ints;
-        }
 
         /*
          * Compared to the Windows version of the ProcessMemory module, Linux requires some extra marshalling.
