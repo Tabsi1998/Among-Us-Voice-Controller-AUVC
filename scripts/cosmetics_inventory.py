@@ -37,7 +37,9 @@ def catalog_keys(folder: Path) -> list[str]:
             data = json.loads(catalog.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        for key in data.get("m_InternalIds", []) + data.get("m_Keys", []) if isinstance(data, dict) else []:
+        if not isinstance(data, dict):
+            continue
+        for key in data.get("m_InternalIds", []) + data.get("m_Keys", []):
             if isinstance(key, str) and COSMETIC.search(key):
                 keys.add(key)
     return sorted(keys)[:2000]

@@ -1,0 +1,37 @@
+{
+  "summary": "Backend-only testing of the AUVC Go bot stats-per-user feature, leaderboards, migration 0008, and the standalone cosmetics_inventory.py script. Ran gofmt, go vet, full go test ./... (all packages pass), the project's Python unittest suite (64 tests), verify_repository.py, and a new pytest suite that exercises migration 0008 data preservation and the standalone cosmetics script. Added one extra Go edge-case test (unlinked rounds folded into account when later linked under a different case) which also passes. No code changes to product code.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/pytest/test_migration_and_cosmetics.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/bot/pkg/storage/sqlite/stats_edge_test.go"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "stats.go RecordRound/foldNameIntoUser is correctly transactional and uses COLLATE NOCASE on player_link lookup plus lowercase for name:<key>, so case-folding is consistent on both the lookup and the fold step.",
+    "PlayerStats query appends ', last_name LIMIT ?' as a tiebreaker on top of the switch's ORDER BY - correct and deterministic for all three boards.",
+    "Migration 0008 preserves rounds/wins/impostor and sets impostor_wins to default 0 (expected; feature is new). last_name is seeded from the historical player_name so the leaderboard still shows a sensible name right after upgrade.",
+    "handleStats escapes names via EscapeMarkdown and appends 🔗 for linked accounts - prevents markdown injection via in-game names.",
+    "cosmetics_inventory.py has zero repo imports, uses only stdlib + optional UnityPy, and runs from any cwd (verified from '/'). Missing aa folder yields clear argparse error (exit 2).",
+    "Minor nit (not fixed): catalog_keys() uses isinstance check in a somewhat awkward conditional expression `data.get(...) + data.get(...) if isinstance(data, dict) else []` which only works because `data` is checked after the concat; if `data` is not a dict, `data.get` would AttributeError. In practice `json.loads` of a non-object yields non-dict and would raise AttributeError before the isinstance check runs. Consider rewriting as early guard: `if not isinstance(data, dict): continue`. Low priority."
+  ],
+  "updated_files": [
+    "/app/bot/pkg/storage/sqlite/stats_edge_test.go (new test only, no product code changed)",
+    "/app/test_reports/pytest/test_migration_and_cosmetics.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "N/A"},
+  "test_credentials": "none required",
+  "seed_data_creation": "pytest test builds a synthetic Among Us folder (Among Us_Data/StreamingAssets/aa with catalog.json + dummy .bundle) and an in-memory sqlite DB walked through migrations 0001-0008 - all torn down with TemporaryDirectory.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Go toolchain at /usr/local/go/bin. Run `cd /app/bot && export PATH=/usr/local/go/bin:$PATH && gofmt -l . && go vet ./... && go test ./... -count=1`. Python regression: `cd /app && python3 -m unittest discover -s scripts -p 'test_*.py'` and `python3 -m pytest test_reports/pytest/`. verify_repository.py also passes. cosmetics_inventory.py has an awkward isinstance check (see code review); not a bug today but worth tightening.",
+  "rca of the issue": "Not applicable - all requested features verified working. The user's original cosmetics_inventory.py failure was a user-local path issue (running from C:\\Users\\fabia without a repo checkout); the current script is self-contained and the updated docstring documents fetching it alone via raw GitHub URL. Verified by copying the script to an arbitrary dir and running with cwd='/' - exits 0 and produces valid JSON."
+}
