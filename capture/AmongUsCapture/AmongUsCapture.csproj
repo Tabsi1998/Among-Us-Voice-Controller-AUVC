@@ -33,10 +33,10 @@
          critical advisory (GHSA-rxg9-xrhp-64gj). The modern ConfigurationManager
          has no such dependency, so pinning it directly removes the vulnerable
          package instead of taking an untested Config.Net major. -->
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.12" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.13" />
     <PackageReference Include="Config.Net.Json" Version="4.15.0" />
     <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
-    <PackageReference Include="NLog" Version="6.2.1" />
+    <PackageReference Include="NLog" Version="6.2.2" />
   </ItemGroup>
 
   <ItemGroup>
